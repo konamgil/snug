@@ -1,10 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Use Pino logger
+  app.useLogger(app.get(Logger));
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -29,7 +33,9 @@ async function bootstrap() {
   const port = configService.get<number>('API_PORT', 4000);
 
   await app.listen(port);
-  console.log(`🚀 Snug API is running on: http://localhost:${port}`);
+
+  const logger = app.get(Logger);
+  logger.log(`🚀 Snug API is running on: http://localhost:${port}`);
 }
 
 bootstrap();
