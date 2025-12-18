@@ -1,0 +1,50 @@
+{
+  "name": "snug",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Room rental platform for foreigners",
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@snug/web",
+    "dev:api": "turbo dev --filter=@snug/api",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:generate": "turbo db:generate",
+    "db:push": "turbo db:push",
+    "db:studio": "turbo db:studio",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.4.2",
+    "turbo": "^2.6.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.33.0"
+  },
+  "lint-staged": {
+    "apps/web/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "apps/api/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "packages/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "packageManager": "pnpm@10.26.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

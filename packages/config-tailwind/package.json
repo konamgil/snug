@@ -1,0 +1,13 @@
+{
+  "name": "@snug/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "./tailwind.config.ts",
+  "exports": {
+    ".": "./tailwind.config.ts"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

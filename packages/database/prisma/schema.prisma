@@ -1,0 +1,295 @@
+// Snug - Room Rental Platform Database Schema
+// Using Supabase (PostgreSQL) with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  GUEST
+  HOST
+  ADMIN
+}
+
+enum RoomStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  DELETED
+}
+
+enum RoomType {
+  STUDIO
+  ONE_ROOM
+  TWO_ROOM
+  SHARE_HOUSE
+  OFFICETEL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  TOSS
+  BANK_TRANSFER
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  nameKo        String?   // Korean name for hosts
+  phone         String?
+  avatar        String?
+  bio           String?
+  role          UserRole  @default(GUEST)
+  language      String    @default("en") // Preferred language
+  nationality   String?   // For guests
+  verified      Boolean   @default(false)
+
+  // Supabase Auth
+  supabaseId    String?   @unique
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  rooms         Room[]
+  bookings      Booking[]
+  sentMessages  Message[]    @relation("SentMessages")
+  chatRooms     ChatRoom[]   @relation("ChatParticipants")
+  reviews       Review[]     @relation("ReviewAuthor")
+  receivedReviews Review[]   @relation("ReviewTarget")
+  favorites     Favorite[]
+
+  @@map("users")
+}
+
+model Room {
+  id            String      @id @default(cuid())
+  title         String
+  titleKo       String?     // Korean title
+  description   String
+  descriptionKo String?     // Korean description
+
+  // Pricing
+  price         Int         // Monthly rent (KRW)
+  deposit       Int         // Security deposit (KRW)
+  maintenanceFee Int?       // Monthly maintenance fee
+
+  // Location
+  address       String
+  addressDetail String?
+  city          String      @default("Seoul")
+  district      String?     // 구 (Gangnam-gu, etc.)
+  neighborhood  String?     // 동 (Yeoksam-dong, etc.)
+  latitude      Float?
+  longitude     Float?
+  nearestStation String?    // Nearest subway station
+  walkingMinutes Int?       // Minutes to station
+
+  // Room Details
+  roomType      RoomType    @default(ONE_ROOM)
+  size          Float?      // Square meters
+  floor         Int?
+  totalFloors   Int?
+  direction     String?     // South-facing, etc.
+  builtYear     Int?
+
+  // Amenities & Features
+  images        String[]
+  amenities     String[]    // ["wifi", "aircon", "washer", ...]
+  rules         String[]    // House rules
+
+  // Availability
+  availableFrom DateTime?
+  minimumStay   Int?        @default(1) // Minimum months
+  maximumStay   Int?        // Maximum months
+
+  status        RoomStatus  @default(DRAFT)
+  viewCount     Int         @default(0)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  hostId        String
+  host          User        @relation(fields: [hostId], references: [id])
+  bookings      Booking[]
+  reviews       Review[]
+  favorites     Favorite[]
+
+  @@index([status, city])
+  @@index([hostId])
+  @@index([latitude, longitude])
+  @@map("rooms")
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+
+  checkIn       DateTime
+  checkOut      DateTime
+  totalMonths   Int
+
+  // Pricing at time of booking
+  monthlyPrice  Int
+  deposit       Int
+  totalPrice    Int           // Total amount charged
+
+  status        BookingStatus @default(PENDING)
+
+  // Guest info
+  guestCount    Int           @default(1)
+  specialRequests String?
+
+  // Cancellation
+  cancelledAt   DateTime?
+  cancelReason  String?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  roomId        String
+  room          Room          @relation(fields: [roomId], references: [id])
+  guestId       String
+  guest         User          @relation(fields: [guestId], references: [id])
+  payment       Payment?
+  chatRoom      ChatRoom?
+
+  @@index([status])
+  @@index([guestId])
+  @@index([roomId])
+  @@map("bookings")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+
+  amount        Int
+  currency      String        @default("KRW")
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+
+  // External payment info
+  transactionId String?       // Stripe/Toss transaction ID
+  receiptUrl    String?
+
+  // Refund info
+  refundedAt    DateTime?
+  refundAmount  Int?
+  refundReason  String?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  bookingId     String        @unique
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model ChatRoom {
+  id            String    @id @default(cuid())
+
+  // Can be tied to a booking or just general inquiry
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Last activity for sorting
+  lastMessageAt DateTime?
+
+  // Relations
+  bookingId     String?   @unique
+  booking       Booking?  @relation(fields: [bookingId], references: [id])
+  participants  User[]    @relation("ChatParticipants")
+  messages      Message[]
+
+  @@map("chat_rooms")
+}
+
+model Message {
+  id            String    @id @default(cuid())
+  content       String
+
+  // Message type (text, image, system)
+  type          String    @default("text")
+
+  // Read status
+  readAt        DateTime?
+
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  chatRoomId    String
+  chatRoom      ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  senderId      String
+  sender        User      @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([chatRoomId, createdAt])
+  @@map("messages")
+}
+
+model Review {
+  id            String    @id @default(cuid())
+
+  rating        Int       // 1-5
+  comment       String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  roomId        String
+  room          Room      @relation(fields: [roomId], references: [id])
+  authorId      String
+  author        User      @relation("ReviewAuthor", fields: [authorId], references: [id])
+  targetId      String    // Host being reviewed
+  target        User      @relation("ReviewTarget", fields: [targetId], references: [id])
+
+  @@unique([roomId, authorId]) // One review per room per user
+  @@map("reviews")
+}
+
+model Favorite {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  roomId        String
+  room          Room      @relation(fields: [roomId], references: [id])
+
+  @@unique([userId, roomId])
+  @@map("favorites")
+}
