@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
 
   server: {
     // For development with live reload
-    url: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : undefined,
+    url: process.env.NODE_ENV === 'development' ? 'http://localhost:5757' : undefined,
     cleartext: true,
   },
 

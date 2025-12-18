@@ -9,7 +9,10 @@
       "Bash(pnpm create:*)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(pnpm prepare)"
+      "Bash(pnpm prepare)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
