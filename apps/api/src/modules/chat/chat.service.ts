@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service';
+import { ChatRepository } from './chat.repository';
 
 interface JwtPayload {
   sub: string;
@@ -11,7 +11,7 @@ interface JwtPayload {
 @Injectable()
 export class ChatService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly chatRepository: ChatRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -23,97 +23,27 @@ export class ChatService {
   }
 
   async verifyRoomAccess(roomId: string, userId: string): Promise<boolean> {
-    const chatRoom = await this.prisma.chatRoom.findFirst({
-      where: {
-        id: roomId,
-        participants: {
-          some: { id: userId },
-        },
-      },
-    });
-
+    const chatRoom = await this.chatRepository.findRoomByIdAndUser(roomId, userId);
     return !!chatRoom;
   }
 
   async getRecentMessages(roomId: string, limit = 50) {
-    return this.prisma.message.findMany({
-      where: { chatRoomId: roomId },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
+    return this.chatRepository.findMessages(roomId, limit);
   }
 
   async createMessage(roomId: string, senderId: string, content: string) {
-    return this.prisma.message.create({
-      data: {
-        chatRoomId: roomId,
-        senderId,
-        content,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
+    return this.chatRepository.createMessage({
+      chatRoomId: roomId,
+      senderId,
+      content,
     });
   }
 
   async markMessageAsRead(messageId: string) {
-    return this.prisma.message.update({
-      where: { id: messageId },
-      data: { readAt: new Date() },
-    });
+    return this.chatRepository.markMessageAsRead(messageId);
   }
 
   async getUserChatRooms(userId: string) {
-    return this.prisma.chatRoom.findMany({
-      where: {
-        participants: {
-          some: { id: userId },
-        },
-      },
-      include: {
-        participants: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
-        booking: {
-          include: {
-            room: {
-              select: {
-                id: true,
-                title: true,
-                images: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        messages: {
-          _count: 'desc',
-        },
-      },
-    });
+    return this.chatRepository.findUserChatRooms(userId);
   }
 }

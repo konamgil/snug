@@ -25,6 +25,17 @@
     "db:studio": {
       "cache": false,
       "persistent": true
+    },
+    "deps:check": {
+      "dependsOn": ["^deps:check"],
+      "cache": false
+    },
+    "semgrep": {
+      "cache": false
+    },
+    "arch:check": {
+      "dependsOn": ["deps:check", "semgrep"],
+      "cache": false
     }
   }
 }

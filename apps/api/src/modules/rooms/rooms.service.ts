@@ -1,231 +1,65 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { RoomsRepository } from './rooms.repository';
 import { CreateRoomDto, UpdateRoomDto, SearchRoomsDto } from './dto';
 
 @Injectable()
 export class RoomsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly roomsRepository: RoomsRepository) {}
 
-  async create(hostId: string, data: CreateRoomDto) {
-    return this.prisma.room.create({
-      data: {
-        ...data,
-        hostId,
-        status: 'DRAFT',
-      },
-      include: {
-        host: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
-    });
+  async create(hostId: string, dto: CreateRoomDto) {
+    return this.roomsRepository.create(hostId, dto);
   }
 
   async findAll(query: SearchRoomsDto) {
-    const { keyword, type, minPrice, maxPrice, page = 1, limit = 20 } = query;
-
-    const where = {
-      status: 'ACTIVE' as const,
-      ...(keyword && {
-        OR: [
-          { title: { contains: keyword, mode: 'insensitive' as const } },
-          { description: { contains: keyword, mode: 'insensitive' as const } },
-          { address: { contains: keyword, mode: 'insensitive' as const } },
-        ],
-      }),
-      ...(type && { type: type as CreateRoomDto['type'] }),
-      ...(minPrice !== undefined && { price: { gte: minPrice } }),
-      ...(maxPrice !== undefined && { price: { lte: maxPrice } }),
-    };
-
-    const [rooms, total] = await Promise.all([
-      this.prisma.room.findMany({
-        where,
-        include: {
-          host: {
-            select: {
-              id: true,
-              name: true,
-              avatar: true,
-            },
-          },
-          _count: {
-            select: {
-              reviews: true,
-              favorites: true,
-            },
-          },
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.room.count({ where }),
-    ]);
-
-    return {
-      data: rooms,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return this.roomsRepository.findMany(query);
   }
 
   async findOne(id: string) {
-    const room = await this.prisma.room.findUnique({
-      where: { id },
-      include: {
-        host: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            createdAt: true,
-          },
-        },
-        reviews: {
-          include: {
-            guest: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        },
-        _count: {
-          select: {
-            reviews: true,
-            favorites: true,
-          },
-        },
-      },
-    });
-
+    const room = await this.roomsRepository.findById(id);
     if (!room) {
       throw new NotFoundException('Room not found');
     }
-
     return room;
   }
 
   async findByHost(hostId: string) {
-    return this.prisma.room.findMany({
-      where: { hostId },
-      include: {
-        _count: {
-          select: {
-            bookings: true,
-            reviews: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.roomsRepository.findByHostId(hostId);
   }
 
-  async update(id: string, userId: string, data: UpdateRoomDto) {
-    const room = await this.prisma.room.findUnique({
-      where: { id },
-    });
-
-    if (!room) {
-      throw new NotFoundException('Room not found');
-    }
-
-    if (room.hostId !== userId) {
-      throw new ForbiddenException('You can only update your own rooms');
-    }
-
-    return this.prisma.room.update({
-      where: { id },
-      data,
-      include: {
-        host: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
-    });
+  async update(id: string, userId: string, dto: UpdateRoomDto) {
+    await this.verifyOwnership(id, userId);
+    return this.roomsRepository.update(id, dto);
   }
 
   async remove(id: string, userId: string) {
-    const room = await this.prisma.room.findUnique({
-      where: { id },
-    });
-
-    if (!room) {
-      throw new NotFoundException('Room not found');
-    }
-
-    if (room.hostId !== userId) {
-      throw new ForbiddenException('You can only delete your own rooms');
-    }
-
-    return this.prisma.room.delete({
-      where: { id },
-    });
+    await this.verifyOwnership(id, userId);
+    await this.roomsRepository.delete(id);
+    return { deleted: true };
   }
 
   async toggleFavorite(roomId: string, userId: string) {
-    const existing = await this.prisma.favorite.findUnique({
-      where: {
-        userId_roomId: {
-          userId,
-          roomId,
-        },
-      },
-    });
+    // Verify room exists
+    await this.findOne(roomId);
+
+    const existing = await this.roomsRepository.findFavorite(userId, roomId);
 
     if (existing) {
-      await this.prisma.favorite.delete({
-        where: { id: existing.id },
-      });
+      await this.roomsRepository.removeFavorite(existing.id);
       return { favorited: false };
     }
 
-    await this.prisma.favorite.create({
-      data: {
-        userId,
-        roomId,
-      },
-    });
-
+    await this.roomsRepository.addFavorite(userId, roomId);
     return { favorited: true };
   }
 
   async getFavorites(userId: string) {
-    const favorites = await this.prisma.favorite.findMany({
-      where: { userId },
-      include: {
-        room: {
-          include: {
-            host: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.roomsRepository.findUserFavorites(userId);
+  }
 
-    return favorites.map((f) => f.room);
+  private async verifyOwnership(roomId: string, userId: string): Promise<void> {
+    const isOwner = await this.roomsRepository.isOwnedBy(roomId, userId);
+    if (!isOwner) {
+      throw new ForbiddenException('You can only modify your own rooms');
+    }
   }
 }

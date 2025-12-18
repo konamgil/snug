@@ -4,17 +4,15 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { BookingsRepository } from './bookings.repository';
 import { CreateBookingDto, UpdateBookingStatusDto } from './dto';
 
 @Injectable()
 export class BookingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly bookingsRepository: BookingsRepository) {}
 
   async create(guestId: string, data: CreateBookingDto) {
-    const room = await this.prisma.room.findUnique({
-      where: { id: data.roomId },
-    });
+    const room = await this.bookingsRepository.findRoomById(data.roomId);
 
     if (!room) {
       throw new NotFoundException('Room not found');
@@ -36,23 +34,11 @@ export class BookingsService {
     }
 
     // Check for overlapping bookings
-    const overlapping = await this.prisma.booking.findFirst({
-      where: {
-        roomId: data.roomId,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-        OR: [
-          {
-            AND: [{ checkIn: { lte: checkIn } }, { checkOut: { gt: checkIn } }],
-          },
-          {
-            AND: [{ checkIn: { lt: checkOut } }, { checkOut: { gte: checkOut } }],
-          },
-          {
-            AND: [{ checkIn: { gte: checkIn } }, { checkOut: { lte: checkOut } }],
-          },
-        ],
-      },
-    });
+    const overlapping = await this.bookingsRepository.findOverlappingBooking(
+      data.roomId,
+      checkIn,
+      checkOut,
+    );
 
     if (overlapping) {
       throw new BadRequestException('Room is not available for selected dates');
@@ -62,105 +48,25 @@ export class BookingsService {
     const months = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24 * 30));
     const totalPrice = room.price * months + room.deposit;
 
-    // Create booking with chat room
-    const booking = await this.prisma.booking.create({
-      data: {
-        roomId: data.roomId,
-        guestId,
-        checkIn,
-        checkOut,
-        totalPrice,
-        status: 'PENDING',
-        chatRoom: {
-          create: {
-            participants: {
-              connect: [{ id: guestId }, { id: room.hostId }],
-            },
-          },
-        },
-      },
-      include: {
-        room: {
-          include: {
-            host: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-        },
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        chatRoom: true,
-      },
+    return this.bookingsRepository.create({
+      roomId: data.roomId,
+      guestId,
+      hostId: room.hostId,
+      checkIn,
+      checkOut,
+      totalPrice,
     });
-
-    return booking;
   }
 
   async findAll(userId: string, role: 'guest' | 'host') {
-    const where = role === 'guest' ? { guestId: userId } : { room: { hostId: userId } };
-
-    return this.prisma.booking.findMany({
-      where,
-      include: {
-        room: {
-          include: {
-            host: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-        },
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        payment: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    if (role === 'guest') {
+      return this.bookingsRepository.findByGuestId(userId);
+    }
+    return this.bookingsRepository.findByHostId(userId);
   }
 
   async findOne(id: string, userId: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-      include: {
-        room: {
-          include: {
-            host: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-        },
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        payment: true,
-        chatRoom: true,
-      },
-    });
+    const booking = await this.bookingsRepository.findById(id);
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
@@ -175,12 +81,7 @@ export class BookingsService {
   }
 
   async updateStatus(id: string, userId: string, data: UpdateBookingStatusDto) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-      include: {
-        room: true,
-      },
-    });
+    const booking = await this.bookingsRepository.findByIdWithRoom(id);
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
@@ -199,27 +100,11 @@ export class BookingsService {
       throw new ForbiddenException('Access denied');
     }
 
-    return this.prisma.booking.update({
-      where: { id },
-      data: { status: data.status },
-      include: {
-        room: true,
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
-    });
+    return this.bookingsRepository.updateStatus(id, data.status);
   }
 
   async createReview(bookingId: string, userId: string, data: { rating: number; comment: string }) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: { room: true },
-    });
+    const booking = await this.bookingsRepository.findByIdWithRoom(bookingId);
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
@@ -233,31 +118,18 @@ export class BookingsService {
       throw new BadRequestException('Can only review completed bookings');
     }
 
-    const existingReview = await this.prisma.review.findFirst({
-      where: { bookingId },
-    });
+    const existingReview = await this.bookingsRepository.findReviewByBookingId(bookingId);
 
     if (existingReview) {
       throw new BadRequestException('Review already exists for this booking');
     }
 
-    return this.prisma.review.create({
-      data: {
-        bookingId,
-        roomId: booking.roomId,
-        guestId: userId,
-        rating: data.rating,
-        comment: data.comment,
-      },
-      include: {
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
+    return this.bookingsRepository.createReview({
+      bookingId,
+      roomId: booking.roomId,
+      guestId: userId,
+      rating: data.rating,
+      comment: data.comment,
     });
   }
 }

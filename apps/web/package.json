@@ -13,7 +13,10 @@
     "cap:open:android": "npx cap open android",
     "mobile:build": "pnpm build && pnpm cap:sync",
     "mobile:ios": "pnpm mobile:build && pnpm cap:open:ios",
-    "mobile:android": "pnpm mobile:build && pnpm cap:open:android"
+    "mobile:android": "pnpm mobile:build && pnpm cap:open:android",
+    "deps:check": "depcruise src --config .dependency-cruiser.cjs",
+    "semgrep": "semgrep scan --config .semgrep.yml src/",
+    "arch:check": "pnpm deps:check && pnpm semgrep"
   },
   "dependencies": {
     "next": "16.0.10",

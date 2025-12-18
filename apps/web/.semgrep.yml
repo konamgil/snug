@@ -1,0 +1,238 @@
+rules:
+  # ===========================================
+  # FSD (Feature Sliced Design) Architecture Rules
+  # ===========================================
+
+  # 1. Shared layer cannot import from other layers
+  - id: fsd-shared-isolation
+    patterns:
+      - pattern-either:
+          - pattern: import { ... } from '@/entities/...'
+          - pattern: import { ... } from '@/features/...'
+          - pattern: import { ... } from '@/widgets/...'
+          - pattern: import { ... } from '@/pages/...'
+          - pattern: import { ... } from '@/app/...'
+          - pattern: import { ... } from '../entities/...'
+          - pattern: import { ... } from '../features/...'
+          - pattern: import { ... } from '../widgets/...'
+          - pattern: import { ... } from '../pages/...'
+          - pattern: import { ... } from '../../entities/...'
+          - pattern: import { ... } from '../../features/...'
+    message: "FSD violation: Shared layer cannot import from higher layers (entities, features, widgets, pages, app)."
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - "**/shared/**"
+
+  # 2. Entities cannot import from features, widgets, pages, app
+  - id: fsd-entities-layer
+    patterns:
+      - pattern-either:
+          - pattern: import { ... } from '@/features/...'
+          - pattern: import { ... } from '@/widgets/...'
+          - pattern: import { ... } from '@/pages/...'
+          - pattern: import { ... } from '@/app/...'
+          - pattern: import { ... } from '../features/...'
+          - pattern: import { ... } from '../widgets/...'
+          - pattern: import { ... } from '../../features/...'
+    message: "FSD violation: Entities layer cannot import from higher layers (features, widgets, pages, app)."
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - "**/entities/**"
+
+  # 3. Features cannot import from widgets, pages, app
+  - id: fsd-features-layer
+    patterns:
+      - pattern-either:
+          - pattern: import { ... } from '@/widgets/...'
+          - pattern: import { ... } from '@/pages/...'
+          - pattern: import { ... } from '@/app/...'
+          - pattern: import { ... } from '../widgets/...'
+          - pattern: import { ... } from '../pages/...'
+          - pattern: import { ... } from '../../widgets/...'
+    message: "FSD violation: Features layer cannot import from higher layers (widgets, pages, app)."
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - "**/features/**"
+
+  # 4. Widgets cannot import from pages, app
+  - id: fsd-widgets-layer
+    patterns:
+      - pattern-either:
+          - pattern: import { ... } from '@/pages/...'
+          - pattern: import { ... } from '@/app/...'
+          - pattern: import { ... } from '../pages/...'
+    message: "FSD violation: Widgets layer cannot import from higher layers (pages, app)."
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - "**/widgets/**"
+
+  # 5. Pages cannot import from app
+  - id: fsd-pages-layer
+    patterns:
+      - pattern-either:
+          - pattern: import { ... } from '@/app/...'
+          - pattern: import { ... } from '../app/...'
+    message: "FSD violation: Pages layer cannot import from app layer."
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - "**/pages/**"
+
+  # ===========================================
+  # Cross-Slice Import Rules
+  # ===========================================
+
+  # 6. Slices should use public API (index.ts)
+  - id: fsd-public-api
+    patterns:
+      - pattern-regex: "from '(@/|\\.\\./)?(entities|features|widgets)/[^/]+/[^']+'"
+      - pattern-not-regex: "from '(@/|\\.\\./)?(entities|features|widgets)/[^/]+(/index)?'"
+    message: "FSD violation: Import from slice's public API (index.ts), not internal files."
+    languages: [typescript, javascript]
+    severity: WARNING
+
+  # ===========================================
+  # React/Next.js Rules (Strict)
+  # ===========================================
+
+  # 7. No inline styles - use Tailwind (handled by eslint-plugin-react)
+
+  # 8. Components must be typed
+  - id: component-props-typing
+    patterns:
+      - pattern: |
+          function $COMPONENT({ $PROPS }) {
+            ...
+          }
+      - pattern-not: |
+          function $COMPONENT({ $PROPS }: $TYPE) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $COMPONENT
+          regex: '^[A-Z].*'
+    message: "React components must have typed props."
+    languages: [typescript]
+    severity: WARNING
+
+  # 9. No direct DOM manipulation
+  - id: no-direct-dom
+    patterns:
+      - pattern: document.getElementById(...)
+      - pattern: document.querySelector(...)
+      - pattern: document.querySelectorAll(...)
+    message: "Avoid direct DOM manipulation. Use React refs or state."
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - "**/*.tsx"
+
+  # 10. useEffect should have dependency array
+  - id: useeffect-deps
+    patterns:
+      - pattern: useEffect($FUNC)
+      - pattern-not: useEffect($FUNC, $DEPS)
+    message: "useEffect must have a dependency array."
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # ===========================================
+  # Security Rules
+  # ===========================================
+
+  # 11. No dangerouslySetInnerHTML
+  - id: no-dangerous-html
+    pattern: dangerouslySetInnerHTML={...}
+    message: "Avoid dangerouslySetInnerHTML - XSS vulnerability risk."
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # 12. No hardcoded API URLs
+  - id: no-hardcoded-urls
+    patterns:
+      - pattern-regex: "(fetch|axios)\\(['\"]https?://[^'\"]+['\"]"
+    message: "Use environment variables for API URLs."
+    languages: [typescript, javascript]
+    severity: WARNING
+
+  # 13. No console.log in production
+  - id: no-console-log-web
+    pattern: console.log(...)
+    message: "Remove console.log before production."
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      exclude:
+        - "**/*.test.tsx"
+        - "**/*.spec.tsx"
+        - "**/scripts/**"
+
+  # ===========================================
+  # Code Quality Rules
+  # ===========================================
+
+  # 14. No any type - use @typescript-eslint/no-explicit-any instead
+
+  # 15. Hook rules - no conditional hooks
+  - id: no-conditional-hooks
+    patterns:
+      - pattern: |
+          if ($COND) {
+            ...
+            use$HOOK(...)
+            ...
+          }
+      - pattern: |
+          $COND && use$HOOK(...)
+      - pattern: |
+          $COND ? use$HOOK(...) : ...
+    message: "React hooks must not be called conditionally."
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # 16. No useState for derived state
+  - id: no-derived-state
+    patterns:
+      - pattern: |
+          const [$STATE, $SETTER] = useState($INITIAL)
+          ...
+          useEffect(() => {
+            $SETTER($DERIVED)
+          }, [$DEP])
+    message: "Consider using useMemo for derived state instead of useState + useEffect."
+    languages: [typescript, javascript]
+    severity: INFO
+
+  # ===========================================
+  # Accessibility Rules
+  # ===========================================
+
+  # 17. Images must have alt text
+  - id: img-alt-required
+    patterns:
+      - pattern: <img ... />
+      - pattern-not: <img ... alt="..." ... />
+      - pattern-not: <img ... alt={...} ... />
+    message: "Images must have alt attribute for accessibility."
+    languages: [typescript, javascript]
+    severity: WARNING
+
+  # 18. Buttons must have type
+  - id: button-type-required
+    patterns:
+      - pattern: <button ...>...</button>
+      - pattern-not: <button ... type="..." ...>...</button>
+      - pattern-not: <button ... type={...} ...>...</button>
+    message: "Buttons should have explicit type attribute (button, submit, reset)."
+    languages: [typescript, javascript]
+    severity: WARNING

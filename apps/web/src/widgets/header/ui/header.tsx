@@ -31,19 +31,28 @@ export function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <button className="p-2 hover:bg-accent rounded-full transition-colors">
+          <button type="button" className="p-2 hover:bg-accent rounded-full transition-colors">
             <Globe className="h-5 w-5" />
           </button>
-          <button className="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors">
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
+          >
             Login
           </button>
-          <button className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+          >
             Sign Up
           </button>
         </div>
 
         {/* Mobile Menu Button */}
-        <button className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors">
+        <button
+          type="button"
+          className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+        >
           <Menu className="h-5 w-5" />
         </button>
       </div>

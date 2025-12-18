@@ -10,6 +10,10 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "deps:check": "turbo deps:check",
+    "deps:graph": "depcruise --output-type dot apps/api/src | dot -T svg > dependency-graph.svg",
+    "semgrep": "turbo semgrep",
+    "arch:check": "turbo arch:check",
     "db:generate": "turbo db:generate",
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio",
@@ -19,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
+    "dependency-cruiser": "^16.10.2",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",

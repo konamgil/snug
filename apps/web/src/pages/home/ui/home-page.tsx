@@ -16,10 +16,16 @@ export function HomePage() {
             across Korea.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">
+            <button
+              type="button"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+            >
               Browse Rooms
             </button>
-            <button className="px-6 py-3 border border-input rounded-lg font-medium hover:bg-accent transition-colors">
+            <button
+              type="button"
+              className="px-6 py-3 border border-input rounded-lg font-medium hover:bg-accent transition-colors"
+            >
               Become a Host
             </button>
           </div>
