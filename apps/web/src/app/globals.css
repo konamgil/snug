@@ -57,14 +57,28 @@
   --ring: 240 4.9% 83.9%;
 }
 
-/* Base styles */
-* {
-  border-color: hsl(var(--border));
-}
+/* Base styles - wrapped in @layer so Tailwind utilities can override */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Hide scrollbar globally but keep scroll functionality */
+  html,
+  body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
 
 /* Mobile safe area padding */

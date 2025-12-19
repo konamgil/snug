@@ -65,7 +65,7 @@ export function HeroBanner({ className }: HeroBannerProps) {
       </div>
 
       {/* Caption Bar */}
-      <div className="-translate-y-4 mx-auto w-full">
+      <div className="mt-1 mx-auto w-full">
         <div className="bg-[hsl(var(--snug-light-gray))] rounded-full py-2 px-4">
           <p className="text-[11px] font-bold text-center text-[hsl(var(--snug-text-primary))] tracking-tight">
             {slides[currentSlide]?.caption}
@@ -74,7 +74,7 @@ export function HeroBanner({ className }: HeroBannerProps) {
       </div>
 
       {/* Slide Indicator */}
-      <div className="flex justify-end items-center gap-0.5 text-[9px] -mt-2">
+      <div className="flex justify-end items-center gap-0.5 text-[9px] mt-2">
         <span className="font-bold text-black">{currentSlide + 1}</span>
         <span className="opacity-70 text-black">/</span>
         <span className="opacity-70 text-black">{slides.length}</span>

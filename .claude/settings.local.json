@@ -34,7 +34,16 @@
       "Bash(npx tsc:*)",
       "Bash(git mv:*)",
       "Bash(pnpm dev)",
-      "Bash(pnpm --filter @snug/database build:*)"
+      "Bash(pnpm --filter @snug/database build:*)",
+      "Bash(pnpm --filter @snug/web add:*)",
+      "Bash(pnpm --filter @snug/web build:*)",
+      "mcp__supabase__get_project_url",
+      "Bash(npx:*)",
+      "Bash(npm install:*)",
+      "mcp__figma__get_design_context",
+      "Bash(curl:*)",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_screenshot"
     ]
   }
 }

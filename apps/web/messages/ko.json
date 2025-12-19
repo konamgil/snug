@@ -44,7 +44,8 @@
     "search": {
       "location": "스너그 스테이 찾기",
       "dates": "체류 기간",
-      "guests": "인원"
+      "guests": "인원",
+      "popularSearches": "인기 검색어"
     },
     "banner": {
       "slide1": "더 나은 첫 체류를 경험하세요. 스너그 스테이에 오신 것을 환영합니다!",

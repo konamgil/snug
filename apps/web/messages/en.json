@@ -44,7 +44,8 @@
     "search": {
       "location": "Find your snug stay",
       "dates": "Stay Dates",
-      "guests": "Guests"
+      "guests": "Guests",
+      "popularSearches": "Popular Searches"
     },
     "banner": {
       "slide1": "Your first stay just got better. Welcome to snug stay!",

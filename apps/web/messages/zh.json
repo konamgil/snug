@@ -44,7 +44,8 @@
     "search": {
       "location": "寻找您的snug住所",
       "dates": "入住日期",
-      "guests": "人数"
+      "guests": "人数",
+      "popularSearches": "热门搜索"
     },
     "banner": {
       "slide1": "您的第一次住宿变得更好了。欢迎来到snug stay！",

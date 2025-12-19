@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Header } from '@/widgets/header';
 import { HeroBanner } from '@/widgets/hero-banner';
 import { MobileNav } from '@/widgets/mobile-nav';
@@ -7,6 +8,8 @@ import { SearchForm } from '@/features/search';
 import { SnugLogo, ViewOnMapButton } from '@/shared/ui';
 
 export function HomePage() {
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
@@ -16,10 +19,10 @@ export function HomePage() {
         <SnugLogo className="mb-6 md:mb-8" />
 
         {/* Search Form */}
-        <SearchForm className="mb-4 md:mb-6" />
+        <SearchForm className="mb-4 md:mb-6" onFocusChange={setIsSearchFocused} />
 
-        {/* Hero Banner Carousel */}
-        <HeroBanner className="mb-6 md:mb-8" />
+        {/* Hero Banner Carousel - hidden when search is focused */}
+        {!isSearchFocused && <HeroBanner className="mb-6 md:mb-8" />}
 
         {/* View on Map Button */}
         <ViewOnMapButton />
