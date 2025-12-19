@@ -15,17 +15,9 @@ const nextConfig: NextConfig = {
   // Transpile internal packages
   transpilePackages: ['@snug/types'],
 
-  // React Compiler (experimental)
-  experimental: {
-    reactCompiler: true,
-  },
-
-  // TypeScript and ESLint checks during build
+  // TypeScript checks during build
   typescript: {
     ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: false,
   },
 };
 

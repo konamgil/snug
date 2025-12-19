@@ -2,13 +2,13 @@ import { IsString, IsDateString, IsOptional, IsEnum } from 'class-validator';
 
 export class CreateBookingDto {
   @IsString()
-  roomId: string;
+  roomId!: string;
 
   @IsDateString()
-  checkIn: string;
+  checkIn!: string;
 
   @IsDateString()
-  checkOut: string;
+  checkOut!: string;
 
   @IsString()
   @IsOptional()
@@ -16,6 +16,6 @@ export class CreateBookingDto {
 }
 
 export class UpdateBookingStatusDto {
-  @IsEnum(['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  @IsEnum(['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'REFUNDED'])
+  status!: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'REFUNDED';
 }

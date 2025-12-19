@@ -44,9 +44,13 @@ export class BookingsService {
       throw new BadRequestException('Room is not available for selected dates');
     }
 
-    // Calculate total price (monthly rate)
-    const months = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    const totalPrice = room.price * months + room.deposit;
+    // Calculate total months and pricing
+    const totalMonths = Math.ceil(
+      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24 * 30),
+    );
+    const monthlyPrice = room.price;
+    const deposit = room.deposit;
+    const totalPrice = monthlyPrice * totalMonths + deposit;
 
     return this.bookingsRepository.create({
       roomId: data.roomId,
@@ -54,7 +58,11 @@ export class BookingsService {
       hostId: room.hostId,
       checkIn,
       checkOut,
+      totalMonths,
+      monthlyPrice,
+      deposit,
       totalPrice,
+      specialRequests: data.message,
     });
   }
 
@@ -103,7 +111,11 @@ export class BookingsService {
     return this.bookingsRepository.updateStatus(id, data.status);
   }
 
-  async createReview(bookingId: string, userId: string, data: { rating: number; comment: string }) {
+  async createReview(
+    bookingId: string,
+    userId: string,
+    data: { rating: number; comment?: string },
+  ) {
     const booking = await this.bookingsRepository.findByIdWithRoom(bookingId);
 
     if (!booking) {
@@ -118,16 +130,20 @@ export class BookingsService {
       throw new BadRequestException('Can only review completed bookings');
     }
 
-    const existingReview = await this.bookingsRepository.findReviewByBookingId(bookingId);
+    // Check if user already reviewed this room
+    const existingReview = await this.bookingsRepository.findReviewByRoomAndAuthor(
+      booking.roomId,
+      userId,
+    );
 
     if (existingReview) {
-      throw new BadRequestException('Review already exists for this booking');
+      throw new BadRequestException('You have already reviewed this room');
     }
 
     return this.bookingsRepository.createReview({
-      bookingId,
       roomId: booking.roomId,
-      guestId: userId,
+      authorId: userId,
+      targetId: booking.room.hostId,
       rating: data.rating,
       comment: data.comment,
     });

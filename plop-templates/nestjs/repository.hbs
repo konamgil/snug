@@ -1,0 +1,46 @@
+import { Injectable } from '@nestjs/common';
+import { BaseRepository } from '../../common/repositories/base.repository';
+
+@Injectable()
+export class {{pascalCase name}}Repository extends BaseRepository {
+  /**
+   * Create a new {{camelCase name}}
+   * TODO: Update with actual Prisma model and fields
+   */
+  async create(data: Record<string, unknown>) {
+    // return this.prisma.{{camelCase name}}.create({ data });
+    throw new Error('Not implemented: Add Prisma model first');
+  }
+
+  /**
+   * Find all {{camelCase name}}s
+   */
+  async findAll() {
+    // return this.prisma.{{camelCase name}}.findMany();
+    throw new Error('Not implemented: Add Prisma model first');
+  }
+
+  /**
+   * Find {{camelCase name}} by ID
+   */
+  async findById(id: string) {
+    // return this.prisma.{{camelCase name}}.findUnique({ where: { id } });
+    throw new Error('Not implemented: Add Prisma model first');
+  }
+
+  /**
+   * Update {{camelCase name}}
+   */
+  async update(id: string, data: Record<string, unknown>) {
+    // return this.prisma.{{camelCase name}}.update({ where: { id }, data });
+    throw new Error('Not implemented: Add Prisma model first');
+  }
+
+  /**
+   * Delete {{camelCase name}}
+   */
+  async delete(id: string) {
+    // return this.prisma.{{camelCase name}}.delete({ where: { id } });
+    throw new Error('Not implemented: Add Prisma model first');
+  }
+}

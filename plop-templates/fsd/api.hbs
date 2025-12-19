@@ -1,0 +1,58 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5757';
+
+export interface {{pascalCase name}}Response {
+  id: string;
+  // TODO: Add response fields
+}
+
+export interface Create{{pascalCase name}}Request {
+  // TODO: Add request fields
+}
+
+export interface Update{{pascalCase name}}Request {
+  // TODO: Add request fields
+}
+
+export const {{camelCase name}}Api = {
+  async getAll(): Promise<{{pascalCase name}}Response[]> {
+    const response = await fetch(`${API_BASE}/{{kebabCase name}}`);
+    if (!response.ok) throw new Error('Failed to fetch {{kebabCase name}}s');
+    return response.json();
+  },
+
+  async getById(id: string): Promise<{{pascalCase name}}Response> {
+    const response = await fetch(`${API_BASE}/{{kebabCase name}}/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch {{kebabCase name}}');
+    return response.json();
+  },
+
+  async create(data: Create{{pascalCase name}}Request): Promise<{{pascalCase name}}Response> {
+    const response = await fetch(`${API_BASE}/{{kebabCase name}}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to create {{kebabCase name}}');
+    return response.json();
+  },
+
+  async update(
+    id: string,
+    data: Update{{pascalCase name}}Request
+  ): Promise<{{pascalCase name}}Response> {
+    const response = await fetch(`${API_BASE}/{{kebabCase name}}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update {{kebabCase name}}');
+    return response.json();
+  },
+
+  async delete(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/{{kebabCase name}}/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete {{kebabCase name}}');
+  },
+};

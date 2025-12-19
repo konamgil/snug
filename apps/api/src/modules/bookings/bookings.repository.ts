@@ -58,7 +58,11 @@ export class BookingsRepository extends BaseRepository<Booking> {
     hostId: string;
     checkIn: Date;
     checkOut: Date;
+    totalMonths: number;
+    monthlyPrice: number;
+    deposit: number;
     totalPrice: number;
+    specialRequests?: string;
   }) {
     return this.prisma.booking.create({
       data: {
@@ -66,7 +70,11 @@ export class BookingsRepository extends BaseRepository<Booking> {
         guestId: data.guestId,
         checkIn: data.checkIn,
         checkOut: data.checkOut,
+        totalMonths: data.totalMonths,
+        monthlyPrice: data.monthlyPrice,
+        deposit: data.deposit,
         totalPrice: data.totalPrice,
+        specialRequests: data.specialRequests,
         status: 'PENDING',
         chatRoom: {
           create: {
@@ -124,23 +132,23 @@ export class BookingsRepository extends BaseRepository<Booking> {
     });
   }
 
-  async findReviewByBookingId(bookingId: string) {
-    return this.prisma.review.findFirst({
-      where: { bookingId },
+  async findReviewByRoomAndAuthor(roomId: string, authorId: string) {
+    return this.prisma.review.findUnique({
+      where: { roomId_authorId: { roomId, authorId } },
     });
   }
 
   async createReview(data: {
-    bookingId: string;
     roomId: string;
-    guestId: string;
+    authorId: string;
+    targetId: string;
     rating: number;
-    comment: string;
+    comment?: string;
   }): Promise<Review> {
     return this.prisma.review.create({
       data,
       include: {
-        guest: { select: USER_SELECT },
+        author: { select: USER_SELECT },
       },
     }) as unknown as Review;
   }

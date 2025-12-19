@@ -1,0 +1,19 @@
+'use client';
+
+import { Header } from '@/widgets/header';
+import { MobileNav } from '@/widgets/mobile-nav';
+
+export function {{pascalCase name}}Page() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">{{pascalCase name}}</h1>
+        {/* TODO: Add page content */}
+      </main>
+
+      <MobileNav />
+    </div>
+  );
+}

@@ -25,7 +25,7 @@ function isPaginatedResult<T>(value: unknown): value is PaginatedResult<T> {
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((result) => {
         // Handle paginated responses

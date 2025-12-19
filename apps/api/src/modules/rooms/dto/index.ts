@@ -11,24 +11,24 @@ import {
 
 export class CreateRoomDto {
   @IsString()
-  title: string;
+  title!: string;
 
   @IsString()
-  description: string;
+  description!: string;
 
   @IsEnum(['STUDIO', 'ONE_ROOM', 'TWO_ROOM', 'OFFICETEL', 'APARTMENT', 'HOUSE'])
-  type: 'STUDIO' | 'ONE_ROOM' | 'TWO_ROOM' | 'OFFICETEL' | 'APARTMENT' | 'HOUSE';
+  type!: 'STUDIO' | 'ONE_ROOM' | 'TWO_ROOM' | 'OFFICETEL' | 'APARTMENT' | 'HOUSE';
 
   @IsNumber()
   @Min(0)
-  price: number;
+  price!: number;
 
   @IsNumber()
   @Min(0)
-  deposit: number;
+  deposit!: number;
 
   @IsString()
-  address: string;
+  address!: string;
 
   @IsLatitude()
   @IsOptional()

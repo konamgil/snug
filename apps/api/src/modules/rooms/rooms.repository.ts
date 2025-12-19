@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@snug/database';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository, PaginatedResult } from '../../common/repositories';
 import { SearchRoomsDto } from './dto';
@@ -9,7 +9,7 @@ const roomSelect = {
   id: true,
   title: true,
   description: true,
-  type: true,
+  roomType: true,
   price: true,
   deposit: true,
   address: true,
@@ -18,8 +18,8 @@ const roomSelect = {
   images: true,
   amenities: true,
   status: true,
-  minStay: true,
-  maxStay: true,
+  minimumStay: true,
+  maximumStay: true,
   createdAt: true,
   updatedAt: true,
   host: {
@@ -50,7 +50,7 @@ export class RoomsRepository extends BaseRepository<RoomWithHost> {
     super(prisma);
   }
 
-  async create(hostId: string, data: Prisma.RoomCreateInput): Promise<RoomWithHost> {
+  async create(hostId: string, data: Omit<Prisma.RoomCreateInput, 'host'>): Promise<RoomWithHost> {
     return this.prisma.room.create({
       data: {
         ...data,
@@ -72,7 +72,7 @@ export class RoomsRepository extends BaseRepository<RoomWithHost> {
             rating: true,
             comment: true,
             createdAt: true,
-            guest: {
+            author: {
               select: {
                 id: true,
                 name: true,
@@ -84,7 +84,7 @@ export class RoomsRepository extends BaseRepository<RoomWithHost> {
           take: 10,
         },
       },
-    });
+    }) as Promise<RoomWithCounts | null>;
   }
 
   async findMany(query: SearchRoomsDto): Promise<PaginatedResult<RoomWithCounts>> {
@@ -94,12 +94,12 @@ export class RoomsRepository extends BaseRepository<RoomWithHost> {
       status: 'ACTIVE',
       ...(keyword && {
         OR: [
-          { title: { contains: keyword, mode: 'insensitive' } },
-          { description: { contains: keyword, mode: 'insensitive' } },
-          { address: { contains: keyword, mode: 'insensitive' } },
+          { title: { contains: keyword, mode: 'insensitive' as const } },
+          { description: { contains: keyword, mode: 'insensitive' as const } },
+          { address: { contains: keyword, mode: 'insensitive' as const } },
         ],
       }),
-      ...(type && { type: type as Prisma.EnumRoomTypeFilter }),
+      ...(type && { roomType: type as Prisma.EnumRoomTypeFilter }),
       ...(minPrice !== undefined && { price: { gte: minPrice } }),
       ...(maxPrice !== undefined && { price: { lte: maxPrice } }),
     };
@@ -126,11 +126,12 @@ export class RoomsRepository extends BaseRepository<RoomWithHost> {
           select: {
             bookings: true,
             reviews: true,
+            favorites: true,
           },
         },
       },
       orderBy: { createdAt: 'desc' },
-    });
+    }) as Promise<RoomWithCounts[]>;
   }
 
   async update(id: string, data: Prisma.RoomUpdateInput): Promise<RoomWithHost> {

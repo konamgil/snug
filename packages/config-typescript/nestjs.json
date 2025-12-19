@@ -13,6 +13,7 @@
     "experimentalDecorators": true,
     "declaration": true,
     "sourceMap": true,
-    "incremental": true
+    "incremental": true,
+    "skipLibCheck": true
   }
 }

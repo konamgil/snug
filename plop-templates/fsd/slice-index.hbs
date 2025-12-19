@@ -1,0 +1,8 @@
+// Public API for {{kebabCase name}} slice
+export * from './ui';
+{{#if withModel}}
+export * from './model';
+{{/if}}
+{{#if withApi}}
+export * from './api';
+{{/if}}

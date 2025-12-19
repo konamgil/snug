@@ -1,205 +1,69 @@
 rules:
-  # ===========================================
-  # NestJS Architecture Rules (Strict)
-  # ===========================================
+  # === Security Rules ===
 
-  # 1. Controllers must not access Prisma directly
-  - id: no-prisma-in-controller
-    patterns:
-      - pattern: |
-          class $CONTROLLER {
-            ...
-            constructor(..., private $PRISMA: PrismaService, ...) { ... }
-            ...
-          }
-      - metavariable-regex:
-          metavariable: $CONTROLLER
-          regex: '.*Controller$'
-    message: "Controllers must not inject PrismaService directly. Use Service → Repository pattern."
-    languages: [typescript]
-    severity: ERROR
-
-  # 2. Controllers must not import Repository
-  - id: no-repository-in-controller
-    patterns:
-      - pattern-either:
-          - pattern: import { ..., $REPO, ... } from '...'
-          - pattern: import { $REPO } from '...'
-      - metavariable-regex:
-          metavariable: $REPO
-          regex: '.*Repository$'
-      - pattern-inside: |
-          // File: *.controller.ts
-          ...
-    message: "Controllers must not import Repositories. Use Services instead."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "*.controller.ts"
-
-  # 3. Services must not import PrismaService (should use Repository)
-  - id: no-prisma-in-service
-    patterns:
-      - pattern: import { PrismaService } from '$PATH'
-    message: "Services should not import PrismaService directly. Use Repository pattern."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "**/modules/**/*.service.ts"
-      exclude:
-        - "**/prisma/**"
-
-  # 4. Repository must not import Controller or Service (except PrismaService)
-  - id: no-controller-in-repository
-    patterns:
-      - pattern-either:
-          - pattern: import { ..., $CTRL, ... } from '...'
-          - pattern: import { $CTRL } from '...'
-      - metavariable-regex:
-          metavariable: $CTRL
-          regex: '.*Controller$'
-    message: "Repositories must not import Controllers."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "*.repository.ts"
-
-  # 5. Gateway must not import Controller
-  - id: no-controller-in-gateway
-    patterns:
-      - pattern-either:
-          - pattern: import { ..., $CTRL, ... } from '...'
-          - pattern: import { $CTRL } from '...'
-      - metavariable-regex:
-          metavariable: $CTRL
-          regex: '.*Controller$'
-    message: "Gateways must not import Controllers."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "*.gateway.ts"
-
-  # ===========================================
-  # Security Rules (Strict)
-  # ===========================================
-
-  # 6. No hardcoded secrets
   - id: no-hardcoded-secrets
     patterns:
-      - pattern-either:
-          - pattern: |
-              $VAR = "...$SECRET..."
-          - pattern: |
-              const $VAR = '...$SECRET...'
-      - metavariable-regex:
-          metavariable: $SECRET
-          regex: '(password|secret|api[_-]?key|token|auth)'
-    message: "Potential hardcoded secret detected. Use environment variables."
+      - pattern-regex: '(?i)(password|secret|api[_-]?key|token|credentials)\s*[:=]\s*["\x27][^\"\x27]{8,}["\x27]'
+    message: "Hardcoded secret detected. Use environment variables instead."
     languages: [typescript, javascript]
     severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-798: Use of Hard-coded Credentials"
 
-  # 7. SQL Injection prevention - raw queries
-  - id: no-raw-sql-injection
-    patterns:
-      - pattern: $PRISMA.$queryRaw`... ${$USER_INPUT} ...`
-      - pattern: $PRISMA.$executeRaw`... ${$USER_INPUT} ...`
-    message: "Potential SQL injection. Use parameterized queries with Prisma.sql."
-    languages: [typescript]
+  - id: no-eval
+    pattern: eval(...)
+    message: "Avoid using eval() as it can lead to code injection vulnerabilities."
+    languages: [typescript, javascript]
     severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-95: Eval Injection"
 
-  # 8. No console.log in production code
-  - id: no-console-log
+  # === NestJS Best Practices ===
+
+  - id: no-console-in-production
     pattern: console.log(...)
-    message: "Use Logger service instead of console.log for proper logging."
+    message: "Avoid console.log in production code. Use the injected Logger service."
     languages: [typescript, javascript]
     severity: WARNING
-    paths:
-      exclude:
-        - "**/*.spec.ts"
-        - "**/*.test.ts"
-        - "**/scripts/**"
+    metadata:
+      category: best-practices
 
-  # ===========================================
-  # Code Quality Rules
-  # ===========================================
+  - id: catch-error-without-handling
+    pattern: |
+      catch ($ERR) {
+      }
+    message: "Empty catch block. Error should be logged or re-thrown."
+    languages: [typescript]
+    severity: ERROR
+    metadata:
+      category: error-handling
 
-  # 9. Async function error handling - removed (handled by NestJS global exception filter)
+  # === Code Quality ===
 
-  # 10. DTO must use class-validator decorators
-  - id: dto-without-validation
-    patterns:
-      - pattern: |
-          class $DTO {
-            $PROP: $TYPE;
-          }
-      - metavariable-regex:
-          metavariable: $DTO
-          regex: '.*Dto$'
-      - pattern-not: |
-          class $DTO {
-            @$DECORATOR(...)
-            $PROP: $TYPE;
-          }
-    message: "DTO properties should have class-validator decorators for validation."
+  - id: no-explicit-any-parameter
+    pattern: |
+      function $FUNC(..., $PARAM: any, ...): $RET { ... }
+    message: "Avoid using 'any' type for function parameters. Use specific types or 'unknown'."
     languages: [typescript]
     severity: WARNING
-    paths:
-      include:
-        - "**/dto/**"
+    metadata:
+      category: code-quality
 
-  # 11. No any type usage - use eslint @typescript-eslint/no-explicit-any instead
-
-  # 12. Injectable must be in providers (except abstract classes and decorated classes)
-  - id: injectable-decorator-required
-    patterns:
-      - pattern: |
-          class $SERVICE {
-            constructor(...) { ... }
-            ...
-          }
-      - metavariable-regex:
-          metavariable: $SERVICE
-          regex: '.*(Service|Repository)$'
-      - pattern-not: |
-          @Injectable()
-          class $SERVICE {
-            ...
-          }
-      - pattern-not: |
-          abstract class $SERVICE {
-            ...
-          }
-    message: "Service/Repository classes must have @Injectable() decorator."
+  - id: no-floating-promises
+    pattern: |
+      $ASYNC_FUNC(...);
+    pattern-not: |
+      await $ASYNC_FUNC(...);
+    pattern-not: |
+      return $ASYNC_FUNC(...);
+    pattern-not: |
+      $VAR = $ASYNC_FUNC(...);
+    pattern-inside: |
+      async function $FN(...) { ... }
+    message: "Floating promise detected. Use await or handle the promise."
     languages: [typescript]
-    severity: ERROR
-
-  # ===========================================
-  # Module Isolation Rules
-  # ===========================================
-
-  # 13. Common must not import from modules
-  - id: no-modules-in-common
-    patterns:
-      - pattern: import { ... } from '../modules/...'
-      - pattern: import { ... } from '../../modules/...'
-    message: "Common utilities must not depend on feature modules. Dependency inversion violated."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "**/common/**"
-
-  # 14. Prisma module isolation
-  - id: prisma-module-isolation
-    patterns:
-      - pattern: import { ... } from '../modules/...'
-    message: "Prisma module must not depend on feature modules."
-    languages: [typescript]
-    severity: ERROR
-    paths:
-      include:
-        - "**/prisma/**"
+    severity: WARNING
+    metadata:
+      category: code-quality

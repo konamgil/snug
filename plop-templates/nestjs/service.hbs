@@ -1,0 +1,40 @@
+import { Injectable } from '@nestjs/common';
+import { {{pascalCase name}}Repository } from './{{kebabCase name}}.repository';
+{{#if withDto}}
+import { Create{{pascalCase name}}Dto, Update{{pascalCase name}}Dto } from './dto';
+{{/if}}
+
+@Injectable()
+export class {{pascalCase name}}Service {
+  constructor(private readonly {{camelCase name}}Repository: {{pascalCase name}}Repository) {}
+
+  {{#if withDto}}
+  async create(data: Create{{pascalCase name}}Dto) {
+    return this.{{camelCase name}}Repository.create(data);
+  }
+
+  async findAll() {
+    return this.{{camelCase name}}Repository.findAll();
+  }
+
+  async findById(id: string) {
+    return this.{{camelCase name}}Repository.findById(id);
+  }
+
+  async update(id: string, data: Update{{pascalCase name}}Dto) {
+    return this.{{camelCase name}}Repository.update(id, data);
+  }
+
+  async delete(id: string) {
+    return this.{{camelCase name}}Repository.delete(id);
+  }
+  {{else}}
+  async findAll() {
+    return this.{{camelCase name}}Repository.findAll();
+  }
+
+  async findById(id: string) {
+    return this.{{camelCase name}}Repository.findById(id);
+  }
+  {{/if}}
+}

@@ -1,0 +1,13 @@
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+
+export class Create{{pascalCase name}}Dto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  // TODO: Add fields based on your Prisma model
+}

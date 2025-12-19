@@ -1,0 +1,85 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
+import { {{pascalCase name}}Service } from './{{kebabCase name}}.service';
+{{#if withDto}}
+import { Create{{pascalCase name}}Dto, Update{{pascalCase name}}Dto } from './dto';
+{{/if}}
+
+@ApiTags('{{kebabCase name}}')
+@Controller('{{kebabCase name}}')
+export class {{pascalCase name}}Controller {
+  constructor(private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  {{#if withDto}}
+  @Post()
+  @ApiOperation({ summary: 'Create {{camelCase name}}' })
+  @ApiResponse({ status: 201, description: '{{pascalCase name}} created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  async create(@Body() data: Create{{pascalCase name}}Dto) {
+    return this.{{camelCase name}}Service.create(data);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all {{camelCase name}}s' })
+  @ApiResponse({ status: 200, description: 'List of {{camelCase name}}s retrieved successfully' })
+  async findAll() {
+    return this.{{camelCase name}}Service.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get {{camelCase name}} by ID' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID', type: String })
+  @ApiResponse({ status: 200, description: '{{pascalCase name}} found successfully' })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found' })
+  async findById(@Param('id') id: string) {
+    return this.{{camelCase name}}Service.findById(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update {{camelCase name}}' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID', type: String })
+  @ApiResponse({ status: 200, description: '{{pascalCase name}} updated successfully' })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found' })
+  async update(@Param('id') id: string, @Body() data: Update{{pascalCase name}}Dto) {
+    return this.{{camelCase name}}Service.update(id, data);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete {{camelCase name}}' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID', type: String })
+  @ApiResponse({ status: 200, description: '{{pascalCase name}} deleted successfully' })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found' })
+  async delete(@Param('id') id: string) {
+    return this.{{camelCase name}}Service.delete(id);
+  }
+  {{else}}
+  @Get()
+  @ApiOperation({ summary: 'Get all {{camelCase name}}s' })
+  @ApiResponse({ status: 200, description: 'List of {{camelCase name}}s retrieved successfully' })
+  async findAll() {
+    return this.{{camelCase name}}Service.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get {{camelCase name}} by ID' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID', type: String })
+  @ApiResponse({ status: 200, description: '{{pascalCase name}} found successfully' })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found' })
+  async findById(@Param('id') id: string) {
+    return this.{{camelCase name}}Service.findById(id);
+  }
+  {{/if}}
+}
