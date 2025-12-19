@@ -1,0 +1,155 @@
+{
+  "common": {
+    "appName": "Snug",
+    "loading": "加载中...",
+    "error": "发生错误",
+    "retry": "重试",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "viewAll": "查看全部",
+    "seeMore": "查看更多",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "close": "关闭"
+  },
+  "metadata": {
+    "title": "Snug - 在韩国找到完美的房间",
+    "description": "为外国人提供的房屋租赁平台"
+  },
+  "nav": {
+    "home": "首页",
+    "search": "搜索",
+    "map": "地图",
+    "favorites": "收藏",
+    "messages": "聊天",
+    "profile": "我的",
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出"
+  },
+  "home": {
+    "hero": {
+      "title": "在韩国找到完美的房间",
+      "subtitle": "发现舒适且价格合理的外国人住房",
+      "searchPlaceholder": "按位置、车站或关键词搜索"
+    },
+    "search": {
+      "location": "寻找您的snug住所",
+      "dates": "入住日期",
+      "guests": "人数"
+    },
+    "banner": {
+      "slide1": "您的第一次住宿变得更好了。欢迎来到snug stay！",
+      "slide2": "找到完美的工作和生活空间",
+      "slide3": "与理解您的房东建立联系",
+      "slide4": "像当地人一样体验韩国",
+      "slide5": "今天就开始您的snug之旅"
+    },
+    "viewOnMap": "在地图上查看",
+    "hostMode": "房东模式",
+    "featured": {
+      "title": "精选房源",
+      "empty": "暂无精选房源"
+    },
+    "categories": {
+      "title": "按类型浏览",
+      "studio": "单间",
+      "oneRoom": "一居室",
+      "twoRoom": "两居室",
+      "shareHouse": "合租房",
+      "officetel": "酒店式公寓"
+    }
+  },
+  "rooms": {
+    "perMonth": "/月",
+    "deposit": "押金",
+    "maintenance": "管理费",
+    "available": "可入住",
+    "notAvailable": "不可入住",
+    "nearStation": "距{station} {minutes}分钟",
+    "amenities": "设施",
+    "description": "描述",
+    "location": "位置",
+    "contact": "联系房东",
+    "book": "立即预订",
+    "addToFavorites": "添加收藏",
+    "removeFromFavorites": "取消收藏"
+  },
+  "booking": {
+    "title": "预订",
+    "checkIn": "入住日期",
+    "checkOut": "退房日期",
+    "duration": "时长",
+    "months": "{count}个月",
+    "totalPrice": "总价",
+    "status": {
+      "pending": "待确认",
+      "confirmed": "已确认",
+      "cancelled": "已取消",
+      "completed": "已完成",
+      "refunded": "已退款"
+    },
+    "confirmBooking": "确认预订",
+    "cancelBooking": "取消预订"
+  },
+  "chat": {
+    "title": "消息",
+    "placeholder": "输入消息...",
+    "send": "发送",
+    "noMessages": "暂无消息",
+    "startConversation": "开始对话"
+  },
+  "auth": {
+    "login": {
+      "title": "欢迎回来",
+      "email": "邮箱",
+      "password": "密码",
+      "forgotPassword": "忘记密码？",
+      "submit": "登录",
+      "noAccount": "还没有账号？",
+      "signupLink": "注册"
+    },
+    "signup": {
+      "title": "创建账号",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "submit": "注册",
+      "hasAccount": "已有账号？",
+      "loginLink": "登录"
+    },
+    "errors": {
+      "invalidEmail": "请输入有效的邮箱地址",
+      "passwordTooShort": "密码至少需要8个字符",
+      "passwordMismatch": "两次密码不一致",
+      "loginFailed": "登录失败，请检查您的信息",
+      "signupFailed": "注册失败，请重试"
+    }
+  },
+  "profile": {
+    "title": "我的资料",
+    "editProfile": "编辑资料",
+    "myBookings": "我的预订",
+    "myFavorites": "我的收藏",
+    "settings": "设置",
+    "language": "语言",
+    "notifications": "通知",
+    "help": "帮助与支持"
+  },
+  "footer": {
+    "about": "关于我们",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "contact": "联系我们",
+    "copyright": "© {year} Snug. 保留所有权利。"
+  }
+}

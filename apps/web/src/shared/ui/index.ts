@@ -1,2 +1,4 @@
-// Shared UI components will be exported here
-// Example: export { Button } from './button';
+// Shared UI components
+export { LanguageSwitcher } from './language-switcher';
+export { SnugLogo } from './snug-logo';
+export { ViewOnMapButton } from './view-on-map-button';

@@ -1,0 +1,155 @@
+{
+  "common": {
+    "appName": "Snug",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "viewAll": "View All",
+    "seeMore": "See More",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "metadata": {
+    "title": "Snug - Find Your Perfect Room in Korea",
+    "description": "Room rental platform for foreigners in Korea"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "map": "Map",
+    "favorites": "Favorites",
+    "messages": "Chat",
+    "profile": "My Page",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "home": {
+    "hero": {
+      "title": "Find Your Perfect Room in Korea",
+      "subtitle": "Discover comfortable and affordable rooms for foreigners",
+      "searchPlaceholder": "Search by location, station, or keyword"
+    },
+    "search": {
+      "location": "Find your snug stay",
+      "dates": "Stay Dates",
+      "guests": "Guests"
+    },
+    "banner": {
+      "slide1": "Your first stay just got better. Welcome to snug stay!",
+      "slide2": "Find your perfect workspace and living space",
+      "slide3": "Connect with hosts who understand you",
+      "slide4": "Experience Korea like a local",
+      "slide5": "Start your snug journey today"
+    },
+    "viewOnMap": "View on Map",
+    "hostMode": "Host Mode",
+    "featured": {
+      "title": "Featured Rooms",
+      "empty": "No featured rooms available"
+    },
+    "categories": {
+      "title": "Browse by Type",
+      "studio": "Studio",
+      "oneRoom": "One Room",
+      "twoRoom": "Two Room",
+      "shareHouse": "Share House",
+      "officetel": "Officetel"
+    }
+  },
+  "rooms": {
+    "perMonth": "/month",
+    "deposit": "Deposit",
+    "maintenance": "Maintenance",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "nearStation": "{minutes} min from {station}",
+    "amenities": "Amenities",
+    "description": "Description",
+    "location": "Location",
+    "contact": "Contact Host",
+    "book": "Book Now",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites"
+  },
+  "booking": {
+    "title": "Booking",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "duration": "Duration",
+    "months": "{count, plural, one {# month} other {# months}}",
+    "totalPrice": "Total Price",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "refunded": "Refunded"
+    },
+    "confirmBooking": "Confirm Booking",
+    "cancelBooking": "Cancel Booking"
+  },
+  "chat": {
+    "title": "Messages",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "noMessages": "No messages yet",
+    "startConversation": "Start a conversation"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up"
+    },
+    "signup": {
+      "title": "Create Account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login"
+    },
+    "errors": {
+      "invalidEmail": "Invalid email address",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "loginFailed": "Login failed. Please check your credentials.",
+      "signupFailed": "Sign up failed. Please try again."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "editProfile": "Edit Profile",
+    "myBookings": "My Bookings",
+    "myFavorites": "My Favorites",
+    "settings": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "help": "Help & Support"
+  },
+  "footer": {
+    "about": "About",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact Us",
+    "copyright": "© {year} Snug. All rights reserved."
+  }
+}

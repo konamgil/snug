@@ -1,60 +1,61 @@
 'use client';
 
-import Link from 'next/link';
-import { Menu, Globe } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { User, Globe, MessageCircle, Home } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 export function Header() {
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 safe-top">
-      <div className="container flex h-14 items-center">
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <span className="text-xl font-bold text-primary">Snug</span>
-        </Link>
+  const t = useTranslations('home');
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link
-            href="/rooms"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Find Rooms
-          </Link>
+  return (
+    <header className="sticky top-0 z-50 w-full bg-white safe-top">
+      <div className="flex h-14 md:h-16 items-center justify-end px-4 md:px-6">
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-2 md:gap-2.5">
+          {/* Host Mode Button - Hidden on mobile, visible on md+ */}
           <Link
             href="/host"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="hidden md:flex px-4 py-2 text-xs font-normal text-[hsl(var(--snug-brown))] border border-[hsl(var(--snug-brown))] rounded-full hover:bg-[hsl(var(--snug-brown))]/5 transition-colors"
           >
-            Become a Host
+            {t('hostMode')}
           </Link>
-        </nav>
 
-        <div className="flex-1" />
+          {/* Host Mode Icon - Visible on mobile only */}
+          <Link
+            href="/host"
+            className="md:hidden w-8 h-8 rounded-full bg-[hsl(var(--snug-brown))] flex items-center justify-center hover:opacity-90 transition-opacity"
+            aria-label={t('hostMode')}
+          >
+            <Home className="w-3.5 h-3.5 text-white" />
+          </Link>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-4">
-          <button type="button" className="p-2 hover:bg-accent rounded-full transition-colors">
-            <Globe className="h-5 w-5" />
-          </button>
+          {/* My Page Button */}
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
+            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-brown))] flex items-center justify-center hover:opacity-90 transition-opacity"
+            aria-label="My Page"
           >
-            Login
+            <User className="w-3.5 h-3.5 text-white" />
           </button>
+
+          {/* Language Switcher */}
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
+            aria-label="Change Language"
           >
-            Sign Up
+            <Globe className="w-3.5 h-3.5 text-white" />
+          </button>
+
+          {/* Chat Button */}
+          <button
+            type="button"
+            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
+            aria-label="Messages"
+          >
+            <MessageCircle className="w-3.5 h-3.5 text-white" />
           </button>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          type="button"
-          className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
       </div>
     </header>
   );

@@ -1,0 +1,155 @@
+{
+  "common": {
+    "appName": "스너그",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "retry": "다시 시도",
+    "save": "저장",
+    "cancel": "취소",
+    "confirm": "확인",
+    "delete": "삭제",
+    "edit": "수정",
+    "search": "검색",
+    "filter": "필터",
+    "sort": "정렬",
+    "viewAll": "전체 보기",
+    "seeMore": "더 보기",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "submit": "제출",
+    "close": "닫기"
+  },
+  "metadata": {
+    "title": "스너그 - 한국에서 완벽한 방 찾기",
+    "description": "외국인을 위한 방 임대 플랫폼"
+  },
+  "nav": {
+    "home": "홈",
+    "search": "검색",
+    "map": "지도",
+    "favorites": "찜 목록",
+    "messages": "채팅",
+    "profile": "마이페이지",
+    "login": "로그인",
+    "signup": "회원가입",
+    "logout": "로그아웃"
+  },
+  "home": {
+    "hero": {
+      "title": "한국에서 완벽한 방을 찾아보세요",
+      "subtitle": "외국인을 위한 편안하고 합리적인 방을 발견하세요",
+      "searchPlaceholder": "위치, 역, 키워드로 검색"
+    },
+    "search": {
+      "location": "스너그 스테이 찾기",
+      "dates": "체류 기간",
+      "guests": "인원"
+    },
+    "banner": {
+      "slide1": "더 나은 첫 체류를 경험하세요. 스너그 스테이에 오신 것을 환영합니다!",
+      "slide2": "완벽한 작업 공간과 생활 공간을 찾아보세요",
+      "slide3": "당신을 이해하는 호스트와 연결되세요",
+      "slide4": "현지인처럼 한국을 경험하세요",
+      "slide5": "오늘 스너그 여정을 시작하세요"
+    },
+    "viewOnMap": "지도에서 보기",
+    "hostMode": "호스트 모드",
+    "featured": {
+      "title": "추천 방",
+      "empty": "추천 방이 없습니다"
+    },
+    "categories": {
+      "title": "유형별 찾기",
+      "studio": "원룸",
+      "oneRoom": "투룸",
+      "twoRoom": "쓰리룸",
+      "shareHouse": "쉐어하우스",
+      "officetel": "오피스텔"
+    }
+  },
+  "rooms": {
+    "perMonth": "/월",
+    "deposit": "보증금",
+    "maintenance": "관리비",
+    "available": "입주 가능",
+    "notAvailable": "입주 불가",
+    "nearStation": "{station}에서 {minutes}분",
+    "amenities": "편의시설",
+    "description": "설명",
+    "location": "위치",
+    "contact": "호스트에게 연락",
+    "book": "예약하기",
+    "addToFavorites": "찜하기",
+    "removeFromFavorites": "찜 해제"
+  },
+  "booking": {
+    "title": "예약",
+    "checkIn": "입주일",
+    "checkOut": "퇴거일",
+    "duration": "기간",
+    "months": "{count}개월",
+    "totalPrice": "총 금액",
+    "status": {
+      "pending": "대기 중",
+      "confirmed": "확정",
+      "cancelled": "취소됨",
+      "completed": "완료",
+      "refunded": "환불됨"
+    },
+    "confirmBooking": "예약 확정",
+    "cancelBooking": "예약 취소"
+  },
+  "chat": {
+    "title": "메시지",
+    "placeholder": "메시지를 입력하세요...",
+    "send": "전송",
+    "noMessages": "메시지가 없습니다",
+    "startConversation": "대화를 시작하세요"
+  },
+  "auth": {
+    "login": {
+      "title": "다시 오신 것을 환영합니다",
+      "email": "이메일",
+      "password": "비밀번호",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "submit": "로그인",
+      "noAccount": "계정이 없으신가요?",
+      "signupLink": "회원가입"
+    },
+    "signup": {
+      "title": "계정 만들기",
+      "name": "이름",
+      "email": "이메일",
+      "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "submit": "가입하기",
+      "hasAccount": "이미 계정이 있으신가요?",
+      "loginLink": "로그인"
+    },
+    "errors": {
+      "invalidEmail": "올바른 이메일 주소를 입력하세요",
+      "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다",
+      "loginFailed": "로그인에 실패했습니다. 정보를 확인해주세요.",
+      "signupFailed": "회원가입에 실패했습니다. 다시 시도해주세요."
+    }
+  },
+  "profile": {
+    "title": "내 프로필",
+    "editProfile": "프로필 수정",
+    "myBookings": "내 예약",
+    "myFavorites": "찜 목록",
+    "settings": "설정",
+    "language": "언어",
+    "notifications": "알림",
+    "help": "도움말 및 지원"
+  },
+  "footer": {
+    "about": "소개",
+    "terms": "이용약관",
+    "privacy": "개인정보처리방침",
+    "contact": "문의하기",
+    "copyright": "© {year} 스너그. All rights reserved."
+  }
+}

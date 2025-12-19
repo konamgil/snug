@@ -1,0 +1,155 @@
+{
+  "common": {
+    "appName": "Snug",
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "retry": "Thử lại",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "viewAll": "Xem tất cả",
+    "seeMore": "Xem thêm",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước đó",
+    "submit": "Gửi",
+    "close": "Đóng"
+  },
+  "metadata": {
+    "title": "Snug - Tìm phòng hoàn hảo tại Hàn Quốc",
+    "description": "Nền tảng cho thuê phòng dành cho người nước ngoài tại Hàn Quốc"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "search": "Tìm kiếm",
+    "map": "Bản đồ",
+    "favorites": "Yêu thích",
+    "messages": "Trò chuyện",
+    "profile": "Của tôi",
+    "login": "Đăng nhập",
+    "signup": "Đăng ký",
+    "logout": "Đăng xuất"
+  },
+  "home": {
+    "hero": {
+      "title": "Tìm phòng hoàn hảo tại Hàn Quốc",
+      "subtitle": "Khám phá những căn phòng thoải mái và giá cả phải chăng cho người nước ngoài",
+      "searchPlaceholder": "Tìm theo vị trí, ga tàu hoặc từ khóa"
+    },
+    "search": {
+      "location": "Tìm nơi ở snug của bạn",
+      "dates": "Ngày lưu trú",
+      "guests": "Khách"
+    },
+    "banner": {
+      "slide1": "Kỳ nghỉ đầu tiên của bạn vừa trở nên tốt hơn. Chào mừng đến với snug stay!",
+      "slide2": "Tìm không gian làm việc và sinh sống hoàn hảo",
+      "slide3": "Kết nối với các chủ nhà hiểu bạn",
+      "slide4": "Trải nghiệm Hàn Quốc như người bản địa",
+      "slide5": "Bắt đầu hành trình snug của bạn ngay hôm nay"
+    },
+    "viewOnMap": "Xem trên bản đồ",
+    "hostMode": "Chế độ chủ nhà",
+    "featured": {
+      "title": "Phòng nổi bật",
+      "empty": "Không có phòng nổi bật"
+    },
+    "categories": {
+      "title": "Tìm theo loại",
+      "studio": "Studio",
+      "oneRoom": "Một phòng",
+      "twoRoom": "Hai phòng",
+      "shareHouse": "Nhà chia sẻ",
+      "officetel": "Officetel"
+    }
+  },
+  "rooms": {
+    "perMonth": "/tháng",
+    "deposit": "Tiền cọc",
+    "maintenance": "Phí quản lý",
+    "available": "Có sẵn",
+    "notAvailable": "Không có sẵn",
+    "nearStation": "{minutes} phút từ {station}",
+    "amenities": "Tiện nghi",
+    "description": "Mô tả",
+    "location": "Vị trí",
+    "contact": "Liên hệ chủ nhà",
+    "book": "Đặt ngay",
+    "addToFavorites": "Thêm vào yêu thích",
+    "removeFromFavorites": "Xóa khỏi yêu thích"
+  },
+  "booking": {
+    "title": "Đặt phòng",
+    "checkIn": "Nhận phòng",
+    "checkOut": "Trả phòng",
+    "duration": "Thời gian",
+    "months": "{count} tháng",
+    "totalPrice": "Tổng giá",
+    "status": {
+      "pending": "Đang chờ",
+      "confirmed": "Đã xác nhận",
+      "cancelled": "Đã hủy",
+      "completed": "Hoàn thành",
+      "refunded": "Đã hoàn tiền"
+    },
+    "confirmBooking": "Xác nhận đặt phòng",
+    "cancelBooking": "Hủy đặt phòng"
+  },
+  "chat": {
+    "title": "Tin nhắn",
+    "placeholder": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "noMessages": "Chưa có tin nhắn",
+    "startConversation": "Bắt đầu cuộc trò chuyện"
+  },
+  "auth": {
+    "login": {
+      "title": "Chào mừng trở lại",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "forgotPassword": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "noAccount": "Chưa có tài khoản?",
+      "signupLink": "Đăng ký"
+    },
+    "signup": {
+      "title": "Tạo tài khoản",
+      "name": "Tên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "submit": "Đăng ký",
+      "hasAccount": "Đã có tài khoản?",
+      "loginLink": "Đăng nhập"
+    },
+    "errors": {
+      "invalidEmail": "Địa chỉ email không hợp lệ",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+      "passwordMismatch": "Mật khẩu không khớp",
+      "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin.",
+      "signupFailed": "Đăng ký thất bại. Vui lòng thử lại."
+    }
+  },
+  "profile": {
+    "title": "Hồ sơ của tôi",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "myBookings": "Đặt phòng của tôi",
+    "myFavorites": "Yêu thích của tôi",
+    "settings": "Cài đặt",
+    "language": "Ngôn ngữ",
+    "notifications": "Thông báo",
+    "help": "Trợ giúp & Hỗ trợ"
+  },
+  "footer": {
+    "about": "Giới thiệu",
+    "terms": "Điều khoản dịch vụ",
+    "privacy": "Chính sách bảo mật",
+    "contact": "Liên hệ",
+    "copyright": "© {year} Snug. Bảo lưu mọi quyền."
+  }
+}

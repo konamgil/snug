@@ -1,23 +1,14 @@
-import type { Metadata, Viewport } from 'next';
+// Root layout - minimal wrapper for locale routing
+// The actual layout with full styling is in [locale]/layout.tsx
+
+import type { Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Providers } from './providers';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
 });
-
-export const metadata: Metadata = {
-  title: 'Snug - Find Your Perfect Room in Korea',
-  description: 'Room rental platform for foreigners in Korea',
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Snug',
-  },
-};
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -29,14 +20,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <Providers>{children}</Providers>
-      </body>
+      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

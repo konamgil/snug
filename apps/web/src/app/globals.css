@@ -2,17 +2,15 @@
 
 /* CSS Variables for theming */
 :root {
-  /* Brand Colors */
-  --brand-50: 240 100% 97%;
-  --brand-100: 240 100% 94%;
-  --brand-200: 240 100% 88%;
-  --brand-300: 240 100% 80%;
-  --brand-400: 240 100% 70%;
-  --brand-500: 240 100% 60%;
-  --brand-600: 240 100% 50%;
-  --brand-700: 240 100% 40%;
-  --brand-800: 240 100% 30%;
-  --brand-900: 240 100% 20%;
+  /* Snug Brand Colors */
+  --snug-orange: 27 100% 50%; /* #ff7900 */
+  --snug-brown: 10 45% 30%; /* #763225 */
+  --snug-gray: 0 0% 32%; /* #525252 */
+  --snug-placeholder: 0 0% 66%; /* #a8a8a8 */
+  --snug-border: 0 0% 85%; /* #d8d8d8 */
+  --snug-light-gray: 0 0% 95%; /* #f2f2f2 */
+  --snug-text-primary: 0 0% 9%; /* #161616 */
+  --snug-text-inverse: 0 0% 22%; /* #393939 */
 
   /* shadcn/ui Colors */
   --background: 0 0% 100%;

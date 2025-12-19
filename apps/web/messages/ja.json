@@ -1,0 +1,155 @@
+{
+  "common": {
+    "appName": "Snug",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "再試行",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "delete": "削除",
+    "edit": "編集",
+    "search": "検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "viewAll": "すべて見る",
+    "seeMore": "もっと見る",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "submit": "送信",
+    "close": "閉じる"
+  },
+  "metadata": {
+    "title": "Snug - 韓国で完璧な部屋を見つけよう",
+    "description": "外国人向けの賃貸プラットフォーム"
+  },
+  "nav": {
+    "home": "ホーム",
+    "search": "検索",
+    "map": "地図",
+    "favorites": "お気に入り",
+    "messages": "チャット",
+    "profile": "マイページ",
+    "login": "ログイン",
+    "signup": "新規登録",
+    "logout": "ログアウト"
+  },
+  "home": {
+    "hero": {
+      "title": "韓国で完璧な部屋を見つけよう",
+      "subtitle": "外国人向けの快適でリーズナブルな部屋を発見",
+      "searchPlaceholder": "場所、駅、キーワードで検索"
+    },
+    "search": {
+      "location": "snugステイを探す",
+      "dates": "滞在日",
+      "guests": "人数"
+    },
+    "banner": {
+      "slide1": "初めての滞在がもっと良くなりました。snug stayへようこそ！",
+      "slide2": "完璧なワークスペースと生活空間を見つけよう",
+      "slide3": "あなたを理解してくれるホストとつながる",
+      "slide4": "地元の人のように韓国を体験しよう",
+      "slide5": "今日からsnugの旅を始めよう"
+    },
+    "viewOnMap": "地図で見る",
+    "hostMode": "ホストモード",
+    "featured": {
+      "title": "おすすめの部屋",
+      "empty": "おすすめの部屋はありません"
+    },
+    "categories": {
+      "title": "タイプで探す",
+      "studio": "ワンルーム",
+      "oneRoom": "1K",
+      "twoRoom": "2K",
+      "shareHouse": "シェアハウス",
+      "officetel": "オフィステル"
+    }
+  },
+  "rooms": {
+    "perMonth": "/月",
+    "deposit": "敷金",
+    "maintenance": "管理費",
+    "available": "入居可能",
+    "notAvailable": "入居不可",
+    "nearStation": "{station}から{minutes}分",
+    "amenities": "設備",
+    "description": "説明",
+    "location": "場所",
+    "contact": "ホストに連絡",
+    "book": "今すぐ予約",
+    "addToFavorites": "お気に入りに追加",
+    "removeFromFavorites": "お気に入りから削除"
+  },
+  "booking": {
+    "title": "予約",
+    "checkIn": "入居日",
+    "checkOut": "退去日",
+    "duration": "期間",
+    "months": "{count}ヶ月",
+    "totalPrice": "合計金額",
+    "status": {
+      "pending": "保留中",
+      "confirmed": "確認済み",
+      "cancelled": "キャンセル",
+      "completed": "完了",
+      "refunded": "返金済み"
+    },
+    "confirmBooking": "予約を確定",
+    "cancelBooking": "予約をキャンセル"
+  },
+  "chat": {
+    "title": "メッセージ",
+    "placeholder": "メッセージを入力...",
+    "send": "送信",
+    "noMessages": "メッセージはありません",
+    "startConversation": "会話を始める"
+  },
+  "auth": {
+    "login": {
+      "title": "おかえりなさい",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "submit": "ログイン",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signupLink": "新規登録"
+    },
+    "signup": {
+      "title": "アカウント作成",
+      "name": "名前",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "confirmPassword": "パスワード確認",
+      "submit": "登録",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "loginLink": "ログイン"
+    },
+    "errors": {
+      "invalidEmail": "有効なメールアドレスを入力してください",
+      "passwordTooShort": "パスワードは8文字以上必要です",
+      "passwordMismatch": "パスワードが一致しません",
+      "loginFailed": "ログインに失敗しました。情報をご確認ください。",
+      "signupFailed": "登録に失敗しました。もう一度お試しください。"
+    }
+  },
+  "profile": {
+    "title": "マイプロフィール",
+    "editProfile": "プロフィール編集",
+    "myBookings": "予約一覧",
+    "myFavorites": "お気に入り",
+    "settings": "設定",
+    "language": "言語",
+    "notifications": "通知",
+    "help": "ヘルプ・サポート"
+  },
+  "footer": {
+    "about": "会社概要",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "contact": "お問い合わせ",
+    "copyright": "© {year} Snug. All rights reserved."
+  }
+}

@@ -1,23 +1,25 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, Search, Heart, Calendar, User } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Search, Map, MessageCircle, User } from 'lucide-react';
+import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/shared/lib';
 
-const navItems = [
-  { href: '/', icon: Home, label: 'Home' },
-  { href: '/rooms', icon: Search, label: 'Search' },
-  { href: '/favorites', icon: Heart, label: 'Favorites' },
-  { href: '/bookings', icon: Calendar, label: 'Bookings' },
-  { href: '/profile', icon: User, label: 'Profile' },
+type NavItemKey = 'search' | 'map' | 'messages' | 'profile';
+
+const navItems: { href: string; icon: typeof Search; labelKey: NavItemKey }[] = [
+  { href: '/rooms', icon: Search, labelKey: 'search' },
+  { href: '/map', icon: Map, labelKey: 'map' },
+  { href: '/chat', icon: MessageCircle, labelKey: 'messages' },
+  { href: '/profile', icon: User, labelKey: 'profile' },
 ];
 
 export function MobileNav() {
+  const t = useTranslations('nav');
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t md:hidden safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[hsl(var(--snug-border))] md:hidden safe-bottom">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -27,12 +29,12 @@ export function MobileNav() {
               href={item.href}
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full',
-                'text-muted-foreground hover:text-foreground transition-colors',
-                isActive && 'text-primary',
+                'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))] transition-colors',
+                isActive && 'text-[#ff7900]',
               )}
             >
               <item.icon className="h-5 w-5" />
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-[10px] mt-1 font-medium">{t(item.labelKey)}</span>
             </Link>
           );
         })}
