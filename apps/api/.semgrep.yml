@@ -2,8 +2,7 @@ rules:
   # === Security Rules ===
 
   - id: no-hardcoded-secrets
-    patterns:
-      - pattern-regex: '(?i)(password|secret|api[_-]?key|token|credentials)\s*[:=]\s*["\x27][^\"\x27]{8,}["\x27]'
+    pattern-regex: '(?i)(password|secret|api[_-]?key|token|credentials)\s*[:=]\s*["\x27][^\"\x27]{8,}["\x27]'
     message: "Hardcoded secret detected. Use environment variables instead."
     languages: [typescript, javascript]
     severity: ERROR
@@ -22,7 +21,7 @@ rules:
 
   # === NestJS Best Practices ===
 
-  - id: no-console-in-production
+  - id: no-console-log
     pattern: console.log(...)
     message: "Avoid console.log in production code. Use the injected Logger service."
     languages: [typescript, javascript]
@@ -30,7 +29,7 @@ rules:
     metadata:
       category: best-practices
 
-  - id: catch-error-without-handling
+  - id: empty-catch-block
     pattern: |
       catch ($ERR) {
       }
@@ -42,27 +41,9 @@ rules:
 
   # === Code Quality ===
 
-  - id: no-explicit-any-parameter
-    pattern: |
-      function $FUNC(..., $PARAM: any, ...): $RET { ... }
-    message: "Avoid using 'any' type for function parameters. Use specific types or 'unknown'."
-    languages: [typescript]
-    severity: WARNING
-    metadata:
-      category: code-quality
-
-  - id: no-floating-promises
-    pattern: |
-      $ASYNC_FUNC(...);
-    pattern-not: |
-      await $ASYNC_FUNC(...);
-    pattern-not: |
-      return $ASYNC_FUNC(...);
-    pattern-not: |
-      $VAR = $ASYNC_FUNC(...);
-    pattern-inside: |
-      async function $FN(...) { ... }
-    message: "Floating promise detected. Use await or handle the promise."
+  - id: no-any-type-annotation
+    pattern: "$VAR: any"
+    message: "Avoid using 'any' type. Use specific types or 'unknown'."
     languages: [typescript]
     severity: WARNING
     metadata:

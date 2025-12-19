@@ -37,6 +37,11 @@ export default tseslint.config(
       // '@typescript-eslint/no-floating-promises': 'error',
       // '@typescript-eslint/require-await': 'error',
 
+      // NestJS Swagger rules - enforced after Swagger setup
+      '@darraghor/nestjs-typed/controllers-should-supply-api-tags': 'error',
+      '@darraghor/nestjs-typed/api-method-should-specify-api-response': 'error',
+      '@darraghor/nestjs-typed/should-specify-forbid-unknown-values': 'error',
+
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },

@@ -15,7 +15,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "deps:check": "depcruise src --config .dependency-cruiser.cjs",
-    "semgrep": "semgrep scan --config .semgrep.yml src/",
+    "semgrep": "C:/Users/User/AppData/Roaming/Python/Python313/Scripts/pysemgrep.exe scan --config .semgrep.yml src/",
     "arch:check": "pnpm deps:check && pnpm semgrep"
   },
   "dependencies": {

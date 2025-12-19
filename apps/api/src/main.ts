@@ -24,6 +24,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      forbidUnknownValues: true, // CVE-2019-18413 protection
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,
