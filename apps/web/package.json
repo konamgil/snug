@@ -15,7 +15,7 @@
     "mobile:ios": "pnpm mobile:build && pnpm cap:open:ios",
     "mobile:android": "pnpm mobile:build && pnpm cap:open:android",
     "deps:check": "depcruise src --config .dependency-cruiser.cjs",
-    "semgrep": "semgrep scan --config .semgrep.yml src/",
+    "semgrep": "C:/Users/User/AppData/Roaming/Python/Python313/Scripts/pysemgrep.exe scan --config .semgrep.yml src/",
     "arch:check": "pnpm deps:check && pnpm semgrep"
   },
   "dependencies": {

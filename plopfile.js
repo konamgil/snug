@@ -248,27 +248,27 @@ export default function (plop) {
       },
     ],
     actions: [
-      // Page component in FSD pages layer
+      // Page component in FSD views layer (renamed from pages to avoid Next.js conflict)
       {
         type: 'add',
-        path: 'apps/web/src/pages/{{kebabCase name}}/ui/{{kebabCase name}}-page.tsx',
+        path: 'apps/web/src/views/{{kebabCase name}}/ui/{{kebabCase name}}-page.tsx',
         templateFile: 'plop-templates/fsd/page-component.hbs',
       },
       {
         type: 'add',
-        path: 'apps/web/src/pages/{{kebabCase name}}/ui/index.ts',
+        path: 'apps/web/src/views/{{kebabCase name}}/ui/index.ts',
         templateFile: 'plop-templates/fsd/page-ui-index.hbs',
       },
       {
         type: 'add',
-        path: 'apps/web/src/pages/{{kebabCase name}}/index.ts',
+        path: 'apps/web/src/views/{{kebabCase name}}/index.ts',
         templateFile: 'plop-templates/fsd/page-index.hbs',
       },
       // Note about Next.js App Router
       {
         type: 'add',
-        path: 'apps/web/src/pages/{{kebabCase name}}/.generated',
-        template: `Generated at: ${new Date().toISOString()}\n\nRemember to:\n1. Create route in app/ directory: app{{route}}/page.tsx\n2. Import and use {{pascalCase name}}Page component\n3. Add metadata for SEO`,
+        path: 'apps/web/src/views/{{kebabCase name}}/.generated',
+        template: `Generated at: ${new Date().toISOString()}\n\nRemember to:\n1. Create route in app/ directory: app{{route}}/page.tsx\n2. Import and use {{pascalCase name}}Page from @/views/{{kebabCase name}}\n3. Add metadata for SEO`,
       },
     ],
   });

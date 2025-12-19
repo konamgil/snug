@@ -24,7 +24,15 @@
       "Bash(pnpm semgrep:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm typecheck:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(pip show:*)",
+      "Bash(pnpm --filter @snug/api lint:*)",
+      "Bash(\"C:/Users/User/AppData/Roaming/Python/Python313/Scripts/semgrep.exe\" --version)",
+      "Bash(\"C:/Users/User/AppData/Roaming/Python/Python313/Scripts/pysemgrep.exe\" --version)",
+      "Bash(\"C:/Users/User/AppData/Roaming/Python/Python313/Scripts/pysemgrep.exe\" scan --config .semgrep.yml src/)",
+      "Bash(pnpm arch:check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git mv:*)"
     ]
   }
 }
