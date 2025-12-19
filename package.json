@@ -9,6 +9,7 @@
     "dev:web": "turbo dev --filter=@snug/web",
     "dev:api": "turbo dev --filter=@snug/api",
     "build": "turbo build",
+    "build:all": "pnpm --filter @snug/web build:export && pnpm --filter @snug/web build:ssr",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "deps:check": "turbo deps:check",
@@ -57,6 +58,6 @@
   },
   "packageManager": "pnpm@10.26.0",
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   }
 }

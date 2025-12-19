@@ -3,17 +3,19 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+const isExport = process.env.WEB_BUILD === 'export';
+
 const nextConfig: NextConfig = {
-  // Static export for Capacitor
-  output: 'export',
+  // Static export for Capacitor builds
+  output: isExport ? 'export' : undefined,
 
   // Disable image optimization for static export
   images: {
-    unoptimized: true,
+    unoptimized: isExport,
   },
 
   // Trailing slash for Capacitor compatibility
-  trailingSlash: true,
+  trailingSlash: isExport,
 
   // Transpile internal packages
   transpilePackages: ['@snug/types'],
