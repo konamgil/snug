@@ -71,9 +71,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Get port from config
+  // Get port from config (Render provides PORT)
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('API_PORT', 4000);
+  const port =
+    Number.parseInt(process.env.PORT ?? '', 10) || configService.get<number>('API_PORT') || 4000;
 
   await app.listen(port);
 
