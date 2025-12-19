@@ -32,7 +32,9 @@
       "Bash(\"C:/Users/User/AppData/Roaming/Python/Python313/Scripts/pysemgrep.exe\" scan --config .semgrep.yml src/)",
       "Bash(pnpm arch:check:*)",
       "Bash(npx tsc:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm --filter @snug/database build:*)"
     ]
   }
 }
