@@ -54,11 +54,13 @@ function GuestRow({
 
   return (
     <div className="flex items-center justify-between py-3">
-      <div>
-        <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] tracking-tight">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] tracking-tight whitespace-nowrap">
           {label}
         </p>
-        <p className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">{description}</p>
+        <p className="text-xs text-[hsl(var(--snug-gray))] tracking-tight whitespace-nowrap">
+          {description}
+        </p>
       </div>
       <div className="flex items-center gap-3">
         <button

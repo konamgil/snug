@@ -35,6 +35,22 @@
     "signup": "Sign Up",
     "logout": "Logout"
   },
+  "search": {
+    "resultsCount": "{count} Places to Stay in {location}",
+    "filters": {
+      "filters": "Filters",
+      "roomType": "Room Type",
+      "womenOnly": "Women Only",
+      "parking": "Parking"
+    },
+    "sort": {
+      "recommended": "Recommended",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "newest": "Newest"
+    },
+    "mapPlaceholder": "Map View"
+  },
   "home": {
     "hero": {
       "title": "Find Your Perfect Room in Korea",
@@ -195,5 +211,29 @@
     "privacy": "Privacy Policy",
     "contact": "Contact Us",
     "copyright": "© {year} Snug. All rights reserved."
+  },
+  "roomDetail": {
+    "aboutThisPlace": "About this place",
+    "guidelines": "Guidelines",
+    "details": "Details",
+    "facilities": "Facilities",
+    "houseAmenities": "House Amenities",
+    "houseRules": "House Rules",
+    "location": "Location",
+    "otherStays": "Other Stays You May Like",
+    "refundPolicy": "Refund Policy",
+    "longTermDiscount": "Long-Term Discount",
+    "importantNotes": "Important Notes",
+    "reserveNow": "Reserve Now",
+    "contactHost": "Contact Host",
+    "notChargedYet": "You won't be charged yet",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "adults": "Adults",
+    "children": "Children",
+    "serviceFee": "Service fee",
+    "total": "Total",
+    "perNight": "/ night"
   }
 }
