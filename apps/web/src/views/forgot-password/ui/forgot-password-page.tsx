@@ -39,7 +39,7 @@ export function ForgotPasswordPage() {
 
   const tabBaseClass = 'flex-1 py-3 text-sm font-medium transition-colors';
   const tabActiveClass =
-    'text-[hsl(var(--snug-text-primary))] border-b-2 border-[hsl(var(--snug-text-primary))]';
+    'text-[hsl(var(--snug-text-primary))] border-b-2 border-[hsl(var(--snug-orange))]';
   const tabInactiveClass = 'text-[hsl(var(--snug-gray))]';
   const inputClass =
     'px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors';
