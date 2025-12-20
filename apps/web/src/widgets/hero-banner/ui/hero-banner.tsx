@@ -35,13 +35,13 @@ export function HeroBanner({ className }: HeroBannerProps) {
   }, [slides.length]);
 
   return (
-    <div className={`w-full max-w-[350px] ${className ?? ''}`}>
+    <div className={`w-full max-w-[400px] ${className ?? ''}`}>
       {/* Banner Card */}
       <div className="relative border border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden h-[170px] bg-white">
         {/* Illustration Image */}
         <div className="absolute inset-0">
           <Image
-            src="/images/banner/banner-illustration.png"
+            src="/images/banner/banner-illustration.webp"
             alt="Snug coworking and living space illustration"
             fill
             className="object-cover object-center"

@@ -1,13 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Calendar, Users, Search } from 'lucide-react';
+import { MapPin, Calendar, Users, Search, X } from 'lucide-react';
+import { DatePicker } from './date-picker';
+import { GuestPicker, formatGuestSummary, type GuestCount } from './guest-picker';
 
 interface SearchFormProps {
   className?: string;
   onFocusChange?: (focused: boolean) => void;
 }
+
+type FocusState = 'none' | 'location' | 'dates' | 'guests';
 
 // Popular search locations in Gangnam-gu
 const popularLocations = [
@@ -23,11 +27,54 @@ const popularLocations = [
   { dong: 'Dogok-dong', gu: 'Gangnam-gu' },
 ];
 
+const MONTH_NAMES_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const DEFAULT_GUESTS: GuestCount = {
+  adults: 0,
+  children: 0,
+  infants: 0,
+};
+
+function formatDateRange(checkIn: Date | null, checkOut: Date | null): string | null {
+  if (!checkIn) return null;
+
+  const formatDate = (date: Date) => {
+    const month = MONTH_NAMES_SHORT[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear().toString().slice(-2);
+    return `${month} ${day}, ${year}`;
+  };
+
+  if (!checkOut) {
+    return formatDate(checkIn);
+  }
+
+  return `${formatDate(checkIn)} - ${formatDate(checkOut)}`;
+}
+
 export function SearchForm({ className, onFocusChange }: SearchFormProps) {
   const t = useTranslations('home.search');
-  const [isFocused, setIsFocused] = useState(false);
+  const [focusState, setFocusState] = useState<FocusState>('none');
   const [locationValue, setLocationValue] = useState('');
+  const [checkIn, setCheckIn] = useState<Date | null>(null);
+  const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [guests, setGuests] = useState<GuestCount>(DEFAULT_GUESTS);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const isFocused = focusState !== 'none';
 
   // Notify parent when focus changes
   useEffect(() => {
@@ -38,7 +85,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsFocused(false);
+        setFocusState('none');
       }
     }
 
@@ -53,11 +100,46 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
 
   const handleLocationSelect = (dong: string, gu: string) => {
     setLocationValue(`${dong}, ${gu}`);
-    setIsFocused(false);
+    setFocusState('none');
   };
 
+  const handleDateSelect = useCallback((newCheckIn: Date | null, newCheckOut: Date | null) => {
+    setCheckIn(newCheckIn);
+    setCheckOut(newCheckOut);
+    // Close calendar when both dates are selected
+    if (newCheckIn && newCheckOut) {
+      setFocusState('none');
+    }
+  }, []);
+
+  const handleGuestChange = useCallback((newGuests: GuestCount) => {
+    setGuests(newGuests);
+  }, []);
+
+  const handleDatesClick = () => {
+    setFocusState(focusState === 'dates' ? 'none' : 'dates');
+  };
+
+  const handleGuestsClick = () => {
+    setFocusState(focusState === 'guests' ? 'none' : 'guests');
+  };
+
+  const handleResetDates = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCheckIn(null);
+    setCheckOut(null);
+  };
+
+  const handleResetGuests = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setGuests(DEFAULT_GUESTS);
+  };
+
+  const dateRangeText = formatDateRange(checkIn, checkOut);
+  const guestSummary = formatGuestSummary(guests);
+
   return (
-    <div ref={containerRef} className={`relative w-full max-w-[350px] ${className ?? ''}`}>
+    <div ref={containerRef} className={`relative w-full max-w-[400px] ${className ?? ''}`}>
       {/* Unified Container with Orange Border on Focus */}
       <div
         className={`bg-white border-2 rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
@@ -74,7 +156,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
               placeholder={t('location')}
               value={locationValue}
               onChange={(e) => setLocationValue(e.target.value)}
-              onFocus={() => setIsFocused(true)}
+              onFocus={() => setFocusState('location')}
               className="flex-1 text-xs text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-placeholder))] bg-transparent outline-none tracking-tight"
             />
           </div>
@@ -83,22 +165,66 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Stay Dates */}
-              <button
-                type="button"
-                className="flex items-center gap-1 text-xs text-[hsl(var(--snug-placeholder))] tracking-tight"
-              >
-                <Calendar className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
-                <span>{t('dates')}</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={handleDatesClick}
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors ${
+                    dateRangeText
+                      ? 'text-[hsl(var(--snug-text-primary))]'
+                      : 'text-[hsl(var(--snug-placeholder))]'
+                  } ${focusState === 'dates' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
+                >
+                  <Calendar
+                    className={`w-3 h-3 ${
+                      focusState === 'dates'
+                        ? 'text-[hsl(var(--snug-orange))]'
+                        : 'text-[hsl(var(--snug-gray))]'
+                    }`}
+                  />
+                  <span>{dateRangeText ?? t('dates')}</span>
+                </button>
+                {dateRangeText && (
+                  <button
+                    type="button"
+                    onClick={handleResetDates}
+                    className="p-0.5 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                  >
+                    <X className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                  </button>
+                )}
+              </div>
 
               {/* Guests */}
-              <button
-                type="button"
-                className="flex items-center gap-1 text-xs text-[hsl(var(--snug-placeholder))] tracking-tight"
-              >
-                <Users className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
-                <span>{t('guests')}</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={handleGuestsClick}
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors ${
+                    guestSummary
+                      ? 'text-[hsl(var(--snug-text-primary))]'
+                      : 'text-[hsl(var(--snug-placeholder))]'
+                  } ${focusState === 'guests' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
+                >
+                  <Users
+                    className={`w-3 h-3 ${
+                      focusState === 'guests'
+                        ? 'text-[hsl(var(--snug-orange))]'
+                        : 'text-[hsl(var(--snug-gray))]'
+                    }`}
+                  />
+                  <span>{guestSummary ?? t('guests')}</span>
+                </button>
+                {guestSummary && (
+                  <button
+                    type="button"
+                    onClick={handleResetGuests}
+                    className="p-0.5 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                  >
+                    <X className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Search Button */}
@@ -111,10 +237,12 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
           </div>
         </div>
 
-        {/* Popular Searches Dropdown */}
+        {/* Popular Searches Dropdown - Location Focus */}
         <div
           className={`transition-all duration-300 ease-out ${
-            isFocused ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+            focusState === 'location'
+              ? 'max-h-[400px] opacity-100'
+              : 'max-h-0 opacity-0 pointer-events-none'
           }`}
         >
           {/* Separator Line */}
@@ -141,6 +269,38 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Calendar Dropdown - Dates Focus */}
+        <div
+          className={`transition-all duration-300 ease-out overflow-hidden ${
+            focusState === 'dates'
+              ? 'max-h-[600px] opacity-100'
+              : 'max-h-0 opacity-0 pointer-events-none'
+          }`}
+        >
+          {/* Separator Line */}
+          <div className="border-t border-[hsl(var(--snug-border))] mx-4" />
+
+          <div className="p-4 pt-3">
+            <DatePicker checkIn={checkIn} checkOut={checkOut} onDateSelect={handleDateSelect} />
+          </div>
+        </div>
+
+        {/* Guest Picker Dropdown - Guests Focus */}
+        <div
+          className={`transition-all duration-300 ease-out overflow-hidden ${
+            focusState === 'guests'
+              ? 'max-h-[400px] opacity-100'
+              : 'max-h-0 opacity-0 pointer-events-none'
+          }`}
+        >
+          {/* Separator Line */}
+          <div className="border-t border-[hsl(var(--snug-border))] mx-4" />
+
+          <div className="px-4 pb-4">
+            <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
           </div>
         </div>
       </div>

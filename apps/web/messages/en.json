@@ -110,13 +110,26 @@
   },
   "auth": {
     "login": {
-      "title": "Welcome Back",
+      "title": "Log In to your Account",
       "email": "Email",
       "password": "Password",
-      "forgotPassword": "Forgot password?",
+      "forgotPassword": "Forgot your ID? or Password?",
       "submit": "Login",
       "noAccount": "Don't have an account?",
-      "signupLink": "Sign up"
+      "signupLink": "Sign up",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple",
+      "continueWithKakao": "Continue with Kakao",
+      "continueWithFacebook": "Continue with Facebook",
+      "continueWithEmail": "Continue with Email",
+      "back": "Back",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "passwordPlaceholder": "Enter your password",
+      "staySignedIn": "Stay signed in",
+      "continue": "Continue",
+      "signUp": "Sign Up",
+      "incorrectCredentials": "Incorrect email or password. Please try again."
     },
     "signup": {
       "title": "Create Account",
@@ -134,6 +147,36 @@
       "passwordMismatch": "Passwords do not match",
       "loginFailed": "Login failed. Please check your credentials.",
       "signupFailed": "Sign up failed. Please try again."
+    },
+    "forgotPassword": {
+      "findId": "Find ID",
+      "findPassword": "Find Password",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phoneNumber": "Phone Number",
+      "email": "Email Address",
+      "continue": "Continue",
+      "backToLogin": "Back to Login"
+    },
+    "signupPage": {
+      "title": "Create your Account",
+      "emailAddress": "Email address",
+      "password": "Password",
+      "passwordHint": "At least 8 characters, case-sensitive",
+      "passwordMismatch": "Re-enter your password",
+      "personalInfo": "Personal Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "nameHint": "Make sure this matches the name on your government ID. If you go by another name, you can add a preferred first name.",
+      "countryCode": "Country Code",
+      "phoneNumber": "Phone Number",
+      "agreeTerms": "I agree to the collection and use of my personal information.",
+      "termsPreview": "We collect personal information needed to use the Snug platform.",
+      "termsFullText": "We collect personal information needed to use the Snug platform. This includes name, email, phone number, and other registration details.",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "agreeMarketing": "I want to receive marketing emails. (optional)",
+      "continue": "Continue"
     }
   },
   "profile": {
