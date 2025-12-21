@@ -1,3 +1,4 @@
+// Home page route
 import { setRequestLocale } from 'next-intl/server';
 import { HomePage } from '@/views/home';
 import { type Locale } from '@/i18n/config';
