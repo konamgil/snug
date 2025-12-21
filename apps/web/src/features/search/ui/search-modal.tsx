@@ -202,7 +202,12 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               )}
             </div>
 
-            {expandedSection === 'location' && (
+            {/* Expandable Content */}
+            <div
+              className={`transition-all duration-300 ease-out overflow-hidden ${
+                expandedSection === 'location' ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
               <div className="px-4 pb-4">
                 <div className="border-t border-[hsl(var(--snug-border))] pt-3">
                   <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
@@ -222,7 +227,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Dates Section */}
@@ -258,7 +263,12 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               )}
             </div>
 
-            {expandedSection === 'dates' && (
+            {/* Expandable Content */}
+            <div
+              className={`transition-all duration-300 ease-out overflow-hidden ${
+                expandedSection === 'dates' ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
               <div className="px-4 pb-4">
                 <div className="border-t border-[hsl(var(--snug-border))] pt-3">
                   <DatePicker
@@ -268,7 +278,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
                   />
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Guests Section */}
@@ -293,13 +303,18 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               </span>
             </button>
 
-            {expandedSection === 'guests' && (
+            {/* Expandable Content */}
+            <div
+              className={`transition-all duration-300 ease-out overflow-hidden ${
+                expandedSection === 'guests' ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
               <div className="px-4 pb-4">
                 <div className="border-t border-[hsl(var(--snug-border))] pt-3">
                   <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
