@@ -53,7 +53,8 @@
       "Bash(pnpm --filter @snug/web lint:*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm --filter @snug/web build:ssr:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }

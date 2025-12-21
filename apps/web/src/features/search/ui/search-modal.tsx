@@ -138,173 +138,190 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
   const dateRangeText = formatDateRange(checkIn, checkOut);
   const guestSummary = formatGuestSummary(guests);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col">
-      {/* Header */}
-      <div className="flex justify-end p-4">
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-        >
-          <X className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
-        </button>
-      </div>
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black/20 z-40 transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 pb-32" onClick={handleContentClick}>
-        {/* Location Section */}
-        <div
-          ref={locationRef}
-          className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
-            expandedSection === 'location'
-              ? 'border-[#ff7900] border-2'
-              : 'border-[hsl(var(--snug-border))]'
-          }`}
-        >
-          <div className="flex items-center justify-between p-4">
-            <button
-              type="button"
-              onClick={() =>
-                setExpandedSection(expandedSection === 'location' ? 'none' : 'location')
-              }
-              className="flex items-center gap-2 flex-1"
-            >
-              <MapPin className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-              <span
-                className={`text-sm ${location ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
-              >
-                {location || t('location')}
-              </span>
-            </button>
-            {location && (
-              <button
-                type="button"
-                onClick={handleClearLocation}
-                className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-              >
-                <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-              </button>
-            )}
-          </div>
-
-          {expandedSection === 'location' && (
-            <div className="px-4 pb-4">
-              <div className="border-t border-[hsl(var(--snug-border))] pt-3">
-                <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                  {t('popularSearches')}
-                </p>
-                <div className="space-y-1">
-                  {popularLocations.map((loc) => (
-                    <button
-                      key={loc.dong}
-                      type="button"
-                      onClick={() => handleLocationSelect(loc.dong, loc.gu)}
-                      className="w-full text-left py-2 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
-                    >
-                      {loc.dong}, {loc.gu}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Dates Section */}
-        <div
-          ref={datesRef}
-          className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
-            expandedSection === 'dates'
-              ? 'border-[#ff7900] border-2'
-              : 'border-[hsl(var(--snug-border))]'
-          }`}
-        >
-          <div className="flex items-center justify-between p-4">
-            <button
-              type="button"
-              onClick={() => setExpandedSection(expandedSection === 'dates' ? 'none' : 'dates')}
-              className="flex items-center gap-2 flex-1"
-            >
-              <Calendar className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-              <span
-                className={`text-sm ${dateRangeText ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
-              >
-                {dateRangeText || t('dates')}
-              </span>
-            </button>
-            {dateRangeText && (
-              <button
-                type="button"
-                onClick={handleClearDates}
-                className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-              >
-                <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-              </button>
-            )}
-          </div>
-
-          {expandedSection === 'dates' && (
-            <div className="px-4 pb-4">
-              <div className="border-t border-[hsl(var(--snug-border))] pt-3">
-                <DatePicker checkIn={checkIn} checkOut={checkOut} onDateSelect={handleDateSelect} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Guests Section */}
-        <div
-          ref={guestsRef}
-          className={`border rounded-2xl transition-all duration-300 overflow-hidden ${
-            expandedSection === 'guests'
-              ? 'border-[#ff7900] border-2'
-              : 'border-[hsl(var(--snug-border))]'
-          }`}
-        >
+      {/* Modal */}
+      <div
+        className={`fixed inset-x-0 top-0 bottom-0 bg-white z-50 flex flex-col transition-all duration-300 ease-out ${
+          isOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+        }`}
+      >
+        {/* Header */}
+        <div className="flex justify-end p-4">
           <button
             type="button"
-            onClick={() => setExpandedSection(expandedSection === 'guests' ? 'none' : 'guests')}
-            className="w-full flex items-center gap-2 p-4"
+            onClick={onClose}
+            className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
           >
-            <Users className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-            <span
-              className={`text-sm ${guestSummary ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
-            >
-              {guestSummary || t('guests')}
-            </span>
+            <X className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
           </button>
+        </div>
 
-          {expandedSection === 'guests' && (
-            <div className="px-4 pb-4">
-              <div className="border-t border-[hsl(var(--snug-border))] pt-3">
-                <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
-              </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-4 pb-32" onClick={handleContentClick}>
+          {/* Location Section */}
+          <div
+            ref={locationRef}
+            className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
+              expandedSection === 'location'
+                ? 'border-[#ff7900] border-2'
+                : 'border-[hsl(var(--snug-border))]'
+            }`}
+          >
+            <div className="flex items-center justify-between p-4">
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedSection(expandedSection === 'location' ? 'none' : 'location')
+                }
+                className="flex items-center gap-2 flex-1"
+              >
+                <MapPin className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                <span
+                  className={`text-sm ${location ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
+                >
+                  {location || t('location')}
+                </span>
+              </button>
+              {location && (
+                <button
+                  type="button"
+                  onClick={handleClearLocation}
+                  className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                </button>
+              )}
             </div>
-          )}
+
+            {expandedSection === 'location' && (
+              <div className="px-4 pb-4">
+                <div className="border-t border-[hsl(var(--snug-border))] pt-3">
+                  <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
+                    {t('popularSearches')}
+                  </p>
+                  <div className="space-y-1">
+                    {popularLocations.map((loc) => (
+                      <button
+                        key={loc.dong}
+                        type="button"
+                        onClick={() => handleLocationSelect(loc.dong, loc.gu)}
+                        className="w-full text-left py-2 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                      >
+                        {loc.dong}, {loc.gu}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Dates Section */}
+          <div
+            ref={datesRef}
+            className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
+              expandedSection === 'dates'
+                ? 'border-[#ff7900] border-2'
+                : 'border-[hsl(var(--snug-border))]'
+            }`}
+          >
+            <div className="flex items-center justify-between p-4">
+              <button
+                type="button"
+                onClick={() => setExpandedSection(expandedSection === 'dates' ? 'none' : 'dates')}
+                className="flex items-center gap-2 flex-1"
+              >
+                <Calendar className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                <span
+                  className={`text-sm ${dateRangeText ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
+                >
+                  {dateRangeText || t('dates')}
+                </span>
+              </button>
+              {dateRangeText && (
+                <button
+                  type="button"
+                  onClick={handleClearDates}
+                  className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                </button>
+              )}
+            </div>
+
+            {expandedSection === 'dates' && (
+              <div className="px-4 pb-4">
+                <div className="border-t border-[hsl(var(--snug-border))] pt-3">
+                  <DatePicker
+                    checkIn={checkIn}
+                    checkOut={checkOut}
+                    onDateSelect={handleDateSelect}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Guests Section */}
+          <div
+            ref={guestsRef}
+            className={`border rounded-2xl transition-all duration-300 overflow-hidden ${
+              expandedSection === 'guests'
+                ? 'border-[#ff7900] border-2'
+                : 'border-[hsl(var(--snug-border))]'
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => setExpandedSection(expandedSection === 'guests' ? 'none' : 'guests')}
+              className="w-full flex items-center gap-2 p-4"
+            >
+              <Users className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+              <span
+                className={`text-sm ${guestSummary ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
+              >
+                {guestSummary || t('guests')}
+              </span>
+            </button>
+
+            {expandedSection === 'guests' && (
+              <div className="px-4 pb-4">
+                <div className="border-t border-[hsl(var(--snug-border))] pt-3">
+                  <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[hsl(var(--snug-border))] px-4 py-4 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Reset</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="flex-1 bg-[hsl(var(--snug-orange))] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            Show Results
+          </button>
         </div>
       </div>
-
-      {/* Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[hsl(var(--snug-border))] px-4 py-4 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={handleReset}
-          className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>Reset</span>
-        </button>
-        <button
-          type="button"
-          onClick={handleSearch}
-          className="flex-1 bg-[hsl(var(--snug-orange))] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          Show Results
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
