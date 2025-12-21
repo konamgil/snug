@@ -2,7 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImageIcon, Calendar, Users, MessageSquare, Plus, ChevronRight } from 'lucide-react';
+import {
+  ImageIcon,
+  Calendar,
+  Users,
+  MessageSquare,
+  Plus,
+  ChevronRight,
+  ArrowLeft,
+} from 'lucide-react';
 import { Header } from '@/widgets/header';
 
 // Mock room data for payment
@@ -113,415 +121,429 @@ export function PaymentPage() {
         <div className="flex gap-12">
           {/* Left Column - Form */}
           <div className="flex-1 lg:max-w-xl min-w-0">
-            {/* Title */}
-            <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-              Additional information
-            </h1>
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-8">
-              Please let the host know what to keep in mind.
-            </p>
-
-            {/* Reason for booking */}
-            <div className="mb-8">
-              <h2 className="text-sm lg:text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                Reason for booking accommodation
-              </h2>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {bookingReasons.map((reason) => (
-                  <button
-                    key={reason}
-                    type="button"
-                    onClick={() => setSelectedReason(reason)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedReason === reason
-                        ? 'border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))] bg-white'
-                        : 'bg-white border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))]'
-                    }`}
-                  >
-                    {reason}
-                  </button>
-                ))}
+            {/* Title with Back Button (PC only) */}
+            <div className="flex items-start gap-4 mb-8">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="hidden md:flex items-center justify-center w-6 h-6 mt-0.5 hover:opacity-70 transition-opacity flex-shrink-0"
+              >
+                <ArrowLeft className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
+              </button>
+              <div className="flex-1 lg:flex-none">
+                <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-2">
+                  Additional information
+                </h1>
+                <p className="text-sm text-[hsl(var(--snug-gray))]">
+                  Please let the host know what to keep in mind.
+                </p>
               </div>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">
-                We use lifestyle patterns as a reference when assigning roommates.
-              </p>
             </div>
 
-            {/* Final information */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                  Final information
+            {/* Content sections - indented on tablet/PC to align with title */}
+            <div className="md:pl-10">
+              {/* Reason for booking */}
+              <div className="mb-8">
+                <h2 className="text-sm lg:text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
+                  Reason for booking accommodation
                 </h2>
-                <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
-                  <div
-                    onClick={() => setSameAsAccount(!sameAsAccount)}
-                    className={`w-5 h-5 rounded flex items-center justify-center transition-colors flex-shrink-0 ${
-                      sameAsAccount
-                        ? 'bg-[hsl(var(--snug-orange))]'
-                        : 'border-2 border-[hsl(var(--snug-border))]'
-                    }`}
-                  >
-                    {sameAsAccount && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
-                    Same as Account Info
-                  </span>
-                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {bookingReasons.map((reason) => (
+                    <button
+                      key={reason}
+                      type="button"
+                      onClick={() => setSelectedReason(reason)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        selectedReason === reason
+                          ? 'border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))] bg-white'
+                          : 'bg-white border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))]'
+                      }`}
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-[hsl(var(--snug-gray))]">
+                  We use lifestyle patterns as a reference when assigning roommates.
+                </p>
               </div>
 
-              <h3 className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-3">
-                Your information
-              </h3>
+              {/* Final information */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+                  <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
+                    Final information
+                  </h2>
+                  <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
+                    <div
+                      onClick={() => setSameAsAccount(!sameAsAccount)}
+                      className={`w-5 h-5 rounded flex items-center justify-center transition-colors flex-shrink-0 ${
+                        sameAsAccount
+                          ? 'bg-[hsl(var(--snug-orange))]'
+                          : 'border-2 border-[hsl(var(--snug-border))]'
+                      }`}
+                    >
+                      {sameAsAccount && (
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
+                      Same as Account Info
+                    </span>
+                  </label>
+                </div>
 
-              {/* Name */}
-              <div className="mb-4">
+                <h3 className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-3">
+                  Your information
+                </h3>
+
+                {/* Name */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
+                    Name
+                  </label>
+                  <div className="flex gap-2 sm:gap-3">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                    />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                    />
+                  </div>
+                  <p className="text-xs text-[hsl(var(--snug-gray))] mt-1.5">
+                    Make sure this matches the name on your government ID.
+                  </p>
+                </div>
+
+                {/* Email */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Please enter your Email address."
+                    className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
+                    Phone number
+                  </label>
+                  <div className="flex gap-2 sm:gap-3">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="w-[130px] sm:w-[160px] lg:w-[180px] px-3 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-xs sm:text-sm bg-white focus:outline-none focus:border-[hsl(var(--snug-orange))] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3d%22http%3a%2f%2fwww.w3.org%2f2000%2fsvg%22%20width%3d%2224%22%20height%3d%2224%22%20viewBox%3d%220%200%2024%2024%22%20fill%3d%22none%22%20stroke%3d%22%23999%22%20stroke-width%3d%222%22%20stroke-linecap%3d%22round%22%20stroke-linejoin%3d%22round%22%3e%3cpolyline%20points%3d%226%209%2012%2015%2018%209%22%3e%3c%2fpolyline%3e%3c%2fsvg%3e')] bg-no-repeat bg-[right_0.75rem_center] sm:bg-[right_1rem_center] bg-[length:14px] sm:bg-[length:16px]"
+                    >
+                      <option value="+82 (South Korea)">(+82) South Korea</option>
+                      <option value="+1 (USA)">(+1) USA</option>
+                      <option value="+86 (China)">(+86) China</option>
+                      <option value="+81 (Japan)">(+81) Japan</option>
+                    </select>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter your phone number"
+                      className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-1.5 flex-wrap">
+                    <span className="text-xs text-[hsl(var(--snug-gray))]">Verified</span>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] hover:text-[hsl(var(--snug-orange))]"
+                    >
+                      Identity Verification
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Passport */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
+                    Passport number
+                  </label>
+                  <input
+                    type="text"
+                    value={passport}
+                    onChange={(e) => setPassport(e.target.value)}
+                    placeholder="Please enter your passport number."
+                    className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                  />
+                </div>
+              </div>
+
+              {/* Payment method */}
+              <div className="mb-8">
+                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-4">
+                  Payment method
+                </h2>
+
+                {/* Credit or debit card */}
+                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Credit or debit card</p>
+
+                <div className="space-y-3 mb-4">
+                  {savedCards.map((card) => (
+                    <label
+                      key={card.id}
+                      className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${
+                        selectedCard === card.id
+                          ? 'border-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-orange))]/5'
+                          : 'border-[hsl(var(--snug-border))] hover:border-[hsl(var(--snug-gray))]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold ${
+                            card.type === 'mastercard'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-blue-600 text-white'
+                          }`}
+                        >
+                          {card.type === 'mastercard' ? 'MC' : 'VISA'}
+                        </div>
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                          {card.type === 'mastercard' ? 'Mastercard' : 'Visa'} ({card.cardType} •{' '}
+                          {card.lastFour})
+                        </span>
+                        {card.isDefault && (
+                          <span className="text-xs text-[hsl(var(--snug-orange))]">Default</span>
+                        )}
+                      </div>
+                      <input
+                        type="radio"
+                        name="paymentCard"
+                        checked={selectedCard === card.id}
+                        onChange={() => handlePaymentMethodChange(card.id)}
+                        className="w-5 h-5 text-[hsl(var(--snug-orange))] border-[hsl(var(--snug-border))] focus:ring-[hsl(var(--snug-orange))]"
+                      />
+                    </label>
+                  ))}
+
+                  {/* Add new card */}
+                  <button
+                    type="button"
+                    className="w-full p-4 border border-[hsl(var(--snug-border))] rounded-xl flex items-center justify-center gap-2 text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Easy Payment */}
+                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Easy Payment</p>
+
+                <div className="space-y-3">
+                  {easyPayments.map((payment) => (
+                    <label
+                      key={payment.id}
+                      className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${
+                        selectedEasyPay === payment.id
+                          ? 'border-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-orange))]/5'
+                          : 'border-[hsl(var(--snug-border))] hover:border-[hsl(var(--snug-gray))]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-6 rounded flex items-center justify-center text-[10px] font-bold ${
+                            payment.id === 'apple'
+                              ? 'bg-black text-white'
+                              : payment.id === 'ali'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-green-500 text-white'
+                          }`}
+                        >
+                          {payment.id === 'apple' ? 'Pay' : payment.id === 'ali' ? '支' : 'We'}
+                        </div>
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                          {payment.name}
+                        </span>
+                      </div>
+                      <input
+                        type="radio"
+                        name="easyPayment"
+                        checked={selectedEasyPay === payment.id}
+                        onChange={() => handleEasyPayChange(payment.id)}
+                        className="w-5 h-5 text-[hsl(var(--snug-orange))] border-[hsl(var(--snug-border))] focus:ring-[hsl(var(--snug-orange))]"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payer name */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+                  <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
+                    Payer name
+                  </h2>
+                  <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
+                    <div
+                      onClick={() => setPayerSameAsAccount(!payerSameAsAccount)}
+                      className={`w-5 h-5 rounded flex items-center justify-center transition-colors flex-shrink-0 ${
+                        payerSameAsAccount
+                          ? 'bg-[hsl(var(--snug-orange))]'
+                          : 'border-2 border-[hsl(var(--snug-border))]'
+                      }`}
+                    >
+                      {payerSameAsAccount && (
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
+                      Same as Account Info
+                    </span>
+                  </label>
+                </div>
+
                 <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
                   Name
                 </label>
                 <div className="flex gap-2 sm:gap-3">
                   <input
                     type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={payerFirstName}
+                    onChange={(e) => setPayerFirstName(e.target.value)}
                     placeholder="First Name"
                     className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                   <input
                     type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    value={payerLastName}
+                    onChange={(e) => setPayerLastName(e.target.value)}
                     placeholder="Last Name"
                     className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                 </div>
-                <p className="text-xs text-[hsl(var(--snug-gray))] mt-1.5">
-                  Make sure this matches the name on your government ID.
+              </div>
+
+              {/* Information */}
+              <div className="mb-8">
+                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
+                  Information
+                </h2>
+                <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-1">
+                  Included in Maintenance Fee
+                </p>
+                <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">
+                  (Gas, Water, Internet, Electricity)
+                </p>
+                <p className="text-xs text-[hsl(var(--snug-gray))] leading-relaxed">
+                  All utility charges and internet fees are included in the maintenance fee. If any
+                  of the included services are used excessively, additional charges may apply.
                 </p>
               </div>
 
-              {/* Email */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Please enter your Email address."
-                  className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Phone number
-                </label>
-                <div className="flex gap-2 sm:gap-3">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="w-[130px] sm:w-[160px] lg:w-[180px] px-3 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-xs sm:text-sm bg-white focus:outline-none focus:border-[hsl(var(--snug-orange))] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3d%22http%3a%2f%2fwww.w3.org%2f2000%2fsvg%22%20width%3d%2224%22%20height%3d%2224%22%20viewBox%3d%220%200%2024%2024%22%20fill%3d%22none%22%20stroke%3d%22%23999%22%20stroke-width%3d%222%22%20stroke-linecap%3d%22round%22%20stroke-linejoin%3d%22round%22%3e%3cpolyline%20points%3d%226%209%2012%2015%2018%209%22%3e%3c%2fpolyline%3e%3c%2fsvg%3e')] bg-no-repeat bg-[right_0.75rem_center] sm:bg-[right_1rem_center] bg-[length:14px] sm:bg-[length:16px]"
-                  >
-                    <option value="+82 (South Korea)">(+82) South Korea</option>
-                    <option value="+1 (USA)">(+1) USA</option>
-                    <option value="+86 (China)">(+86) China</option>
-                    <option value="+81 (Japan)">(+81) Japan</option>
-                  </select>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter your phone number"
-                    className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                  />
-                </div>
-                <div className="flex items-center justify-between gap-2 mt-1.5 flex-wrap">
-                  <span className="text-xs text-[hsl(var(--snug-gray))]">Verified</span>
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] hover:text-[hsl(var(--snug-orange))]"
-                  >
-                    Identity Verification
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Passport */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Passport number
-                </label>
-                <input
-                  type="text"
-                  value={passport}
-                  onChange={(e) => setPassport(e.target.value)}
-                  placeholder="Please enter your passport number."
-                  className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                />
-              </div>
-            </div>
-
-            {/* Payment method */}
-            <div className="mb-8">
-              <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-4">
-                Payment method
-              </h2>
-
-              {/* Credit or debit card */}
-              <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Credit or debit card</p>
-
-              <div className="space-y-3 mb-4">
-                {savedCards.map((card) => (
-                  <label
-                    key={card.id}
-                    className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${
-                      selectedCard === card.id
-                        ? 'border-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-orange))]/5'
-                        : 'border-[hsl(var(--snug-border))] hover:border-[hsl(var(--snug-gray))]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold ${
-                          card.type === 'mastercard'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-blue-600 text-white'
-                        }`}
-                      >
-                        {card.type === 'mastercard' ? 'MC' : 'VISA'}
-                      </div>
-                      <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        {card.type === 'mastercard' ? 'Mastercard' : 'Visa'} ({card.cardType} •{' '}
-                        {card.lastFour})
-                      </span>
-                      {card.isDefault && (
-                        <span className="text-xs text-[hsl(var(--snug-orange))]">Default</span>
-                      )}
-                    </div>
-                    <input
-                      type="radio"
-                      name="paymentCard"
-                      checked={selectedCard === card.id}
-                      onChange={() => handlePaymentMethodChange(card.id)}
-                      className="w-5 h-5 text-[hsl(var(--snug-orange))] border-[hsl(var(--snug-border))] focus:ring-[hsl(var(--snug-orange))]"
-                    />
-                  </label>
-                ))}
-
-                {/* Add new card */}
-                <button
-                  type="button"
-                  className="w-full p-4 border border-[hsl(var(--snug-border))] rounded-xl flex items-center justify-center gap-2 text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Easy Payment */}
-              <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Easy Payment</p>
-
-              <div className="space-y-3">
-                {easyPayments.map((payment) => (
-                  <label
-                    key={payment.id}
-                    className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${
-                      selectedEasyPay === payment.id
-                        ? 'border-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-orange))]/5'
-                        : 'border-[hsl(var(--snug-border))] hover:border-[hsl(var(--snug-gray))]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-6 rounded flex items-center justify-center text-[10px] font-bold ${
-                          payment.id === 'apple'
-                            ? 'bg-black text-white'
-                            : payment.id === 'ali'
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-green-500 text-white'
-                        }`}
-                      >
-                        {payment.id === 'apple' ? 'Pay' : payment.id === 'ali' ? '支' : 'We'}
-                      </div>
-                      <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        {payment.name}
-                      </span>
-                    </div>
-                    <input
-                      type="radio"
-                      name="easyPayment"
-                      checked={selectedEasyPay === payment.id}
-                      onChange={() => handleEasyPayChange(payment.id)}
-                      className="w-5 h-5 text-[hsl(var(--snug-orange))] border-[hsl(var(--snug-border))] focus:ring-[hsl(var(--snug-orange))]"
-                    />
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Payer name */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                  Payer name
+              {/* Refund Policy */}
+              <div className="mb-8">
+                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
+                  Refund Policy
                 </h2>
-                <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
-                  <div
-                    onClick={() => setPayerSameAsAccount(!payerSameAsAccount)}
-                    className={`w-5 h-5 rounded flex items-center justify-center transition-colors flex-shrink-0 ${
-                      payerSameAsAccount
-                        ? 'bg-[hsl(var(--snug-orange))]'
-                        : 'border-2 border-[hsl(var(--snug-border))]'
-                    }`}
-                  >
-                    {payerSameAsAccount && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
-                    Same as Account Info
-                  </span>
-                </label>
+                <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>
+                      More than 15 days before check-in: 90% refund of rent and contract fee
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>14~8 days before check-in: 70% refund of rent and contract fee</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>7~1 days before check-in: 50% refund of rent and contract fee</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>On the check-in date: No refund</span>
+                  </li>
+                </ul>
               </div>
 
-              <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                Name
-              </label>
-              <div className="flex gap-2 sm:gap-3">
-                <input
-                  type="text"
-                  value={payerFirstName}
-                  onChange={(e) => setPayerFirstName(e.target.value)}
-                  placeholder="First Name"
-                  className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                />
-                <input
-                  type="text"
-                  value={payerLastName}
-                  onChange={(e) => setPayerLastName(e.target.value)}
-                  placeholder="Last Name"
-                  className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                />
+              {/* Notes */}
+              <div className="mb-8">
+                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
+                  Notes
+                </h2>
+                <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>
+                      For same-day cancellations, 10% of the rent and contract fee will be charged
+                      as a penalty according to the refund policy. However, if the cancellation
+                      falls within the free cancellation period, a full refund will be issued.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>Maintenance fees, cleaning fees, and deposits are fully refundable.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>The refund policy may vary depending on the host&apos;s terms.</span>
+                  </li>
+                </ul>
               </div>
-            </div>
 
-            {/* Information */}
-            <div className="mb-8">
-              <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                Information
-              </h2>
-              <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-1">
-                Included in Maintenance Fee
-              </p>
-              <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">
-                (Gas, Water, Internet, Electricity)
-              </p>
-              <p className="text-xs text-[hsl(var(--snug-gray))] leading-relaxed">
-                All utility charges and internet fees are included in the maintenance fee. If any of
-                the included services are used excessively, additional charges may apply.
-              </p>
-            </div>
-
-            {/* Refund Policy */}
-            <div className="mb-8">
-              <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                Refund Policy
-              </h2>
-              <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>
-                    More than 15 days before check-in: 90% refund of rent and contract fee
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>14~8 days before check-in: 70% refund of rent and contract fee</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>7~1 days before check-in: 50% refund of rent and contract fee</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>On the check-in date: No refund</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Notes */}
-            <div className="mb-8">
-              <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                Notes
-              </h2>
-              <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>
-                    For same-day cancellations, 10% of the rent and contract fee will be charged as
-                    a penalty according to the refund policy. However, if the cancellation falls
-                    within the free cancellation period, a full refund will be issued.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>Maintenance fees, cleaning fees, and deposits are fully refundable.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>The refund policy may vary depending on the host&apos;s terms.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Long-Term Stay Discount */}
-            <div className="mb-8">
-              <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                Long-Term Stay Discount
-              </h2>
-              <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>Contract for 2+ weeks: 5% off</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>Contract for 4+ weeks: 10% off</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                  <span>Contract for 12+ weeks: 20% off</span>
-                </li>
-              </ul>
+              {/* Long-Term Stay Discount */}
+              <div className="mb-8">
+                <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
+                  Long-Term Stay Discount
+                </h2>
+                <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>Contract for 2+ weeks: 5% off</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>Contract for 4+ weeks: 10% off</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
+                    <span>Contract for 12+ weeks: 20% off</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 

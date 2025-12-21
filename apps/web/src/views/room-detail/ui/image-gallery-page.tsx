@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Header } from '@/widgets/header';
 
 interface ImageCategory {
   id: string;
@@ -66,8 +67,11 @@ export function ImageGalleryPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with Back Button */}
-      <div className="sticky top-0 z-10 bg-white border-b border-[hsl(var(--snug-border))]">
+      {/* PC Header */}
+      <Header variant="with-search" showSearch={false} onBack={handleBack} />
+
+      {/* Mobile Header with Back Button */}
+      <div className="md:hidden sticky top-0 z-10 bg-white border-b border-[hsl(var(--snug-border))]">
         <div className="max-w-7xl mx-auto px-4">
           <button
             type="button"
@@ -80,7 +84,7 @@ export function ImageGalleryPage({
       </div>
 
       {/* Category Tabs */}
-      <div className="sticky top-[57px] z-10 bg-white border-b border-[hsl(var(--snug-border))]">
+      <div className="sticky top-[57px] md:top-20 z-10 bg-white border-b border-[hsl(var(--snug-border))]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center gap-4 py-4 overflow-x-auto no-scrollbar">
             {categories.map((category) => (
