@@ -110,13 +110,26 @@
   },
   "auth": {
     "login": {
-      "title": "おかえりなさい",
+      "title": "アカウントにログイン",
       "email": "メールアドレス",
       "password": "パスワード",
-      "forgotPassword": "パスワードをお忘れですか？",
+      "forgotPassword": "IDまたはパスワードをお忘れですか？",
       "submit": "ログイン",
       "noAccount": "アカウントをお持ちでないですか？",
-      "signupLink": "新規登録"
+      "signupLink": "新規登録",
+      "continueWithGoogle": "Googleで続ける",
+      "continueWithApple": "Appleで続ける",
+      "continueWithKakao": "Kakaoで続ける",
+      "continueWithFacebook": "Facebookで続ける",
+      "continueWithEmail": "メールで続ける",
+      "back": "戻る",
+      "emailAddress": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力",
+      "passwordPlaceholder": "パスワードを入力",
+      "staySignedIn": "ログイン状態を維持",
+      "continue": "続ける",
+      "signUp": "新規登録",
+      "incorrectCredentials": "メールアドレスまたはパスワードが正しくありません。"
     },
     "signup": {
       "title": "アカウント作成",
@@ -134,6 +147,36 @@
       "passwordMismatch": "パスワードが一致しません",
       "loginFailed": "ログインに失敗しました。情報をご確認ください。",
       "signupFailed": "登録に失敗しました。もう一度お試しください。"
+    },
+    "forgotPassword": {
+      "findId": "ID検索",
+      "findPassword": "パスワード検索",
+      "firstName": "名",
+      "lastName": "姓",
+      "phoneNumber": "電話番号",
+      "email": "メールアドレス",
+      "continue": "続ける",
+      "backToLogin": "ログインに戻る"
+    },
+    "signupPage": {
+      "title": "アカウントを作成",
+      "emailAddress": "メールアドレス",
+      "password": "パスワード",
+      "passwordHint": "8文字以上、大文字小文字を区別",
+      "passwordMismatch": "パスワードを再入力してください",
+      "personalInfo": "個人情報",
+      "firstName": "名",
+      "lastName": "姓",
+      "nameHint": "身分証明書に記載されている名前と一致していることを確認してください。別の名前を使用する場合は、希望の名前を追加できます。",
+      "countryCode": "国コード",
+      "phoneNumber": "電話番号",
+      "agreeTerms": "個人情報の収集と利用に同意します。",
+      "termsPreview": "Snugプラットフォームの利用に必要な個人情報を収集します。",
+      "termsFullText": "Snugプラットフォームの利用に必要な個人情報を収集します。名前、メールアドレス、電話番号、その他の登録情報が含まれます。",
+      "showMore": "もっと見る",
+      "showLess": "閉じる",
+      "agreeMarketing": "マーケティングメールを受け取ることを希望します。（任意）",
+      "continue": "続ける"
     }
   },
   "profile": {
@@ -152,5 +195,45 @@
     "privacy": "プライバシーポリシー",
     "contact": "お問い合わせ",
     "copyright": "© {year} Snug. All rights reserved."
+  },
+  "search": {
+    "resultsCount": "{location}の{count}件の宿泊先",
+    "filters": {
+      "filters": "フィルター",
+      "roomType": "部屋タイプ",
+      "womenOnly": "女性専用",
+      "parking": "駐車場"
+    },
+    "sort": {
+      "recommended": "おすすめ",
+      "priceLow": "価格：安い順",
+      "priceHigh": "価格：高い順",
+      "newest": "新着順"
+    },
+    "mapPlaceholder": "地図表示"
+  },
+  "roomDetail": {
+    "aboutThisPlace": "この宿泊先について",
+    "guidelines": "ガイドライン",
+    "details": "詳細",
+    "facilities": "施設",
+    "houseAmenities": "ハウス設備",
+    "houseRules": "ハウスルール",
+    "location": "場所",
+    "otherStays": "おすすめの宿泊先",
+    "refundPolicy": "返金ポリシー",
+    "longTermDiscount": "長期割引",
+    "importantNotes": "重要事項",
+    "reserveNow": "今すぐ予約",
+    "contactHost": "ホストに連絡",
+    "notChargedYet": "まだ請求されません",
+    "checkIn": "チェックイン",
+    "checkOut": "チェックアウト",
+    "guests": "人数",
+    "adults": "大人",
+    "children": "子供",
+    "serviceFee": "サービス料",
+    "total": "合計",
+    "perNight": "/ 泊"
   }
 }

@@ -110,13 +110,26 @@
   },
   "auth": {
     "login": {
-      "title": "欢迎回来",
+      "title": "登录您的账户",
       "email": "邮箱",
       "password": "密码",
-      "forgotPassword": "忘记密码？",
+      "forgotPassword": "忘记ID或密码？",
       "submit": "登录",
       "noAccount": "还没有账号？",
-      "signupLink": "注册"
+      "signupLink": "注册",
+      "continueWithGoogle": "使用Google继续",
+      "continueWithApple": "使用Apple继续",
+      "continueWithKakao": "使用Kakao继续",
+      "continueWithFacebook": "使用Facebook继续",
+      "continueWithEmail": "使用邮箱继续",
+      "back": "返回",
+      "emailAddress": "邮箱地址",
+      "emailPlaceholder": "输入您的邮箱",
+      "passwordPlaceholder": "输入您的密码",
+      "staySignedIn": "保持登录状态",
+      "continue": "继续",
+      "signUp": "注册",
+      "incorrectCredentials": "邮箱或密码错误，请重试。"
     },
     "signup": {
       "title": "创建账号",
@@ -134,6 +147,36 @@
       "passwordMismatch": "两次密码不一致",
       "loginFailed": "登录失败，请检查您的信息",
       "signupFailed": "注册失败，请重试"
+    },
+    "forgotPassword": {
+      "findId": "找回ID",
+      "findPassword": "找回密码",
+      "firstName": "名",
+      "lastName": "姓",
+      "phoneNumber": "电话号码",
+      "email": "邮箱地址",
+      "continue": "继续",
+      "backToLogin": "返回登录"
+    },
+    "signupPage": {
+      "title": "创建您的账户",
+      "emailAddress": "邮箱地址",
+      "password": "密码",
+      "passwordHint": "至少8个字符，区分大小写",
+      "passwordMismatch": "重新输入您的密码",
+      "personalInfo": "个人信息",
+      "firstName": "名",
+      "lastName": "姓",
+      "nameHint": "请确保与您的身份证件上的名字一致。如果您使用其他名字，可以添加首选名。",
+      "countryCode": "国家代码",
+      "phoneNumber": "电话号码",
+      "agreeTerms": "我同意收集和使用我的个人信息。",
+      "termsPreview": "我们收集使用Snug平台所需的个人信息。",
+      "termsFullText": "我们收集使用Snug平台所需的个人信息。包括姓名、邮箱、电话号码和其他注册详情。",
+      "showMore": "显示更多",
+      "showLess": "收起",
+      "agreeMarketing": "我希望收到营销邮件。（可选）",
+      "continue": "继续"
     }
   },
   "profile": {
@@ -152,5 +195,45 @@
     "privacy": "隐私政策",
     "contact": "联系我们",
     "copyright": "© {year} Snug. 保留所有权利。"
+  },
+  "search": {
+    "resultsCount": "{location}的{count}个住所",
+    "filters": {
+      "filters": "筛选",
+      "roomType": "房间类型",
+      "womenOnly": "仅限女性",
+      "parking": "停车位"
+    },
+    "sort": {
+      "recommended": "推荐",
+      "priceLow": "价格：从低到高",
+      "priceHigh": "价格：从高到低",
+      "newest": "最新"
+    },
+    "mapPlaceholder": "地图视图"
+  },
+  "roomDetail": {
+    "aboutThisPlace": "关于此住所",
+    "guidelines": "指南",
+    "details": "详情",
+    "facilities": "设施",
+    "houseAmenities": "房屋设施",
+    "houseRules": "房屋规则",
+    "location": "位置",
+    "otherStays": "您可能喜欢的其他住所",
+    "refundPolicy": "退款政策",
+    "longTermDiscount": "长期折扣",
+    "importantNotes": "重要说明",
+    "reserveNow": "立即预订",
+    "contactHost": "联系房东",
+    "notChargedYet": "您还不会被收费",
+    "checkIn": "入住",
+    "checkOut": "退房",
+    "guests": "人数",
+    "adults": "成人",
+    "children": "儿童",
+    "serviceFee": "服务费",
+    "total": "总计",
+    "perNight": "/ 晚"
   }
 }

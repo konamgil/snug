@@ -110,13 +110,26 @@
   },
   "auth": {
     "login": {
-      "title": "Chào mừng trở lại",
+      "title": "Đăng nhập vào tài khoản",
       "email": "Email",
       "password": "Mật khẩu",
-      "forgotPassword": "Quên mật khẩu?",
+      "forgotPassword": "Quên ID hoặc mật khẩu?",
       "submit": "Đăng nhập",
       "noAccount": "Chưa có tài khoản?",
-      "signupLink": "Đăng ký"
+      "signupLink": "Đăng ký",
+      "continueWithGoogle": "Tiếp tục với Google",
+      "continueWithApple": "Tiếp tục với Apple",
+      "continueWithKakao": "Tiếp tục với Kakao",
+      "continueWithFacebook": "Tiếp tục với Facebook",
+      "continueWithEmail": "Tiếp tục với Email",
+      "back": "Quay lại",
+      "emailAddress": "Địa chỉ Email",
+      "emailPlaceholder": "Nhập email của bạn",
+      "passwordPlaceholder": "Nhập mật khẩu của bạn",
+      "staySignedIn": "Duy trì đăng nhập",
+      "continue": "Tiếp tục",
+      "signUp": "Đăng ký",
+      "incorrectCredentials": "Email hoặc mật khẩu không đúng. Vui lòng thử lại."
     },
     "signup": {
       "title": "Tạo tài khoản",
@@ -134,6 +147,36 @@
       "passwordMismatch": "Mật khẩu không khớp",
       "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin.",
       "signupFailed": "Đăng ký thất bại. Vui lòng thử lại."
+    },
+    "forgotPassword": {
+      "findId": "Tìm ID",
+      "findPassword": "Tìm mật khẩu",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "phoneNumber": "Số điện thoại",
+      "email": "Địa chỉ Email",
+      "continue": "Tiếp tục",
+      "backToLogin": "Quay lại đăng nhập"
+    },
+    "signupPage": {
+      "title": "Tạo tài khoản của bạn",
+      "emailAddress": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "passwordHint": "Ít nhất 8 ký tự, phân biệt chữ hoa chữ thường",
+      "passwordMismatch": "Nhập lại mật khẩu của bạn",
+      "personalInfo": "Thông tin cá nhân",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "nameHint": "Đảm bảo tên này khớp với tên trên giấy tờ tùy thân. Nếu bạn sử dụng tên khác, bạn có thể thêm tên ưa thích.",
+      "countryCode": "Mã quốc gia",
+      "phoneNumber": "Số điện thoại",
+      "agreeTerms": "Tôi đồng ý với việc thu thập và sử dụng thông tin cá nhân của tôi.",
+      "termsPreview": "Chúng tôi thu thập thông tin cá nhân cần thiết để sử dụng nền tảng Snug.",
+      "termsFullText": "Chúng tôi thu thập thông tin cá nhân cần thiết để sử dụng nền tảng Snug. Bao gồm tên, email, số điện thoại và các chi tiết đăng ký khác.",
+      "showMore": "Xem thêm",
+      "showLess": "Thu gọn",
+      "agreeMarketing": "Tôi muốn nhận email tiếp thị. (tùy chọn)",
+      "continue": "Tiếp tục"
     }
   },
   "profile": {
@@ -152,5 +195,45 @@
     "privacy": "Chính sách bảo mật",
     "contact": "Liên hệ",
     "copyright": "© {year} Snug. Bảo lưu mọi quyền."
+  },
+  "search": {
+    "resultsCount": "{count} chỗ ở tại {location}",
+    "filters": {
+      "filters": "Bộ lọc",
+      "roomType": "Loại phòng",
+      "womenOnly": "Chỉ nữ",
+      "parking": "Bãi đậu xe"
+    },
+    "sort": {
+      "recommended": "Đề xuất",
+      "priceLow": "Giá: Thấp đến Cao",
+      "priceHigh": "Giá: Cao đến Thấp",
+      "newest": "Mới nhất"
+    },
+    "mapPlaceholder": "Xem bản đồ"
+  },
+  "roomDetail": {
+    "aboutThisPlace": "Về nơi này",
+    "guidelines": "Hướng dẫn",
+    "details": "Chi tiết",
+    "facilities": "Tiện ích",
+    "houseAmenities": "Tiện nghi nhà",
+    "houseRules": "Nội quy nhà",
+    "location": "Vị trí",
+    "otherStays": "Các chỗ ở khác bạn có thể thích",
+    "refundPolicy": "Chính sách hoàn tiền",
+    "longTermDiscount": "Giảm giá dài hạn",
+    "importantNotes": "Lưu ý quan trọng",
+    "reserveNow": "Đặt ngay",
+    "contactHost": "Liên hệ chủ nhà",
+    "notChargedYet": "Bạn chưa bị tính phí",
+    "checkIn": "Nhận phòng",
+    "checkOut": "Trả phòng",
+    "guests": "Khách",
+    "adults": "Người lớn",
+    "children": "Trẻ em",
+    "serviceFee": "Phí dịch vụ",
+    "total": "Tổng cộng",
+    "perNight": "/ đêm"
   }
 }
