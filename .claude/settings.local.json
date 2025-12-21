@@ -43,7 +43,14 @@
       "mcp__figma__get_design_context",
       "Bash(curl:*)",
       "mcp__figma__get_metadata",
-      "mcp__figma__get_screenshot"
+      "mcp__figma__get_screenshot",
+      "Bash(find:*)",
+      "Bash(node -e:*)",
+      "Bash(npx --yes sharp:*)",
+      "Bash(certutil -encode:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm --filter @snug/web lint:fix:*)",
+      "Bash(pnpm --filter @snug/web lint:*)"
     ]
   }
 }
