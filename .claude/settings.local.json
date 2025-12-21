@@ -50,7 +50,10 @@
       "Bash(certutil -encode:*)",
       "Bash(ls:*)",
       "Bash(pnpm --filter @snug/web lint:fix:*)",
-      "Bash(pnpm --filter @snug/web lint:*)"
+      "Bash(pnpm --filter @snug/web lint:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm --filter @snug/web build:ssr:*)",
+      "Bash(head:*)"
     ]
   }
 }
