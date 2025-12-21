@@ -49,7 +49,7 @@ export function LoginPage() {
           {view === 'social' ? (
             <SocialLoginButtons onEmailClick={() => setView('email')} />
           ) : (
-            <EmailLoginForm onBack={() => setView('social')} />
+            <EmailLoginForm />
           )}
         </div>
 

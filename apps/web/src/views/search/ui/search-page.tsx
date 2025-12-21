@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Map } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
-import { formatGuestSummary, type GuestCount } from '@/features/search/ui/guest-picker';
+import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { SearchModal, type SearchParams } from '@/features/search';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { FilterBar } from './filter-bar';
@@ -224,7 +224,6 @@ function SearchPageContent() {
     setIsSearchModalOpen(false);
   };
 
-  const _guestSummary = formatGuestSummary(guests);
   const totalGuests = guests.adults + guests.children;
 
   const formatDateDisplay = () => {

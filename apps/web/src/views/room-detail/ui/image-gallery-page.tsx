@@ -13,7 +13,7 @@ interface ImageCategory {
 }
 
 interface ImageGalleryPageProps {
-  roomId: string;
+  roomId?: string;
   categories?: ImageCategory[];
 }
 
@@ -51,10 +51,7 @@ const defaultCategories: ImageCategory[] = [
   },
 ];
 
-export function ImageGalleryPage({
-  roomId: _roomId,
-  categories = defaultCategories,
-}: ImageGalleryPageProps) {
+export function ImageGalleryPage({ categories = defaultCategories }: ImageGalleryPageProps) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]?.id || 'main');
 

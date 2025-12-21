@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ChevronLeft,
@@ -14,27 +14,11 @@ import {
   Calendar,
   MapPin,
   Car,
-  Snowflake,
-  Wifi,
-  Tv,
   UtensilsCrossed,
-  WashingMachine,
   Wind,
-  Coffee,
-  Dumbbell,
-  ShieldCheck,
   ChevronDown,
   X,
-  Lock,
-  Video,
-  Flame,
-  Shirt,
-  Bed,
-  FireExtinguisher,
   MessageCircle,
-  Hospital,
-  Store,
-  Train,
   Building,
   Maximize2,
   Sofa,
@@ -142,14 +126,6 @@ const roomData = {
   total: 430,
 };
 
-const _nearbyIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  hospital: Hospital,
-  store: Store,
-  train: Train,
-  cafe: Coffee,
-  building: Building,
-};
-
 const detailIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   area: Maximize2,
   elevator: Building,
@@ -160,29 +136,6 @@ const detailIcons: Record<string, React.ComponentType<{ className?: string }>> =
   kitchen: UtensilsCrossed,
   floor: DoorOpen,
   balcony: Wind,
-};
-
-const _facilityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  Wifi: Wifi,
-  'Air Conditioning': Snowflake,
-  'Air conditioning': Snowflake,
-  TV: Tv,
-  Kitchen: UtensilsCrossed,
-  Washer: WashingMachine,
-  Dryer: Wind,
-  Gym: Dumbbell,
-  Parking: Car,
-  Security: ShieldCheck,
-  Coffee: Coffee,
-  'Digital door lock': Lock,
-  Refrigerator: UtensilsCrossed,
-  Conditioner: Snowflake,
-  'Coffee maker': Coffee,
-  Hangers: Shirt,
-  CCTV: Video,
-  Bedding: Bed,
-  Heating: Flame,
-  'Fire extinguisher': FireExtinguisher,
 };
 
 const tagColors = {
@@ -209,7 +162,6 @@ function calculateNights(checkIn: Date | null, checkOut: Date | null): number {
 }
 
 export function RoomDetailPage() {
-  const _t = useTranslations('roomDetail');
   const locale = useLocale();
   const params = useParams();
   const router = useRouter();
@@ -218,11 +170,11 @@ export function RoomDetailPage() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [guests, _setGuests] = useState<GuestCount>({ adults: 1, children: 0, infants: 0 });
-  const [_isDateOpen, setIsDateOpen] = useState(false);
-  const [_isGuestOpen, setIsGuestOpen] = useState(false);
+  const [checkIn] = useState<Date | null>(null);
+  const [checkOut] = useState<Date | null>(null);
+  const [guests] = useState<GuestCount>({ adults: 1, children: 0, infants: 0 });
+  const [, setIsDateOpen] = useState(false);
+  const [, setIsGuestOpen] = useState(false);
   const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
@@ -281,11 +233,6 @@ export function RoomDetailPage() {
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const _handleDateSelect = (newCheckIn: Date | null, newCheckOut: Date | null) => {
-    setCheckIn(newCheckIn);
-    setCheckOut(newCheckOut);
   };
 
   const nights = calculateNights(checkIn, checkOut) || roomData.nights; // Default from mock data

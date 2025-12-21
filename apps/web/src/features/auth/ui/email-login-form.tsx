@@ -5,11 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, X } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 
-interface EmailLoginFormProps {
-  onBack: () => void;
-}
-
-export function EmailLoginForm({ onBack: _onBack }: EmailLoginFormProps) {
+export function EmailLoginForm() {
   const t = useTranslations('auth.login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
