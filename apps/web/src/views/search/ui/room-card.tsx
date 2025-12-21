@@ -35,22 +35,24 @@ export interface Room {
 
 interface RoomCardProps {
   room: Room;
-  viewMode?: 'list' | 'grid';
+  viewMode?: 'list' | 'grid' | 'mobile';
   onFavoriteToggle?: (id: string) => void;
 }
 
-const tagColors = {
-  orange: 'bg-[hsl(var(--snug-orange))] text-white',
-  purple: 'bg-purple-500 text-white',
-  blue: 'bg-blue-500 text-white',
-  green: 'bg-green-500 text-white',
+// First tag - soft background
+const tagFirstColors = {
+  orange: 'bg-[#FDEEE5] text-[hsl(var(--snug-orange))]',
+  purple: 'bg-pink-100 text-pink-500',
+  blue: 'bg-blue-100 text-blue-500',
+  green: 'bg-green-100 text-green-500',
 };
 
-const tagOutlineColors = {
-  orange: 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]',
-  purple: 'border-purple-500 text-purple-500',
-  blue: 'border-blue-500 text-blue-500',
-  green: 'border-green-500 text-green-500',
+// Second+ tags - solid background with white text
+const tagSecondColors = {
+  orange: 'bg-[hsl(var(--snug-orange))] text-white',
+  purple: 'bg-[#EF8BAC] text-white',
+  blue: 'bg-blue-400 text-white',
+  green: 'bg-green-400 text-white',
 };
 
 export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCardProps) {
@@ -76,6 +78,89 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
     setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
   };
 
+  // Mobile View - Full width card with large image
+  if (viewMode === 'mobile') {
+    return (
+      <Link href={roomDetailUrl} className="group cursor-pointer block">
+        {/* Image Container - Larger aspect ratio for mobile */}
+        <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+          {/* Placeholder Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+            <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+          </div>
+
+          {/* Tags - Top Left */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            {room.tags.map((tag, index) => (
+              <span
+                key={tag.label}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
+                  index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
+                }`}
+              >
+                {tag.label}
+              </span>
+            ))}
+          </div>
+
+          {/* Favorite Button - Top Right */}
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            className="absolute top-3 right-3 p-2"
+          >
+            <Heart
+              className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white drop-shadow-md'}`}
+              fill={isFavorite ? 'currentColor' : 'none'}
+            />
+          </button>
+
+          {/* Image Counter - Bottom Right */}
+          <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/50 rounded-full text-white text-xs">
+            {currentImageIndex + 1} / {totalImages}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="pt-2.5">
+          {/* Location */}
+          <h3 className="text-[15px] font-semibold text-[hsl(var(--snug-text-primary))] mb-1.5">
+            {room.location}, {room.district}
+          </h3>
+
+          {/* Room Info */}
+          <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
+            <Home className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>
+              {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
+            </span>
+          </div>
+
+          {/* Guests */}
+          <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
+            <Users className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>{room.guests} Guests</span>
+          </div>
+
+          {/* Price */}
+          <div className="flex items-baseline gap-1.5">
+            {room.originalPrice && (
+              <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
+                ${room.originalPrice}
+              </span>
+            )}
+            <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
+              ${room.price}
+            </span>
+            <span className="text-[13px] text-[hsl(var(--snug-gray))]">
+              for {room.nights} nights
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   // Grid View
   if (viewMode === 'grid') {
     return (
@@ -88,14 +173,12 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           </div>
 
           {/* Tags - Top Left */}
-          <div className="absolute top-2.5 left-2.5 flex gap-1">
+          <div className="absolute top-2.5 left-2.5 flex gap-1.5">
             {room.tags.map((tag, index) => (
               <span
                 key={tag.label}
-                className={`px-2 py-0.5 text-[10px] font-medium rounded ${
-                  index === 0
-                    ? tagOutlineColors[tag.color] + ' border bg-white'
-                    : tagColors[tag.color]
+                className={`px-2.5 py-1 text-[10px] font-semibold rounded-full ${
+                  index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}
               >
                 {tag.label}
@@ -178,7 +261,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
   return (
     <Link
       href={roomDetailUrl}
-      className="flex gap-3 py-3 border-b border-[hsl(var(--snug-border))] hover:bg-[hsl(var(--snug-light-gray))]/50 transition-colors"
+      className="flex gap-3 py-3 hover:bg-[hsl(var(--snug-light-gray))]/50 transition-colors"
     >
       {/* Image */}
       <div className="relative w-[120px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden">
@@ -208,8 +291,8 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
             {room.tags.map((tag, index) => (
               <span
                 key={tag.label}
-                className={`px-1.5 py-0.5 text-[10px] rounded-full ${
-                  index === 0 ? tagOutlineColors[tag.color] + ' border' : tagColors[tag.color]
+                className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${
+                  index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}
               >
                 {tag.label}

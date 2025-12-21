@@ -357,9 +357,9 @@ const RoomCard = memo(function RoomCard({
   };
 
   return (
-    <div className="flex-1 cursor-pointer group" onClick={onClick}>
+    <div className="flex-1 cursor-pointer group flex flex-col h-full" onClick={onClick}>
       {/* Image Container */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[hsl(var(--snug-light-gray))]">
+      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
         {/* Placeholder */}
         <div className="absolute inset-0 flex items-center justify-center">
           <ImageIcon className="w-10 h-10 text-[hsl(var(--snug-gray))]/30" />
@@ -418,25 +418,27 @@ const RoomCard = memo(function RoomCard({
       </div>
 
       {/* Info */}
-      <div className="mt-2 flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
+      <div className="mt-2 flex items-center justify-between flex-1">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] truncate">
             {room.location}
           </h3>
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
             {room.originalPrice && (
               <span className="text-xs text-[hsl(var(--snug-gray))] line-through">
                 ${room.originalPrice}
               </span>
             )}
             <span className="text-sm font-bold text-[hsl(var(--snug-orange))]">${room.price}</span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">for {room.nights} nights</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))] whitespace-nowrap">
+              for {room.nights} nights
+            </span>
           </div>
         </div>
         <button
           type="button"
           onClick={onBookClick}
-          className="px-4 py-1.5 bg-[hsl(var(--snug-orange))] text-white text-xs font-medium rounded-full hover:opacity-90 transition-opacity"
+          className="px-4 py-1.5 bg-[hsl(var(--snug-orange))] text-white text-xs font-medium rounded-full hover:opacity-90 transition-opacity flex-shrink-0 ml-2"
         >
           Book
         </button>
@@ -462,7 +464,7 @@ const RoomsSlide = memo(function RoomsSlide({
   onBookClick,
 }: RoomsSlideProps) {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 items-stretch">
       {rooms.map((room) => (
         <RoomCard
           key={room.id}
@@ -563,7 +565,7 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
   return (
     <div>
       {/* Banner Card */}
-      <div className="relative border border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden aspect-[8/3] bg-white">
+      <div className="relative border-[1.5px] border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden aspect-[8/3] bg-white">
         {/* Illustration Image */}
         <div className="absolute inset-0">
           <Image

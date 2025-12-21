@@ -45,9 +45,10 @@
     },
     "sort": {
       "recommended": "Recommended",
-      "priceLow": "Price: Low to High",
-      "priceHigh": "Price: High to Low",
-      "newest": "Newest"
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "priceHigh": "High Price",
+      "priceLow": "Low Price"
     },
     "mapPlaceholder": "Map View"
   },
@@ -211,6 +212,58 @@
     "privacy": "Privacy Policy",
     "contact": "Contact Us",
     "copyright": "© {year} Snug. All rights reserved."
+  },
+  "mypage": {
+    "sidebar": {
+      "myPage": "My page",
+      "personalInfo": "Personal Info",
+      "profile": "Profile",
+      "loginSecurity": "Login & Security",
+      "paymentInfo": "Payment Information",
+      "stay": "Stay",
+      "reservations": "Reservations",
+      "favorites": "Favorites",
+      "preferences": "Preferences",
+      "settings": "Settings",
+      "logout": "Log out"
+    },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Update personal details and your password for your account.",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "name": "Name",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "nameHint": "Make sure this matches the name on your government ID.",
+      "aboutMe": "About me",
+      "aboutMePlaceholder": "Tell us a little about yourself...",
+      "purposeOfStay": "Purpose of stay",
+      "purposePlaceholder": "Select purpose of stay",
+      "purposeWork": "Work / Employment",
+      "purposeStudy": "Study / Education",
+      "purposeBusiness": "Business",
+      "purposeFamily": "Family / Marriage",
+      "purposeTourism": "Tourism",
+      "purposeMedical": "Medical Treatment",
+      "purposeOther": "Other",
+      "emailAddress": "Email address",
+      "phoneNumber": "Phone number",
+      "phonePlaceholder": "Phone number",
+      "phoneHint": "Please verify your identity using your mobile number.",
+      "countryCode": "Country Code",
+      "passportNumber": "Passport number",
+      "passportPlaceholder": "Enter your passport number",
+      "verify": "Verify",
+      "verified": "Verified",
+      "enterCode": "Enter verification code",
+      "confirm": "Confirm",
+      "resendCode": "Resend code",
+      "verificationSuccess": "Phone number verified successfully",
+      "verificationError": "Invalid verification code. Please try again.",
+      "tryAgain": "Try again"
+    }
   },
   "roomDetail": {
     "aboutThisPlace": "About this place",

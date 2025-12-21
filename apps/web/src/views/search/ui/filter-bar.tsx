@@ -32,7 +32,7 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
   ];
 
   return (
-    <div className="flex items-center gap-2 py-3 border-b border-[hsl(var(--snug-border))]">
+    <div className="flex items-center gap-2 py-3">
       {/* Filters Button */}
       <button
         type="button"
@@ -76,10 +76,10 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
         <button
           type="button"
           onClick={() => onViewChange?.('grid')}
-          className={`p-1.5 border rounded-md transition-colors ${
+          className={`p-1.5 rounded-md transition-colors ${
             currentView === 'grid'
-              ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
-              : 'border-[hsl(var(--snug-border))] text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))]'
+              ? 'text-[hsl(var(--snug-orange))]'
+              : 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]'
           }`}
         >
           <LayoutGrid className="w-4 h-4" />
@@ -87,10 +87,10 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
         <button
           type="button"
           onClick={() => onViewChange?.('list')}
-          className={`p-1.5 border rounded-md transition-colors ${
+          className={`p-1.5 rounded-md transition-colors ${
             currentView === 'list'
-              ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
-              : 'border-[hsl(var(--snug-border))] text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))]'
+              ? 'text-[hsl(var(--snug-orange))]'
+              : 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]'
           }`}
         >
           <List className="w-4 h-4" />

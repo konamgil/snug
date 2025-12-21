@@ -1,0 +1,52 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { User, Globe, MessageCircle } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
+
+interface HeaderActionsProps {
+  className?: string;
+}
+
+export function HeaderActions({ className }: HeaderActionsProps) {
+  const t = useTranslations('home');
+
+  return (
+    <div className={`flex items-center gap-2.5 ${className ?? ''}`}>
+      {/* Host Mode Button */}
+      <Link
+        href="/host"
+        className="flex px-4 py-2 text-xs font-normal text-[hsl(var(--snug-brown))] border border-[hsl(var(--snug-brown))] rounded-full hover:bg-[hsl(var(--snug-brown))]/5 transition-colors whitespace-nowrap"
+      >
+        {t('hostMode')}
+      </Link>
+
+      {/* My Page Button */}
+      <Link
+        href="/mypage/profile"
+        className="w-8 h-8 rounded-full bg-[hsl(var(--snug-brown))] flex items-center justify-center hover:opacity-90 transition-opacity"
+        aria-label="My Page"
+      >
+        <User className="w-3.5 h-3.5 text-white" />
+      </Link>
+
+      {/* Language Switcher */}
+      <button
+        type="button"
+        className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
+        aria-label="Change Language"
+      >
+        <Globe className="w-3.5 h-3.5 text-white" />
+      </button>
+
+      {/* Chat Button */}
+      <button
+        type="button"
+        className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
+        aria-label="Messages"
+      >
+        <MessageCircle className="w-3.5 h-3.5 text-white" />
+      </button>
+    </div>
+  );
+}

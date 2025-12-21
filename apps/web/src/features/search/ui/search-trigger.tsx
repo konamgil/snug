@@ -15,7 +15,7 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full max-w-[400px] bg-white border border-[hsl(var(--snug-border))] rounded-full px-4 py-3 flex items-center justify-between hover:border-[hsl(var(--snug-gray))] transition-colors ${className ?? ''}`}
+      className={`w-full max-w-[600px] bg-white border border-[hsl(var(--snug-border))] rounded-full px-4 py-3 flex items-center justify-between hover:border-[hsl(var(--snug-gray))] transition-colors ${className ?? ''}`}
     >
       <div className="flex items-center gap-2">
         <MapPin className="w-4 h-4 text-[hsl(var(--snug-gray))]" />

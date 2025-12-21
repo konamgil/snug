@@ -2,8 +2,8 @@
 
 /* CSS Variables for theming */
 :root {
-  --font-sans: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR',
-    'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Wanted Sans Variable', 'Wanted Sans', 'Pretendard', 'Apple SD Gothic Neo',
+    'Malgun Gothic', 'Noto Sans KR', system-ui, sans-serif;
 
   /* Snug Brand Colors */
   --snug-orange: 27 100% 50%; /* #ff7900 */

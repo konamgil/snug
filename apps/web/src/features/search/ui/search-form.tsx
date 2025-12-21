@@ -5,10 +5,12 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Calendar, Users, Search, X } from 'lucide-react';
 import { DatePicker } from './date-picker';
 import { GuestPicker, formatGuestSummary, type GuestCount } from './guest-picker';
+import type { SearchParams } from './search-modal';
 
 interface SearchFormProps {
   className?: string;
   onFocusChange?: (focused: boolean) => void;
+  onSearch?: (params: SearchParams) => void;
 }
 
 type FocusState = 'none' | 'location' | 'dates' | 'guests';
@@ -65,7 +67,7 @@ function formatDateRange(checkIn: Date | null, checkOut: Date | null): string | 
   return `${formatDate(checkIn)} - ${formatDate(checkOut)}`;
 }
 
-export function SearchForm({ className, onFocusChange }: SearchFormProps) {
+export function SearchForm({ className, onFocusChange, onSearch }: SearchFormProps) {
   const t = useTranslations('home.search');
   const [focusState, setFocusState] = useState<FocusState>('none');
   const [locationValue, setLocationValue] = useState('');
@@ -138,11 +140,20 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
   const dateRangeText = formatDateRange(checkIn, checkOut);
   const guestSummary = formatGuestSummary(guests);
 
+  const handleSearch = () => {
+    onSearch?.({
+      location: locationValue,
+      checkIn,
+      checkOut,
+      guests,
+    });
+  };
+
   return (
     <div ref={containerRef} className={`relative w-full max-w-[600px] ${className ?? ''}`}>
       {/* Unified Container with Orange Border on Focus */}
       <div
-        className={`bg-white border-2 rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
+        className={`bg-white border-[1.5px] rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
           isFocused ? 'border-[#ff7900] shadow-lg' : 'border-[#d8d8d8]'
         }`}
       >
@@ -230,6 +241,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
             {/* Search Button */}
             <button
               type="button"
+              onClick={handleSearch}
               className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
             >
               <Search className="w-3.5 h-3.5 text-white" />

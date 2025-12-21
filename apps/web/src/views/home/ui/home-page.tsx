@@ -1,18 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { HeroBanner } from '@/widgets/hero-banner';
 import { MobileNav } from '@/widgets/mobile-nav';
-import { SearchForm, SearchModal, SearchTrigger } from '@/features/search';
+import { SearchForm, SearchModal, SearchTrigger, type SearchParams } from '@/features/search';
 import { SnugLogo, ViewOnMapButton } from '@/shared/ui';
 
 export function HomePage() {
+  const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSearch = () => {
-    // TODO: Implement search with params
+  const handleSearch = (params: SearchParams) => {
+    // Build query string
+    const searchParams = new URLSearchParams();
+    if (params.location) searchParams.set('location', params.location);
+    if (params.checkIn) searchParams.set('checkIn', params.checkIn.toISOString().substring(0, 10));
+    if (params.checkOut)
+      searchParams.set('checkOut', params.checkOut.toISOString().substring(0, 10));
+    const totalGuests = params.guests.adults + params.guests.children;
+    if (totalGuests > 0) searchParams.set('guests', totalGuests.toString());
+
+    // Navigate to search page
+    router.push(`/search?${searchParams.toString()}`);
     setIsModalOpen(false);
   };
 
@@ -31,7 +43,7 @@ export function HomePage() {
 
         {/* Desktop: Search Form */}
         <div className="hidden md:flex md:justify-center w-full mb-6">
-          <SearchForm onFocusChange={setIsSearchFocused} />
+          <SearchForm onFocusChange={setIsSearchFocused} onSearch={handleSearch} />
         </div>
 
         {/* Hero Banner Carousel - hidden when search is focused (desktop only) */}

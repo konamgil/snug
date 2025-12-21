@@ -1,12 +1,15 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from '@react-google-maps/api';
+import { useCallback, useState, useRef } from 'react';
+import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { X, Heart, Home, Users, ImageIcon } from 'lucide-react';
 import type { Room } from './room-card';
 
 interface SearchMapProps {
   rooms: Room[];
-  onRoomSelect?: (roomId: string) => void;
+  onRoomSelect?: (roomId: string | null) => void;
 }
 
 const mapContainerStyle = {
@@ -25,29 +28,73 @@ const mapOptions: google.maps.MapOptions = {
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
-  fullscreenControl: true,
+  fullscreenControl: false,
 };
 
 function createPriceMarkerIcon(price: number, isSelected: boolean): string {
-  const bgColor = isSelected ? '%23ff7900' : '%236B4423';
+  const bgColor = isSelected ? '%23ff7900' : '%236B7280';
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="30"><rect x="0" y="0" width="60" height="30" rx="15" fill="${bgColor}"/><text x="30" y="20" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial">$${price}</text></svg>`;
   return `data:image/svg+xml,${svg}`;
 }
 
+// First tag - soft background
+const tagFirstColors = {
+  orange: 'bg-[#FDEEE5] text-[hsl(var(--snug-orange))]',
+  purple: 'bg-pink-100 text-pink-500',
+  blue: 'bg-blue-100 text-blue-500',
+  green: 'bg-green-100 text-green-500',
+};
+
+// Second+ tags - solid background with white text
+const tagSecondColors = {
+  orange: 'bg-[hsl(var(--snug-orange))] text-white',
+  purple: 'bg-[#EF8BAC] text-white',
+  blue: 'bg-blue-400 text-white',
+  green: 'bg-green-400 text-white',
+};
+
 export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
+  const locale = useLocale();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [currentImageIndex] = useState(0);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const totalImages = 10;
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    id: 'google-map-script',
   });
+
+  const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
+    mapRef.current = mapInstance;
+  }, []);
 
   const onMapClick = useCallback(() => {
     setSelectedRoom(null);
-  }, []);
+    onRoomSelect?.(null);
+  }, [onRoomSelect]);
 
   const handleMarkerClick = (room: Room) => {
     setSelectedRoom(room);
+    setIsFavorite(room.isFavorite || false);
     onRoomSelect?.(room.id);
+
+    // Pan map to show marker above the bottom card
+    if (mapRef.current) {
+      const offsetLat = room.lat - 0.003; // Offset to position marker above center
+      mapRef.current.panTo({ lat: offsetLat, lng: room.lng });
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedRoom(null);
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
   };
 
   if (loadError) {
@@ -67,48 +114,126 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
   }
 
   return (
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      center={defaultCenter}
-      zoom={15}
-      options={mapOptions}
-      onClick={onMapClick}
-    >
-      {rooms.map((room) => (
-        <MarkerF
-          key={room.id}
-          position={{ lat: room.lat, lng: room.lng }}
-          onClick={() => handleMarkerClick(room)}
-          icon={{
-            url: createPriceMarkerIcon(room.price, selectedRoom?.id === room.id),
-            scaledSize: new google.maps.Size(60, 30),
-            anchor: new google.maps.Point(30, 15),
-          }}
-        />
-      ))}
+    <div className="relative w-full h-full">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={defaultCenter}
+        zoom={15}
+        options={mapOptions}
+        onLoad={onMapLoad}
+        onClick={onMapClick}
+      >
+        {rooms.map((room) => (
+          <MarkerF
+            key={room.id}
+            position={{ lat: room.lat, lng: room.lng }}
+            onClick={() => handleMarkerClick(room)}
+            icon={{
+              url: createPriceMarkerIcon(room.price, selectedRoom?.id === room.id),
+              scaledSize: new google.maps.Size(60, 30),
+              anchor: new google.maps.Point(30, 15),
+            }}
+          />
+        ))}
+      </GoogleMap>
 
+      {/* Selected Room Card - Mobile only */}
       {selectedRoom && (
-        <InfoWindowF
-          position={{ lat: selectedRoom.lat, lng: selectedRoom.lng }}
-          onCloseClick={() => setSelectedRoom(null)}
-          options={{ pixelOffset: new google.maps.Size(0, -20) }}
-        >
-          <div className="p-2 min-w-[200px]">
-            <h3 className="font-semibold text-sm mb-1">
-              {selectedRoom.location}, {selectedRoom.district}
-            </h3>
-            <p className="text-xs text-gray-500 mb-1">
-              {selectedRoom.rooms} Rooms · {selectedRoom.bathrooms} Bath · {selectedRoom.beds} Bed
-            </p>
-            <p className="text-sm font-bold text-[#ff7900]">
-              ${selectedRoom.price}
-              <span className="font-normal text-gray-500 ml-1">
-                for {selectedRoom.nights} nights
-              </span>
-            </p>
+        <div className="absolute bottom-0 left-0 right-0 z-10 md:hidden">
+          {/* Close Button */}
+          <div className="flex justify-end px-4 pb-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-md"
+            >
+              <X className="w-4 h-4 text-[hsl(var(--snug-text-primary))] drop-shadow-sm" />
+            </button>
           </div>
-        </InfoWindowF>
+
+          {/* Room Card */}
+          <Link
+            href={`/${locale}/room/${selectedRoom.id}`}
+            className="block mx-4 mb-4 bg-white rounded-2xl shadow-xl overflow-hidden"
+          >
+            {/* Image */}
+            <div className="relative aspect-[16/10]">
+              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+              </div>
+
+              {/* Tags */}
+              <div className="absolute top-3 left-3 flex gap-2">
+                {selectedRoom.tags.map((tag, index) => (
+                  <span
+                    key={tag.label}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
+                      index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
+                    }`}
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+
+              {/* Favorite Button */}
+              <button
+                type="button"
+                onClick={handleFavoriteClick}
+                className="absolute top-3 right-3 p-2"
+              >
+                <Heart
+                  className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white drop-shadow-md'}`}
+                  fill={isFavorite ? 'currentColor' : 'none'}
+                />
+              </button>
+
+              {/* Image Counter */}
+              <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/50 rounded-full text-white text-xs">
+                {currentImageIndex + 1} / {totalImages}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              {/* Location */}
+              <h3 className="text-[15px] font-semibold text-[hsl(var(--snug-text-primary))] mb-1.5">
+                {selectedRoom.location}, {selectedRoom.district}
+              </h3>
+
+              {/* Room Info */}
+              <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
+                <Home className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>
+                  {selectedRoom.rooms} Rooms · {selectedRoom.bathrooms} Bathroom ·{' '}
+                  {selectedRoom.beds} Bed
+                </span>
+              </div>
+
+              {/* Guests */}
+              <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
+                <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{selectedRoom.guests} Guests</span>
+              </div>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-1.5">
+                {selectedRoom.originalPrice && (
+                  <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
+                    ${selectedRoom.originalPrice}
+                  </span>
+                )}
+                <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
+                  ${selectedRoom.price}
+                </span>
+                <span className="text-[13px] text-[hsl(var(--snug-gray))]">
+                  for {selectedRoom.nights} nights
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
       )}
-    </GoogleMap>
+    </div>
   );
 }

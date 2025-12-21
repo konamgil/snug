@@ -1,52 +1,143 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { User, Globe, MessageCircle } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import { SnugLogo } from '@/shared/ui';
+import { HeaderActions } from './header-actions';
+import { HeaderSearchBar, type SearchBarValues } from './header-search-bar';
 
-export function Header() {
-  const t = useTranslations('home');
+export type HeaderVariant = 'default' | 'with-search' | 'with-back';
 
-  return (
-    <header className="sticky top-0 z-50 w-full bg-white safe-top">
-      <div className="flex h-14 md:h-16 items-center justify-end px-4 md:px-6">
-        {/* Right Side Actions - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-2.5">
-          {/* Host Mode Button */}
-          <Link
-            href="/host"
-            className="flex px-4 py-2 text-xs font-normal text-[hsl(var(--snug-brown))] border border-[hsl(var(--snug-brown))] rounded-full hover:bg-[hsl(var(--snug-brown))]/5 transition-colors whitespace-nowrap"
-          >
-            {t('hostMode')}
-          </Link>
+interface HeaderProps {
+  /**
+   * Header variant
+   * - default: Logo + Right actions
+   * - with-search: Logo + Center search bar + Right actions
+   * - with-back: Mobile back button / Desktop: Logo + Right actions
+   */
+  variant?: HeaderVariant;
+  /**
+   * Show logo (only for default variant on mobile)
+   */
+  showLogo?: boolean;
+  /**
+   * Back button handler (for with-back and with-search variants on mobile)
+   */
+  onBack?: () => void;
+  /**
+   * Show search bar (for with-search variant, default: true)
+   */
+  showSearch?: boolean;
+  /**
+   * Search bar initial values (for with-search variant)
+   */
+  searchValues?: Partial<SearchBarValues>;
+  /**
+   * Search handler (for with-search variant)
+   */
+  onSearch?: (values: SearchBarValues) => void;
+  /**
+   * Additional class names
+   */
+  className?: string;
+}
 
-          {/* My Page Button */}
+export function Header({
+  variant = 'default',
+  showLogo = false,
+  onBack,
+  showSearch = true,
+  searchValues,
+  onSearch,
+  className,
+}: HeaderProps) {
+  // with-back variant: Mobile back button / Desktop full header
+  if (variant === 'with-back') {
+    return (
+      <header className={`sticky top-0 z-50 bg-white ${className ?? ''}`}>
+        {/* Mobile Header - Back button only */}
+        <div className="lg:hidden px-4 h-14 flex items-center">
           <button
             type="button"
-            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-brown))] flex items-center justify-center hover:opacity-90 transition-opacity"
-            aria-label="My Page"
+            onClick={onBack}
+            className="p-2 -ml-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
           >
-            <User className="w-3.5 h-3.5 text-white" />
-          </button>
-
-          {/* Language Switcher */}
-          <button
-            type="button"
-            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
-            aria-label="Change Language"
-          >
-            <Globe className="w-3.5 h-3.5 text-white" />
-          </button>
-
-          {/* Chat Button */}
-          <button
-            type="button"
-            className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
-            aria-label="Messages"
-          >
-            <MessageCircle className="w-3.5 h-3.5 text-white" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
+        {/* Desktop Header - Logo + Actions */}
+        <div className="hidden lg:flex max-w-7xl mx-auto px-6 py-5 items-center justify-between">
+          <Link href="/" className="flex-shrink-0">
+            <SnugLogo className="h-8 w-auto" />
+          </Link>
+          <HeaderActions />
+        </div>
+      </header>
+    );
+  }
+
+  // with-search variant: Logo + Center floating search + Actions (Tablet & Desktop)
+  if (variant === 'with-search') {
+    return (
+      <header className={`sticky top-0 z-50 bg-white overflow-visible ${className ?? ''}`}>
+        {/* Mobile Header - Back button (shown when onBack is provided) */}
+        {onBack && (
+          <div className="md:hidden px-4 h-14 flex items-center">
+            <button
+              type="button"
+              onClick={onBack}
+              className="p-2 -ml-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
+        {/* Tablet & Desktop Header */}
+        <div className="hidden md:flex h-20 items-center justify-between px-6 overflow-visible">
+          {/* Left: Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <SnugLogo className="h-8 w-auto" />
+          </Link>
+
+          {/* Center: Placeholder to maintain layout (only when search is shown) */}
+          {showSearch && (
+            <div className="flex-1 flex justify-center px-8">
+              <div className="relative max-w-[600px] w-full h-[44px]" />
+            </div>
+          )}
+
+          {/* Spacer when search is hidden */}
+          {!showSearch && <div className="flex-1" />}
+
+          {/* Right: Actions */}
+          <HeaderActions className="flex-shrink-0" />
+        </div>
+
+        {/* Floating Search Bar (only when showSearch is true) */}
+        {showSearch && (
+          <div className="hidden md:block fixed left-1/2 -translate-x-1/2 top-[18px] w-full max-w-[600px] z-[100] px-8">
+            <HeaderSearchBar initialValues={searchValues} onSearch={onSearch} />
+          </div>
+        )}
+      </header>
+    );
+  }
+
+  // default variant: Simple header with optional logo
+  return (
+    <header className={`sticky top-0 z-50 w-full bg-white safe-top ${className ?? ''}`}>
+      <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-6">
+        {/* Left Side - Logo */}
+        <div className="flex items-center">
+          {showLogo && (
+            <Link href="/">
+              <SnugLogo />
+            </Link>
+          )}
+        </div>
+        {/* Right Side Actions - Hidden on mobile */}
+        <HeaderActions className="hidden md:flex" />
       </div>
     </header>
   );
