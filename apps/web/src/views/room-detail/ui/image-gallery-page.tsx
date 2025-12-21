@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ImageIcon } from 'lucide-react';
+import { ChevronLeft, ArrowLeft, ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/widgets/header';
 
@@ -67,8 +67,8 @@ export function ImageGalleryPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* PC Header */}
-      <Header variant="with-search" showSearch={false} onBack={handleBack} />
+      {/* PC Header with Search */}
+      <Header variant="with-search" onBack={handleBack} />
 
       {/* Mobile Header with Back Button */}
       <div className="md:hidden sticky top-0 z-10 bg-white border-b border-[hsl(var(--snug-border))]">
@@ -83,8 +83,19 @@ export function ImageGalleryPage({
         </div>
       </div>
 
+      {/* PC Back Button */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 pt-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="p-1 hover:opacity-70 transition-opacity"
+        >
+          <ArrowLeft className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+      </div>
+
       {/* Category Tabs */}
-      <div className="sticky top-[57px] md:top-20 z-10 bg-white border-b border-[hsl(var(--snug-border))]">
+      <div className="sticky top-[57px] md:top-20 z-10 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center gap-4 py-4 overflow-x-auto no-scrollbar">
             {categories.map((category) => (

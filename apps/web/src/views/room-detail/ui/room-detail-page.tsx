@@ -454,7 +454,7 @@ export function RoomDetailPage() {
             </div>
 
             {/* Room Info */}
-            <div className="lg:hidden space-y-1 pb-4 border-b border-[hsl(var(--snug-border))]">
+            <div className="lg:hidden space-y-1 pb-4">
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))]">
                 <Home className="w-3.5 h-3.5" />
                 <span>
@@ -467,7 +467,7 @@ export function RoomDetailPage() {
               </div>
             </div>
             {/* Desktop Room Info */}
-            <div className="hidden lg:block pb-6 border-b border-[hsl(var(--snug-border))]">
+            <div className="hidden lg:block pb-6">
               <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--snug-gray))] mb-1">
                 <Home className="w-4 h-4" />
                 <span>
@@ -481,7 +481,7 @@ export function RoomDetailPage() {
             </div>
 
             {/* Mobile: Shared Room Info Card */}
-            <div className="lg:hidden py-6 border-b border-[hsl(var(--snug-border))]">
+            <div className="lg:hidden py-6">
               <div className="flex flex-col items-center text-center p-5 border-2 border-[hsl(var(--snug-orange))] rounded-2xl">
                 <p className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-1">
                   {roomData.roomType}
@@ -996,7 +996,7 @@ interface SectionProps {
 
 function Section({ title, expanded, onToggle, showToggle = true, children }: SectionProps) {
   return (
-    <div className="py-6 border-b border-[hsl(var(--snug-border))]">
+    <div className="py-6">
       <button
         type="button"
         onClick={onToggle}
