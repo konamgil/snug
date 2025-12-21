@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface DatePickerProps {
@@ -62,7 +62,14 @@ interface CalendarMonthProps {
   onDateClick: (date: Date) => void;
 }
 
-function CalendarMonth({ year, month, today, checkIn, checkOut, onDateClick }: CalendarMonthProps) {
+const CalendarMonth = memo(function CalendarMonth({
+  year,
+  month,
+  today,
+  checkIn,
+  checkOut,
+  onDateClick,
+}: CalendarMonthProps) {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
 
@@ -162,9 +169,14 @@ function CalendarMonth({ year, month, today, checkIn, checkOut, onDateClick }: C
       </div>
     </div>
   );
-}
+});
 
-export function DatePicker({ checkIn, checkOut, onDateSelect, className }: DatePickerProps) {
+export const DatePicker = memo(function DatePicker({
+  checkIn,
+  checkOut,
+  onDateSelect,
+  className,
+}: DatePickerProps) {
   const today = useMemo(() => new Date(), []);
   const [baseMonth, setBaseMonth] = useState(() => ({
     year: today.getFullYear(),
@@ -259,4 +271,4 @@ export function DatePicker({ checkIn, checkOut, onDateSelect, className }: DateP
       </div>
     </div>
   );
-}
+});

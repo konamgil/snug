@@ -18,12 +18,13 @@ export function ImageGalleryModal({
 }: ImageGalleryModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-  // Reset to initial index when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setCurrentIndex(initialIndex);
-    }
-  }, [isOpen, initialIndex]);
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+  }, [images.length]);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+  }, [images.length]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -41,7 +42,7 @@ export function ImageGalleryModal({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, handlePrev, handleNext]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -54,14 +55,6 @@ export function ImageGalleryModal({
       document.body.style.overflow = '';
     };
   }, [isOpen]);
-
-  const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-  }, [images.length]);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-  }, [images.length]);
 
   const handleThumbnailClick = (index: number) => {
     setCurrentIndex(index);

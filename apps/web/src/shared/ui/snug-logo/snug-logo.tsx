@@ -10,9 +10,9 @@ export function SnugLogo({ className }: SnugLogoProps) {
       <Image
         src="/images/logo/logo_hellosnug.svg"
         alt="hello.snug."
-        width={173}
-        height={32}
-        className="h-8 w-auto"
+        width={216}
+        height={40}
+        className="h-9 md:h-10 w-auto"
         priority
       />
     </div>

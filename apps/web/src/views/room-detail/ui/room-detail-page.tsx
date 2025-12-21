@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { useParams, useRouter } from 'next/navigation';
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,6 +29,12 @@ import {
   Info,
   ChevronDown,
   X,
+  Lock,
+  Video,
+  Flame,
+  Shirt,
+  Bed,
+  FireExtinguisher,
 } from 'lucide-react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { DatePicker } from '@/features/search/ui/date-picker';
@@ -36,7 +43,6 @@ import {
   formatGuestSummary,
   type GuestCount,
 } from '@/features/search/ui/guest-picker';
-import { ImageGalleryModal } from './image-gallery-modal';
 
 // Mock room data
 const roomData = {
@@ -76,7 +82,21 @@ const roomData = {
     { label: 'Bathrooms', value: '1' },
     { label: 'Orientation', value: 'South' },
   ],
-  facilities: ['Wifi', 'Air Conditioning', 'TV', 'Kitchen', 'Washer', 'Dryer'],
+  facilities: [
+    'Digital door lock',
+    'Refrigerator',
+    'Conditioner',
+    'Coffee maker',
+    'Washer',
+    'Wifi',
+    'Hangers',
+    'TV',
+    'CCTV',
+    'Bedding',
+    'Heating',
+    'Fire extinguisher',
+    'Air conditioning',
+  ],
   amenities: ['Gym', 'Parking', 'Security', 'Elevator', 'Rooftop'],
   houseRules: [
     { icon: 'pet', text: 'No pets allowed', allowed: false },
@@ -97,6 +117,7 @@ const roomData = {
 const facilityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Wifi: Wifi,
   'Air Conditioning': Snowflake,
+  'Air conditioning': Snowflake,
   TV: Tv,
   Kitchen: UtensilsCrossed,
   Washer: WashingMachine,
@@ -105,6 +126,15 @@ const facilityIcons: Record<string, React.ComponentType<{ className?: string }>>
   Parking: Car,
   Security: ShieldCheck,
   Coffee: Coffee,
+  'Digital door lock': Lock,
+  Refrigerator: UtensilsCrossed,
+  Conditioner: Snowflake,
+  'Coffee maker': Coffee,
+  Hangers: Shirt,
+  CCTV: Video,
+  Bedding: Bed,
+  Heating: Flame,
+  'Fire extinguisher': FireExtinguisher,
 };
 
 const tagColors = {
@@ -132,6 +162,11 @@ function calculateNights(checkIn: Date | null, checkOut: Date | null): number {
 
 export function RoomDetailPage() {
   const _t = useTranslations('roomDetail');
+  const locale = useLocale();
+  const params = useParams();
+  const router = useRouter();
+  const roomId = (params.id as string) || '1';
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [checkIn, setCheckIn] = useState<Date | null>(null);
@@ -139,7 +174,7 @@ export function RoomDetailPage() {
   const [guests, setGuests] = useState<GuestCount>({ adults: 1, children: 0, infants: 0 });
   const [isDateOpen, setIsDateOpen] = useState(false);
   const [isGuestOpen, setIsGuestOpen] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
     guidelines: true,
@@ -154,12 +189,6 @@ export function RoomDetailPage() {
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);
   const totalImages = 20;
-
-  // Mock images array (placeholder for actual images)
-  const roomImages = Array.from(
-    { length: totalImages },
-    (_, i) => `/images/rooms/room-${i + 1}.jpg`,
-  );
 
   // Click outside handler
   useEffect(() => {
@@ -185,6 +214,10 @@ export function RoomDetailPage() {
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
+  };
+
+  const handleOpenGallery = () => {
+    router.push(`/${locale}/room/${roomId}/gallery`);
   };
 
   const toggleSection = (section: string) => {
@@ -238,7 +271,7 @@ export function RoomDetailPage() {
             {/* Image Gallery */}
             <div
               className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-6 cursor-pointer group"
-              onClick={() => setIsGalleryOpen(true)}
+              onClick={handleOpenGallery}
             >
               {/* Placeholder Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
@@ -286,14 +319,6 @@ export function RoomDetailPage() {
                 {currentImageIndex + 1} / {totalImages}
               </div>
             </div>
-
-            {/* Image Gallery Modal */}
-            <ImageGalleryModal
-              isOpen={isGalleryOpen}
-              onClose={() => setIsGalleryOpen(false)}
-              images={roomImages}
-              initialIndex={currentImageIndex}
-            />
 
             {/* Room Type Badge */}
             <div className="flex items-center gap-2 mb-4">
@@ -389,20 +414,26 @@ export function RoomDetailPage() {
               expanded={expandedSections.facilities ?? false}
               onToggle={() => toggleSection('facilities')}
             >
-              <div className="grid grid-cols-3 gap-3">
-                {roomData.facilities.map((facility) => {
-                  const Icon = facilityIcons[facility] || Wifi;
-                  return (
-                    <div
-                      key={facility}
-                      className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
-                    >
-                      <Icon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                      <span>{facility}</span>
-                    </div>
-                  );
-                })}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {roomData.facilities.slice(0, 6).map((facility) => (
+                  <div
+                    key={facility}
+                    className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+                  >
+                    <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
+                    <span>{facility}</span>
+                  </div>
+                ))}
               </div>
+              {roomData.facilities.length > 6 && (
+                <button
+                  type="button"
+                  onClick={() => setIsFacilitiesModalOpen(true)}
+                  className="px-6 py-2.5 border border-[hsl(var(--snug-border))] rounded-full text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+                >
+                  Facilities More
+                </button>
+              )}
             </Section>
 
             {/* House Amenities */}
@@ -701,6 +732,7 @@ export function RoomDetailPage() {
               <div className="space-y-3">
                 <button
                   type="button"
+                  onClick={() => router.push(`/${locale}/room/${roomId}/payment`)}
                   className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white font-medium rounded-full hover:opacity-90 transition-opacity"
                 >
                   Reserve Now
@@ -715,12 +747,19 @@ export function RoomDetailPage() {
 
               {/* Notice */}
               <p className="text-xs text-center text-[hsl(var(--snug-gray))] mt-4">
-                You won't be charged yet
+                You won&apos;t be charged yet
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Facilities Modal */}
+      <FacilitiesModal
+        isOpen={isFacilitiesModalOpen}
+        onClose={() => setIsFacilitiesModalOpen(false)}
+        facilities={roomData.facilities}
+      />
     </div>
   );
 }
@@ -751,6 +790,84 @@ function Section({ title, expanded, onToggle, showToggle = true, children }: Sec
         )}
       </button>
       {expanded && children}
+    </div>
+  );
+}
+
+// Facilities Modal Component
+interface FacilitiesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  facilities: string[];
+}
+
+function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === 'Enter' && onClose()}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
+      />
+
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-xl mx-4">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--snug-border))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--snug-text-primary))]">Filters</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-[hsl(var(--snug-gray))]" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-4 overflow-y-auto max-h-[calc(80vh-60px)]">
+          <ul className="space-y-3">
+            {facilities.map((facility) => (
+              <li
+                key={facility}
+                className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
+              >
+                <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
+                <span>{facility}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

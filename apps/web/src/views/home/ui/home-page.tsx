@@ -20,7 +20,7 @@ export function HomePage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
-      <main className="flex-1 flex flex-col items-center px-5 md:px-4 pt-8 md:pt-12 pb-28 md:pb-24">
+      <main className="flex-1 flex flex-col items-center px-5 md:px-4 pt-[15vh] md:pt-[18vh] pb-28 md:pb-24">
         {/* Logo */}
         <SnugLogo className="mb-6 md:mb-8" />
 

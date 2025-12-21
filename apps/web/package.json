@@ -32,6 +32,7 @@
     "@capacitor/status-bar": "^7.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-slot": "^1.1.1",
+    "@react-google-maps/api": "^2.20.8",
     "@snug/types": "workspace:*",
     "@tanstack/react-query": "^5.64.2",
     "class-variance-authority": "^0.7.1",

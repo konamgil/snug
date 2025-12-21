@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Minus, Plus } from 'lucide-react';
 
 export interface GuestCount {
@@ -24,7 +25,7 @@ interface GuestRowProps {
   maxCount?: number;
 }
 
-function GuestRow({
+const GuestRow = memo(function GuestRow({
   label,
   description,
   count,
@@ -93,9 +94,13 @@ function GuestRow({
       </div>
     </div>
   );
-}
+});
 
-export function GuestPicker({ guests, onGuestChange, className }: GuestPickerProps) {
+export const GuestPicker = memo(function GuestPicker({
+  guests,
+  onGuestChange,
+  className,
+}: GuestPickerProps) {
   const handleAdultsChange = (delta: number) => {
     const newAdults = Math.max(0, Math.min(10, guests.adults + delta));
     onGuestChange({ ...guests, adults: newAdults });
@@ -148,7 +153,7 @@ export function GuestPicker({ guests, onGuestChange, className }: GuestPickerPro
       />
     </div>
   );
-}
+});
 
 export function formatGuestSummary(guests: GuestCount): string | null {
   const { adults, children, infants } = guests;

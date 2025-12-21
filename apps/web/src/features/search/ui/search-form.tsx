@@ -139,7 +139,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
   const guestSummary = formatGuestSummary(guests);
 
   return (
-    <div ref={containerRef} className={`relative w-full max-w-[400px] ${className ?? ''}`}>
+    <div ref={containerRef} className={`relative w-full max-w-[600px] ${className ?? ''}`}>
       {/* Unified Container with Orange Border on Focus */}
       <div
         className={`bg-white border-2 rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
@@ -169,7 +169,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
                 <button
                   type="button"
                   onClick={handleDatesClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors ${
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap ${
                     dateRangeText
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'
@@ -200,7 +200,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
                 <button
                   type="button"
                   onClick={handleGuestsClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors ${
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap ${
                     guestSummary
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'
@@ -239,7 +239,7 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
 
         {/* Popular Searches Dropdown - Location Focus */}
         <div
-          className={`transition-all duration-300 ease-out ${
+          className={`transition-all duration-300 ease-out overflow-hidden ${
             focusState === 'location'
               ? 'max-h-[400px] opacity-100'
               : 'max-h-0 opacity-0 pointer-events-none'
@@ -290,17 +290,19 @@ export function SearchForm({ className, onFocusChange }: SearchFormProps) {
 
         {/* Guest Picker Dropdown - Guests Focus */}
         <div
-          className={`transition-all duration-300 ease-out overflow-hidden ${
-            focusState === 'guests'
-              ? 'max-h-[400px] opacity-100'
-              : 'max-h-0 opacity-0 pointer-events-none'
+          className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+            focusState === 'guests' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
           }`}
         >
-          {/* Separator Line */}
-          <div className="border-t border-[hsl(var(--snug-border))] mx-4" />
+          <div
+            className={`overflow-hidden ${focusState !== 'guests' ? 'pointer-events-none' : ''}`}
+          >
+            {/* Separator Line */}
+            <div className="border-t border-[hsl(var(--snug-border))] mx-4" />
 
-          <div className="px-4 pb-4">
-            <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
+            <div className="p-4 pt-3">
+              <GuestPicker guests={guests} onGuestChange={handleGuestChange} />
+            </div>
           </div>
         </div>
       </div>
