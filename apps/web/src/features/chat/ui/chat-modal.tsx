@@ -51,7 +51,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-16 right-4 w-[380px] h-[calc(100vh-100px)] max-h-[700px] bg-white rounded-2xl shadow-xl border border-[hsl(var(--snug-border))] z-50 flex flex-col overflow-hidden">
+    <div className="fixed top-[72px] right-4 w-[380px] h-[calc(100vh-104px)] max-h-[700px] bg-white rounded-2xl shadow-xl border border-[hsl(var(--snug-border))] z-50 flex flex-col overflow-hidden">
       {/* Content */}
       {selectedChatId ? (
         <ChatDetail chatId={selectedChatId} onBack={handleBack} />
