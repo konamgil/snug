@@ -257,12 +257,27 @@
       "passportPlaceholder": "Nhập số hộ chiếu của bạn",
       "verify": "Xác minh",
       "verified": "Đã xác minh",
+      "verificationCode": "Mã xác minh",
       "enterCode": "Nhập mã xác minh",
       "confirm": "Xác nhận",
       "resendCode": "Gửi lại mã",
       "verificationSuccess": "Số điện thoại đã được xác minh thành công",
       "verificationError": "Mã xác minh không hợp lệ. Vui lòng thử lại.",
       "tryAgain": "Thử lại"
+    },
+    "security": {
+      "title": "Đăng nhập & Bảo mật",
+      "subtitle": "Cập nhật thông tin đăng nhập, đặt lại mật khẩu và quản lý đăng nhập xã hội.",
+      "loginTab": "Đăng nhập",
+      "socialTab": "Đăng nhập xã hội",
+      "emailAddress": "Địa chỉ email",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "passwordPlaceholder": "Mật khẩu",
+      "changePassword": "Đổi mật khẩu",
+      "passwordMismatch": "Mật khẩu mới không khớp. Vui lòng thử lại.",
+      "passwordChanged": "Mật khẩu của bạn đã được thay đổi.",
+      "socialLoginsComingSoon": "Quản lý đăng nhập xã hội sắp ra mắt."
     }
   },
   "roomDetail": {

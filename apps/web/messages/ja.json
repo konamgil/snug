@@ -257,12 +257,27 @@
       "passportPlaceholder": "パスポート番号を入力してください",
       "verify": "認証",
       "verified": "認証済み",
+      "verificationCode": "認証コード",
       "enterCode": "認証コードを入力",
       "confirm": "確認",
       "resendCode": "コードを再送信",
       "verificationSuccess": "電話番号が正常に認証されました",
       "verificationError": "認証コードが無効です。もう一度お試しください。",
       "tryAgain": "再試行"
+    },
+    "security": {
+      "title": "ログイン＆セキュリティ",
+      "subtitle": "ログイン情報の更新、パスワードのリセット、ソーシャルログインの管理を行います。",
+      "loginTab": "ログイン",
+      "socialTab": "ソーシャルログイン",
+      "emailAddress": "メールアドレス",
+      "newPassword": "新しいパスワード",
+      "confirmPassword": "パスワード確認",
+      "passwordPlaceholder": "パスワード",
+      "changePassword": "パスワード変更",
+      "passwordMismatch": "新しいパスワードが一致しません。もう一度お試しください。",
+      "passwordChanged": "パスワードが変更されました。",
+      "socialLoginsComingSoon": "ソーシャルログイン管理は近日公開予定です。"
     }
   },
   "roomDetail": {

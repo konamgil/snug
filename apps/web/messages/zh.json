@@ -257,12 +257,27 @@
       "passportPlaceholder": "请输入您的护照号码",
       "verify": "验证",
       "verified": "已验证",
+      "verificationCode": "验证码",
       "enterCode": "输入验证码",
       "confirm": "确认",
       "resendCode": "重新发送验证码",
       "verificationSuccess": "电话号码验证成功",
       "verificationError": "验证码无效，请重试。",
       "tryAgain": "重试"
+    },
+    "security": {
+      "title": "登录与安全",
+      "subtitle": "更新您的登录信息、重置密码并管理社交登录。",
+      "loginTab": "登录",
+      "socialTab": "社交登录",
+      "emailAddress": "电子邮箱",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "passwordPlaceholder": "密码",
+      "changePassword": "更改密码",
+      "passwordMismatch": "新密码不匹配，请重试。",
+      "passwordChanged": "您的密码已更改。",
+      "socialLoginsComingSoon": "社交登录管理即将推出。"
     }
   },
   "roomDetail": {

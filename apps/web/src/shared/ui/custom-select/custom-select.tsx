@@ -50,7 +50,7 @@ export function CustomSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-4 py-3 border rounded-xl text-sm text-left flex items-center justify-between transition-colors ${
+        className={`w-full px-4 py-3 border rounded-[28px] text-sm text-left flex items-center justify-between transition-colors ${
           isOpen ? 'border-[hsl(var(--snug-orange))]' : 'border-[hsl(var(--snug-border))]'
         } bg-white`}
       >
@@ -70,13 +70,13 @@ export function CustomSelect({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-xl shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-[20px] shadow-lg z-50 p-2">
           {options.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className={`w-full px-4 py-3 text-sm text-left transition-colors ${
+              className={`w-full px-4 py-3 text-sm text-left transition-colors rounded-xl ${
                 value === option.value
                   ? 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]'
                   : 'text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))]'

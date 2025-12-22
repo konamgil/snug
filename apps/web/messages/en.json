@@ -257,12 +257,27 @@
       "passportPlaceholder": "Enter your passport number",
       "verify": "Verify",
       "verified": "Verified",
+      "verificationCode": "Verification Code",
       "enterCode": "Enter verification code",
       "confirm": "Confirm",
       "resendCode": "Resend code",
       "verificationSuccess": "Phone number verified successfully",
       "verificationError": "Invalid verification code. Please try again.",
       "tryAgain": "Try again"
+    },
+    "security": {
+      "title": "Login & Security",
+      "subtitle": "Update your login, reset your password, and manage social logins.",
+      "loginTab": "Login",
+      "socialTab": "Social Logins",
+      "emailAddress": "Email address",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordPlaceholder": "Password",
+      "changePassword": "Change Password",
+      "passwordMismatch": "The new passwords do not match. Please try again.",
+      "passwordChanged": "Your password has been changed.",
+      "socialLoginsComingSoon": "Social login management coming soon."
     }
   },
   "roomDetail": {
