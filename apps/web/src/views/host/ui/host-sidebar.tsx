@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import {
@@ -76,19 +77,22 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
   return (
     <aside
       className={`bg-[#1e1e1e] h-full flex flex-col transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-[140px]'
+        isCollapsed ? 'w-16' : 'w-[160px]'
       }`}
     >
       {/* Logo */}
       <div className="px-4 py-5">
         <Link href="/host" className="block">
           {isCollapsed ? (
-            <span className="text-lg font-bold text-white">S</span>
+            <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">S</span>
           ) : (
-            <span className="text-lg font-bold">
-              <span className="text-white">hello.</span>
-              <span className="text-[hsl(var(--snug-orange))]">snug.</span>
-            </span>
+            <Image
+              src="/images/logo/logo-hellosnug-host.svg"
+              alt="hello.snug."
+              width={120}
+              height={24}
+              className="h-6 w-auto"
+            />
           )}
         </Link>
       </div>
