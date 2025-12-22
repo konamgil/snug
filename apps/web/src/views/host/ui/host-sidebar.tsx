@@ -84,7 +84,13 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
       <div className="px-4 py-5">
         <Link href="/host" className="block">
           {isCollapsed ? (
-            <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">S</span>
+            <Image
+              src="/images/logo/favicon.svg"
+              alt="snug"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
           ) : (
             <Image
               src="/images/logo/logo-hellosnug-host.svg"
