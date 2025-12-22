@@ -77,7 +77,7 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
   return (
     <aside
       className={`bg-[#1e1e1e] h-full flex flex-col transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-[160px]'
+        isCollapsed ? 'w-16' : 'w-[180px]'
       }`}
     >
       {/* Logo */}
