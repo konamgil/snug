@@ -68,6 +68,7 @@ export function ProfilePage() {
   });
 
   const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -98,6 +99,7 @@ export function ProfilePage() {
   const handleSave = () => {
     setProfile(editedProfile);
     setIsEditing(false);
+    setShowCountryDropdown(false);
   };
 
   const handleEdit = () => {
@@ -295,18 +297,43 @@ export function ProfilePage() {
                   <>
                     <div className="flex gap-2">
                       <div className="relative w-[180px] flex-shrink-0">
-                        <select
-                          value={editedProfile.countryCode}
-                          onChange={(e) => handleInputChange('countryCode', e.target.value)}
-                          className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] appearance-none bg-white"
+                        <button
+                          type="button"
+                          onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                          className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] bg-white flex items-center justify-between"
                         >
-                          {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.label}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[hsl(var(--snug-gray))] pointer-events-none" />
+                          <span className="text-[hsl(var(--snug-text-primary))]">
+                            {getCountryLabel(editedProfile.countryCode)}
+                          </span>
+                          <ChevronDown
+                            className={`w-5 h-5 text-[hsl(var(--snug-gray))] transition-transform ${
+                              showCountryDropdown ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+
+                        {/* Country Code Dropdown */}
+                        {showCountryDropdown && (
+                          <div className="absolute top-full left-0 mt-2 bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 min-w-[200px] z-10">
+                            {COUNTRY_CODES.map((c) => (
+                              <button
+                                key={c.code}
+                                type="button"
+                                onClick={() => {
+                                  handleInputChange('countryCode', c.code);
+                                  setShowCountryDropdown(false);
+                                }}
+                                className={`w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors ${
+                                  editedProfile.countryCode === c.code
+                                    ? 'text-[hsl(var(--snug-text-primary))] font-medium'
+                                    : 'text-[hsl(var(--snug-text-primary))]'
+                                }`}
+                              >
+                                {c.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <input
                         type="tel"
@@ -470,6 +497,11 @@ export function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Click outside to close dropdown */}
+      {showCountryDropdown && (
+        <div className="fixed inset-0 z-0" onClick={() => setShowCountryDropdown(false)} />
+      )}
     </div>
   );
 }

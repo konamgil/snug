@@ -351,6 +351,26 @@
       "refundNote1": "当日キャンセルの場合、返金ポリシーに従い賃料と契約手数料の10%がペナルティとして課されます。ただし、無料キャンセル期間内のキャンセルは全額返金されます。",
       "refundNote2": "管理費、清掃費、保証金は全額返金されます。",
       "refundNote3": "返金ポリシーはホストの条件により異なる場合があります。"
+    },
+    "favorites": {
+      "title": "お気に入り",
+      "subtitle": "お気に入りと最近閲覧した宿泊先を確認・管理できます。",
+      "favoriteTab": "お気に入り",
+      "recentTab": "最近",
+      "noFavorites": "お気に入りはまだありません！",
+      "noFavoritesDesc": "保存した宿泊先がここに表示されます。",
+      "noRecent": "最近閲覧した宿泊先はありません！",
+      "noRecentDesc": "最近閲覧した宿泊先がここに表示されます。",
+      "browseStays": "宿泊先を探す"
+    },
+    "settings": {
+      "title": "設定",
+      "preferredLanguage": "優先言語",
+      "preferredLanguageDesc": "Snugプラットフォームで使用する言語を選択してください。",
+      "preferredCurrency": "優先通貨",
+      "preferredCurrencyDesc": "価格表示に使用する通貨を選択してください。",
+      "aiAutoResponder": "Snug AI自動応答",
+      "aiAutoResponderDesc": "不在時にAIがゲストのお問い合わせに自動的に応答します。"
     }
   },
   "roomDetail": {

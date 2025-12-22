@@ -12,12 +12,13 @@ interface NavItem {
   icon: typeof Search;
   labelKey: NavItemKey;
   activeOn?: string[];
+  badge?: number;
 }
 
 const navItems: NavItem[] = [
   { href: '/', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
   { href: '/map', icon: Map, labelKey: 'map' },
-  { href: '/chat', icon: MessageCircle, labelKey: 'messages' },
+  { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
   { href: '/mypage/profile', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
 ];
 
@@ -42,12 +43,19 @@ export function MobileNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center w-full h-full',
+                'flex flex-col items-center justify-center w-full h-full relative',
                 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))] transition-colors',
                 isActive && 'text-[hsl(var(--snug-orange))]',
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <div className="relative">
+                <item.icon className="h-5 w-5" />
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-[hsl(var(--snug-orange))] rounded-full">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] mt-1 font-medium">{t(item.labelKey)}</span>
             </Link>
           );

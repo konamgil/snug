@@ -32,7 +32,7 @@ export function EmailLoginForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder={t('emailAddress')}
-        className="w-full px-5 py-4 border border-[hsl(var(--snug-border))] rounded-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors"
+        className="w-full px-5 py-3 border border-[hsl(var(--snug-border))] rounded-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors"
       />
 
       {/* Password Input */}
@@ -45,7 +45,7 @@ export function EmailLoginForm() {
             setError('');
           }}
           placeholder={t('password')}
-          className="w-full px-5 py-4 pr-20 border border-[hsl(var(--snug-border))] rounded-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors"
+          className="w-full px-5 py-3 pr-20 border border-[hsl(var(--snug-border))] rounded-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors"
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
           <button
@@ -96,7 +96,7 @@ export function EmailLoginForm() {
       {/* Continue Button */}
       <button
         type="submit"
-        className="w-full py-4 bg-[hsl(var(--snug-orange))] text-white text-base font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+        className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
       >
         {t('continue')}
       </button>
@@ -104,7 +104,7 @@ export function EmailLoginForm() {
       {/* Sign Up Button */}
       <Link
         href="/signup"
-        className="block w-full py-4 border border-[hsl(var(--snug-border))] text-center text-base font-medium text-[hsl(var(--snug-text-primary))] rounded-full hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] active:bg-[hsl(var(--snug-border))] active:scale-[0.98] transition-all"
+        className="block w-full py-3 border border-[hsl(var(--snug-border))] text-center text-sm font-medium text-[hsl(var(--snug-text-primary))] rounded-full hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] active:bg-[hsl(var(--snug-border))] active:scale-[0.98] transition-all"
       >
         {t('signUp')}
       </Link>

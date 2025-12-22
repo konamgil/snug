@@ -351,6 +351,26 @@
       "refundNote1": "当天取消的情况下，根据退款政策将收取租金和合同费的10%作为违约金。但如果取消在免费取消期限内，将全额退款。",
       "refundNote2": "管理费、清洁费和押金可全额退还。",
       "refundNote3": "退款政策可能因房东的条款而异。"
+    },
+    "favorites": {
+      "title": "收藏",
+      "subtitle": "查看和管理您收藏和最近浏览的住所。",
+      "favoriteTab": "收藏",
+      "recentTab": "最近浏览",
+      "noFavorites": "暂无收藏！",
+      "noFavoritesDesc": "您保存的住所将显示在这里。",
+      "noRecent": "暂无最近浏览！",
+      "noRecentDesc": "您最近浏览的住所将显示在这里。",
+      "browseStays": "浏览住所"
+    },
+    "settings": {
+      "title": "设置",
+      "preferredLanguage": "首选语言",
+      "preferredLanguageDesc": "选择您在Snug平台上使用的语言。",
+      "preferredCurrency": "首选货币",
+      "preferredCurrencyDesc": "选择价格显示的货币。",
+      "aiAutoResponder": "Snug AI自动回复",
+      "aiAutoResponderDesc": "当您不在时，AI将自动回复客人的咨询。"
     }
   },
   "roomDetail": {

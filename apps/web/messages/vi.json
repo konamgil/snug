@@ -351,6 +351,26 @@
       "refundNote1": "Đối với hủy trong ngày, 10% tiền thuê và phí hợp đồng sẽ bị tính như phí phạt theo chính sách hoàn tiền. Tuy nhiên, nếu việc hủy nằm trong thời gian hủy miễn phí, sẽ được hoàn toàn bộ.",
       "refundNote2": "Phí quản lý, phí dọn dẹp và tiền đặt cọc được hoàn lại đầy đủ.",
       "refundNote3": "Chính sách hoàn tiền có thể thay đổi tùy theo điều khoản của chủ nhà."
+    },
+    "favorites": {
+      "title": "Yêu thích",
+      "subtitle": "Xem và quản lý chỗ ở yêu thích và đã xem gần đây.",
+      "favoriteTab": "Yêu thích",
+      "recentTab": "Gần đây",
+      "noFavorites": "Chưa có mục yêu thích!",
+      "noFavoritesDesc": "Các chỗ ở đã lưu sẽ xuất hiện tại đây.",
+      "noRecent": "Chưa có chỗ ở xem gần đây!",
+      "noRecentDesc": "Các chỗ ở bạn đã xem gần đây sẽ xuất hiện tại đây.",
+      "browseStays": "Duyệt chỗ ở"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "preferredLanguage": "Ngôn ngữ ưa thích",
+      "preferredLanguageDesc": "Chọn ngôn ngữ ưa thích cho nền tảng Snug.",
+      "preferredCurrency": "Tiền tệ ưa thích",
+      "preferredCurrencyDesc": "Chọn tiền tệ ưa thích cho giá cả.",
+      "aiAutoResponder": "Tự động phản hồi AI Snug",
+      "aiAutoResponderDesc": "Tự động phản hồi các yêu cầu của khách bằng AI khi bạn không có mặt."
     }
   },
   "roomDetail": {

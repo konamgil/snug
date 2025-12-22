@@ -42,7 +42,7 @@ export function ForgotPasswordPage() {
     'text-[hsl(var(--snug-text-primary))] border-b-2 border-[hsl(var(--snug-orange))]';
   const tabInactiveClass = 'text-[hsl(var(--snug-gray))]';
   const inputClass =
-    'px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors';
+    'px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors';
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -50,7 +50,7 @@ export function ForgotPasswordPage() {
         {/* Welcome Logo */}
         <div className="mb-8">
           <Image
-            src="/images/logo/logo-welcome-snug.png"
+            src="/images/logo/logo-welcome-snug.svg"
             alt="Welcome to Snug"
             width={240}
             height={50}
@@ -111,7 +111,7 @@ export function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                    className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[160px]"
+                    className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[160px]"
                   >
                     <span>
                       ({countryCode}) {selectedCountry?.country}
@@ -119,7 +119,7 @@ export function ForgotPasswordPage() {
                     <ChevronDown className="w-4 h-4 ml-auto" />
                   </button>
                   {showCountryDropdown && (
-                    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 mt-2 w-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
                       {COUNTRY_CODES.map((country) => (
                         <button
                           key={country.code}
@@ -128,7 +128,7 @@ export function ForgotPasswordPage() {
                             setCountryCode(country.code);
                             setShowCountryDropdown(false);
                           }}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] transition-colors first:rounded-t-lg last:rounded-b-lg"
+                          className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
                         >
                           ({country.code}) {country.country}
                         </button>
@@ -161,7 +161,7 @@ export function ForgotPasswordPage() {
           {/* Continue Button */}
           <button
             type="submit"
-            className="w-full py-4 bg-[hsl(var(--snug-orange))] text-white text-base font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all mt-6"
+            className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all mt-6"
           >
             {t('continue')}
           </button>

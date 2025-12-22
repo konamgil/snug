@@ -55,7 +55,7 @@ function FloatingInput({
 
   return (
     <div>
-      <div className={`relative border rounded-2xl transition-colors ${borderClass}`}>
+      <div className={`relative border rounded-3xl transition-colors ${borderClass}`}>
         <label
           htmlFor={id}
           className={`absolute left-4 transition-all duration-200 pointer-events-none ${labelClass}`}
@@ -201,14 +201,14 @@ export function SignupPage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder={t('firstName')}
-                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
               />
               <input
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder={t('lastName')}
-                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
               />
             </div>
             <p className="text-xs text-[hsl(var(--snug-gray))] mb-4 px-1">{t('nameHint')}</p>
@@ -218,13 +218,13 @@ export function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                  className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[140px] bg-[hsl(var(--snug-light-gray))]/50"
+                  className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[140px] bg-[hsl(var(--snug-light-gray))]/50"
                 >
                   <span>{selectedCountry ? selectedCountry.code : t('countryCode')}</span>
                   <ChevronDown className="w-4 h-4 ml-auto" />
                 </button>
                 {showCountryDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-xl shadow-lg z-10">
+                  <div className="absolute top-full left-0 mt-2 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
                     {COUNTRY_CODES.map((country) => (
                       <button
                         key={country.code}
@@ -233,7 +233,7 @@ export function SignupPage() {
                           setCountryCode(country.code);
                           setShowCountryDropdown(false);
                         }}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] transition-colors first:rounded-t-xl last:rounded-b-xl"
+                        className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
                       >
                         {country.code} {country.country}
                       </button>
@@ -246,7 +246,7 @@ export function SignupPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder={t('phoneNumber')}
-                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
               />
             </div>
           </div>
@@ -318,7 +318,7 @@ export function SignupPage() {
           <button
             type="submit"
             disabled={!isFormValid}
-            className="w-full py-4 bg-[hsl(var(--snug-orange))] text-white text-base font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 mt-6"
+            className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 mt-6"
           >
             {t('continue')}
           </button>

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import {
   User,
   Shield,
@@ -29,6 +29,12 @@ interface NavSection {
 export function MypageSidebar() {
   const t = useTranslations('mypage');
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // TODO: Add actual logout logic (clear tokens, session, etc.)
+    router.push('/login');
+  };
 
   const sections: NavSection[] = [
     {
@@ -110,24 +116,39 @@ export function MypageSidebar() {
             <ul className="space-y-0.5">
               {section.items.map((item) => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
-                      isActive(item.href)
-                        ? 'bg-[hsl(var(--snug-light-gray))]'
-                        : 'hover:bg-[hsl(var(--snug-light-gray))]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
-                      <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        {item.label}
-                      </span>
-                    </div>
-                    {item.showChevron && (
-                      <ChevronRight className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                    )}
-                  </Link>
+                  {item.href === '/logout' ? (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors hover:bg-[hsl(var(--snug-light-gray))]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                          {item.label}
+                        </span>
+                      </div>
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
+                        isActive(item.href)
+                          ? 'bg-[hsl(var(--snug-light-gray))]'
+                          : 'hover:bg-[hsl(var(--snug-light-gray))]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                          {item.label}
+                        </span>
+                      </div>
+                      {item.showChevron && (
+                        <ChevronRight className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                      )}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -31,7 +31,7 @@ export function LoginPage() {
         {/* Welcome Logo */}
         <div className="mb-6">
           <Image
-            src="/images/logo/logo-welcome-snug.png"
+            src="/images/logo/logo-welcome-snug.svg"
             alt="Welcome to Snug"
             width={280}
             height={60}

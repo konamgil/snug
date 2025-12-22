@@ -351,6 +351,26 @@
       "refundNote1": "For same-day cancellations, 10% of the rent and contract fee will be charged as a penalty according to the refund policy. However, if the cancellation falls within the free cancellation period, a full refund will be issued.",
       "refundNote2": "Maintenance fees, cleaning fees, and deposits are fully refundable.",
       "refundNote3": "The refund policy may vary depending on the host's terms."
+    },
+    "favorites": {
+      "title": "Favorites",
+      "subtitle": "View and manage your favorite and recently viewed stays.",
+      "favoriteTab": "Favorite",
+      "recentTab": "Recent",
+      "noFavorites": "No favorites yet!",
+      "noFavoritesDesc": "Your saved stays will appear here once added.",
+      "noRecent": "No recent stays viewed!",
+      "noRecentDesc": "Your recently viewed stays will appear here.",
+      "browseStays": "Browse Stays"
+    },
+    "settings": {
+      "title": "Settings",
+      "preferredLanguage": "Preferred language",
+      "preferredLanguageDesc": "Select your preferred language for the Snug platform.",
+      "preferredCurrency": "Preferred currency",
+      "preferredCurrencyDesc": "Select your preferred currency for prices.",
+      "aiAutoResponder": "Snug AI Auto-Responder",
+      "aiAutoResponderDesc": "Automatically respond to guest inquiries using AI when you're unavailable."
     }
   },
   "roomDetail": {

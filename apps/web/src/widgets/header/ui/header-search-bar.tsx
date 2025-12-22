@@ -159,14 +159,14 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
   const isExpanded = isSearchFocused || isDateFocused || isGuestFocused;
 
   return (
-    <div ref={searchBarRef} className={`w-full max-w-[600px] ${className ?? ''}`}>
+    <div ref={searchBarRef} className={`w-full max-w-[720px] ${className ?? ''}`}>
       <div
-        className={`bg-white border rounded-[22px] w-full transition-all duration-300 ease-out ${
+        className={`bg-white border rounded-3xl w-full transition-all duration-300 ease-out ${
           isExpanded ? 'border-[hsl(var(--snug-orange))]' : 'border-[hsl(var(--snug-border))]'
         }`}
       >
         {/* Search Input Row */}
-        <div className="flex items-center gap-3 px-4 py-2.5">
+        <div className="flex items-center gap-3 px-4 py-1.5">
           {/* Location */}
           <div
             className="flex items-center gap-2 min-w-[160px] flex-[2] cursor-pointer"

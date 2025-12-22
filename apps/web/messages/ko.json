@@ -351,6 +351,26 @@
       "refundNote1": "당일 취소의 경우 환불 정책에 따라 임대료 및 계약 수수료의 10%가 위약금으로 부과됩니다. 단, 무료 취소 기간 내 취소 시 전액 환불됩니다.",
       "refundNote2": "관리비, 청소비, 보증금은 전액 환불됩니다.",
       "refundNote3": "환불 정책은 호스트의 조건에 따라 다를 수 있습니다."
+    },
+    "favorites": {
+      "title": "즐겨찾기",
+      "subtitle": "즐겨찾기와 최근 본 숙소를 확인하고 관리하세요.",
+      "favoriteTab": "즐겨찾기",
+      "recentTab": "최근 본",
+      "noFavorites": "즐겨찾기가 없습니다!",
+      "noFavoritesDesc": "저장한 숙소가 여기에 표시됩니다.",
+      "noRecent": "최근 본 숙소가 없습니다!",
+      "noRecentDesc": "최근 본 숙소가 여기에 표시됩니다.",
+      "browseStays": "숙소 둘러보기"
+    },
+    "settings": {
+      "title": "설정",
+      "preferredLanguage": "선호 언어",
+      "preferredLanguageDesc": "Snug 플랫폼에서 사용할 언어를 선택하세요.",
+      "preferredCurrency": "선호 통화",
+      "preferredCurrencyDesc": "가격 표시에 사용할 통화를 선택하세요.",
+      "aiAutoResponder": "Snug AI 자동 응답",
+      "aiAutoResponderDesc": "부재 시 AI가 게스트 문의에 자동으로 응답합니다."
     }
   },
   "roomDetail": {
