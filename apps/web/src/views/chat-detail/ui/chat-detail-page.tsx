@@ -128,7 +128,7 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
         {/* Room Thumbnail */}
         <div className="w-10 h-10 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))]">
           <Image
-            src="/images/rooms/room-1.jpg"
+            src="https://placehold.co/100x80/f5f5f5/999?text=Room"
             alt="Room"
             width={40}
             height={40}
@@ -216,7 +216,7 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
                 {msg.isMe && !msg.paymentCard && (
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 order-2">
                     <Image
-                      src="/images/avatars/user-1.jpg"
+                      src="https://placehold.co/40x40/f5f5f5/999?text=U"
                       alt="Me"
                       width={40}
                       height={40}
@@ -290,7 +290,7 @@ function PaymentRequestCard({ card }: { card: PaymentCard }) {
         {/* Room Image */}
         <div className="w-[100px] h-[80px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
           <Image
-            src="/images/rooms/room-1.jpg"
+            src="https://placehold.co/100x80/f5f5f5/999?text=Room"
             alt={card.roomName}
             width={100}
             height={80}

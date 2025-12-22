@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
   // Disable image optimization for static export
   images: {
     unoptimized: isExport,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+    ],
   },
 
   // Trailing slash for Capacitor compatibility

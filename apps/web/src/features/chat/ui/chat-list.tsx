@@ -25,7 +25,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please let me know ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: '08:23 PM',
-    imageUrl: '/images/rooms/room-1.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
     isOnline: true,
   },
   {
@@ -35,7 +35,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please let me know ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: '6:40 PM',
-    imageUrl: '/images/rooms/room-2.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
     isOnline: true,
   },
   {
@@ -45,7 +45,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please let me know ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: 'Yesterday',
-    imageUrl: '/images/rooms/room-3.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
   },
   {
     id: '4',
@@ -54,7 +54,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please update ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: 'Yesterday',
-    imageUrl: '/images/rooms/room-4.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
   },
   {
     id: '5',
@@ -63,7 +63,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please confirm ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: 'Jul 28, 25',
-    imageUrl: '/images/rooms/room-5.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
   },
   {
     id: '6',
@@ -72,7 +72,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please advise ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: 'Jul 14, 25',
-    imageUrl: '/images/rooms/room-1.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
   },
   {
     id: '7',
@@ -81,7 +81,7 @@ const MOCK_CHATS: ChatItem[] = [
     lastMessage: "Last speaker's name: Please clarify ...",
     dateRange: 'MM.DD.YY - MM.DD.YY',
     timestamp: 'Jul 20, 25',
-    imageUrl: '/images/rooms/room-2.jpg',
+    imageUrl: 'https://placehold.co/72x72/f5f5f5/999?text=Room',
   },
 ];
 

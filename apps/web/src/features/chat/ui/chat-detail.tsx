@@ -111,7 +111,7 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
         {/* Room Thumbnail */}
         <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))]">
           <Image
-            src="/images/rooms/room-1.jpg"
+            src="https://placehold.co/70x55/f5f5f5/999?text=Room"
             alt="Room"
             width={36}
             height={36}
@@ -167,7 +167,7 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
                 {msg.isMe && (
                   <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
                     <Image
-                      src="/images/avatars/user-1.jpg"
+                      src="https://placehold.co/36x36/f5f5f5/999?text=U"
                       alt="Me"
                       width={36}
                       height={36}
@@ -221,7 +221,7 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
                 {msg.isMe && (
                   <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
                     <Image
-                      src="/images/avatars/user-1.jpg"
+                      src="https://placehold.co/36x36/f5f5f5/999?text=U"
                       alt="Me"
                       width={36}
                       height={36}
@@ -296,7 +296,7 @@ function RoomRequestCard({ card }: { card: RoomCard }) {
         {/* Room Image */}
         <div className="w-[70px] h-[55px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
           <Image
-            src="/images/rooms/room-1.jpg"
+            src="https://placehold.co/70x55/f5f5f5/999?text=Room"
             alt={card.roomName}
             width={70}
             height={55}
