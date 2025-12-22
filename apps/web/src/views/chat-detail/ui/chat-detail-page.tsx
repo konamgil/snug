@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { ArrowLeft, Languages, Search, Paperclip, Lightbulb, Clock, Send } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 
@@ -126,14 +125,8 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
         </button>
 
         {/* Room Thumbnail */}
-        <div className="w-10 h-10 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))]">
-          <Image
-            src="https://placehold.co/100x80/f5f5f5/999?text=Room"
-            alt="Room"
-            width={40}
-            height={40}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-10 h-10 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center">
+          <span className="text-[10px] text-[hsl(var(--snug-gray))]">Room</span>
         </div>
 
         <span className="flex-1 font-semibold text-[hsl(var(--snug-text-primary))]">Snug Host</span>
@@ -214,14 +207,8 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
 
                 {/* My Avatar (right side) */}
                 {msg.isMe && !msg.paymentCard && (
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 order-2">
-                    <Image
-                      src="https://placehold.co/40x40/f5f5f5/999?text=U"
-                      alt="Me"
-                      width={40}
-                      height={40}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 order-2 flex items-center justify-center">
+                    <span className="text-xs text-[hsl(var(--snug-gray))]">U</span>
                   </div>
                 )}
               </div>
@@ -288,14 +275,8 @@ function PaymentRequestCard({ card }: { card: PaymentCard }) {
     <div className="border border-[hsl(var(--snug-border))] rounded-2xl overflow-hidden">
       <div className="flex gap-3 p-3">
         {/* Room Image */}
-        <div className="w-[100px] h-[80px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
-          <Image
-            src="https://placehold.co/100x80/f5f5f5/999?text=Room"
-            alt={card.roomName}
-            width={100}
-            height={80}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-[100px] h-[80px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 flex items-center justify-center">
+          <span className="text-xs text-[hsl(var(--snug-gray))]">Room</span>
         </div>
 
         {/* Info */}

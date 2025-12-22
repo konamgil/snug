@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { ArrowLeft, Languages, Search, Paperclip, Lightbulb, Clock, Send } from 'lucide-react';
 
 interface ChatDetailProps {
@@ -109,14 +108,8 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
         </button>
 
         {/* Room Thumbnail */}
-        <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))]">
-          <Image
-            src="https://placehold.co/70x55/f5f5f5/999?text=Room"
-            alt="Room"
-            width={36}
-            height={36}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center">
+          <span className="text-[10px] text-[hsl(var(--snug-gray))]">R</span>
         </div>
 
         <span className="flex-1 font-semibold text-sm text-[hsl(var(--snug-text-primary))]">
@@ -165,14 +158,8 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
               <div className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'} gap-2`}>
                 <RoomRequestCard card={msg.roomCard} />
                 {msg.isMe && (
-                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
-                    <Image
-                      src="https://placehold.co/36x36/f5f5f5/999?text=U"
-                      alt="Me"
-                      width={36}
-                      height={36}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 flex items-center justify-center">
+                    <span className="text-[10px] text-[hsl(var(--snug-gray))]">U</span>
                   </div>
                 )}
               </div>
@@ -219,14 +206,8 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
 
                 {/* User Avatar */}
                 {msg.isMe && (
-                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
-                    <Image
-                      src="https://placehold.co/36x36/f5f5f5/999?text=U"
-                      alt="Me"
-                      width={36}
-                      height={36}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-9 h-9 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 flex items-center justify-center">
+                    <span className="text-[10px] text-[hsl(var(--snug-gray))]">U</span>
                   </div>
                 )}
               </div>
@@ -294,14 +275,8 @@ function RoomRequestCard({ card }: { card: RoomCard }) {
     <div className="border border-[hsl(var(--snug-border))] rounded-2xl overflow-hidden max-w-[220px]">
       <div className="flex gap-2 p-2">
         {/* Room Image */}
-        <div className="w-[70px] h-[55px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
-          <Image
-            src="https://placehold.co/70x55/f5f5f5/999?text=Room"
-            alt={card.roomName}
-            width={70}
-            height={55}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-[70px] h-[55px] rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0 flex items-center justify-center">
+          <span className="text-[10px] text-[hsl(var(--snug-gray))]">Room</span>
         </div>
 
         {/* Info */}

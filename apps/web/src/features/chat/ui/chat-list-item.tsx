@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 
 export interface ChatItem {
@@ -31,13 +30,9 @@ export function ChatListItem({ chat, onClick }: ChatListItemProps) {
               <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">snug.</span>
             </div>
           ) : (
-            <Image
-              src={chat.imageUrl}
-              alt={chat.name}
-              width={72}
-              height={72}
-              className="w-full h-full object-cover"
-            />
+            <div className="w-full h-full bg-[hsl(var(--snug-light-gray))] flex items-center justify-center">
+              <span className="text-xs text-[hsl(var(--snug-gray))]">Room</span>
+            </div>
           )}
         </div>
         {/* Online Indicator */}
