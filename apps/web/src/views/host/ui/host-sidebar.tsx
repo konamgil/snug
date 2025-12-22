@@ -87,9 +87,9 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
             <Image
               src="/images/logo/favicon.svg"
               alt="snug"
-              width={32}
-              height={32}
-              className="w-8 h-8"
+              width={24}
+              height={24}
+              className="w-6 h-6"
             />
           ) : (
             <Image
