@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Heart, ChevronLeft, ChevronRight, MapPin, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useEasterEgg } from '@/shared/lib/easter-egg-context';
 
 // Types
 interface RoomCardData {
@@ -172,6 +173,7 @@ export function HeroBanner({ className }: HeroBannerProps) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations('home.banner');
+  const { isEasterEggActive } = useEasterEgg();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -293,7 +295,11 @@ export function HeroBanner({ className }: HeroBannerProps) {
           {slides.map((slide, slideIndex) => (
             <div key={slideIndex} className="w-full flex-shrink-0 px-1">
               {slide.type === 'illustration' ? (
-                <IllustrationSlideComponent image={slide.image} caption={t(slide.captionKey)} />
+                <IllustrationSlideComponent
+                  image={slide.image}
+                  caption={t(slide.captionKey)}
+                  isEasterEggActive={isEasterEggActive}
+                />
               ) : slide.type === 'rooms' ? (
                 <RoomsSlide
                   rooms={slide.rooms}
@@ -556,25 +562,38 @@ const TourSlideComponent = memo(function TourSlideComponent({
 interface IllustrationSlideComponentProps {
   image: string;
   caption: string;
+  isEasterEggActive?: boolean;
 }
 
 const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
   image,
   caption,
+  isEasterEggActive,
 }: IllustrationSlideComponentProps) {
   return (
     <div>
       {/* Banner Card */}
       <div className="relative border-[1.5px] border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden aspect-[8/3] bg-white">
-        {/* Illustration Image */}
+        {/* Illustration Image or Video */}
         <div className="absolute inset-0">
-          <Image
-            src={image}
-            alt="Snug coworking and living space illustration"
-            fill
-            className="object-cover object-center"
-            priority
-          />
+          {isEasterEggActive ? (
+            <video
+              src="/images/banner/live-banner.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <Image
+              src={image}
+              alt="Snug coworking and living space illustration"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+          )}
         </div>
 
         {/* Favorite Button */}
@@ -594,9 +613,15 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
 
       {/* Caption Bar */}
       <div className="mt-2">
-        <div className="bg-[hsl(var(--snug-light-gray))] rounded-full py-2 px-4">
-          <p className="text-[11px] font-bold text-center text-[hsl(var(--snug-text-primary))] tracking-tight">
-            {caption}
+        <div
+          className={`rounded-full py-2 px-4 ${isEasterEggActive ? 'bg-[hsl(var(--snug-orange))]/10' : 'bg-[hsl(var(--snug-light-gray))]'}`}
+        >
+          <p
+            className={`text-[11px] font-bold text-center tracking-tight ${isEasterEggActive ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-text-primary))]'}`}
+          >
+            {isEasterEggActive
+              ? '🎉 You found the Easter Egg! The illustration is alive!'
+              : caption}
           </p>
         </div>
       </div>
