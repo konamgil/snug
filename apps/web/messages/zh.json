@@ -223,9 +223,14 @@
       "stay": "住宿",
       "reservations": "预订记录",
       "favorites": "收藏夹",
+      "hostInfo": "房东信息",
+      "businessRegistration": "营业执照",
+      "payoutAccount": "收款账户",
+      "registeredListings": "已发布房源",
       "preferences": "偏好设置",
       "settings": "设置",
-      "logout": "退出登录"
+      "logout": "退出登录",
+      "hostMode": "房东模式"
     },
     "profile": {
       "title": "个人资料",
@@ -306,6 +311,7 @@
       "reset": "重置",
       "add": "添加",
       "paymentHistoryTitle": "支付历史",
+      "historySubtitle": "查看您的支付历史。",
       "recent": "最近",
       "refunded": "已退款",
       "noPaymentHistory": "没有支付历史。"
@@ -366,11 +372,16 @@
     "settings": {
       "title": "设置",
       "preferredLanguage": "首选语言",
-      "preferredLanguageDesc": "选择您在Snug平台上使用的语言。",
+      "preferredLanguageDesc": "选择在Snug中使用的语言。",
       "preferredCurrency": "首选货币",
-      "preferredCurrencyDesc": "选择价格显示的货币。",
+      "preferredCurrencyDesc": "选择价格和付款显示的货币。",
       "aiAutoResponder": "Snug AI自动回复",
-      "aiAutoResponderDesc": "当您不在时，AI将自动回复客人的咨询。"
+      "aiAutoResponderDesc": "开启此功能后，Snug AI将代替房东自动回复客人消息。",
+      "currencyKRW": "韩国元",
+      "currencyUSD": "美元",
+      "currencyJPY": "日元",
+      "currencyCNY": "中国元",
+      "currencyEUR": "欧元"
     }
   },
   "roomDetail": {

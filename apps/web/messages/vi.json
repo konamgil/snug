@@ -223,9 +223,14 @@
       "stay": "Lưu trú",
       "reservations": "Đặt phòng",
       "favorites": "Yêu thích",
+      "hostInfo": "Thông tin chủ nhà",
+      "businessRegistration": "Đăng ký kinh doanh",
+      "payoutAccount": "Tài khoản thanh toán",
+      "registeredListings": "Danh sách đã đăng",
       "preferences": "Tùy chọn",
       "settings": "Cài đặt",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "hostMode": "Chế độ chủ nhà"
     },
     "profile": {
       "title": "Hồ sơ",
@@ -306,6 +311,7 @@
       "reset": "Đặt lại",
       "add": "Thêm",
       "paymentHistoryTitle": "Lịch sử thanh toán",
+      "historySubtitle": "Xem lịch sử thanh toán của bạn.",
       "recent": "Gần đây",
       "refunded": "Đã hoàn tiền",
       "noPaymentHistory": "Không có lịch sử thanh toán."
@@ -366,11 +372,16 @@
     "settings": {
       "title": "Cài đặt",
       "preferredLanguage": "Ngôn ngữ ưa thích",
-      "preferredLanguageDesc": "Chọn ngôn ngữ ưa thích cho nền tảng Snug.",
+      "preferredLanguageDesc": "Chọn ngôn ngữ sử dụng trên Snug.",
       "preferredCurrency": "Tiền tệ ưa thích",
-      "preferredCurrencyDesc": "Chọn tiền tệ ưa thích cho giá cả.",
+      "preferredCurrencyDesc": "Chọn tiền tệ hiển thị cho giá cả và thanh toán.",
       "aiAutoResponder": "Tự động phản hồi AI Snug",
-      "aiAutoResponderDesc": "Tự động phản hồi các yêu cầu của khách bằng AI khi bạn không có mặt."
+      "aiAutoResponderDesc": "Khi bật, Snug AI sẽ tự động trả lời tin nhắn của khách thay cho chủ nhà.",
+      "currencyKRW": "Won Hàn Quốc",
+      "currencyUSD": "Đô la Mỹ",
+      "currencyJPY": "Yên Nhật",
+      "currencyCNY": "Nhân dân tệ",
+      "currencyEUR": "Euro"
     }
   },
   "roomDetail": {

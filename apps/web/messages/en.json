@@ -223,9 +223,14 @@
       "stay": "Stay",
       "reservations": "Reservations",
       "favorites": "Favorites",
+      "hostInfo": "Host Info",
+      "businessRegistration": "Business Registration",
+      "payoutAccount": "Payout Account",
+      "registeredListings": "Registered Listings",
       "preferences": "Preferences",
       "settings": "Settings",
-      "logout": "Log out"
+      "logout": "Log out",
+      "hostMode": "Host Mode"
     },
     "profile": {
       "title": "Profile",
@@ -306,6 +311,7 @@
       "reset": "Reset",
       "add": "Add",
       "paymentHistoryTitle": "Payment History",
+      "historySubtitle": "View your payment history.",
       "recent": "Recent",
       "refunded": "Refunded",
       "noPaymentHistory": "No payment history found."
@@ -365,12 +371,17 @@
     },
     "settings": {
       "title": "Settings",
-      "preferredLanguage": "Preferred language",
-      "preferredLanguageDesc": "Select your preferred language for the Snug platform.",
-      "preferredCurrency": "Preferred currency",
-      "preferredCurrencyDesc": "Select your preferred currency for prices.",
+      "preferredLanguage": "Preferred Language",
+      "preferredLanguageDesc": "Select the language used across the Snug.",
+      "preferredCurrency": "Preferred Currency",
+      "preferredCurrencyDesc": "Choose the currency displayed for prices and payments.",
       "aiAutoResponder": "Snug AI Auto-Responder",
-      "aiAutoResponderDesc": "Automatically respond to guest inquiries using AI when you're unavailable."
+      "aiAutoResponderDesc": "When turned on, Snug AI will provide automated replies to guest messages on your behalf.",
+      "currencyKRW": "South Korean won",
+      "currencyUSD": "United States dollar",
+      "currencyJPY": "Japanese yen",
+      "currencyCNY": "Chinese Yuan",
+      "currencyEUR": "Euro"
     }
   },
   "roomDetail": {

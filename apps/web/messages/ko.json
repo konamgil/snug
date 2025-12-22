@@ -223,9 +223,14 @@
       "stay": "숙박",
       "reservations": "예약 내역",
       "favorites": "찜 목록",
+      "hostInfo": "호스트 정보",
+      "businessRegistration": "사업자 등록",
+      "payoutAccount": "정산 계좌",
+      "registeredListings": "등록된 매물",
       "preferences": "환경설정",
       "settings": "설정",
-      "logout": "로그아웃"
+      "logout": "로그아웃",
+      "hostMode": "호스트 모드"
     },
     "profile": {
       "title": "프로필",
@@ -306,6 +311,7 @@
       "reset": "초기화",
       "add": "추가",
       "paymentHistoryTitle": "결제 내역",
+      "historySubtitle": "결제 내역을 확인하세요.",
       "recent": "최근",
       "refunded": "환불됨",
       "noPaymentHistory": "결제 내역이 없습니다."
@@ -366,11 +372,16 @@
     "settings": {
       "title": "설정",
       "preferredLanguage": "선호 언어",
-      "preferredLanguageDesc": "Snug 플랫폼에서 사용할 언어를 선택하세요.",
+      "preferredLanguageDesc": "Snug에서 사용할 언어를 선택하세요.",
       "preferredCurrency": "선호 통화",
-      "preferredCurrencyDesc": "가격 표시에 사용할 통화를 선택하세요.",
-      "aiAutoResponder": "Snug AI 자동 응답",
-      "aiAutoResponderDesc": "부재 시 AI가 게스트 문의에 자동으로 응답합니다."
+      "preferredCurrencyDesc": "가격과 결제에 표시할 통화를 선택하세요.",
+      "aiAutoResponder": "Snug AI 자동응답기",
+      "aiAutoResponderDesc": "이 기능을 켜면 Snug AI가 호스트를 대신해 게스트 메시지에 자동 응답합니다.",
+      "currencyKRW": "한국 원",
+      "currencyUSD": "미국 달러",
+      "currencyJPY": "일본 엔",
+      "currencyCNY": "중국 위안",
+      "currencyEUR": "유로"
     }
   },
   "roomDetail": {

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Heart, Home, Users, ImageIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Home, Users, ImageIcon } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 
@@ -45,14 +45,15 @@ export function FavoritesPage() {
     },
     {
       id: '2',
-      location: 'Bangbae-dong, Seocho-gu',
-      rooms: 2,
+      location: 'Cheongdam-dong, Gangnam-gu',
+      rooms: 1,
       bathrooms: 1,
-      beds: 3,
-      guests: 4,
-      price: 500,
-      nights: 10,
-      roomTypes: ['House', 'Hotel'],
+      beds: 2,
+      guests: 2,
+      originalPrice: 200,
+      price: 160,
+      nights: 2,
+      roomTypes: ['House', 'Dormitory'],
       isFavorite: true,
     },
   ];
@@ -73,14 +74,15 @@ export function FavoritesPage() {
     },
     {
       id: '4',
-      location: 'Bangbae-dong, Seocho-gu',
-      rooms: 2,
+      location: 'Cheongdam-dong, Gangnam-gu',
+      rooms: 1,
       bathrooms: 1,
-      beds: 3,
-      guests: 4,
-      price: 500,
-      nights: 10,
-      roomTypes: ['House', 'Hotel'],
+      beds: 2,
+      guests: 2,
+      originalPrice: 200,
+      price: 160,
+      nights: 2,
+      roomTypes: ['House', 'Dormitory'],
       isFavorite: false,
     },
   ];
@@ -125,7 +127,7 @@ export function FavoritesPage() {
 
     return (
       <div
-        className="cursor-pointer"
+        className="cursor-pointer active:scale-[0.99] transition-transform"
         onClick={() => router.push(`/room/${item.id}`)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -165,20 +167,20 @@ export function FavoritesPage() {
             />
           </button>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Desktop only on hover */}
           {isHovered && (
             <>
               <button
                 type="button"
                 onClick={prevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full items-center justify-center hover:bg-white transition-colors"
               >
                 <ChevronLeft className="w-4 h-4 text-gray-600" />
               </button>
               <button
                 type="button"
                 onClick={nextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full items-center justify-center hover:bg-white transition-colors"
               >
                 <ChevronRight className="w-4 h-4 text-gray-600" />
               </button>
@@ -192,7 +194,7 @@ export function FavoritesPage() {
         </div>
 
         {/* Info */}
-        <div className="mt-3">
+        <div className="mt-3 px-1">
           <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] truncate">
             {item.location}
           </h3>
@@ -263,7 +265,18 @@ export function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        <div className="w-6" />
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
@@ -272,23 +285,23 @@ export function FavoritesPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-6 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
             {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-lg md:text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
                 {t('title')}
               </h1>
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('subtitle')}</p>
             </div>
 
             {/* Tabs */}
-            <div className="mb-8">
+            <div className="mb-6 md:mb-8">
               <div className="flex">
                 <button
                   type="button"
                   onClick={() => setActiveTab('favorite')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
                     activeTab === 'favorite'
                       ? 'text-[hsl(var(--snug-text-primary))] border-[hsl(var(--snug-orange))]'
                       : 'text-[hsl(var(--snug-gray))] border-[hsl(var(--snug-border))]'
@@ -299,7 +312,7 @@ export function FavoritesPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('recent')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
                     activeTab === 'recent'
                       ? 'text-[hsl(var(--snug-text-primary))] border-[hsl(var(--snug-orange))]'
                       : 'text-[hsl(var(--snug-gray))] border-[hsl(var(--snug-border))]'
@@ -314,7 +327,7 @@ export function FavoritesPage() {
             {displayItems.length === 0 ? (
               <EmptyState />
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-6">
                 {displayItems.map((item) => (
                   <FavoriteCard
                     key={item.id}

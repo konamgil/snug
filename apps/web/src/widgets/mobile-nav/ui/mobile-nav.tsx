@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
   { href: '/', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
   { href: '/map', icon: Map, labelKey: 'map' },
   { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
-  { href: '/mypage/profile', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
+  { href: '/mypage', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
 ];
 
 export function MobileNav() {

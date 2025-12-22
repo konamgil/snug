@@ -223,9 +223,14 @@
       "stay": "滞在",
       "reservations": "予約履歴",
       "favorites": "お気に入り",
+      "hostInfo": "ホスト情報",
+      "businessRegistration": "事業者登録",
+      "payoutAccount": "振込口座",
+      "registeredListings": "登録物件",
       "preferences": "設定",
       "settings": "設定",
-      "logout": "ログアウト"
+      "logout": "ログアウト",
+      "hostMode": "ホストモード"
     },
     "profile": {
       "title": "プロフィール",
@@ -306,6 +311,7 @@
       "reset": "リセット",
       "add": "追加",
       "paymentHistoryTitle": "お支払い履歴",
+      "historySubtitle": "お支払い履歴を確認してください。",
       "recent": "最近",
       "refunded": "返金済み",
       "noPaymentHistory": "お支払い履歴がありません。"
@@ -366,11 +372,16 @@
     "settings": {
       "title": "設定",
       "preferredLanguage": "優先言語",
-      "preferredLanguageDesc": "Snugプラットフォームで使用する言語を選択してください。",
+      "preferredLanguageDesc": "Snugで使用する言語を選択してください。",
       "preferredCurrency": "優先通貨",
-      "preferredCurrencyDesc": "価格表示に使用する通貨を選択してください。",
+      "preferredCurrencyDesc": "価格と支払いに表示する通貨を選択してください。",
       "aiAutoResponder": "Snug AI自動応答",
-      "aiAutoResponderDesc": "不在時にAIがゲストのお問い合わせに自動的に応答します。"
+      "aiAutoResponderDesc": "この機能をオンにすると、Snug AIがホストの代わりにゲストメッセージに自動応答します。",
+      "currencyKRW": "韓国ウォン",
+      "currencyUSD": "米ドル",
+      "currencyJPY": "日本円",
+      "currencyCNY": "中国元",
+      "currencyEUR": "ユーロ"
     }
   },
   "roomDetail": {

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 
@@ -19,7 +20,8 @@ interface CurrencyOption {
 
 export function SettingsPage() {
   const t = useTranslations('mypage.settings');
-  const [isHostMode] = useState(false); // This would come from user context/state
+  const router = useRouter();
+  const [isHostMode] = useState(true); // Show AI Auto-Responder toggle
 
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
@@ -36,11 +38,11 @@ export function SettingsPage() {
   ];
 
   const currencies: CurrencyOption[] = [
-    { code: 'KRW', name: 'South Korean won' },
-    { code: 'USD', name: 'United States dollar' },
-    { code: 'JPY', name: 'Japanese yen' },
-    { code: 'CNY', name: 'Chinese Yuan' },
-    { code: 'EUR', name: 'Euro' },
+    { code: 'KRW', name: t('currencyKRW') },
+    { code: 'USD', name: t('currencyUSD') },
+    { code: 'JPY', name: t('currencyJPY') },
+    { code: 'CNY', name: t('currencyCNY') },
+    { code: 'EUR', name: t('currencyEUR') },
   ];
 
   const getSelectedLanguageLabel = () => {
@@ -55,7 +57,18 @@ export function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        <div className="w-6" />
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
@@ -64,11 +77,11 @@ export function SettingsPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-6 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
             {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))]">
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-lg md:text-xl font-bold text-[hsl(var(--snug-text-primary))]">
                 {t('title')}
               </h1>
             </div>
@@ -77,27 +90,27 @@ export function SettingsPage() {
             <div className="space-y-8">
               {/* AI Auto-Responder - Host Mode Only */}
               {isHostMode && (
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
                       {t('aiAutoResponder')}
                     </h3>
-                    <p className="text-sm text-[hsl(var(--snug-gray))] mt-1 max-w-[400px]">
+                    <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
                       {t('aiAutoResponderDesc')}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setAiAutoResponder(!aiAutoResponder)}
-                    className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 ${
+                    className={`relative w-[52px] h-[28px] rounded-full transition-colors flex-shrink-0 ${
                       aiAutoResponder
                         ? 'bg-[hsl(var(--snug-orange))]'
                         : 'bg-[hsl(var(--snug-border))]'
                     }`}
                   >
                     <span
-                      className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        aiAutoResponder ? 'translate-x-[22px]' : 'translate-x-0'
+                      className={`absolute top-[2px] left-[2px] w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                        aiAutoResponder ? 'translate-x-[24px]' : 'translate-x-0'
                       }`}
                     />
                   </button>
@@ -105,29 +118,27 @@ export function SettingsPage() {
               )}
 
               {/* Preferred Language */}
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-                    {t('preferredLanguage')}
-                  </h3>
-                  <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
-                    {t('preferredLanguageDesc')}
-                  </p>
-                </div>
-                <div className="relative">
+              <div>
+                <h3 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
+                  {t('preferredLanguage')}
+                </h3>
+                <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
+                  {t('preferredLanguageDesc')}
+                </p>
+                <div className="relative mt-3">
                   <button
                     type="button"
                     onClick={() => {
                       setShowLanguageDropdown(!showLanguageDropdown);
                       setShowCurrencyDropdown(false);
                     }}
-                    className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(var(--snug-border))] rounded-full hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[180px] justify-between"
+                    className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-full hover:border-[hsl(var(--snug-gray))] transition-colors"
                   >
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                       {getSelectedLanguageLabel()}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${
+                      className={`w-5 h-5 text-[hsl(var(--snug-gray))] transition-transform ${
                         showLanguageDropdown ? 'rotate-180' : ''
                       }`}
                     />
@@ -135,7 +146,7 @@ export function SettingsPage() {
 
                   {/* Language Dropdown */}
                   {showLanguageDropdown && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 min-w-[200px] z-10">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
@@ -144,10 +155,10 @@ export function SettingsPage() {
                             setSelectedLanguage(lang.code);
                             setShowLanguageDropdown(false);
                           }}
-                          className={`w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors ${
+                          className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-colors ${
                             selectedLanguage === lang.code
-                              ? 'text-[hsl(var(--snug-text-primary))] font-medium'
-                              : 'text-[hsl(var(--snug-text-primary))]'
+                              ? 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]'
+                              : 'text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))]'
                           }`}
                         >
                           {lang.label} · {lang.country}
@@ -159,29 +170,27 @@ export function SettingsPage() {
               </div>
 
               {/* Preferred Currency */}
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-                    {t('preferredCurrency')}
-                  </h3>
-                  <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
-                    {t('preferredCurrencyDesc')}
-                  </p>
-                </div>
-                <div className="relative">
+              <div>
+                <h3 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
+                  {t('preferredCurrency')}
+                </h3>
+                <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
+                  {t('preferredCurrencyDesc')}
+                </p>
+                <div className="relative mt-3">
                   <button
                     type="button"
                     onClick={() => {
                       setShowCurrencyDropdown(!showCurrencyDropdown);
                       setShowLanguageDropdown(false);
                     }}
-                    className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(var(--snug-border))] rounded-full hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[200px] justify-between"
+                    className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-full hover:border-[hsl(var(--snug-gray))] transition-colors"
                   >
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                       {getSelectedCurrencyLabel()}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${
+                      className={`w-5 h-5 text-[hsl(var(--snug-gray))] transition-transform ${
                         showCurrencyDropdown ? 'rotate-180' : ''
                       }`}
                     />
@@ -189,7 +198,7 @@ export function SettingsPage() {
 
                   {/* Currency Dropdown */}
                   {showCurrencyDropdown && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 min-w-[220px] z-10">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
                       {currencies.map((currency) => (
                         <button
                           key={currency.code}
@@ -198,10 +207,10 @@ export function SettingsPage() {
                             setSelectedCurrency(currency.code);
                             setShowCurrencyDropdown(false);
                           }}
-                          className={`w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors ${
+                          className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-colors ${
                             selectedCurrency === currency.code
-                              ? 'text-[hsl(var(--snug-text-primary))] font-medium'
-                              : 'text-[hsl(var(--snug-text-primary))]'
+                              ? 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]'
+                              : 'text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))]'
                           }`}
                         >
                           {currency.code} · {currency.name}

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronRight, Plus, MoreVertical, X, RotateCcw } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, ChevronRight, Plus, MoreVertical, X, RotateCcw } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 
@@ -136,7 +136,18 @@ export function PaymentPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        <div className="w-6" />
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
@@ -145,25 +156,25 @@ export function PaymentPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-6 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
             {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-lg md:text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
                 {t('title')}
               </h1>
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('subtitle')}</p>
             </div>
 
             {/* Payment History */}
-            <div className="mb-8">
+            <div className="mb-6 md:mb-8">
               <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
                 {t('paymentHistory')}
               </h2>
               <button
                 type="button"
                 onClick={() => router.push('/mypage/payment/history')}
-                className="flex items-center justify-between w-auto px-5 py-3 border border-[hsl(var(--snug-border))] rounded-full hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between w-auto px-5 py-3 border border-[hsl(var(--snug-border))] rounded-full hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-all duration-150"
               >
                 <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                   {t('recentPayments')}
@@ -188,7 +199,7 @@ export function PaymentPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(true)}
-                  className="w-full py-16 border-2 border-dashed border-[hsl(var(--snug-border))] rounded-2xl flex flex-col items-center justify-center gap-4 hover:border-[hsl(var(--snug-gray))] transition-colors"
+                  className="w-full py-16 border-2 border-dashed border-[hsl(var(--snug-border))] rounded-3xl flex flex-col items-center justify-center gap-4 hover:border-[hsl(var(--snug-gray))] active:scale-[0.99] transition-all duration-150"
                 >
                   <p className="text-sm text-[hsl(var(--snug-gray))] text-center">
                     {t('noPaymentMethod')}
@@ -203,19 +214,19 @@ export function PaymentPage() {
                   {paymentMethods.map((method) => (
                     <div
                       key={method.id}
-                      className="flex items-center justify-between p-4 border border-[hsl(var(--snug-border))] rounded-2xl"
+                      className="flex items-center justify-between p-4 border border-[hsl(var(--snug-border))] rounded-3xl"
                     >
                       <div className="flex items-center gap-4">
                         <CardIcon type={method.type} />
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
                             <span className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
                               {method.type === 'mastercard' ? 'Mastercard' : 'Visa'} (
                               {method.cardType === 'credit' ? t('creditCard') : t('debitCard')} •{' '}
                               {method.lastFour})
                             </span>
                             {method.isDefault && (
-                              <span className="text-xs text-[hsl(var(--snug-orange))]">
+                              <span className="text-xs font-bold text-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-orange))]/10 px-2 py-0.5 rounded-full flex-shrink-0">
                                 {t('default')}
                               </span>
                             )}
@@ -263,7 +274,7 @@ export function PaymentPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(true)}
-                    className="w-full py-6 border-2 border-dashed border-[hsl(var(--snug-border))] rounded-2xl flex items-center justify-center hover:border-[hsl(var(--snug-gray))] transition-colors"
+                    className="w-full py-6 border border-[hsl(var(--snug-border))] rounded-3xl flex items-center justify-center hover:bg-gray-50 active:scale-[0.99] transition-all duration-150"
                   >
                     <Plus className="w-6 h-6 text-[hsl(var(--snug-gray))]" />
                   </button>

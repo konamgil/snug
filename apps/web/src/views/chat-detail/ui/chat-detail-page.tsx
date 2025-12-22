@@ -112,9 +112,9 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="flex items-center gap-3 px-4 py-3 border-b border-[hsl(var(--snug-border))]">
+      <header className="flex-shrink-0 flex items-center gap-3 px-4 py-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -217,52 +217,56 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
         ))}
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-[hsl(var(--snug-border))] p-4">
-        <div className="border border-[hsl(var(--snug-border))] rounded-2xl p-3">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="w-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] resize-none outline-none min-h-[60px]"
-            rows={2}
-          />
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 bg-white">
+        <div className="p-4">
+          <div className="border border-[hsl(var(--snug-border))] rounded-2xl p-3">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="w-full text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] resize-none outline-none min-h-[36px]"
+              rows={1}
+            />
 
-          <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  Attach
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                  Quick Reply
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                >
+                  <Clock className="w-4 h-4" />
+                  Schedule
+                </button>
+              </div>
+
               <button
                 type="button"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                onClick={handleSend}
+                className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                aria-label="Send message"
               >
-                <Paperclip className="w-4 h-4" />
-                Attach
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-              >
-                <Lightbulb className="w-4 h-4" />
-                Quick Reply
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-              >
-                <Clock className="w-4 h-4" />
-                Schedule
+                <Send className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleSend}
-              className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-              aria-label="Send message"
-            >
-              <Send className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
-            </button>
           </div>
         </div>
+        {/* Bottom spacer for safe area */}
+        <div className="h-1 safe-bottom" />
       </div>
     </div>
   );

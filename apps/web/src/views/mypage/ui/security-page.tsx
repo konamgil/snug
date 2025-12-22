@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff, X } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, X } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 
@@ -17,6 +18,7 @@ interface SocialLoginState {
 
 export function SecurityPage() {
   const t = useTranslations('mypage.security');
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('login');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -72,8 +74,18 @@ export function SecurityPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with Logo */}
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        <div className="w-6" /> {/* Spacer for alignment */}
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
@@ -82,18 +94,18 @@ export function SecurityPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-6 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
             {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-lg md:text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
                 {t('title')}
               </h1>
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('subtitle')}</p>
             </div>
 
             {/* Tabs */}
-            <div className="mb-8">
+            <div className="mb-6 md:mb-8">
               <div className="flex">
                 <button
                   type="button"
@@ -222,15 +234,15 @@ export function SecurityPage() {
                 </div>
 
                 {/* Change Password Button */}
-                <div className="pt-2">
+                <div className="pt-4 md:pt-2">
                   <button
                     type="button"
                     onClick={handleChangePassword}
                     disabled={isButtonDisabled}
-                    className={`px-8 py-3 rounded-2xl text-sm font-medium transition-all ${
+                    className={`w-full md:w-auto px-8 py-3 rounded-full md:rounded-2xl text-sm font-medium transition-all ${
                       isButtonDisabled
                         ? 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-gray))] cursor-not-allowed'
-                        : 'bg-[hsl(var(--snug-orange))] text-white hover:opacity-90'
+                        : 'bg-[hsl(var(--snug-orange))] text-white hover:opacity-90 active:scale-[0.98]'
                     }`}
                   >
                     {t('changePassword')}

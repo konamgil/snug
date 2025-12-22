@@ -15,7 +15,7 @@ import {
   User,
   ImageIcon,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 
@@ -65,7 +65,18 @@ export function ReservationDetailPage({ id }: ReservationDetailProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        <div className="w-6" />
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
@@ -74,13 +85,13 @@ export function ReservationDetailPage({ id }: ReservationDetailProps) {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-0 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
-            {/* Back Button */}
+            {/* Back Button - Desktop only */}
             <button
               type="button"
               onClick={() => router.back()}
-              className="mb-6 p-1 hover:bg-gray-100 rounded-full transition-colors"
+              className="hidden md:block mb-6 p-1 hover:bg-gray-100 rounded-full transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
             </button>

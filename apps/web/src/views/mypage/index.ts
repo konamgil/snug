@@ -7,3 +7,4 @@ export { ReservationDetailPage } from './ui/reservation-detail-page';
 export { FavoritesPage } from './ui/favorites-page';
 export { SettingsPage } from './ui/settings-page';
 export { MypageSidebar } from './ui/mypage-sidebar';
+export { MypageMobile } from './ui/mypage-mobile';

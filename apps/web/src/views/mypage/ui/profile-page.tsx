@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Camera, ChevronDown, User } from 'lucide-react';
+import { ArrowLeft, Camera, ChevronDown, User } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { CustomSelect, type SelectOption } from '@/shared/ui';
 import { MypageSidebar } from './mypage-sidebar';
@@ -33,6 +34,7 @@ const COUNTRY_CODES = [
 
 export function ProfilePage() {
   const t = useTranslations('mypage.profile');
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [verificationState, setVerificationState] = useState<VerificationState>('idle');
   const [verificationCode, setVerificationCode] = useState('');
@@ -150,8 +152,34 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with Logo */}
-      <Header showLogo />
+      {/* PC Header with Logo */}
+      <div className="hidden md:block">
+        <Header showLogo />
+      </div>
+
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-5 py-4">
+        <button type="button" onClick={() => router.back()} className="p-1" aria-label="Back">
+          <ArrowLeft className="w-6 h-6 text-[hsl(var(--snug-text-primary))]" />
+        </button>
+        {isEditing ? (
+          <button
+            type="button"
+            onClick={handleSave}
+            className="text-base font-extrabold text-[hsl(var(--snug-text-primary))]"
+          >
+            {t('save')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleEdit}
+            className="text-base font-extrabold text-[hsl(var(--snug-text-primary))]"
+          >
+            {t('edit')}
+          </button>
+        )}
+      </header>
 
       <div className="flex">
         {/* Sidebar - Desktop only, fixed to left */}
@@ -160,18 +188,18 @@ export function ProfilePage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex justify-center py-8 px-6">
+        <div className="flex-1 flex justify-center py-6 px-5 md:py-8 md:px-6">
           <div className="w-full max-w-[560px]">
             {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-lg md:text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
                 {t('title')}
               </h1>
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('subtitle')}</p>
             </div>
 
             {/* Profile Photo */}
-            <div className="mb-8">
+            <div className="mb-6 md:mb-8">
               <div className="relative inline-block">
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center border border-[hsl(var(--snug-border))]">
                   <User className="w-8 h-8 text-[hsl(var(--snug-gray))]" strokeWidth={1} />
@@ -295,8 +323,9 @@ export function ProfilePage() {
                 </label>
                 {isEditing ? (
                   <>
-                    <div className="flex gap-2">
-                      <div className="relative w-[180px] flex-shrink-0">
+                    {/* Mobile: stacked, Desktop: row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <div className="relative w-full md:w-[180px] md:flex-shrink-0">
                         <button
                           type="button"
                           onClick={() => setShowCountryDropdown(!showCountryDropdown)}
@@ -340,24 +369,24 @@ export function ProfilePage() {
                         value={editedProfile.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
                         placeholder={t('phonePlaceholder')}
-                        className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                        className="w-full md:flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                       />
-                      {/* Verify button - initial state */}
+                      {/* Verify button - Desktop only in row */}
                       {verificationState === 'idle' && !editedProfile.phoneVerified && (
                         <button
                           type="button"
                           onClick={handleVerify}
-                          className="px-6 py-3 bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-gray))] rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+                          className="hidden md:block px-6 py-3 bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-gray))] rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
                         >
                           {t('verify')}
                         </button>
                       )}
-                      {/* Resend code button - after code sent */}
+                      {/* Resend code button - Desktop only in row */}
                       {(verificationState === 'code_sent' || verificationState === 'error') && (
                         <button
                           type="button"
                           onClick={handleResendCode}
-                          className="px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                          className="hidden md:block px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
                         >
                           {t('resendCode')}
                         </button>
@@ -365,13 +394,34 @@ export function ProfilePage() {
                     </div>
                     <p className="mt-2 text-xs text-[hsl(var(--snug-gray))]">{t('phoneHint')}</p>
 
+                    {/* Mobile: Verify/Resend button below */}
+                    {verificationState === 'idle' && !editedProfile.phoneVerified && (
+                      <button
+                        type="button"
+                        onClick={handleVerify}
+                        className="md:hidden mt-3 px-6 py-3 bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-gray))] rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+                      >
+                        {t('verify')}
+                      </button>
+                    )}
+                    {(verificationState === 'code_sent' || verificationState === 'error') && (
+                      <button
+                        type="button"
+                        onClick={handleResendCode}
+                        className="md:hidden mt-3 px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+                      >
+                        {t('resendCode')}
+                      </button>
+                    )}
+
                     {/* Verification Code Input */}
                     {(verificationState === 'code_sent' || verificationState === 'error') && (
                       <div className="mt-4">
                         <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
                           {t('verificationCode')}
                         </label>
-                        <div className="flex gap-2">
+                        {/* Mobile: stacked, Desktop: row */}
+                        <div className="flex flex-col md:flex-row gap-2">
                           <div className="relative flex-1">
                             <input
                               type="text"
@@ -386,10 +436,11 @@ export function ProfilePage() {
                               {formatTime(timer)}
                             </span>
                           </div>
+                          {/* Desktop: Confirm in row */}
                           <button
                             type="button"
                             onClick={handleConfirmVerification}
-                            className="px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+                            className="hidden md:block px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
                           >
                             {t('confirm')}
                           </button>
@@ -398,6 +449,14 @@ export function ProfilePage() {
                         {verificationState === 'error' && (
                           <p className="mt-2 text-sm text-red-500">{t('verificationError')}</p>
                         )}
+                        {/* Mobile: Confirm button below */}
+                        <button
+                          type="button"
+                          onClick={handleConfirmVerification}
+                          className="md:hidden mt-3 px-6 py-3 bg-[#5D4037] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+                        >
+                          {t('confirm')}
+                        </button>
                       </div>
                     )}
 
@@ -442,11 +501,14 @@ export function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <div className="flex gap-3">
-                      <div className={`${readOnlyFieldClass} w-[180px] flex-shrink-0`}>
+                    {/* Mobile: stacked, Desktop: row */}
+                    <div className="flex flex-col md:flex-row gap-2 md:gap-3">
+                      <div className={`${readOnlyFieldClass} w-full md:w-[180px] md:flex-shrink-0`}>
                         {getCountryLabel(profile.countryCode)}
                       </div>
-                      <div className={`${readOnlyFieldClass} flex-1`}>{profile.phone || '-'}</div>
+                      <div className={`${readOnlyFieldClass} w-full md:flex-1`}>
+                        {profile.phone || '-'}
+                      </div>
                     </div>
                     {profile.phoneVerified && (
                       <p className="mt-2 text-xs text-[hsl(var(--snug-gray))]">{t('verified')}</p>
@@ -473,8 +535,8 @@ export function ProfilePage() {
                 )}
               </div>
 
-              {/* Save/Edit Button */}
-              <div className="pt-4">
+              {/* Save/Edit Button - PC only */}
+              <div className="hidden md:block pt-4">
                 {isEditing ? (
                   <button
                     type="button"
