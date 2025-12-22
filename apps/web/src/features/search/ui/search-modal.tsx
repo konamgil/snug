@@ -166,7 +166,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 pb-32" onClick={handleContentClick}>
+        <div className="flex-1 overflow-hidden px-4 pb-32" onClick={handleContentClick}>
           {/* Location Section */}
           <div
             ref={locationRef}
@@ -266,7 +266,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             {/* Expandable Content */}
             <div
               className={`transition-all duration-300 ease-out overflow-hidden ${
-                expandedSection === 'dates' ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                expandedSection === 'dates' ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'
               }`}
             >
               <div className="px-4 pb-4">
