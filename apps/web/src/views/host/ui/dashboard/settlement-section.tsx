@@ -8,11 +8,11 @@ interface MonthlyData {
 }
 
 const MOCK_DATA: MonthlyData[] = [
-  { month: '11월', amount: 52 },
-  { month: '12월', amount: 28 },
-  { month: '1월', amount: 45 },
-  { month: '2월', amount: 78 },
-  { month: '3월', amount: 100 },
+  { month: '11월', amount: 58 },
+  { month: '12월', amount: 30 },
+  { month: '1월', amount: 92 },
+  { month: '2월', amount: 70 },
+  { month: '3월', amount: 88 },
 ];
 
 const CURRENT_SETTLEMENT = {
@@ -43,8 +43,8 @@ export function SettlementSection() {
         <p className="text-sm text-[hsl(var(--snug-gray))] mb-1">
           {CURRENT_SETTLEMENT.month} 정산금액
         </p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[hsl(var(--snug-text-primary))]">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-3xl font-bold text-[hsl(var(--snug-orange))]">
             {CURRENT_SETTLEMENT.amount.toLocaleString('ko-KR')}
             {CURRENT_SETTLEMENT.unit}
           </span>
@@ -69,13 +69,13 @@ export function SettlementSection() {
         {/* Chart Area */}
         <div className="ml-10 flex items-end justify-between gap-4 h-[180px] border-b border-[hsl(var(--snug-border))]">
           {MOCK_DATA.map((data, index) => {
-            const isCurrentMonth = index === MOCK_DATA.length - 1;
             const heightPercent = (data.amount / maxAmount) * 100;
+            const isLastMonth = index === MOCK_DATA.length - 1;
 
             return (
               <div key={data.month} className="flex-1 flex flex-col items-center">
-                {/* Value Label for current month */}
-                {isCurrentMonth && (
+                {/* Value Label for last month */}
+                {isLastMonth && (
                   <div className="mb-2 px-2 py-1 bg-white border border-[hsl(var(--snug-border))] rounded text-xs font-medium text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
                     {CURRENT_SETTLEMENT.amount.toLocaleString('ko-KR')}
                     {CURRENT_SETTLEMENT.unit}
@@ -84,11 +84,7 @@ export function SettlementSection() {
 
                 {/* Bar */}
                 <div
-                  className={`w-full max-w-[40px] rounded-t transition-all ${
-                    isCurrentMonth
-                      ? 'bg-[hsl(var(--snug-orange))]'
-                      : 'bg-[hsl(var(--snug-orange))]/60'
-                  }`}
+                  className="w-full max-w-[40px] rounded-t transition-all bg-[hsl(var(--snug-orange))]"
                   style={{ height: `${heightPercent}%` }}
                 />
               </div>
