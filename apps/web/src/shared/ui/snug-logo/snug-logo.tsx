@@ -24,7 +24,7 @@ export function SnugLogo({ className }: SnugLogoProps) {
     <button
       type="button"
       onClick={handleClick}
-      className={`cursor-pointer transition-transform active:scale-95 ${className ?? ''}`}
+      className={`cursor-default transition-transform active:scale-95 ${className ?? ''}`}
       aria-label="hello.snug. logo"
     >
       <Image

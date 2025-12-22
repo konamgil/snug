@@ -39,18 +39,18 @@ function createPriceMarkerIcon(price: number, isSelected: boolean): string {
 
 // First tag - soft background
 const tagFirstColors = {
-  orange: 'bg-[#FDEEE5] text-[hsl(var(--snug-orange))]',
-  purple: 'bg-pink-100 text-pink-500',
-  blue: 'bg-blue-100 text-blue-500',
-  green: 'bg-green-100 text-green-500',
+  orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
+  purple: 'bg-[#F9A8D4] text-white font-bold',
+  blue: 'bg-blue-100 text-blue-500 font-bold',
+  green: 'bg-green-100 text-green-500 font-bold',
 };
 
 // Second+ tags - solid background with white text
 const tagSecondColors = {
-  orange: 'bg-[hsl(var(--snug-orange))] text-white',
-  purple: 'bg-[#EF8BAC] text-white',
-  blue: 'bg-blue-400 text-white',
-  green: 'bg-green-400 text-white',
+  orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
+  purple: 'bg-[#F9A8D4] text-white font-bold',
+  blue: 'bg-blue-400 text-white font-bold',
+  green: 'bg-green-400 text-white font-bold',
 };
 
 export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {

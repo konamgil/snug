@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Heart, ChevronLeft, ChevronRight, MapPin, ImageIcon } from 'lucide-react';
@@ -61,7 +61,7 @@ const mockSlides: Slide[] = [
         image: '/images/rooms/room-1.jpg',
         tags: [
           { label: 'Shared Room', color: 'orange' },
-          { label: 'Hotel', color: 'orange' },
+          { label: 'Hotel', color: 'purple' },
         ],
         location: 'Gangnam-gu',
         originalPrice: 200,
@@ -75,7 +75,7 @@ const mockSlides: Slide[] = [
         image: '/images/rooms/room-2.jpg',
         tags: [
           { label: 'Shared House', color: 'orange' },
-          { label: 'Hotel', color: 'orange' },
+          { label: 'Hotel', color: 'purple' },
         ],
         location: 'Seocho-gu',
         price: 130,
@@ -178,17 +178,36 @@ export function HeroBanner({ className }: HeroBannerProps) {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [isHovered, setIsHovered] = useState(false);
 
   const slides = mockSlides;
   const totalSlides = slides.length;
+  const wasEasterEggActive = useRef(false);
 
-  // Auto-rotate slides every 5 seconds
+  // Jump to illustration slide when Easter egg is first activated
   useEffect(() => {
+    if (isEasterEggActive && !wasEasterEggActive.current) {
+      wasEasterEggActive.current = true;
+      // Use setTimeout to ensure state update happens after context propagation
+      setTimeout(() => {
+        setCurrentSlide(0);
+      }, 0);
+    }
+  }, [isEasterEggActive]);
+
+  // Auto-rotate slides - 10 seconds for Easter egg illustration, 5 seconds for others
+  // Pause when hovered
+  useEffect(() => {
+    if (isHovered) return;
+
+    const isOnIllustrationSlide = slides[currentSlide]?.type === 'illustration';
+    const duration = isEasterEggActive && isOnIllustrationSlide ? 10000 : 5000;
+
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 5000);
+    }, duration);
     return () => clearInterval(timer);
-  }, [totalSlides]);
+  }, [totalSlides, isEasterEggActive, currentSlide, slides, isHovered]);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -268,6 +287,8 @@ export function HeroBanner({ className }: HeroBannerProps) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Navigation Arrows */}
         <button
@@ -365,7 +386,7 @@ const RoomCard = memo(function RoomCard({
   return (
     <div className="flex-1 cursor-pointer group flex flex-col h-full" onClick={onClick}>
       {/* Image Container */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
+      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
         {/* Placeholder */}
         <div className="absolute inset-0 flex items-center justify-center">
           <ImageIcon className="w-10 h-10 text-[hsl(var(--snug-gray))]/30" />
@@ -376,10 +397,10 @@ const RoomCard = memo(function RoomCard({
           {room.tags.map((tag) => (
             <span
               key={tag.label}
-              className={`px-2 py-0.5 text-[10px] font-medium rounded ${
+              className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
                 tag.color === 'orange'
-                  ? 'bg-[hsl(var(--snug-orange))] text-white'
-                  : 'bg-purple-500 text-white'
+                  ? 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))]'
+                  : 'bg-[#F9A8D4] text-white'
               }`}
             >
               {tag.label}
@@ -504,7 +525,7 @@ const TourSlideComponent = memo(function TourSlideComponent({
   return (
     <div className="cursor-pointer group" onClick={() => onTourClick(tour.id)}>
       {/* Image Container */}
-      <div className="relative aspect-[8/3] rounded-xl overflow-hidden bg-[hsl(var(--snug-light-gray))]">
+      <div className="relative aspect-[8/3] rounded-2xl overflow-hidden bg-[hsl(var(--snug-light-gray))]">
         {/* Placeholder */}
         <div className="absolute inset-0 flex items-center justify-center">
           <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
@@ -575,26 +596,24 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
       {/* Banner Card */}
       <div className="relative border-[1.5px] border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden aspect-[8/3] bg-white">
         {/* Illustration Image or Video */}
-        <div className="absolute inset-0">
-          {isEasterEggActive ? (
-            <video
-              src="/images/banner/live-banner.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover object-center"
-            />
-          ) : (
-            <Image
-              src={image}
-              alt="Snug coworking and living space illustration"
-              fill
-              className="object-cover object-center"
-              priority
-            />
-          )}
-        </div>
+        {isEasterEggActive ? (
+          <video
+            src="/images/banner/live-banner.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover scale-[1.15]"
+          />
+        ) : (
+          <Image
+            src={image}
+            alt="Snug coworking and living space illustration"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+        )}
 
         {/* Favorite Button */}
         <button
@@ -619,9 +638,7 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
           <p
             className={`text-[11px] font-bold text-center tracking-tight ${isEasterEggActive ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-text-primary))]'}`}
           >
-            {isEasterEggActive
-              ? '🎉 You found the Easter Egg! The illustration is alive!'
-              : caption}
+            {isEasterEggActive ? 'Snug Living in Korea, Made Easy.' : caption}
           </p>
         </div>
       </div>
