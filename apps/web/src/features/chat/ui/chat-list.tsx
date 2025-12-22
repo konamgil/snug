@@ -108,7 +108,7 @@ export function ChatList({ onChatSelect }: ChatListProps) {
       />
 
       {/* Chat List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto no-scrollbar">
         {/* Snug Official - with border */}
         {filteredChats
           .filter((c) => c.isSnugOfficial)

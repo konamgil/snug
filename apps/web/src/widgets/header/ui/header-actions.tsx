@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { User, Globe, MessageCircle } from 'lucide-react';
+import { User, Globe, MessageCircle, X } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { ChatModal } from '@/features/chat';
 
@@ -43,14 +43,20 @@ export function HeaderActions({ className }: HeaderActionsProps) {
           <Globe className="w-3.5 h-3.5 text-white" />
         </button>
 
-        {/* Chat Button */}
+        {/* Chat Button / Close Button */}
         <button
           type="button"
-          onClick={() => setIsChatOpen(true)}
-          className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
-          aria-label="Messages"
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className={`w-8 h-8 rounded-full flex items-center justify-center hover:opacity-90 transition-all ${
+            isChatOpen ? 'bg-[hsl(var(--snug-light-gray))]' : 'bg-[hsl(var(--snug-orange))]'
+          }`}
+          aria-label={isChatOpen ? 'Close chat' : 'Messages'}
         >
-          <MessageCircle className="w-3.5 h-3.5 text-white" />
+          {isChatOpen ? (
+            <X className="w-3.5 h-3.5 text-[hsl(var(--snug-text-primary))]" />
+          ) : (
+            <MessageCircle className="w-3.5 h-3.5 text-white" />
+          )}
         </button>
       </div>
 

@@ -134,7 +134,7 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-4">
         {/* Date Separator */}
         <div className="flex items-center justify-center">
           <div className="border-t border-[hsl(var(--snug-border))] flex-1" />
