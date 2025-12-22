@@ -23,8 +23,6 @@ const CURRENT_SETTLEMENT = {
 };
 
 export function SettlementSection() {
-  const maxAmount = Math.max(...MOCK_DATA.map((d) => d.amount));
-
   return (
     <section className="bg-white rounded-xl p-5 h-full">
       {/* Header */}
@@ -69,11 +67,14 @@ export function SettlementSection() {
         {/* Chart Area */}
         <div className="ml-10 flex items-end justify-between gap-4 h-[180px] border-b border-[hsl(var(--snug-border))]">
           {MOCK_DATA.map((data, index) => {
-            const heightPercent = (data.amount / maxAmount) * 100;
+            const barHeight = Math.round((data.amount / 100) * 160);
             const isLastMonth = index === MOCK_DATA.length - 1;
 
             return (
-              <div key={data.month} className="flex-1 flex flex-col items-center">
+              <div
+                key={data.month}
+                className="flex-1 flex flex-col items-center justify-end h-full"
+              >
                 {/* Value Label for last month */}
                 {isLastMonth && (
                   <div className="mb-2 px-2 py-1 bg-white border border-[hsl(var(--snug-border))] rounded text-xs font-medium text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
@@ -84,8 +85,8 @@ export function SettlementSection() {
 
                 {/* Bar */}
                 <div
-                  className="w-full max-w-[40px] rounded-t transition-all bg-[hsl(var(--snug-orange))]"
-                  style={{ height: `${heightPercent}%` }}
+                  className="w-full max-w-[40px] rounded-t bg-[hsl(var(--snug-orange))]"
+                  style={{ height: `${barHeight}px` }}
                 />
               </div>
             );
