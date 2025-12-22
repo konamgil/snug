@@ -158,8 +158,8 @@ export function ProfilePage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 px-6 lg:px-16 py-8">
-          <div className="max-w-[560px]">
+        <div className="flex-1 flex justify-center py-8 px-6">
+          <div className="w-full max-w-[560px]">
             {/* Page Header */}
             <div className="mb-8">
               <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-1">
@@ -452,7 +452,7 @@ export function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="px-8 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                    className="px-8 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-2xl text-sm font-medium hover:opacity-90 transition-opacity"
                   >
                     {t('save')}
                   </button>
@@ -460,7 +460,7 @@ export function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleEdit}
-                    className="px-8 py-3 border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] rounded-lg text-sm font-medium hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+                    className="px-8 py-3 border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] rounded-2xl text-sm font-medium hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
                   >
                     {t('edit')}
                   </button>
