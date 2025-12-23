@@ -214,12 +214,12 @@ export function PaymentPage() {
                   {paymentMethods.map((method) => (
                     <div
                       key={method.id}
-                      className="flex items-center justify-between p-4 border border-[hsl(var(--snug-border))] rounded-3xl"
+                      className="flex items-center justify-between gap-2 p-4 border border-[hsl(var(--snug-border))] rounded-3xl"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 min-w-0">
                         <CardIcon type={method.type} />
-                        <div>
-                          <div className="flex items-center gap-2 whitespace-nowrap">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
                               {method.type === 'mastercard' ? 'Mastercard' : 'Visa'} (
                               {method.cardType === 'credit' ? t('creditCard') : t('debitCard')} •{' '}
