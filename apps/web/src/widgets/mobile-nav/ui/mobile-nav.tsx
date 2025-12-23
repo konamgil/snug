@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { Search, Map, MessageCircle, User } from 'lucide-react';
-import { Link, usePathname } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
+import { Link } from 'next-view-transitions';
+import { useLocale } from 'next-intl';
 import { cn } from '@/shared/lib';
 
 type NavItemKey = 'search' | 'map' | 'messages' | 'profile';
@@ -25,12 +27,17 @@ const navItems: NavItem[] = [
 export function MobileNav() {
   const t = useTranslations('nav');
   const pathname = usePathname();
+  const locale = useLocale();
 
   const isItemActive = (item: NavItem) => {
     if (item.activeOn) {
       return item.activeOn.some((path) => pathname === path || pathname.startsWith(path + '/'));
     }
     return pathname === item.href || pathname.startsWith(item.href + '/');
+  };
+
+  const getLocalizedHref = (href: string) => {
+    return `/${locale}${href === '/' ? '' : href}`;
   };
 
   return (
@@ -41,7 +48,7 @@ export function MobileNav() {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={getLocalizedHref(item.href)}
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full relative',
                 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))] transition-colors',

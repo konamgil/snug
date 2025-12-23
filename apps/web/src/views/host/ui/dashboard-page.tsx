@@ -1,30 +1,67 @@
 'use client';
 
-import { ContractSection, SettlementSection, OperationSection, ChatSection } from './dashboard';
+import { useState } from 'react';
+import {
+  ContractSection,
+  SettlementSection,
+  OperationSection,
+  ChatSection,
+  OperationDetailDrawer,
+  type OperationDetailData,
+} from './dashboard';
 
 export function DashboardPage() {
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
+  const [selectedOperation, setSelectedOperation] = useState<OperationDetailData | null>(null);
+
+  const handleOperationItemClick = (data: OperationDetailData) => {
+    setSelectedOperation(data);
+    setIsDetailDrawerOpen(true);
+  };
+
+  const handleCloseDetailDrawer = () => {
+    setIsDetailDrawerOpen(false);
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       {/* Contract Management Section */}
       <ContractSection />
 
-      {/* Settlement & Operations Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Settlement Section - Full width on mobile */}
+      <div className="md:hidden">
         <SettlementSection />
-        <OperationSection />
+      </div>
+
+      {/* Settlement & Operations Row - Desktop only */}
+      <div className="hidden md:grid md:grid-cols-2 gap-6">
+        <SettlementSection />
+        <OperationSection onItemClick={handleOperationItemClick} />
+      </div>
+
+      {/* Operations Section - Mobile */}
+      <div className="md:hidden">
+        <OperationSection onItemClick={handleOperationItemClick} />
       </div>
 
       {/* Recent Chats Section */}
       <ChatSection />
+
+      {/* Operation Detail Drawer */}
+      <OperationDetailDrawer
+        isOpen={isDetailDrawerOpen}
+        onClose={handleCloseDetailDrawer}
+        data={selectedOperation}
+      />
     </div>
   );
 }
 
 export function DashboardEmptyPage() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       {/* Contract Management Section - Empty */}
-      <section className="bg-white rounded-xl p-5">
+      <section className="bg-white rounded-xl p-4 md:p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">입주/계약 관리</h2>
           <span className="text-sm text-[hsl(var(--snug-orange))]">모든 계약목록 보기</span>
@@ -66,9 +103,9 @@ export function DashboardEmptyPage() {
       </section>
 
       {/* Settlement & Operations Row - Empty */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Settlement Empty */}
-        <section className="bg-white rounded-xl p-5">
+        <section className="bg-white rounded-xl p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">정산</h2>
             <span className="text-sm text-[hsl(var(--snug-orange))]">모든 정산목록 보기</span>
@@ -82,7 +119,7 @@ export function DashboardEmptyPage() {
         </section>
 
         {/* Operations Empty */}
-        <section className="bg-white rounded-xl p-5">
+        <section className="bg-white rounded-xl p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
               하우스 운영 관리
@@ -90,10 +127,10 @@ export function DashboardEmptyPage() {
             <span className="text-sm text-[hsl(var(--snug-orange))]">모든 관리목록 보기</span>
           </div>
 
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
             <button
               type="button"
-              className="px-3 py-1.5 text-sm rounded-full border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]"
+              className="flex-shrink-0 px-3 py-1.5 text-sm rounded-full border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]"
             >
               전체
             </button>
@@ -101,7 +138,7 @@ export function DashboardEmptyPage() {
               <button
                 key={label}
                 type="button"
-                className="px-3 py-1.5 text-sm rounded-full border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-gray))]"
+                className="flex-shrink-0 px-3 py-1.5 text-sm rounded-full border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-gray))]"
               >
                 {label}
               </button>
@@ -120,7 +157,7 @@ export function DashboardEmptyPage() {
       </div>
 
       {/* Recent Chats Section - Empty */}
-      <section className="bg-white rounded-xl p-5">
+      <section className="bg-white rounded-xl p-4 md:p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">최신 채팅</h2>
           <span className="text-sm text-[hsl(var(--snug-orange))]">모든 채팅목록 보기</span>

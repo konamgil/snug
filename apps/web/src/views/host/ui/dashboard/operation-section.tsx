@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import type { OperationDetailData } from './operation-detail-drawer';
 
 type OperationFilter = 'all' | 'received' | 'in_progress' | 'completed';
 
@@ -16,6 +17,10 @@ interface OperationRequest {
   description: string;
   hostName: string;
   timeAgo: string;
+}
+
+interface OperationSectionProps {
+  onItemClick?: (data: OperationDetailData) => void;
 }
 
 const FILTERS: FilterTab[] = [
@@ -56,11 +61,26 @@ const MOCK_REQUESTS: OperationRequest[] = [
   },
 ];
 
-export function OperationSection() {
+// Mock data converter - transforms list item to detail data
+function getDetailData(request: OperationRequest): OperationDetailData {
+  return {
+    id: request.id,
+    customerName: request.hostName,
+    inquiryDate: '2025.09.10 15:30',
+    title: request.title,
+    details: [request.description],
+    preferredDate: '2025.09.12',
+    preferredTime: '10:00',
+    location: '서울시 강남구 역삼동 123-45',
+    keywords: ['침구', '청소', '수리'],
+  };
+}
+
+export function OperationSection({ onItemClick }: OperationSectionProps) {
   const [activeFilter, setActiveFilter] = useState<OperationFilter>('all');
 
   return (
-    <section className="bg-white rounded-xl p-5 h-full">
+    <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">하우스 운영 관리</h2>
@@ -95,6 +115,7 @@ export function OperationSection() {
         {MOCK_REQUESTS.map((request) => (
           <div
             key={request.id}
+            onClick={() => onItemClick?.(getDetailData(request))}
             className="flex items-start justify-between py-2 border-b border-[hsl(var(--snug-border))] last:border-b-0 cursor-pointer hover:bg-[hsl(var(--snug-light-gray))]/50 -mx-2 px-2 rounded transition-colors"
           >
             <div className="flex-1 min-w-0 mr-4">
@@ -118,7 +139,7 @@ export function OperationEmptySection() {
   const [activeFilter, setActiveFilter] = useState<OperationFilter>('all');
 
   return (
-    <section className="bg-white rounded-xl p-5 h-full">
+    <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">하우스 운영 관리</h2>

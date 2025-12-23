@@ -44,7 +44,7 @@ export function ChatSection() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <section className="bg-white rounded-xl p-5">
+    <section className="bg-white rounded-xl p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">최신 채팅</h2>
@@ -132,7 +132,7 @@ export function ChatEmptySection() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <section className="bg-white rounded-xl p-5">
+    <section className="bg-white rounded-xl p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">최신 채팅</h2>
