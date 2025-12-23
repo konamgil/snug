@@ -7,12 +7,23 @@ import {
   OperationSection,
   ChatSection,
   OperationDetailDrawer,
+  WorkRequestModal,
+  ContractDetailDrawer,
   type OperationDetailData,
+  type WorkRequestData,
+  type ContractDetailData,
 } from './dashboard';
 
 export function DashboardPage() {
+  // Operation drawer state
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<OperationDetailData | null>(null);
+  const [isWorkRequestModalOpen, setIsWorkRequestModalOpen] = useState(false);
+  const [workRequestData, setWorkRequestData] = useState<WorkRequestData | null>(null);
+
+  // Contract drawer state
+  const [isContractDrawerOpen, setIsContractDrawerOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<ContractDetailData | null>(null);
 
   const handleOperationItemClick = (data: OperationDetailData) => {
     setSelectedOperation(data);
@@ -23,10 +34,73 @@ export function DashboardPage() {
     setIsDetailDrawerOpen(false);
   };
 
+  const handleWorkRequest = () => {
+    if (!selectedOperation) return;
+
+    // Convert operation data to work request data
+    const requestData: WorkRequestData = {
+      id: selectedOperation.id,
+      customerName: selectedOperation.customerName,
+      inquiryDate: selectedOperation.inquiryDate,
+      title: selectedOperation.title,
+      details: selectedOperation.details,
+      preferredDate: selectedOperation.preferredDate,
+      preferredTime: selectedOperation.preferredTime,
+      location: selectedOperation.location,
+      additionalRequest:
+        '새로 입주하는 분입니다. 베개 얼룩이랑 이불 침구 깨끗하게 청소해주세요. 방문 손잡이는 저번에도 수리했는데, 다시 고장난 것 같아서 다시 한번 확인 부탁드립니다.',
+      scheduledDate: '5월 12일',
+      daysAgo: '1일 전',
+    };
+
+    setWorkRequestData(requestData);
+    setIsWorkRequestModalOpen(true);
+  };
+
+  const handleCloseWorkRequestModal = () => {
+    setIsWorkRequestModalOpen(false);
+  };
+
+  const handleScheduleChange = () => {
+    // Handle schedule change request
+    setIsWorkRequestModalOpen(false);
+  };
+
+  const handleServiceComplete = () => {
+    // Handle service completion
+    setIsWorkRequestModalOpen(false);
+    setIsDetailDrawerOpen(false);
+  };
+
+  // Contract drawer handlers
+  const handleContractItemClick = (data: ContractDetailData) => {
+    setSelectedContract(data);
+    setIsContractDrawerOpen(true);
+  };
+
+  const handleCloseContractDrawer = () => {
+    setIsContractDrawerOpen(false);
+  };
+
+  const handlePaymentRequest = () => {
+    // Handle payment request
+    console.log('Payment request');
+  };
+
+  const handleOtherProposal = () => {
+    // Handle other proposal
+    console.log('Other proposal');
+  };
+
+  const handleContractChat = () => {
+    // Handle chat
+    console.log('Chat');
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       {/* Contract Management Section */}
-      <ContractSection />
+      <ContractSection onItemClick={handleContractItemClick} />
 
       {/* Settlement Section - Full width on mobile */}
       <div className="md:hidden">
@@ -52,6 +126,27 @@ export function DashboardPage() {
         isOpen={isDetailDrawerOpen}
         onClose={handleCloseDetailDrawer}
         data={selectedOperation}
+        onWorkRequest={handleWorkRequest}
+      />
+
+      {/* Work Request Modal */}
+      <WorkRequestModal
+        isOpen={isWorkRequestModalOpen}
+        onClose={handleCloseWorkRequestModal}
+        data={workRequestData}
+        isServiceDay={false}
+        onScheduleChange={handleScheduleChange}
+        onServiceComplete={handleServiceComplete}
+      />
+
+      {/* Contract Detail Drawer */}
+      <ContractDetailDrawer
+        isOpen={isContractDrawerOpen}
+        onClose={handleCloseContractDrawer}
+        data={selectedContract}
+        onPaymentRequest={handlePaymentRequest}
+        onOtherProposal={handleOtherProposal}
+        onChat={handleContractChat}
       />
     </div>
   );

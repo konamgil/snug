@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import type { ContractDetailData } from './contract-detail-drawer';
 
 type ContractFilter =
   | 'all'
@@ -139,7 +140,44 @@ function getRoomTypeBadgeStyle(type: string): string {
   }
 }
 
-export function ContractSection() {
+interface ContractSectionProps {
+  onItemClick?: (data: ContractDetailData) => void;
+}
+
+// Mock data converter - transforms room card to contract detail data
+function getContractDetailData(room: RoomCard): ContractDetailData {
+  const [checkIn, checkOut] = room.dateRange.split(' - ');
+  return {
+    id: room.id,
+    guestName: room.hostName,
+    guestGender: '여',
+    checkInDate: checkIn ?? '',
+    checkOutDate: checkOut ?? '',
+    propertyName: `Korea Stay (강남빌라)`,
+    roomNumber: '101호',
+    thumbnailUrl: '/images/rooms/room-1.jpg',
+    inquiryDate: '03.01',
+    guestCount: room.guestCount,
+    nights: room.nights,
+    basePrice: 650000,
+    detailRequest:
+      '입주 전에 입주 청소를 하고싶습니다.\n룸 메이트는 깔끔한 사람이었으면 좋겠습니다.',
+    contact: '010-1234-5678',
+    email: 'snuguest@gmail.com',
+    passportNumber: 'M12345678',
+    residentNumber: '000320-2******',
+    purpose: '공부 (교환 학생)',
+    payer: '김여사 (모)',
+    bankAccount: '우리은행 1002-1234-5678',
+    paymentDate: '매월 1일 결제',
+    cleaningFee: 50000,
+    managementFee: 150000,
+    totalPrice: 850000,
+    memo: '깔끔한 성격, 저녁에 늦게 들어옴',
+  };
+}
+
+export function ContractSection({ onItemClick }: ContractSectionProps) {
   const [activeFilter, setActiveFilter] = useState<ContractFilter>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -204,6 +242,7 @@ export function ContractSection() {
           {MOCK_ROOMS.map((room) => (
             <div
               key={room.id}
+              onClick={() => onItemClick?.(getContractDetailData(room))}
               className="flex-shrink-0 w-[200px] md:w-[160px] cursor-pointer hover:opacity-90 transition-opacity"
             >
               {/* Image */}
