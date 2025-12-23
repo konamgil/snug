@@ -73,7 +73,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.02',
     propertyName: 'Korea Stay',
     roomNumber: '101호',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: true,
     isFavorite: true,
     date: '6월 1일',
@@ -84,7 +84,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.26',
     propertyName: '강남',
     roomNumber: '압구정 1nd #304',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: false,
     isFavorite: true,
     date: '6월 1일',
@@ -95,7 +95,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.26',
     propertyName: 'Korea Stay',
     roomNumber: '101호',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: true,
     isFavorite: false,
     date: '6월 1일',
@@ -106,7 +106,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.26',
     propertyName: 'Korea Stay',
     roomNumber: '101호',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: true,
     isFavorite: false,
     date: '6월 1일',
@@ -117,7 +117,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.26',
     propertyName: 'Korea Stay',
     roomNumber: '101호',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: true,
     isFavorite: true,
     date: '6월 1일',
@@ -128,7 +128,7 @@ const MOCK_CONTRACTS: ContractListItem[] = [
     dateRange: '25.08.26 - 25.09.26',
     propertyName: 'Korea Stay',
     roomNumber: '101호',
-    thumbnailUrl: '/images/rooms/room-1.jpg',
+    thumbnailUrl: '',
     isOnline: true,
     isFavorite: true,
     date: '6월 1일',
@@ -284,13 +284,17 @@ export function ContractsList({ selectedId, onSelect, compact = false }: Contrac
           >
             {/* Thumbnail */}
             <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-[hsl(var(--snug-light-gray))]">
-              <Image
-                src={contract.thumbnailUrl}
-                alt={contract.propertyName}
-                width={56}
-                height={56}
-                className="w-full h-full object-cover"
-              />
+              {contract.thumbnailUrl ? (
+                <Image
+                  src={contract.thumbnailUrl}
+                  alt={contract.propertyName}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-50" />
+              )}
             </div>
 
             {/* Info */}

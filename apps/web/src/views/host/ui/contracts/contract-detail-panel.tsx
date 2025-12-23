@@ -212,13 +212,17 @@ export function ContractDetailPanel({
         {/* Guest Info with Thumbnail */}
         <div className="flex gap-4 mb-4">
           <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[hsl(var(--snug-light-gray))]">
-            <Image
-              src={data.thumbnailUrl}
-              alt={data.propertyName}
-              width={64}
-              height={64}
-              className="w-full h-full object-cover"
-            />
+            {data.thumbnailUrl ? (
+              <Image
+                src={data.thumbnailUrl}
+                alt={data.propertyName}
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-50" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-base font-bold text-[hsl(var(--snug-text-primary))]">

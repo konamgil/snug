@@ -37,7 +37,7 @@ const MOCK_MESSAGES: ChatMessage[] = [
     type: 'guest',
     roomInfo: {
       badge: '숙소 연장 문의',
-      imageUrl: '/images/rooms/room-1.jpg',
+      imageUrl: '',
       propertyName: 'Korea Stay',
       roomNumber: '101호',
       dateRange: '2025.08.26-2025.09.02 (1주일)',
@@ -84,15 +84,17 @@ export function ContractsChat({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--snug-border))]">
         <div className="flex items-center gap-2">
-          {guestAvatar && (
-            <Image
-              src={guestAvatar}
-              alt={guestName}
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full"
-            />
-          )}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-100 to-orange-50 flex-shrink-0 overflow-hidden">
+            {guestAvatar && (
+              <Image
+                src={guestAvatar}
+                alt={guestName}
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
           <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
             {guestName}
           </span>
@@ -143,7 +145,7 @@ export function ContractsChat({
             {msg.type === 'guest' && (
               <div className="flex gap-2 max-w-[80%]">
                 {/* Guest Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[hsl(var(--snug-light-gray))] flex-shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-100 to-orange-50 flex-shrink-0 overflow-hidden">
                   {guestAvatar && (
                     <Image
                       src={guestAvatar}
@@ -164,13 +166,17 @@ export function ContractsChat({
                       </span>
                       <div className="flex gap-3">
                         <div className="w-16 h-12 rounded overflow-hidden bg-[hsl(var(--snug-light-gray))]">
-                          <Image
-                            src={msg.roomInfo.imageUrl}
-                            alt={msg.roomInfo.propertyName}
-                            width={64}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
+                          {msg.roomInfo.imageUrl ? (
+                            <Image
+                              src={msg.roomInfo.imageUrl}
+                              alt={msg.roomInfo.propertyName}
+                              width={64}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-50" />
+                          )}
                         </div>
                         <div>
                           <p className="text-sm text-[hsl(var(--snug-text-primary))]">
@@ -239,7 +245,7 @@ export function ContractsChat({
                 </div>
 
                 {/* Host Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[hsl(var(--snug-light-gray))] flex-shrink-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-100 to-orange-50 flex-shrink-0 flex items-center justify-center">
                   <span className="text-lg">👤</span>
                 </div>
               </div>
