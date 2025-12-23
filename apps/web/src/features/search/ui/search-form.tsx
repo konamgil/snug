@@ -160,7 +160,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
         {/* Main Search Form */}
         <div className="p-4">
           {/* Location Input */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] transition-colors">
             <MapPin
               className={`w-3 h-3 flex-shrink-0 transition-colors ${
                 focusState === 'location'
@@ -180,13 +180,13 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
 
           {/* Date and Guests Row */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               {/* Stay Dates */}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={handleDatesClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
                     dateRangeText
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'
@@ -217,7 +217,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
                 <button
                   type="button"
                   onClick={handleGuestsClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
                     guestSummary
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'
