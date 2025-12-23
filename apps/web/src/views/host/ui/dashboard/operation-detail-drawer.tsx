@@ -19,6 +19,7 @@ interface OperationDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   data: OperationDetailData | null;
+  onWorkRequest?: () => void;
 }
 
 type ConfirmStatus = 'pending' | 'not_started' | 'in_progress' | 'completed';
@@ -30,7 +31,12 @@ const STATUS_OPTIONS: { id: ConfirmStatus; label: string }[] = [
   { id: 'completed', label: '처리 완료' },
 ];
 
-export function OperationDetailDrawer({ isOpen, onClose, data }: OperationDetailDrawerProps) {
+export function OperationDetailDrawer({
+  isOpen,
+  onClose,
+  data,
+  onWorkRequest,
+}: OperationDetailDrawerProps) {
   const [visitDate, setVisitDate] = useState('25.09.12');
   const [visitTime, setVisitTime] = useState('10:00');
   const [confirmStatus, setConfirmStatus] = useState<ConfirmStatus>('in_progress');
@@ -244,6 +250,7 @@ export function OperationDetailDrawer({ isOpen, onClose, data }: OperationDetail
           <div className="hidden md:block space-y-3">
             <button
               type="button"
+              onClick={onWorkRequest}
               className="w-full py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
             >
               작업 요청
@@ -261,6 +268,7 @@ export function OperationDetailDrawer({ isOpen, onClose, data }: OperationDetail
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-[hsl(var(--snug-border))] space-y-2 md:hidden">
           <button
             type="button"
+            onClick={onWorkRequest}
             className="w-full py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg active:opacity-90 transition-opacity"
           >
             작업 요청
