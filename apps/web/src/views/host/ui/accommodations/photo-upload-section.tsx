@@ -1,22 +1,28 @@
 'use client';
 
+import { useState } from 'react';
 import { ImagePlus, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory } from './types';
 import { DEFAULT_PHOTO_GROUPS } from './types';
+
+type HoveredButton = 'gallery' | 'edit' | null;
 
 interface PhotoUploadSectionProps {
   categories: PhotoCategory[];
   onChange?: (categories: PhotoCategory[]) => void;
   onAddPhotos?: () => void;
   onViewAll?: () => void;
+  onViewGallery?: () => void;
 }
 
 export function PhotoUploadSection({
   categories,
   onAddPhotos,
-  onViewAll,
+  onViewAll: _onViewAll,
+  onViewGallery,
 }: PhotoUploadSectionProps) {
+  const [hoveredButton, setHoveredButton] = useState<HoveredButton>(null);
   const hasPhotos = categories.some((cat) => cat.photos.length > 0);
 
   // Get display categories (use defaults if empty)
@@ -43,20 +49,18 @@ export function PhotoUploadSection({
   };
 
   if (!hasPhotos) {
-    // Empty state
+    // Empty state - entire section is clickable
     return (
-      <div className="border border-dashed border-[hsl(var(--snug-border))] rounded-lg p-8">
+      <button
+        type="button"
+        onClick={onAddPhotos}
+        className="w-full border border-dashed border-[hsl(var(--snug-border))] rounded-lg py-16 px-8 hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors cursor-pointer"
+      >
         <div className="flex flex-col items-center justify-center text-center">
           <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">사진 등록을 해주세요.</p>
-          <button
-            type="button"
-            onClick={onAddPhotos}
-            className="p-3 rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
-          >
-            <ImagePlus className="w-8 h-8 text-[hsl(var(--snug-gray))]" />
-          </button>
+          <ImagePlus className="w-8 h-8 text-[hsl(var(--snug-gray))]" />
         </div>
-      </div>
+      </button>
     );
   }
 
@@ -90,32 +94,36 @@ export function PhotoUploadSection({
 
       {/* Full section dim overlay + centered buttons (appears on hover) */}
       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <div className="flex flex-col items-center gap-1">
+        <div className="relative flex flex-col items-center">
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={onAddPhotos}
+              onClick={onViewGallery}
+              onMouseEnter={() => setHoveredButton('gallery')}
+              onMouseLeave={() => setHoveredButton(null)}
               className="p-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-md"
-              title="사진 등록"
             >
               <ImagePlus className="w-5 h-5 text-[hsl(var(--snug-gray))]" />
             </button>
             <button
               type="button"
-              onClick={onViewAll}
+              onClick={onAddPhotos}
+              onMouseEnter={() => setHoveredButton('edit')}
+              onMouseLeave={() => setHoveredButton(null)}
               className="p-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-md"
-              title="전체보기"
             >
               <Pencil className="w-5 h-5 text-[hsl(var(--snug-gray))]" />
             </button>
           </div>
-          <button
-            type="button"
-            onClick={onViewAll}
-            className="px-3 py-1.5 bg-[hsl(var(--snug-text-primary))]/80 rounded-full text-xs text-white hover:bg-[hsl(var(--snug-text-primary))] transition-colors"
-          >
-            사진 전체보기
-          </button>
+          {hoveredButton && (
+            <button
+              type="button"
+              onClick={hoveredButton === 'edit' ? onAddPhotos : onViewGallery}
+              className="absolute top-full mt-1 px-3 py-1.5 bg-[hsl(var(--snug-text-primary))]/80 rounded-full text-xs text-white hover:bg-[hsl(var(--snug-text-primary))] transition-colors whitespace-nowrap"
+            >
+              {hoveredButton === 'edit' ? '수정' : '사진 전체보기'}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -149,7 +157,7 @@ export function PhotoPreview({ photos }: PhotoPreviewProps) {
 
       {/* Thumbnail row */}
       {allPhotos.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
           {allPhotos.slice(0, 4).map((photo, index) => (
             <div
               key={photo.id}

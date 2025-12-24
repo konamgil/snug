@@ -4,7 +4,8 @@ import { useCallback, useState, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { X, Heart, Home, Users, ImageIcon } from 'lucide-react';
+import { X, ImageIcon } from 'lucide-react';
+import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
 import type { Room } from './room-card';
 
 interface SearchMapProps {
@@ -182,9 +183,9 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
                 onClick={handleFavoriteClick}
                 className="absolute top-3 right-3 p-2"
               >
-                <Heart
-                  className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white drop-shadow-md'}`}
-                  fill={isFavorite ? 'currentColor' : 'none'}
+                <HeartIcon
+                  className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-white drop-shadow-md'}`}
+                  filled={isFavorite}
                 />
               </button>
 
@@ -203,7 +204,7 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
 
               {/* Room Info */}
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
-                <Home className="w-3.5 h-3.5 flex-shrink-0" />
+                <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>
                   {selectedRoom.rooms} Rooms · {selectedRoom.bathrooms} Bathroom ·{' '}
                   {selectedRoom.beds} Bed
@@ -212,7 +213,7 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
 
               {/* Guests */}
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
-                <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>{selectedRoom.guests} Guests</span>
               </div>
 

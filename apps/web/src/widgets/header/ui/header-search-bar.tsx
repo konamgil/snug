@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MapPin, Calendar, Users, Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { LocationIcon, CalendarIcon, UserIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from '@/features/search/ui/date-picker';
 import {
   GuestPicker,
@@ -176,7 +177,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
               setIsGuestFocused(false);
             }}
           >
-            <MapPin
+            <LocationIcon
               className={`w-3.5 h-3.5 flex-shrink-0 ${isSearchFocused ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-gray))]'}`}
             />
             <input
@@ -203,7 +204,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
             }}
             className="flex items-center gap-1.5 flex-1"
           >
-            <Calendar
+            <CalendarIcon
               className={`w-3.5 h-3.5 flex-shrink-0 ${isDateFocused ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-gray))]'}`}
             />
             <span
@@ -227,7 +228,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
             }}
             className="flex items-center gap-1.5 flex-1"
           >
-            <Users
+            <UserIcon
               className={`w-3.5 h-3.5 flex-shrink-0 ${isGuestFocused ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-gray))]'}`}
             />
             <span
@@ -258,7 +259,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
             onClick={handleSearch}
             className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity flex-shrink-0"
           >
-            <Search className="w-3.5 h-3.5 text-white" />
+            <SearchIcon className="w-3.5 h-3.5 text-white" />
           </button>
         </div>
 

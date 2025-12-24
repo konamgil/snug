@@ -5,11 +5,31 @@ import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AccommodationList } from './accommodation-list';
 import { AccommodationListDetail } from './accommodation-list-detail';
+import {
+  GroupManagementModal,
+  type GroupItem,
+  type AccommodationSimple,
+} from './group-management-modal';
 import type { AccommodationListItem } from './types';
 
 export function AccommodationListPage() {
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<AccommodationListItem | null>(null);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [groups, setGroups] = useState<GroupItem[]>([
+    { id: '1', name: 'Snug Stay', isSelected: false, accommodationIds: ['acc_1', 'acc_2'] },
+    { id: '2', name: 'Korea Stay', isSelected: false, accommodationIds: ['acc_3'] },
+    { id: '3', name: 'House cozy', isSelected: false, accommodationIds: [] },
+  ]);
+
+  // Mock accommodations data - 실제로는 API에서 가져옴
+  const accommodations: AccommodationSimple[] = [
+    { id: 'acc_1', name: '서울 강남점' },
+    { id: 'acc_2', name: '서울 홍대점' },
+    { id: 'acc_3', name: '부산 해운대점' },
+    { id: 'acc_4', name: '제주 서귀포점' },
+    { id: 'acc_5', name: '대구 동성로점' },
+  ];
 
   const handleSelect = (item: AccommodationListItem) => {
     setSelectedItem(item);
@@ -24,7 +44,11 @@ export function AccommodationListPage() {
   };
 
   const handleGroupManage = () => {
-    console.log('Group manage');
+    setIsGroupModalOpen(true);
+  };
+
+  const handleGroupSave = (updatedGroups: GroupItem[]) => {
+    setGroups(updatedGroups);
   };
 
   const handleBulkStatusChange = (ids: string[], status: boolean) => {
@@ -97,6 +121,15 @@ export function AccommodationListPage() {
           </div>
         )}
       </div>
+
+      {/* Group Management Modal */}
+      <GroupManagementModal
+        isOpen={isGroupModalOpen}
+        onClose={() => setIsGroupModalOpen(false)}
+        groups={groups}
+        accommodations={accommodations}
+        onSave={handleGroupSave}
+      />
     </div>
   );
 }

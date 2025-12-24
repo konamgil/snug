@@ -1,6 +1,6 @@
 'use client';
 
-import { SlidersHorizontal } from 'lucide-react';
+import { FilterIcon } from '@/shared/ui/icons';
 
 interface MobileSearchBarProps {
   location: string;
@@ -42,7 +42,7 @@ export function MobileSearchBar({
         className="relative w-11 h-11 flex items-center justify-center flex-shrink-0"
         aria-label="Filters"
       >
-        <SlidersHorizontal className="w-[22px] h-[22px] text-[hsl(var(--snug-text-primary))]" />
+        <FilterIcon className="w-[22px] h-[22px] text-[hsl(var(--snug-text-primary))]" />
         {hasActiveFilters && (
           <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[hsl(var(--snug-orange))] rounded-full" />
         )}

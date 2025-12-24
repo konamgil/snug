@@ -3,32 +3,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
+import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X } from 'lucide-react';
 import {
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  ImageIcon,
-  Home,
-  Bath,
-  Users,
-  Calendar,
-  MapPin,
-  Car,
-  UtensilsCrossed,
-  Wind,
-  ChevronDown,
-  X,
-  MessageCircle,
-  Building,
-  Maximize2,
-  Sofa,
-  DoorOpen,
-  RotateCcw,
-} from 'lucide-react';
+  LocationIcon,
+  CalendarIcon as _CalendarIcon,
+  UserIcon,
+  HeartIcon,
+  ChatIcon,
+  HotelIcon,
+  AreaIcon,
+  ElevatorIcon,
+  ParkingIcon,
+  RoomIcon,
+  LivingRoomIcon,
+  BathroomIcon,
+  KitchenIcon,
+  FloorIcon,
+  BalconyIcon,
+  PlusIcon,
+  MinusIcon,
+  SnugMarkerIcon,
+} from '@/shared/ui/icons';
 import { useRouter as useI18nRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { formatGuestSummary, type GuestCount } from '@/features/search/ui/guest-picker';
+import { BookingSidePanel } from './booking-side-panel';
 
 // Mock room data
 const roomData = {
@@ -127,15 +127,15 @@ const roomData = {
 };
 
 const detailIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  area: Maximize2,
-  elevator: Building,
-  parking: Car,
-  room: Home,
-  living: Sofa,
-  bathroom: Bath,
-  kitchen: UtensilsCrossed,
-  floor: DoorOpen,
-  balcony: Wind,
+  area: AreaIcon,
+  elevator: ElevatorIcon,
+  parking: ParkingIcon,
+  room: RoomIcon,
+  living: LivingRoomIcon,
+  bathroom: BathroomIcon,
+  kitchen: KitchenIcon,
+  floor: FloorIcon,
+  balcony: BalconyIcon,
 };
 
 const tagColors = {
@@ -146,7 +146,7 @@ const tagColors = {
 };
 
 // Format date for display
-function formatDate(date: Date | null): string {
+function _formatDate(date: Date | null): string {
   if (!date) return 'Select';
   const month = date.toLocaleString('en', { month: 'short' });
   const day = date.getDate();
@@ -205,19 +205,16 @@ export function RoomDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const hasApiKey = Boolean(googleMapsApiKey);
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
-  // Only load Google Maps if API key is configured
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: googleMapsApiKey || '',
+  // Always try to load Google Maps (will show error overlay if no key)
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: googleMapsApiKey,
     id: 'google-map-script',
-    // Skip loading if no API key
-    preventGoogleFontsLoading: !hasApiKey,
   });
 
-  // Don't try to show Google Maps if no API key is configured or there's an error
-  const shouldShowMap = hasApiKey && isLoaded && !loadError;
+  // Show map when loaded (even if there's an API key error, Google Maps will show)
+  const shouldShowMap = isLoaded;
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
@@ -239,8 +236,8 @@ export function RoomDetailPage() {
   const subtotal = roomData.pricePerNight * nights;
   const serviceFee = Math.round(subtotal * (roomData.serviceFeePercent / 100));
   const discount = nights >= roomData.longStayThreshold ? roomData.longStayDiscount : 0;
-  const total = subtotal + roomData.cleaningFee + roomData.deposit - discount - serviceFee;
-  const guestSummary = formatGuestSummary(guests) || '1 Guest';
+  const _total = subtotal + roomData.cleaningFee + roomData.deposit - discount - serviceFee;
+  const _guestSummary = formatGuestSummary(guests) || '1 Guest';
 
   // Handle search from header - navigate to search page
   const handleHeaderSearch = (values: SearchBarValues) => {
@@ -292,7 +289,10 @@ export function RoomDetailPage() {
               }}
               className="p-2 bg-white/90 rounded-full shadow-md"
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              <HeartIcon
+                className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
+                filled={isFavorite}
+              />
             </button>
           </div>
 
@@ -394,8 +394,9 @@ export function RoomDetailPage() {
                 onClick={() => setIsFavorite(!isFavorite)}
                 className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
               >
-                <Heart
-                  className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-[hsl(var(--snug-gray))]'}`}
+                <HeartIcon
+                  className={`w-5 h-5 ${isFavorite ? 'text-red-500' : 'text-[hsl(var(--snug-gray))]'}`}
+                  filled={isFavorite}
                 />
               </button>
             </div>
@@ -403,26 +404,26 @@ export function RoomDetailPage() {
             {/* Room Info */}
             <div className="lg:hidden space-y-1 pb-4">
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))]">
-                <Home className="w-3.5 h-3.5" />
+                <HotelIcon className="w-3.5 h-3.5" />
                 <span>
                   {roomData.rooms} Rooms · {roomData.bathrooms} Bathroom · {roomData.beds} Bed
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))]">
-                <Users className="w-3.5 h-3.5" />
+                <UserIcon className="w-3.5 h-3.5" />
                 <span>{roomData.guests} Guests</span>
               </div>
             </div>
             {/* Desktop Room Info */}
             <div className="hidden lg:block pb-6">
               <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--snug-gray))] mb-1">
-                <Home className="w-4 h-4" />
+                <HotelIcon className="w-4 h-4" />
                 <span>
                   {roomData.rooms} Rooms · {roomData.bathrooms} Bathroom · {roomData.beds} Bed
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--snug-gray))]">
-                <Users className="w-4 h-4" />
+                <UserIcon className="w-4 h-4" />
                 <span>{roomData.guests} Guests</span>
               </div>
             </div>
@@ -479,7 +480,7 @@ export function RoomDetailPage() {
             >
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {roomData.details.map((detail) => {
-                  const Icon = detailIcons[detail.icon] || Home;
+                  const Icon = detailIcons[detail.icon] || RoomIcon;
                   return (
                     <div
                       key={detail.label}
@@ -580,11 +581,32 @@ export function RoomDetailPage() {
 
             {/* Location */}
             <Section title="Location" expanded={true} onToggle={() => {}} showToggle={false}>
-              <div className="flex items-center gap-1 text-sm text-[hsl(var(--snug-gray))] mb-4">
-                <MapPin className="w-4 h-4" />
-                <span>{roomData.address}</span>
+              <p className="text-xs text-[hsl(var(--snug-text-primary))] mb-3">
+                {roomData.address}
+              </p>
+              {/* Location Filter Buttons */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-[hsl(var(--snug-orange))] text-white text-xs font-extrabold rounded-full"
+                >
+                  Subway Station
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-[#999] text-white text-xs font-extrabold rounded-full"
+                >
+                  Bus Stop
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-[#999] text-white text-xs font-extrabold rounded-full"
+                >
+                  Convenience store
+                </button>
               </div>
-              <div className="h-[200px] lg:h-[300px] rounded-xl overflow-hidden bg-[hsl(var(--snug-light-gray))] mb-4">
+              {/* Map Container */}
+              <div className="relative h-[250px] lg:h-[350px] rounded-[20px] overflow-hidden bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))]">
                 {shouldShowMap ? (
                   <GoogleMap
                     mapContainerStyle={{ width: '100%', height: '100%' }}
@@ -592,28 +614,36 @@ export function RoomDetailPage() {
                     zoom={15}
                     options={{
                       disableDefaultUI: true,
-                      zoomControl: true,
+                      zoomControl: false,
                     }}
                   >
                     <Marker position={{ lat: roomData.lat, lng: roomData.lng }} />
                   </GoogleMap>
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                    <MapPin className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#f5f5f5]">
+                    <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
                     <span className="text-xs text-[hsl(var(--snug-gray))]">Map View</span>
                   </div>
                 )}
-              </div>
-              {/* Nearby Tags */}
-              <div className="flex flex-wrap gap-2">
-                {roomData.nearbyTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1.5 bg-[hsl(var(--snug-orange))]/10 text-[hsl(var(--snug-orange))] text-xs font-medium rounded-full"
+                {/* Zoom Buttons */}
+                <div className="absolute top-2.5 right-2.5 flex flex-col gap-2.5">
+                  <button
+                    type="button"
+                    className="w-8 h-8 bg-white rounded-full shadow-[0px_2px_4px_rgba(0,0,0,0.25)] flex items-center justify-center hover:bg-gray-50 transition-colors"
                   >
-                    {tag}
-                  </span>
-                ))}
+                    <PlusIcon className="w-3.5 h-3.5 text-[#161616]" />
+                  </button>
+                  <button
+                    type="button"
+                    className="w-8 h-8 bg-white rounded-full shadow-[0px_2px_4px_rgba(0,0,0,0.25)] flex items-center justify-center hover:bg-gray-50 transition-colors"
+                  >
+                    <MinusIcon className="w-3.5 h-3.5 text-[#161616]" />
+                  </button>
+                </div>
+                {/* Snug Marker */}
+                <div className="absolute top-[100px] left-[calc(50%-30px)] pointer-events-none">
+                  <SnugMarkerIcon className="w-[62px] h-[50px]" />
+                </div>
               </div>
             </Section>
 
@@ -667,7 +697,7 @@ export function RoomDetailPage() {
                       </div>
                       {/* Heart */}
                       <button className="absolute top-3 right-3 p-1.5 bg-white/90 rounded-full z-10">
-                        <Heart className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                        <HeartIcon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
                       </button>
                       {/* Counter */}
                       <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/60 rounded-full text-white text-[10px] z-10">
@@ -678,11 +708,11 @@ export function RoomDetailPage() {
                       Nonhyeon-dong, Gangnam-gu
                     </h4>
                     <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-0.5">
-                      <Home className="w-3 h-3" />
+                      <HotelIcon className="w-3 h-3" />
                       <span>1 Rooms · 1 Bathroom · 2 Bed</span>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-1">
-                      <Users className="w-3 h-3" />
+                      <UserIcon className="w-3 h-3" />
                       <span>2 Guests</span>
                     </div>
                     <p className="text-sm">
@@ -752,141 +782,26 @@ export function RoomDetailPage() {
           </div>
 
           {/* Booking Sidebar - Desktop Only */}
-          <div className="hidden lg:block w-[340px] flex-shrink-0">
+          <div className="hidden lg:block w-[350px] flex-shrink-0">
             <div className="sticky top-24">
-              {/* Date & Guests Selection - Inline */}
-              <div className="flex items-center gap-4 mb-4 p-4 border border-[hsl(var(--snug-border))] rounded-xl">
-                <div className="flex items-center gap-2 flex-1">
-                  <Calendar className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                    {checkIn && checkOut
-                      ? `${formatDate(checkIn)} - ${formatDate(checkOut)}`
-                      : 'Jun 3, 25 - Jun 19, 25'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                    {guestSummary}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="w-8 h-8 rounded-full border border-[hsl(var(--snug-orange))] flex items-center justify-center hover:bg-[hsl(var(--snug-orange))]/5 transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4 text-[hsl(var(--snug-orange))]" />
-                </button>
-              </div>
-
-              {/* Price Breakdown Card */}
-              <div className="border border-[hsl(var(--snug-border))] rounded-xl p-4 mb-4">
-                <div className="space-y-3">
-                  {/* Rent for 1 Night */}
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        Rent for 1 Night
-                      </p>
-                      <p className="text-xs text-[hsl(var(--snug-gray))]">
-                        (Including Maintenance Fee)
-                      </p>
-                    </div>
-                    <span className="text-sm font-semibold text-[hsl(var(--snug-orange))]">
-                      ${roomData.pricePerNight}
-                    </span>
-                  </div>
-
-                  {/* Nights calculation */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      {nights}nights X ${roomData.pricePerNight}
-                    </span>
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${subtotal}
-                    </span>
-                  </div>
-
-                  {/* Cleaning fee */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Cleaning(After check-out)
-                    </span>
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${roomData.cleaningFee}
-                    </span>
-                  </div>
-
-                  {/* Deposit */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Deposit(Refundable)
-                    </span>
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${roomData.deposit}
-                    </span>
-                  </div>
-
-                  {/* Long-stay Discount */}
-                  {nights >= roomData.longStayThreshold && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        Long-stay Discount(Over {roomData.longStayThreshold} days)
-                      </span>
-                      <span className="text-sm text-[hsl(var(--snug-orange))]">
-                        -${roomData.longStayDiscount}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Service fee */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Snug service fee({roomData.serviceFeePercent}%)
-                    </span>
-                    <span className="text-sm text-[hsl(var(--snug-orange))]">-${serviceFee}</span>
-                  </div>
-
-                  {/* Total */}
-                  <div className="flex items-center justify-between pt-3 border-t border-[hsl(var(--snug-border))]">
-                    <span className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                      Total
-                    </span>
-                    <span className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-                      ${total}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3 mt-4">
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(var(--snug-border))] rounded-lg text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Chat with Host
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/${locale}/room/${roomId}/payment`)}
-                    className="flex-1 py-2.5 bg-[hsl(var(--snug-orange))] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    Book
-                  </button>
-                </div>
-              </div>
-
-              {/* Shared Room Card */}
-              <div className="border border-[hsl(var(--snug-border))] rounded-xl p-4 text-center">
-                <p className="text-sm font-semibold text-[hsl(var(--snug-orange))] mb-1">
-                  {roomData.roomType}
-                </p>
-                <p className="text-xs text-[hsl(var(--snug-gray))] leading-relaxed">
-                  A shared rouse for living together
-                  <br />
-                  and connecting with others.
-                </p>
-              </div>
+              <BookingSidePanel
+                roomType={roomData.roomType}
+                roomTypeDescription="A shared house for living together and connecting with others."
+                priceBreakdown={{
+                  pricePerNight: roomData.pricePerNight,
+                  nights: nights,
+                  cleaningFee: roomData.cleaningFee,
+                  deposit: roomData.deposit,
+                  longStayDiscount: roomData.longStayDiscount,
+                  longStayThreshold: roomData.longStayThreshold,
+                  serviceFeePercent: roomData.serviceFeePercent,
+                }}
+                initialCheckIn={checkIn}
+                initialCheckOut={checkOut}
+                initialGuests={guests}
+                onBook={() => router.push(`/${locale}/room/${roomId}/payment`)}
+                onChatWithHost={() => {}}
+              />
             </div>
           </div>
         </div>
@@ -908,7 +823,7 @@ export function RoomDetailPage() {
             type="button"
             className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
           >
-            <MessageCircle className="w-5 h-5" />
+            <ChatIcon className="w-5 h-5" />
             <span>Chat with Host</span>
           </button>
           {/* Book Button */}

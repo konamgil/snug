@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { User, Globe, MessageCircle, X } from 'lucide-react';
+import { User, Globe, X } from 'lucide-react';
+import { ChatIcon } from '@/shared/ui/icons';
 import { Link } from '@/i18n/navigation';
 import { ChatModal } from '@/features/chat';
 
@@ -55,7 +56,7 @@ export function HeaderActions({ className }: HeaderActionsProps) {
           {isChatOpen ? (
             <X className="w-3.5 h-3.5 text-[hsl(var(--snug-text-primary))]" />
           ) : (
-            <MessageCircle className="w-3.5 h-3.5 text-white" />
+            <ChatIcon className="w-3.5 h-3.5 text-white" />
           )}
         </button>
       </div>

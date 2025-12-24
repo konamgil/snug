@@ -172,12 +172,12 @@ export function AccommodationNewPage() {
       {/* Content */}
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-6">
           <AccommodationForm initialData={formData} onChange={setFormData} />
         </div>
 
         {/* Preview Panel - Desktop Only */}
-        <div className="hidden lg:block w-[380px] flex-shrink-0 overflow-y-auto p-6 border-l border-[hsl(var(--snug-border))] bg-[hsl(var(--snug-light-gray))]">
+        <div className="hidden lg:block w-[380px] flex-shrink-0 overflow-y-auto no-scrollbar p-6 border-l border-[hsl(var(--snug-border))] bg-[hsl(var(--snug-light-gray))]">
           <AccommodationPreviewPanel data={formData} />
         </div>
       </div>
@@ -237,12 +237,12 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       {/* Content */}
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-6">
           <AccommodationForm initialData={formData} onChange={setFormData} />
         </div>
 
         {/* Preview Panel - Desktop Only */}
-        <div className="hidden lg:block w-[380px] flex-shrink-0 overflow-y-auto p-6 border-l border-[hsl(var(--snug-border))] bg-[hsl(var(--snug-light-gray))]">
+        <div className="hidden lg:block w-[380px] flex-shrink-0 overflow-y-auto no-scrollbar p-6 border-l border-[hsl(var(--snug-border))] bg-[hsl(var(--snug-light-gray))]">
           <AccommodationPreviewPanel data={formData} />
         </div>
       </div>

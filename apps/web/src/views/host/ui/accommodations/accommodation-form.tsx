@@ -13,6 +13,7 @@ import type {
   BuildingType,
   GenderRule,
   ManagerInfo,
+  PhotoCategory,
 } from './types';
 import {
   ACCOMMODATION_TYPE_OPTIONS,
@@ -42,6 +43,9 @@ export function AccommodationForm({
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isPhotoUploadModalOpen, setIsPhotoUploadModalOpen] = useState(false);
   const [isPhotoGalleryModalOpen, setIsPhotoGalleryModalOpen] = useState(false);
+  const [galleryInitialCategoryId, setGalleryInitialCategoryId] = useState<string>('main');
+  const [galleryCategories, setGalleryCategories] = useState<PhotoCategory[]>([]);
+  const [galleryOpenedFrom, setGalleryOpenedFrom] = useState<'main' | 'uploadModal'>('main');
 
   const updateData = (updates: Partial<AccommodationFormData>) => {
     const newData = { ...data, ...updates };
@@ -129,7 +133,12 @@ export function AccommodationForm({
                 categories={data.mainPhotos}
                 onChange={(categories) => updateData({ mainPhotos: categories })}
                 onAddPhotos={() => setIsPhotoUploadModalOpen(true)}
-                onViewAll={() => setIsPhotoGalleryModalOpen(true)}
+                onViewGallery={() => {
+                  setGalleryCategories(data.mainPhotos);
+                  setGalleryInitialCategoryId('main');
+                  setGalleryOpenedFrom('main');
+                  setIsPhotoGalleryModalOpen(true);
+                }}
               />
             </div>
 
@@ -890,18 +899,36 @@ export function AccommodationForm({
         onClose={() => setIsPhotoUploadModalOpen(false)}
         categories={data.mainPhotos}
         onSave={(categories) => updateData({ mainPhotos: categories })}
-        onViewAll={() => {
+        onViewGallery={(categoryId, currentCategories) => {
+          // Store current categories directly for gallery modal
+          setGalleryCategories(currentCategories);
+          setGalleryInitialCategoryId(categoryId);
+          setGalleryOpenedFrom('uploadModal');
           setIsPhotoUploadModalOpen(false);
           setIsPhotoGalleryModalOpen(true);
         }}
       />
 
-      <PhotoGalleryModal
-        isOpen={isPhotoGalleryModalOpen}
-        onClose={() => setIsPhotoGalleryModalOpen(false)}
-        categories={data.mainPhotos}
-        onSave={(categories) => updateData({ mainPhotos: categories })}
-      />
+      {isPhotoGalleryModalOpen && (
+        <PhotoGalleryModal
+          isOpen={isPhotoGalleryModalOpen}
+          onClose={() => {
+            setIsPhotoGalleryModalOpen(false);
+            if (galleryOpenedFrom === 'uploadModal') {
+              setIsPhotoUploadModalOpen(true);
+            }
+          }}
+          categories={galleryCategories}
+          initialCategoryId={galleryInitialCategoryId}
+          onSave={(categories) => {
+            updateData({ mainPhotos: categories });
+            setIsPhotoGalleryModalOpen(false);
+            if (galleryOpenedFrom === 'uploadModal') {
+              setIsPhotoUploadModalOpen(true);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

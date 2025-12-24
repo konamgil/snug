@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Map } from 'lucide-react';
+import { MapIcon } from '@/shared/ui/icons';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
@@ -345,7 +345,7 @@ function SearchPageContent() {
             href="/map"
             className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--snug-orange))] text-white rounded-full shadow-lg hover:opacity-90 transition-opacity"
           >
-            <Map className="w-4 h-4" />
+            <MapIcon className="w-4 h-4" />
             <span className="text-sm font-medium">{tHome('viewOnMap')}</span>
           </Link>
         </div>

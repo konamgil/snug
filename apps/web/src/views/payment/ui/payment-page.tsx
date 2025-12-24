@@ -12,6 +12,13 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { Header } from '@/widgets/header';
+import {
+  MastercardIcon,
+  VisaIcon,
+  ApplePayIcon,
+  AliPayIcon,
+  WeChatPayIcon,
+} from '@/shared/ui/icons';
 
 // Mock room data for payment
 const roomData = {
@@ -320,15 +327,11 @@ export function PaymentPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold ${
-                            card.type === 'mastercard'
-                              ? 'bg-red-500 text-white'
-                              : 'bg-blue-600 text-white'
-                          }`}
-                        >
-                          {card.type === 'mastercard' ? 'MC' : 'VISA'}
-                        </div>
+                        {card.type === 'mastercard' ? (
+                          <MastercardIcon className="w-10 h-7" />
+                        ) : (
+                          <VisaIcon className="w-10 h-7" />
+                        )}
                         <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                           {card.type === 'mastercard' ? 'Mastercard' : 'Visa'} ({card.cardType} •{' '}
                           {card.lastFour})
@@ -370,17 +373,13 @@ export function PaymentPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-6 rounded flex items-center justify-center text-[10px] font-bold ${
-                            payment.id === 'apple'
-                              ? 'bg-black text-white'
-                              : payment.id === 'ali'
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-green-500 text-white'
-                          }`}
-                        >
-                          {payment.id === 'apple' ? 'Pay' : payment.id === 'ali' ? '支' : 'We'}
-                        </div>
+                        {payment.id === 'apple' ? (
+                          <ApplePayIcon className="w-10 h-7" />
+                        ) : payment.id === 'ali' ? (
+                          <AliPayIcon className="w-10 h-10" />
+                        ) : (
+                          <WeChatPayIcon className="w-10 h-6" />
+                        )}
                         <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                           {payment.name}
                         </span>

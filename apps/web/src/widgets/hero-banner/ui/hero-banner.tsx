@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Heart, ChevronLeft, ChevronRight, MapPin, ImageIcon } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
+import { LocationIcon } from '@/shared/ui/icons';
 import Image from 'next/image';
 import { useEasterEgg } from '@/shared/lib/easter-egg-context';
 
@@ -533,7 +534,7 @@ const TourSlideComponent = memo(function TourSlideComponent({
 
         {/* Location Badge */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/90 rounded-full z-10">
-          <MapPin className="w-3.5 h-3.5 text-[hsl(var(--snug-gray))]" />
+          <LocationIcon className="w-3.5 h-3.5 text-[hsl(var(--snug-gray))]" />
           <span className="text-xs font-medium text-[hsl(var(--snug-text-primary))]">
             {tour.location}
           </span>

@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Calendar, Users, Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { LocationIcon, CalendarIcon, UserIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from './date-picker';
 import { GuestPicker, formatGuestSummary, type GuestCount } from './guest-picker';
 import type { SearchParams } from './search-modal';
@@ -161,7 +162,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
         <div className="p-4">
           {/* Location Input */}
           <div className="flex items-center gap-2 mb-3 px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] transition-colors">
-            <MapPin
+            <LocationIcon
               className={`w-3 h-3 flex-shrink-0 transition-colors ${
                 focusState === 'location'
                   ? 'text-[hsl(var(--snug-orange))]'
@@ -192,7 +193,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
                       : 'text-[hsl(var(--snug-placeholder))]'
                   } ${focusState === 'dates' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
                 >
-                  <Calendar
+                  <CalendarIcon
                     className={`w-3 h-3 ${
                       focusState === 'dates'
                         ? 'text-[hsl(var(--snug-orange))]'
@@ -223,7 +224,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
                       : 'text-[hsl(var(--snug-placeholder))]'
                   } ${focusState === 'guests' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
                 >
-                  <Users
+                  <UserIcon
                     className={`w-3 h-3 ${
                       focusState === 'guests'
                         ? 'text-[hsl(var(--snug-orange))]'
@@ -250,7 +251,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
               onClick={handleSearch}
               className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
             >
-              <Search className="w-3.5 h-3.5 text-white" />
+              <SearchIcon className="w-3.5 h-3.5 text-white" />
             </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Map } from 'lucide-react';
+import { MapIcon } from '@/shared/ui/icons';
 
 interface ViewOnMapButtonProps {
   className?: string;
@@ -17,7 +17,7 @@ export function ViewOnMapButton({ className, onClick }: ViewOnMapButtonProps) {
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 px-4 py-2 bg-[hsl(var(--snug-orange))] text-white rounded-full text-xs font-bold tracking-tight hover:opacity-90 transition-opacity ${className ?? ''}`}
     >
-      <Map className="w-[18px] h-[18px]" />
+      <MapIcon className="w-[18px] h-[18px]" />
       <span>{t('viewOnMap')}</span>
     </button>
   );

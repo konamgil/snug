@@ -3,16 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import {
-  Heart,
-  Home,
-  Bath,
-  BedDouble,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  ImageIcon,
-} from 'lucide-react';
+import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
+import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
 
 export interface Room {
   id: string;
@@ -109,9 +101,9 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
             onClick={handleFavoriteClick}
             className="absolute top-3 right-3 p-2"
           >
-            <Heart
-              className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white drop-shadow-md'}`}
-              fill={isFavorite ? 'currentColor' : 'none'}
+            <HeartIcon
+              className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-white drop-shadow-md'}`}
+              filled={isFavorite}
             />
           </button>
 
@@ -130,7 +122,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
 
           {/* Room Info */}
           <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
-            <Home className="w-3.5 h-3.5 flex-shrink-0" />
+            <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
               {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
             </span>
@@ -138,7 +130,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
 
           {/* Guests */}
           <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
-            <Users className="w-3.5 h-3.5 flex-shrink-0" />
+            <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{room.guests} Guests</span>
           </div>
 
@@ -192,8 +184,9 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
             onClick={handleFavoriteClick}
             className="absolute top-2.5 right-2.5 p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors"
           >
-            <Heart
-              className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+            <HeartIcon
+              className={`w-4 h-4 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
+              filled={isFavorite}
             />
           </button>
 
@@ -228,7 +221,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
 
           {/* Room Info */}
           <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-0.5">
-            <Home className="w-3.5 h-3.5 flex-shrink-0" />
+            <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
               {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
             </span>
@@ -236,7 +229,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
 
           {/* Guests */}
           <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-2">
-            <Users className="w-3.5 h-3.5 flex-shrink-0" />
+            <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{room.guests} Guests</span>
           </div>
 
@@ -274,8 +267,9 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           onClick={handleFavoriteClick}
           className="absolute top-1.5 left-1.5 p-1 bg-white/80 rounded-full hover:bg-white transition-colors"
         >
-          <Heart
-            className={`w-3.5 h-3.5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-500'}`}
+          <HeartIcon
+            className={`w-3.5 h-3.5 ${isFavorite ? 'text-red-500' : 'text-gray-500'}`}
+            filled={isFavorite}
           />
         </button>
       </div>
@@ -304,7 +298,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
         {/* Room Info */}
         <div className="flex items-center gap-1.5 text-[11px] text-[hsl(var(--snug-gray))] mb-0.5">
           <span className="flex items-center gap-0.5">
-            <Home className="w-3 h-3" />
+            <HotelIcon className="w-3 h-3" />
             {room.rooms}R
           </span>
           <span>·</span>
@@ -319,7 +313,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
-            <Users className="w-3 h-3" />
+            <UserIcon className="w-3 h-3" />
             {room.guests}
           </span>
         </div>

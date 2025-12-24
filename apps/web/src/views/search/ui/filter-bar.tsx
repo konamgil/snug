@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { SlidersHorizontal, ChevronDown, LayoutGrid, List } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { FilterIcon, GridViewIcon, ListViewIcon } from '@/shared/ui/icons';
 import { FilterModal, type FilterState } from './filter-modal';
 
 interface FilterBarProps {
@@ -39,7 +40,7 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
         onClick={() => setIsFilterModalOpen(true)}
         className="flex items-center gap-1.5 px-3 py-1.5 border border-[hsl(var(--snug-border))] rounded-full text-xs hover:border-[hsl(var(--snug-gray))] transition-colors whitespace-nowrap"
       >
-        <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" />
+        <FilterIcon className="w-3.5 h-3.5 flex-shrink-0" />
         {t('filters')}
       </button>
 
@@ -82,7 +83,7 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
               : 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]'
           }`}
         >
-          <LayoutGrid className="w-4 h-4" />
+          <GridViewIcon className="w-4 h-4" />
         </button>
         <button
           type="button"
@@ -93,7 +94,7 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
               : 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]'
           }`}
         >
-          <List className="w-4 h-4" />
+          <ListViewIcon className="w-4 h-4" />
         </button>
       </div>
 
