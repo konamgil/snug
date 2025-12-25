@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { AnimateOnScroll, StaggerContainer, StaggerItem } from '@/shared/ui/animation';
 
 export function ValueSection() {
   const t = useTranslations('hostIntro.value');
@@ -32,7 +33,7 @@ export function ValueSection() {
         <div className="relative h-full max-w-[1312px] mx-auto px-5 md:px-8">
           <div className="flex items-end justify-between h-full">
             {/* Left - Text content */}
-            <div className="py-12 md:py-16 max-w-[600px]">
+            <AnimateOnScroll variant="fadeUp" className="py-12 md:py-16 max-w-[600px]">
               {/* Badge */}
               <div className="inline-flex items-center px-4 py-2 bg-white rounded-[20px] mb-6">
                 <span className="text-lg font-bold text-[#ff6901] tracking-[-0.45px]">
@@ -57,26 +58,33 @@ export function ValueSection() {
                 <br className="hidden md:block" />
                 같은 공간에서도 더 높은 수익을 만들어냅니다.
               </p>
-            </div>
+            </AnimateOnScroll>
 
             {/* Right - Buildings: starts 156px below orange bg bottom */}
             {/* Left building: 524px, Right building: 654px */}
-            <div className="hidden lg:flex items-end gap-[26px] translate-y-[156px]">
-              <Image
-                src="/images/host-intro/building-left.svg"
-                alt="Building with various rooms"
-                width={300}
-                height={524}
-                className="h-[524px] w-auto"
-              />
-              <Image
-                src="/images/host-intro/building-right.svg"
-                alt="Building with various rooms"
-                width={350}
-                height={654}
-                className="h-[654px] w-auto"
-              />
-            </div>
+            <StaggerContainer
+              staggerDelay={0.15}
+              className="hidden lg:flex items-end gap-[26px] translate-y-[156px]"
+            >
+              <StaggerItem>
+                <Image
+                  src="/images/host-intro/building-left.svg"
+                  alt="Building with various rooms"
+                  width={300}
+                  height={524}
+                  className="h-[524px] w-auto"
+                />
+              </StaggerItem>
+              <StaggerItem>
+                <Image
+                  src="/images/host-intro/building-right.svg"
+                  alt="Building with various rooms"
+                  width={350}
+                  height={654}
+                  className="h-[654px] w-auto"
+                />
+              </StaggerItem>
+            </StaggerContainer>
           </div>
         </div>
       </div>
@@ -85,22 +93,29 @@ export function ValueSection() {
       <div className="hidden lg:block h-[156px]" />
 
       {/* Mobile buildings - separate section */}
-      <div className="flex lg:hidden items-end justify-center gap-[26px] py-8 bg-white">
-        <Image
-          src="/images/host-intro/building-left.svg"
-          alt="Building with various rooms"
-          width={200}
-          height={350}
-          className="h-[280px] md:h-[350px] w-auto"
-        />
-        <Image
-          src="/images/host-intro/building-right.svg"
-          alt="Building with various rooms"
-          width={225}
-          height={420}
-          className="h-[350px] md:h-[420px] w-auto"
-        />
-      </div>
+      <StaggerContainer
+        staggerDelay={0.15}
+        className="flex lg:hidden items-end justify-center gap-[26px] py-8 bg-white"
+      >
+        <StaggerItem>
+          <Image
+            src="/images/host-intro/building-left.svg"
+            alt="Building with various rooms"
+            width={200}
+            height={350}
+            className="h-[280px] md:h-[350px] w-auto"
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <Image
+            src="/images/host-intro/building-right.svg"
+            alt="Building with various rooms"
+            width={225}
+            height={420}
+            className="h-[350px] md:h-[420px] w-auto"
+          />
+        </StaggerItem>
+      </StaggerContainer>
     </section>
   );
 }

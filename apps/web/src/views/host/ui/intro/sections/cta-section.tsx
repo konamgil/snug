@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Heart } from 'lucide-react';
+import { AnimateOnScroll } from '@/shared/ui/animation';
 
 export function CtaSection() {
   const t = useTranslations('hostIntro.cta');
@@ -12,16 +13,20 @@ export function CtaSection() {
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Top Text */}
-        <div className="text-center mb-8">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-8">
           <h2 className="text-[hsl(var(--snug-text-primary))] text-[1.75rem] font-medium">
             {t('titlePrefix')}
             <span className="text-[#FF6700]">{t('titleHighlight')}</span>
             {t('titleSuffix')}
           </h2>
-        </div>
+        </AnimateOnScroll>
 
         {/* Welcome Snug Logo */}
-        <div className="flex items-center justify-center mb-12">
+        <AnimateOnScroll
+          variant="scale"
+          delay={0.1}
+          className="flex items-center justify-center mb-12"
+        >
           <Image
             src="/images/logo/logo-welcome-snug.svg"
             alt="Welcome Snug"
@@ -29,10 +34,14 @@ export function CtaSection() {
             height={80}
             className="h-auto w-[37.22606rem]"
           />
-        </div>
+        </AnimateOnScroll>
 
         {/* Illustration Container */}
-        <div className="relative max-w-[814px] mx-auto mb-12">
+        <AnimateOnScroll
+          variant="fadeUp"
+          delay={0.2}
+          className="relative max-w-[814px] mx-auto mb-12"
+        >
           <div className="relative aspect-[2/1] rounded-[2rem] overflow-hidden border-2 border-[#E5E5E5] bg-gradient-to-br from-amber-50 to-orange-50">
             {/* Background illustration */}
             <Image
@@ -50,17 +59,17 @@ export function CtaSection() {
             {/* Overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
           </div>
-        </div>
+        </AnimateOnScroll>
 
         {/* CTA Button */}
-        <div className="flex justify-center">
+        <AnimateOnScroll variant="fadeUp" delay={0.3} className="flex justify-center">
           <Link
             href="/host"
             className="inline-flex items-center justify-center px-8 py-4 bg-[hsl(var(--snug-orange))] text-white text-lg font-semibold rounded-full hover:bg-[hsl(var(--snug-orange))]/90 transition-colors shadow-lg shadow-[hsl(var(--snug-orange))]/30"
           >
             {t('button')}
           </Link>
-        </div>
+        </AnimateOnScroll>
       </div>
     </section>
   );

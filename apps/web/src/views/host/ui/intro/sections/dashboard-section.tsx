@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { SpeechBubbleIcon } from '@/shared/ui/icons';
+import { AnimateOnScroll } from '@/shared/ui/animation';
 
 export function DashboardSection() {
   const t = useTranslations('hostIntro.dashboard');
@@ -11,7 +12,7 @@ export function DashboardSection() {
     <section className="pt-12 md:pt-16 pb-24 md:pb-40 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Section Heading */}
-        <div className="text-center mb-40 md:mb-52">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-40 md:mb-52">
           {/* Speech bubble icon */}
           <div className="flex items-center justify-center mb-4">
             <SpeechBubbleIcon />
@@ -22,14 +23,18 @@ export function DashboardSection() {
             <span className="text-[#FF6700] font-bold">{t('titleHighlight')}</span>
             {t('titleSuffix')}
           </h2>
-        </div>
+        </AnimateOnScroll>
 
         {/* Dashboard Preview Container */}
         <div className="relative">
           {/* Dashboard Layout */}
           <div className="relative max-w-[1218px] mx-auto">
             {/* Sidebar Zoom Circle - Hidden on mobile */}
-            <div className="hidden md:block absolute -left-[10px] lg:left-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20">
+            <AnimateOnScroll
+              variant="scale"
+              delay={0.2}
+              className="hidden md:block absolute -left-[10px] lg:left-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
+            >
               {/* Orange dashed border */}
               <div className="absolute inset-0 rounded-full border-2 border-[#FF8200] border-dashed" />
               {/* Circle with zoomed sidebar */}
@@ -53,10 +58,14 @@ export function DashboardSection() {
                   {t('zoomDescriptionLine2')}
                 </p>
               </div>
-            </div>
+            </AnimateOnScroll>
 
             {/* Dashboard Screenshot */}
-            <div className="relative z-10 max-w-[950px] mx-auto">
+            <AnimateOnScroll
+              variant="fadeUp"
+              delay={0.1}
+              className="relative z-10 max-w-[950px] mx-auto"
+            >
               <Image
                 src="/images/host-intro/dashboard-preview.png"
                 alt="Snug Host Dashboard Preview"
@@ -65,15 +74,17 @@ export function DashboardSection() {
                 className="w-full h-auto"
                 priority
               />
-            </div>
+            </AnimateOnScroll>
           </div>
 
           {/* Description */}
-          <p className="text-center text-sm md:text-base text-[#A8A8A8] mt-8 max-w-[625px] mx-auto leading-relaxed">
-            {t('descriptionLine1')}
-            <br />
-            {t('descriptionLine2')}
-          </p>
+          <AnimateOnScroll variant="fadeUp" delay={0.3}>
+            <p className="text-center text-sm md:text-base text-[#A8A8A8] mt-8 max-w-[625px] mx-auto leading-relaxed">
+              {t('descriptionLine1')}
+              <br />
+              {t('descriptionLine2')}
+            </p>
+          </AnimateOnScroll>
         </div>
       </div>
     </section>

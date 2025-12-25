@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { AnimateOnScroll } from '@/shared/ui/animation';
 
 export function OperationsSection() {
   const t = useTranslations('hostIntro.operations');
@@ -14,7 +15,11 @@ export function OperationsSection() {
           {/* Dashboard Layout */}
           <div className="relative max-w-[1218px] mx-auto">
             {/* Zoom Circle - Hidden on mobile, positioned on RIGHT */}
-            <div className="hidden md:block absolute -right-[10px] lg:right-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20">
+            <AnimateOnScroll
+              variant="scale"
+              delay={0.2}
+              className="hidden md:block absolute -right-[10px] lg:right-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
+            >
               {/* Orange dashed border */}
               <div className="absolute inset-0 rounded-full border-2 border-[#FF6700] border-dashed" />
               {/* Circle with zoomed content */}
@@ -38,10 +43,14 @@ export function OperationsSection() {
                   {t('titleLine2')}
                 </p>
               </div>
-            </div>
+            </AnimateOnScroll>
 
             {/* Operations Screenshot */}
-            <div className="relative z-10 max-w-[950px] mx-auto">
+            <AnimateOnScroll
+              variant="fadeUp"
+              delay={0.1}
+              className="relative z-10 max-w-[950px] mx-auto"
+            >
               <Image
                 src="/images/host-intro/operations-dashboard.png"
                 alt="Snug Host Operations Preview"
@@ -50,15 +59,17 @@ export function OperationsSection() {
                 className="w-full h-auto"
                 priority
               />
-            </div>
+            </AnimateOnScroll>
           </div>
 
           {/* Description */}
-          <p className="text-center text-sm md:text-base text-[#A8A8A8] mt-8 max-w-[625px] mx-auto leading-relaxed">
-            {t('descriptionLine1')}
-            <br />
-            {t('descriptionLine2')}
-          </p>
+          <AnimateOnScroll variant="fadeUp" delay={0.3}>
+            <p className="text-center text-sm md:text-base text-[#A8A8A8] mt-8 max-w-[625px] mx-auto leading-relaxed">
+              {t('descriptionLine1')}
+              <br />
+              {t('descriptionLine2')}
+            </p>
+          </AnimateOnScroll>
         </div>
       </div>
     </section>

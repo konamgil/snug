@@ -1,6 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { AnimateOnScroll, StaggerContainer, StaggerItem } from '@/shared/ui/animation';
+import { SpeechBubbleIcon } from '@/shared/ui/icons';
 
 interface ProcessCard {
   icon: React.ReactNode;
@@ -124,21 +126,10 @@ export function ProcessSection() {
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Section Heading */}
-        <div className="text-center mb-12 md:mb-16">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-12 md:mb-16">
           {/* Speech bubble icon */}
           <div className="flex items-center justify-center mb-4">
-            <svg
-              width="20"
-              height="25"
-              viewBox="0 0 20 25"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.938 3.74098C15.9917 1.18444 13.1349 0.179289 10.431 0.0206368C7.21447 -0.166765 3.99173 0.90547 1.75504 3.922C0.393798 5.75874 0.0640827 7.73072 0 10.0573C0 16.3022 5.43256 18.7033 8.99121 18.9471C10.5209 19.0515 10.801 18.9386 11.5742 18.8758C11.5742 18.8758 10.1075 20.0492 8.85995 20.9415C8.40103 21.2694 7.95659 21.8188 8.42171 22.6132C8.72041 23.1232 9.36744 24.1092 9.68372 24.6075C10.0062 25.1165 10.8351 25.1782 11.5463 24.5117C13.4884 22.6898 14.616 21.4707 16.0641 19.7521C17.6879 17.827 18.9871 15.9711 19.7209 12.5009C20.2295 10.0967 20.2625 6.79371 17.939 3.74098H17.938Z"
-                fill="#FF8200"
-              />
-            </svg>
+            <SpeechBubbleIcon />
           </div>
           <p className="text-sm text-[hsl(var(--snug-text-primary))] font-medium mb-2">
             {t('subtitle')}
@@ -148,53 +139,55 @@ export function ProcessSection() {
             <span className="text-[#FF8200]">{t('titleHighlight')}</span>
             {t('titleSuffix')}
           </h2>
-        </div>
+        </AnimateOnScroll>
 
         {/* Process Cards */}
         <div className="relative">
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <StaggerContainer
+            staggerDelay={0.12}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+          >
             {cards.map((card, index) => (
-              <div
-                key={index}
-                className="relative bg-white border border-[hsl(var(--snug-border))] rounded-2xl p-6 hover:shadow-lg hover:border-[hsl(var(--snug-orange))] transition-all duration-300 group"
-              >
-                {/* Icon */}
-                <div className="mb-4">{card.icon}</div>
+              <StaggerItem key={index}>
+                <div className="relative h-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl p-6 hover:shadow-lg hover:border-[hsl(var(--snug-orange))] transition-all duration-300 group">
+                  {/* Icon */}
+                  <div className="mb-4">{card.icon}</div>
 
-                {/* Title */}
-                <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-3">
-                  {card.title}
-                </h3>
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+                    {card.title}
+                  </h3>
 
-                {/* Description */}
-                <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
-                  {card.description}
-                </p>
+                  {/* Description */}
+                  <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
+                    {card.description}
+                  </p>
 
-                {/* Arrow connector for desktop (except last card) */}
-                {index < cards.length - 1 && (
-                  <div className="hidden lg:block absolute -right-3 top-1/2 transform -translate-y-1/2 z-10">
-                    <div className="w-6 h-6 bg-[hsl(var(--snug-orange))] rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                  {/* Arrow connector for desktop (except last card) */}
+                  {index < cards.length - 1 && (
+                    <div className="hidden lg:block absolute -right-3 top-1/2 transform -translate-y-1/2 z-10">
+                      <div className="w-6 h-6 bg-[hsl(var(--snug-orange))] rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </div>
     </section>

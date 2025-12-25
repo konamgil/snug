@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { SpeechBubbleIcon } from '@/shared/ui/icons';
+import { AnimateOnScroll } from '@/shared/ui/animation';
 
 interface Slide {
   keyword: string;
@@ -55,13 +56,20 @@ export function HeroSection() {
       {/* Background Illustration - Combined SVG */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="relative max-w-[1312px] mx-auto px-5 md:px-8 h-full flex items-end justify-center">
-          <div className="w-full h-[65%] md:h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat" />
+          <AnimateOnScroll
+            variant="fadeIn"
+            delay={0.2}
+            className="w-full h-[65%] md:h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat"
+          />
         </div>
       </div>
 
       {/* Content */}
       <div className="relative z-30 max-w-[1312px] mx-auto px-5 md:px-8 h-full">
-        <div className="flex flex-col justify-center h-full pt-20 pb-[300px] md:pb-[350px] lg:pb-20">
+        <AnimateOnScroll
+          variant="fadeUp"
+          className="flex flex-col justify-center h-full pt-20 pb-[300px] md:pb-[350px] lg:pb-20"
+        >
           {/* Speech bubble icons */}
           <div className="flex items-center gap-1 mb-4">
             <SpeechBubbleIcon
@@ -103,7 +111,7 @@ export function HeroSection() {
           >
             {t('cta')}
           </Link>
-        </div>
+        </AnimateOnScroll>
       </div>
     </section>
   );

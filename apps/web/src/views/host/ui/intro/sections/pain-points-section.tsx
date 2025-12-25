@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { PainPointsBuildingIcon, BubbleTailIcon } from '@/shared/ui/icons';
+import { AnimateOnScroll } from '@/shared/ui/animation';
 
 export function PainPointsSection() {
   const t = useTranslations('hostIntro.painPoints');
@@ -11,7 +12,7 @@ export function PainPointsSection() {
     <section className="relative pt-16 md:pt-24 pb-32 md:pb-40 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Section Heading */}
-        <div className="text-center mb-12 md:mb-16">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-12 md:mb-16">
           {/* Building icon */}
           <div className="flex items-center justify-center mb-4">
             <PainPointsBuildingIcon />
@@ -26,7 +27,7 @@ export function PainPointsSection() {
             <span className="text-[#EF8BAC] font-bold">{t('title.highlight3')}</span>
             {t('title.text3')}
           </h2>
-        </div>
+        </AnimateOnScroll>
 
         {/* Illustrations with Speech Bubbles */}
         {/* Mobile: Vertical stack (< 768px) */}
@@ -132,7 +133,11 @@ export function PainPointsSection() {
         {/* Desktop: Side by side full (>= 1024px) */}
         <div className="hidden lg:flex justify-center items-end">
           {/* Left Group: Woman + Orange Bubble */}
-          <div className="relative w-auto self-end translate-y-[130px]">
+          <AnimateOnScroll
+            variant="slideRight"
+            delay={0.1}
+            className="relative w-auto self-end translate-y-[130px]"
+          >
             {/* Orange Speech Bubble - positioned above woman */}
             <div className="absolute bottom-[90%] -left-[10%] z-10 w-[374px]">
               <div className="relative bg-white rounded-2xl border-2 border-[#FF8200] p-5">
@@ -156,10 +161,14 @@ export function PainPointsSection() {
               height={502}
               className="h-[500px] object-contain"
             />
-          </div>
+          </AnimateOnScroll>
 
           {/* Right Group: Man + Pink Bubble */}
-          <div className="relative w-auto self-end -ml-[5%] mt-[100px]">
+          <AnimateOnScroll
+            variant="slideLeft"
+            delay={0.2}
+            className="relative w-auto self-end -ml-[5%] mt-[100px]"
+          >
             {/* Pink Speech Bubble - positioned above man */}
             <div className="absolute bottom-[95%] right-0 z-10 w-[408px]">
               <div className="relative bg-white rounded-2xl border-2 border-[#EF8BAC] p-5">
@@ -183,7 +192,7 @@ export function PainPointsSection() {
               height={566}
               className="h-[566px] object-contain"
             />
-          </div>
+          </AnimateOnScroll>
         </div>
       </div>
     </section>
