@@ -193,7 +193,10 @@
       "showMore": "Show more",
       "showLess": "Show less",
       "agreeMarketing": "I want to receive marketing emails. (optional)",
-      "continue": "Continue"
+      "continue": "Continue",
+      "signupSuccess": "Account created successfully!",
+      "checkEmail": "Please check your email to verify your account.",
+      "goToLogin": "Go to Login"
     }
   },
   "profile": {
@@ -382,6 +385,119 @@
       "currencyJPY": "Japanese yen",
       "currencyCNY": "Chinese Yuan",
       "currencyEUR": "Euro"
+    }
+  },
+  "hostIntro": {
+    "hero": {
+      "titlePrefix": "Got a space but",
+      "titleSuffix": "worried about",
+      "cta": "Start Hosting",
+      "slides": {
+        "0": {
+          "keyword": "management",
+          "description": "From reservations to guest support, minimize your management time across the entire process."
+        },
+        "1": {
+          "keyword": "revenue",
+          "description": "When you reduce hassle, revenue naturally increases."
+        },
+        "2": {
+          "keyword": "vacancies",
+          "description": "Connect with long-term foreign resident demand and operate worry-free without vacancy concerns."
+        }
+      }
+    },
+    "painPoints": {
+      "title": {
+        "highlight1": "",
+        "text1": "Different hosting ",
+        "highlight2": "experiences",
+        "text2": ",",
+        "prefix3": "but similar ",
+        "highlight3": "concerns",
+        "text3": ""
+      },
+      "bubbles": {
+        "0": {
+          "headline": "Everything is unfamiliar since it's my first time.",
+          "body": "Looking up tutorials, creating manuals,\nhandling guests—I don't know where to start."
+        },
+        "1": {
+          "headline": "I didn't expect operations to be this complicated.",
+          "body": "I'm always anxious because I have to double-check\neverything myself, worried small mistakes could lead to big problems."
+        }
+      }
+    },
+    "value": {
+      "badge": "Same space, different returns",
+      "title": {
+        "line1": "When operations become easier,",
+        "line2": "revenue naturally rises."
+      },
+      "description": "As operations get more complex, unnecessary costs increase and growth opportunities decrease. Snug simplifies the entire process, minimizing waste and maximizing efficiency, creating higher returns from the same space."
+    },
+    "process": {
+      "subtitle": "Connection, Operations & Admin in One!",
+      "titlePrefix": "Snug's ",
+      "titleHighlight": "One-Step",
+      "titleSuffix": " Process",
+      "cards": {
+        "0": {
+          "title": "Foreign Guest Channels",
+          "description": "We open up foreign customer acquisition channels for hosts who have space but lack connection methods."
+        },
+        "1": {
+          "title": "Enhanced Foreign Matching",
+          "description": "We stably connect long-term foreign demand that's difficult on other platforms."
+        },
+        "2": {
+          "title": "Operations & CS Support",
+          "description": "With 10 years of operational experience and multilingual CS, we help from real-time response to problem resolution."
+        },
+        "3": {
+          "title": "Simplified Admin & Procedures",
+          "description": "We simplify complex administrative terms and procedures to reduce confusion for foreigners."
+        }
+      }
+    },
+    "dashboard": {
+      "titleLine1": "Now, like this",
+      "titleHighlight": "Manage",
+      "titleSuffix": " it",
+      "dashboardLabel": "Dashboard",
+      "zoomDescriptionLine1": "All operational info",
+      "zoomDescriptionLine2": "at a glance",
+      "descriptionLine1": "From house operations to sales, contracts, check-in status, and even refunds and cancellations!",
+      "descriptionLine2": "View and manage your entire operation at a glance from the host dashboard."
+    },
+    "operations": {
+      "label": "House Operations Management",
+      "titleLine1": "Outsourcing & Vendor Management",
+      "titleLine2": "Now in Platform",
+      "zoomLabel": "Customer Inquiry Details",
+      "zoomDescriptionLine1": "View customer requests",
+      "zoomDescriptionLine2": "at a glance",
+      "descriptionLine1": "Manage multiple vendors in one place with Snug.",
+      "descriptionLine2": "No more back-and-forth communication—request, accept, and record everything automatically with just one click."
+    },
+    "eligibility": {
+      "title": "Can I register my space?",
+      "subtitle": "Anyone with a licensed accommodation or residential space available for 14+ day rentals can register.",
+      "cards": {
+        "0": {
+          "title": "Short-term Accommodation",
+          "description": "Residential spaces with business permits like goshiwon, hotels, co-living"
+        },
+        "1": {
+          "title": "Long-term Residential",
+          "description": "Residential spaces available for 14+ day rentals like officetel, studio, apartment, house"
+        }
+      }
+    },
+    "cta": {
+      "subtitle": "Start your easier hosting journey with Snug",
+      "title": "Start your easier hosting journey with Snug",
+      "button": "Start Hosting"
     }
   },
   "roomDetail": {

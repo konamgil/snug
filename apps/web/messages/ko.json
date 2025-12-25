@@ -193,7 +193,10 @@
       "showMore": "더 보기",
       "showLess": "접기",
       "agreeMarketing": "마케팅 이메일 수신에 동의합니다. (선택)",
-      "continue": "계속하기"
+      "continue": "계속하기",
+      "signupSuccess": "계정이 생성되었습니다!",
+      "checkEmail": "이메일을 확인하여 계정을 인증해주세요.",
+      "goToLogin": "로그인하기"
     }
   },
   "profile": {
@@ -407,5 +410,123 @@
     "serviceFee": "서비스 수수료",
     "total": "총액",
     "perNight": "/ 박"
+  },
+  "hostIntro": {
+    "hero": {
+      "titlePrefix": "공간은 있는데",
+      "titleSuffix": "고민이라면?",
+      "cta": "호스팅하기",
+      "slides": {
+        "0": {
+          "keyword": "운영",
+          "description": "예약부터 고객 응대까지 전 과정에서 관리 시간을 최소화할 수 있어요."
+        },
+        "1": {
+          "keyword": "수익",
+          "description": "번거로운 운영을 줄이면, 수익은 자연스럽게 올라요."
+        },
+        "2": {
+          "keyword": "공실",
+          "description": "외국인 장기거주 수요와 연결해 공실 걱정 없이 안정적으로 운영할 수 있어요."
+        }
+      }
+    },
+    "painPoints": {
+      "title": {
+        "highlight1": "복잡한",
+        "text1": " 숙소 운영 ",
+        "highlight2": "경험",
+        "text2": "은 달라도",
+        "prefix3": "",
+        "highlight3": "고민",
+        "text3": "은 닮아있습니다"
+      },
+      "bubbles": {
+        "0": {
+          "headline": "처음이라 모든 게 낯설어요.",
+          "body": "강의 찾아보고 매뉴얼도 만들고\n손님 대응까지, 어떻게 시작해야 할지 막막해요."
+        },
+        "1": {
+          "headline": "운영이 이렇게 번거로울 줄 몰랐어요.",
+          "body": "작은 실수가 큰 문제로 이어질까 봐,\n항상 제가 먼저 확인해야 해서 늘 불안해요."
+        }
+      }
+    },
+    "value": {
+      "badge": "같은 공간, 다른 수익률",
+      "title": {
+        "line1": "운영이 쉬워지면,",
+        "line2": "수익은 자연스럽게 올라요."
+      },
+      "description": "운영이 복잡해질수록 불필요한 비용은 늘고 성장 기회는 줄어듭니다. 스너그는 전 과정을 단순화해 낭비를 최소화하고 효율을 극대화함으로써, 같은 공간에서도 더 높은 수익을 만들어냅니다."
+    },
+    "process": {
+      "subtitle": "연결·운영·행정을 한 번에!",
+      "titlePrefix": "스너그만의 ",
+      "titleHighlight": "원스텝",
+      "titleSuffix": " 프로세스",
+      "cards": {
+        "0": {
+          "title": "외국인 수요 채널 확보",
+          "description": "공간은 있지만 연결 방법이 부족한 호스트에게 외국인 고객 유입 경로를 열어드려요."
+        },
+        "1": {
+          "title": "외국인 매칭 강화",
+          "description": "다른 플랫폼에서는 어려운 외국인 장기 수요도 안정적으로 연결해드려요."
+        },
+        "2": {
+          "title": "운영·CS 전담 지원",
+          "description": "10년 운영 경험과 외국어 전담 CS로 실시간 응대부터 문제 해결까지 도와드려요."
+        },
+        "3": {
+          "title": "행정·절차 간소화",
+          "description": "복잡한 행정 용어와 절차를 외국인이 이해하기 쉽게 간소화 시켜 혼란을 줄여요."
+        }
+      }
+    },
+    "dashboard": {
+      "titleLine1": "이제는 이렇게",
+      "titleHighlight": "운영",
+      "titleSuffix": "하세요",
+      "dashboardLabel": "대시보드",
+      "zoomDescriptionLine1": "운영에 필요한",
+      "zoomDescriptionLine2": "정보들을 한 눈에",
+      "descriptionLine1": "하우스 운영부터 매출, 계약, 체크인 현황은 물론, 환불·취소까지!",
+      "descriptionLine2": "호스트 대시보드에서 운영 전반을 한눈에 확인하고 간편하게 관리하세요."
+    },
+    "operations": {
+      "label": "하우스 운영 관리",
+      "titleLine1": "외주·위탁 관리도",
+      "titleLine2": "이제 플랫폼 안에서",
+      "zoomLabel": "고객 문의 내용 상세",
+      "zoomDescriptionLine1": "고객 요청사항을",
+      "zoomDescriptionLine2": "한눈에 확인",
+      "descriptionLine1": "여러 협력업체 관리도 이제 스너그에서 한 번에.",
+      "descriptionLine2": "호스트가 일일이 소통할 필요없이, 클릭 한 번에 요청·수락·기록이 모두 자동 처리됩니다."
+    },
+    "eligibility": {
+      "titleHighlight": "내 공간",
+      "titleSuffix": "도 등록할 수 있을까요?",
+      "subtitleLine1": "영업 허가 숙소나 14일 이상 임대 가능한",
+      "subtitleLine2": "주거용 공간이라면 누구나 등록할 수 있어요.",
+      "cards": {
+        "0": {
+          "title": "단기 숙박업 시설",
+          "descriptionLine1": "고시원·호텔·공유리빙 등",
+          "descriptionLine2": "영업허가증이 있는 주거 공간"
+        },
+        "1": {
+          "title": "장기 거주형 공간",
+          "descriptionLine1": "오피스텔·원룸·아파트·주택 등",
+          "descriptionLine2": "14일 이상 임대 가능한 거주형 공간"
+        }
+      }
+    },
+    "cta": {
+      "titlePrefix": "더 간편해진 호스팅, ",
+      "titleHighlight": "스너그",
+      "titleSuffix": "로 시작하세요",
+      "button": "호스팅하기"
+    }
   }
 }
