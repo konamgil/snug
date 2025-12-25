@@ -27,3 +27,6 @@ export { VisaIcon } from './visa-icon';
 export { ApplePayIcon } from './apple-pay-icon';
 export { AliPayIcon } from './ali-pay-icon';
 export { WeChatPayIcon } from './wechat-pay-icon';
+export { SpeechBubbleIcon } from './speech-bubble-icon';
+export { BubbleTailIcon } from './bubble-tail-icon';
+export { PainPointsBuildingIcon } from './pain-points-building-icon';

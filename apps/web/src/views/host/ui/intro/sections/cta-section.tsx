@@ -13,10 +13,7 @@ export function CtaSection() {
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Top Text */}
         <div className="text-center mb-8">
-          <h2
-            className="text-[hsl(var(--snug-text-primary))]"
-            style={{ fontSize: '1.75rem', fontWeight: 500 }}
-          >
+          <h2 className="text-[hsl(var(--snug-text-primary))] text-[1.75rem] font-medium">
             {t('titlePrefix')}
             <span className="text-[#FF6700]">{t('titleHighlight')}</span>
             {t('titleSuffix')}
@@ -30,8 +27,7 @@ export function CtaSection() {
             alt="Welcome Snug"
             width={596}
             height={80}
-            className="h-auto"
-            style={{ width: '37.22606rem' }}
+            className="h-auto w-[37.22606rem]"
           />
         </div>
 

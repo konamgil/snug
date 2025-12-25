@@ -31,13 +31,8 @@ export function OperationsSection() {
               </div>
               {/* Zoom description text - positioned to the LEFT of the circle */}
               <div className="absolute right-[100%] lg:right-[105%] top-[10%] whitespace-nowrap text-right">
-                <p className="text-[#FF6700] mb-1" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                  {t('label')}
-                </p>
-                <p
-                  className="text-[hsl(var(--snug-text-primary))] leading-tight"
-                  style={{ fontSize: '1.625rem', fontWeight: 500 }}
-                >
+                <p className="text-[#FF6700] mb-1 text-xl font-bold">{t('label')}</p>
+                <p className="text-[hsl(var(--snug-text-primary))] leading-tight text-[1.625rem] font-medium">
                   {t('titleLine1')}
                   <br />
                   {t('titleLine2')}
