@@ -55,7 +55,7 @@ export function HeroSection() {
       {/* Background Illustration - Combined SVG */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="relative max-w-[1312px] mx-auto px-5 md:px-8 h-full flex items-end justify-center">
-          <div className="w-full h-[55%] md:h-[70%] lg:h-[85%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-center bg-no-repeat" />
+          <div className="w-full h-[65%] md:h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat" />
         </div>
       </div>
 
@@ -91,8 +91,8 @@ export function HeroSection() {
             </h1>
           </div>
 
-          {/* Description */}
-          <p className="text-sm md:text-base text-[hsl(var(--snug-gray))] max-w-[400px] mb-8 transition-all duration-300">
+          {/* Description - fixed height to prevent button position shift */}
+          <p className="text-sm md:text-base text-[hsl(var(--snug-gray))] max-w-[400px] min-h-[48px] md:min-h-[56px] mb-8 whitespace-pre-line transition-all duration-300">
             {slides[currentSlide]?.description ?? ''}
           </p>
 
