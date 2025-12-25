@@ -137,20 +137,20 @@ export function ProcessSection() {
           <h2 className="text-2xl md:text-[32px] font-bold leading-tight text-[hsl(var(--snug-text-primary))]">
             {t('titlePrefix')}
             <span className="text-[#FF8200]">{t('titleHighlight')}</span>
+            <br className="md:hidden" />
             {t('titleSuffix')}
           </h2>
         </AnimateOnScroll>
 
         {/* Process Cards */}
         <div className="relative">
-          {/* Cards Grid */}
           <StaggerContainer
             staggerDelay={0.12}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6"
           >
             {cards.map((card, index) => (
               <StaggerItem key={index}>
-                <div className="relative h-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl p-6 hover:shadow-lg hover:border-[hsl(var(--snug-orange))] transition-all duration-300 group">
+                <div className="relative h-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl p-5 md:p-6 hover:shadow-lg hover:border-[hsl(var(--snug-orange))] transition-all duration-300 group">
                   {/* Icon */}
                   <div className="mb-4">{card.icon}</div>
 

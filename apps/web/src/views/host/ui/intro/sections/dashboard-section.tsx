@@ -7,12 +7,13 @@ import { AnimateOnScroll } from '@/shared/ui/animation';
 
 export function DashboardSection() {
   const t = useTranslations('hostIntro.dashboard');
+  const tOperations = useTranslations('hostIntro.operations');
 
   return (
     <section className="pt-12 md:pt-16 pb-24 md:pb-40 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Section Heading */}
-        <AnimateOnScroll variant="fadeUp" className="text-center mb-40 md:mb-52">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-12 md:mb-52">
           {/* Speech bubble icon */}
           <div className="flex items-center justify-center mb-4">
             <SpeechBubbleIcon />
@@ -25,15 +26,15 @@ export function DashboardSection() {
           </h2>
         </AnimateOnScroll>
 
-        {/* Dashboard Preview Container */}
-        <div className="relative">
+        {/* Desktop: Dashboard Preview Container */}
+        <div className="hidden md:block relative">
           {/* Dashboard Layout */}
           <div className="relative max-w-[1218px] mx-auto">
-            {/* Sidebar Zoom Circle - Hidden on mobile */}
+            {/* Sidebar Zoom Circle */}
             <AnimateOnScroll
               variant="scale"
               delay={0.2}
-              className="hidden md:block absolute -left-[10px] lg:left-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
+              className="absolute -left-[10px] lg:left-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
             >
               {/* Orange dashed border */}
               <div className="absolute inset-0 rounded-full border-2 border-[#FF8200] border-dashed" />
@@ -83,6 +84,77 @@ export function DashboardSection() {
               {t('descriptionLine1')}
               <br />
               {t('descriptionLine2')}
+            </p>
+          </AnimateOnScroll>
+        </div>
+
+        {/* Mobile: Two sections with iPhone mockups */}
+        <div className="md:hidden space-y-20">
+          {/* Dashboard Section */}
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center mb-6">
+              <p className="text-[#FF8200] text-lg font-bold mb-2">{t('dashboardLabel')}</p>
+              <h3 className="text-xl font-medium text-[hsl(var(--snug-text-primary))] leading-tight">
+                {t('zoomDescriptionLine1')}
+                <br />
+                {t('zoomDescriptionLine2')}
+              </h3>
+            </div>
+
+            {/* Dashboard Illustration */}
+            <div className="relative flex justify-center mb-8">
+              <Image
+                src="/images/host-intro/process-mobile-dashboard.png"
+                alt="Dashboard Preview"
+                width={350}
+                height={427}
+                className="w-full max-w-[300px] h-auto"
+              />
+            </div>
+
+            {/* Dashboard Description */}
+            <p className="text-sm text-[hsl(var(--snug-gray))] text-center leading-relaxed">
+              하우스 운영부터 매출, 계약,
+              <br />
+              체크인 현황은 물론, 환불·취소까지!
+              <br />
+              호스트 대시보드에서 운영 전반을
+              <br />
+              한눈에 확인하고 간편하게 관리하세요.
+            </p>
+          </AnimateOnScroll>
+
+          {/* Operations Section */}
+          <AnimateOnScroll variant="fadeUp">
+            <div className="text-center mb-6">
+              <p className="text-[#FF8200] text-lg font-bold mb-2">{tOperations('label')}</p>
+              <h3 className="text-xl font-medium text-[hsl(var(--snug-text-primary))] leading-tight">
+                {tOperations('titleLine1')}
+                <br />
+                {tOperations('titleLine2')}
+              </h3>
+            </div>
+
+            {/* Operations Illustration */}
+            <div className="relative flex justify-center mb-8">
+              <Image
+                src="/images/host-intro/process-mobile-operations.png"
+                alt="Operations Preview"
+                width={350}
+                height={426}
+                className="w-full max-w-[300px] h-auto"
+              />
+            </div>
+
+            {/* Operations Description */}
+            <p className="text-sm text-[hsl(var(--snug-gray))] text-center leading-relaxed">
+              여러 협력업체 관리도 이제 스너그에서 한 번에.
+              <br />
+              호스트가 일일이 소통할 필요없이,
+              <br />
+              클릭 한 번에 요청·수락·기록이
+              <br />
+              모두 자동 처리됩니다.
             </p>
           </AnimateOnScroll>
         </div>

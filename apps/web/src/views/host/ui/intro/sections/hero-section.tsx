@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import Image from 'next/image';
 import { SpeechBubbleIcon } from '@/shared/ui/icons';
 import { AnimateOnScroll } from '@/shared/ui/animation';
 
@@ -52,23 +53,23 @@ export function HeroSection() {
   }, [nextSlide]);
 
   return (
-    <section className="relative min-h-[708px] overflow-hidden bg-white">
-      {/* Background Illustration - Combined SVG */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section className="relative md:min-h-[708px] overflow-hidden bg-white">
+      {/* Background Illustration - Desktop */}
+      <div className="hidden md:block absolute inset-0 pointer-events-none">
         <div className="relative max-w-[1312px] mx-auto px-5 md:px-8 h-full flex items-end justify-center">
           <AnimateOnScroll
             variant="fadeIn"
             delay={0.2}
-            className="w-full h-[65%] md:h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat"
+            className="w-full h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat"
           />
         </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-30 max-w-[1312px] mx-auto px-5 md:px-8 h-full">
+      <div className="relative z-30 max-w-[1312px] mx-auto px-5 md:px-8">
         <AnimateOnScroll
           variant="fadeUp"
-          className="flex flex-col justify-center h-full pt-20 pb-[300px] md:pb-[350px] lg:pb-20"
+          className="flex flex-col justify-center pt-4 md:pt-20 pb-8 md:pb-[350px] lg:pb-20"
         >
           {/* Speech bubble icons */}
           <div className="flex items-center gap-1 mb-4">
@@ -107,12 +108,24 @@ export function HeroSection() {
           {/* CTA Button */}
           <Link
             href="/host"
-            className={`inline-flex items-center justify-center w-fit px-6 py-3 text-white text-sm font-medium rounded-full transition-all duration-300 hover:opacity-90 ${slides[currentSlide]?.bgColor ?? 'bg-[#FF8200]'}`}
+            className={`inline-flex items-center justify-center w-full md:w-fit px-6 py-3.5 md:py-3 text-white text-base md:text-sm font-medium rounded-full transition-all duration-300 hover:opacity-90 ${slides[currentSlide]?.bgColor ?? 'bg-[#FF8200]'}`}
           >
             {t('cta')}
           </Link>
         </AnimateOnScroll>
       </div>
+
+      {/* Mobile Illustration - Below content */}
+      <AnimateOnScroll variant="fadeIn" delay={0.2} className="md:hidden w-full">
+        <Image
+          src="/images/host-intro/hero-mobile.svg"
+          alt="Hero illustration"
+          width={390}
+          height={915}
+          className="w-full h-auto"
+          priority
+        />
+      </AnimateOnScroll>
     </section>
   );
 }

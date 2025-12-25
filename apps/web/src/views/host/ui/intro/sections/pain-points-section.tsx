@@ -31,7 +31,7 @@ export function PainPointsSection() {
 
         {/* Illustrations with Speech Bubbles */}
         {/* Mobile: Vertical stack (< 768px) */}
-        <div className="flex flex-col items-center gap-8 md:hidden">
+        <div className="flex flex-col items-center gap-12 md:hidden">
           {/* Pink Bubble + Man (first on mobile) */}
           <div className="relative w-full max-w-[340px]">
             <div className="relative bg-white rounded-2xl border-2 border-[#EF8BAC] p-4 mb-4">

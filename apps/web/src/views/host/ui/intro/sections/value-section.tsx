@@ -18,8 +18,8 @@ export function ValueSection() {
         }}
       />
 
-      {/* Main content area with orange background - fixed 428px height */}
-      <div className="relative h-[428px]">
+      {/* Main content area with orange background */}
+      <div className="relative h-auto md:h-[428px]">
         {/* Orange background layer - full width, fixed height */}
         <div
           className="absolute inset-0 w-full"
@@ -42,16 +42,17 @@ export function ValueSection() {
               </div>
 
               {/* Heading - Mixed colors */}
-              <h2 className="text-[32px] md:text-[41px] font-bold leading-[1.35] mb-6 tracking-[-1px]">
+              <h2 className="text-[28px] md:text-[41px] font-bold leading-[1.35] mb-5 md:mb-6 tracking-[-1px]">
                 <span className="text-[#161616]">운영이</span>
                 <span className="text-white font-semibold"> 쉬워지면,</span>
                 <br />
-                <span className="text-[#161616]">수익은 자연스럽게 </span>
-                <span className="text-white font-semibold">올라요.</span>
+                <span className="text-[#161616]">수익은 자연스럽게</span>
+                <br className="md:hidden" />
+                <span className="text-white font-semibold"> 올라요.</span>
               </h2>
 
               {/* Description */}
-              <p className="text-base md:text-lg leading-[1.55] text-white/80 tracking-[0.36px]">
+              <p className="text-sm md:text-lg leading-[1.7] md:leading-[1.55] text-white/80 tracking-[0.36px]">
                 운영이 복잡해질수록 불필요한 비용은 늘고 성장 기회는 줄어듭니다.
                 <br className="hidden md:block" />
                 스너그는 전 과정을 단순화해 낭비를 최소화하고 효율을 극대화함으로써,
@@ -92,30 +93,40 @@ export function ValueSection() {
       {/* Spacer for building overflow (156px) */}
       <div className="hidden lg:block h-[156px]" />
 
-      {/* Mobile buildings - separate section */}
-      <StaggerContainer
-        staggerDelay={0.15}
-        className="flex lg:hidden items-end justify-center gap-[26px] py-8 bg-white"
-      >
-        <StaggerItem>
-          <Image
-            src="/images/host-intro/building-left.svg"
-            alt="Building with various rooms"
-            width={200}
-            height={350}
-            className="h-[280px] md:h-[350px] w-auto"
-          />
-        </StaggerItem>
-        <StaggerItem>
-          <Image
-            src="/images/host-intro/building-right.svg"
-            alt="Building with various rooms"
-            width={225}
-            height={420}
-            className="h-[350px] md:h-[420px] w-auto"
-          />
-        </StaggerItem>
-      </StaggerContainer>
+      {/* Mobile buildings - with orange overlay */}
+      <div className="relative lg:hidden">
+        {/* Orange overlay covering top 50% */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[70%]"
+          style={{
+            backgroundImage:
+              'linear-gradient(109deg, rgba(255, 103, 0, 1) 12%, rgba(255, 121, 0, 1) 99%)',
+          }}
+        />
+        <StaggerContainer
+          staggerDelay={0.15}
+          className="relative flex items-end justify-center gap-4 pt-0 pb-8"
+        >
+          <StaggerItem>
+            <Image
+              src="/images/host-intro/building-left.svg"
+              alt="Building with various rooms"
+              width={200}
+              height={350}
+              className="h-[240px] md:h-[350px] w-auto"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <Image
+              src="/images/host-intro/building-right.svg"
+              alt="Building with various rooms"
+              width={225}
+              height={420}
+              className="h-[300px] md:h-[420px] w-auto"
+            />
+          </StaggerItem>
+        </StaggerContainer>
+      </div>
     </section>
   );
 }

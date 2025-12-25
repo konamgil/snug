@@ -13,10 +13,11 @@ export function CtaSection() {
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Top Text */}
-        <AnimateOnScroll variant="fadeUp" className="text-center mb-8">
+        <AnimateOnScroll variant="fadeUp" className="text-center mb-4">
           <h2 className="text-[hsl(var(--snug-text-primary))] text-[1.75rem] font-medium">
             {t('titlePrefix')}
-            <span className="text-[#FF6700]">{t('titleHighlight')}</span>
+            <br className="md:hidden" />
+            <span className="text-[#FF6700] font-bold">{t('titleHighlight')}</span>
             {t('titleSuffix')}
           </h2>
         </AnimateOnScroll>
@@ -32,7 +33,7 @@ export function CtaSection() {
             alt="Welcome Snug"
             width={596}
             height={80}
-            className="h-auto w-[37.22606rem]"
+            className="h-auto w-full max-w-[37.22606rem]"
           />
         </AnimateOnScroll>
 
@@ -65,7 +66,7 @@ export function CtaSection() {
         <AnimateOnScroll variant="fadeUp" delay={0.3} className="flex justify-center">
           <Link
             href="/host"
-            className="inline-flex items-center justify-center px-8 py-4 bg-[hsl(var(--snug-orange))] text-white text-lg font-semibold rounded-full hover:bg-[hsl(var(--snug-orange))]/90 transition-colors shadow-lg shadow-[hsl(var(--snug-orange))]/30"
+            className="inline-flex items-center justify-center w-full md:w-auto px-8 py-4 bg-[hsl(var(--snug-orange))] text-white text-base md:text-lg font-semibold rounded-full hover:bg-[hsl(var(--snug-orange))]/90 transition-colors shadow-lg shadow-[hsl(var(--snug-orange))]/30"
           >
             {t('button')}
           </Link>

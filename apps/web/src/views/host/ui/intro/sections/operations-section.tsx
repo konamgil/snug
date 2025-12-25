@@ -8,17 +8,17 @@ export function OperationsSection() {
   const t = useTranslations('hostIntro.operations');
 
   return (
-    <section className="pt-24 md:pt-40 pb-24 md:pb-40 bg-white">
+    <section className="hidden md:block pt-24 md:pt-40 pb-24 md:pb-40 bg-white">
       <div className="max-w-[1312px] mx-auto px-5 md:px-8">
         {/* Operations Preview Container */}
         <div className="relative">
           {/* Dashboard Layout */}
           <div className="relative max-w-[1218px] mx-auto">
-            {/* Zoom Circle - Hidden on mobile, positioned on RIGHT */}
+            {/* Zoom Circle - positioned on RIGHT */}
             <AnimateOnScroll
               variant="scale"
               delay={0.2}
-              className="hidden md:block absolute -right-[10px] lg:right-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
+              className="absolute -right-[10px] lg:right-[20px] top-[-25%] w-[280px] lg:w-[431px] h-[280px] lg:h-[431px] z-20"
             >
               {/* Orange dashed border */}
               <div className="absolute inset-0 rounded-full border-2 border-[#FF6700] border-dashed" />

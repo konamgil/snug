@@ -56,12 +56,12 @@ export function EligibilitySection() {
         {/* Eligibility Cards */}
         <StaggerContainer
           staggerDelay={0.15}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-[1172px] mx-auto"
+          className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 max-w-[1172px] mx-auto"
         >
           {cards.map((card, index) => (
             <StaggerItem key={index}>
               <div
-                className={`relative rounded-2xl overflow-hidden ${card.bgColor} min-h-[280px] md:min-h-[320px] group hover:shadow-lg transition-shadow`}
+                className={`relative rounded-2xl overflow-hidden ${card.bgColor} min-h-[260px] md:min-h-[320px] group hover:shadow-lg transition-shadow`}
               >
                 {/* Content */}
                 <div className="relative z-10 p-6 md:p-8">
