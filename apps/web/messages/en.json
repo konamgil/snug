@@ -271,7 +271,8 @@
       "resendCode": "Resend code",
       "verificationSuccess": "Phone number verified successfully",
       "verificationError": "Invalid verification code. Please try again.",
-      "tryAgain": "Try again"
+      "tryAgain": "Try again",
+      "loginRequired": "Login required."
     },
     "security": {
       "title": "Login & Security",
