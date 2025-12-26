@@ -21,11 +21,11 @@ interface CurrencyOption {
 export function SettingsPage() {
   const t = useTranslations('mypage.settings');
   const router = useRouter();
-  const [isHostMode] = useState(false); // AI Auto-Responder - not ready for release yet
+  const [isHostMode] = useState(true); // Show AI Auto-Responder toggle
 
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [aiAutoResponder, setAiAutoResponder] = useState(true);
+  const [aiAutoResponder, setAiAutoResponder] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
