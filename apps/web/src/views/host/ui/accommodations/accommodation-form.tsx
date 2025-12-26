@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, HelpCircle, Plus, Minus } from 'lucide-react';
+import { ChevronDown, HelpCircle, Plus, Minus, X } from 'lucide-react';
 import { PhotoUploadSection } from './photo-upload-section';
 import { PhotoUploadModal } from './photo-upload-modal';
 import { PhotoGalleryModal } from './photo-gallery-modal';
@@ -10,6 +10,7 @@ import { AddressSearchModal } from './address-search-modal';
 import type {
   AccommodationFormData,
   AccommodationType,
+  AdditionalFeeItem,
   BuildingType,
   GenderRule,
   ManagerInfo,
@@ -114,6 +115,31 @@ export function AccommodationForm({
     updateData({ managers: [...data.managers, newManager] });
   };
 
+  const addAdditionalFee = () => {
+    const newFee: AdditionalFeeItem = {
+      id: Date.now().toString(),
+      name: '',
+      amount: 0,
+    };
+    updatePricing({
+      additionalFees: [...data.pricing.additionalFees, newFee],
+    });
+  };
+
+  const removeAdditionalFee = (id: string) => {
+    updatePricing({
+      additionalFees: data.pricing.additionalFees.filter((fee) => fee.id !== id),
+    });
+  };
+
+  const updateAdditionalFee = (id: string, updates: Partial<Omit<AdditionalFeeItem, 'id'>>) => {
+    updatePricing({
+      additionalFees: data.pricing.additionalFees.map((fee) =>
+        fee.id === id ? { ...fee, ...updates } : fee,
+      ),
+    });
+  };
+
   return (
     <div className="space-y-8">
       {/* 기본 정보 (Basic Information) */}
@@ -160,19 +186,30 @@ export function AccommodationForm({
                 onClick={() => setIsGroupDropdownOpen(!isGroupDropdownOpen)}
                 className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] flex items-center justify-between bg-white"
               >
-                <span className={data.groupName ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-gray))]'}>
+                <span
+                  className={
+                    data.groupName
+                      ? 'text-[hsl(var(--snug-text-primary))]'
+                      : 'text-[hsl(var(--snug-gray))]'
+                  }
+                >
                   {data.groupName || '그룹 선택'}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${isGroupDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${isGroupDropdownOpen ? 'rotate-180' : ''}`}
+                />
               </button>
 
               {isGroupDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => {
-                    setIsGroupDropdownOpen(false);
-                    setIsAddingNewGroup(false);
-                    setNewGroupName('');
-                  }} />
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => {
+                      setIsGroupDropdownOpen(false);
+                      setIsAddingNewGroup(false);
+                      setNewGroupName('');
+                    }}
+                  />
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20 max-h-[200px] overflow-y-auto">
                     {/* 선택 안함 */}
                     <button
@@ -266,8 +303,7 @@ export function AccommodationForm({
                         onClick={() => setIsAddingNewGroup(true)}
                         className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] flex items-center gap-2"
                       >
-                        <Plus className="w-4 h-4" />
-                        새 그룹 추가
+                        <Plus className="w-4 h-4" />새 그룹 추가
                       </button>
                     )}
                   </div>
@@ -562,6 +598,7 @@ export function AccommodationForm({
               </label>
               <button
                 type="button"
+                onClick={addAdditionalFee}
                 className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
               >
                 + 추가 요금 항목 추가
@@ -624,6 +661,43 @@ export function AccommodationForm({
                   className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
               </div>
+              {/* 동적 추가 요금 항목 */}
+              {data.pricing.additionalFees.map((fee) => (
+                <div key={fee.id} className="col-span-2 flex items-end gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                      항목명
+                    </label>
+                    <input
+                      type="text"
+                      value={fee.name}
+                      onChange={(e) => updateAdditionalFee(fee.id, { name: e.target.value })}
+                      placeholder="항목명 입력"
+                      className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">금액</label>
+                    <input
+                      type="number"
+                      value={fee.amount || ''}
+                      onChange={(e) =>
+                        updateAdditionalFee(fee.id, { amount: parseInt(e.target.value) || 0 })
+                      }
+                      placeholder="금액 입력"
+                      className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeAdditionalFee(fee.id)}
+                    className="p-3 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                    aria-label="삭제"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

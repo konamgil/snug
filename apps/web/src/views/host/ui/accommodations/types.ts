@@ -43,6 +43,12 @@ export interface BedCount {
   bunkBed: number;
 }
 
+export interface AdditionalFeeItem {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface PricingInfo {
   basePrice: number;
   includesUtilities: boolean;
@@ -52,6 +58,7 @@ export interface PricingInfo {
   cleaningFee?: number;
   extraPersonFee?: number;
   petFee?: number;
+  additionalFees: AdditionalFeeItem[];
 }
 
 export interface SpaceInfo {
@@ -214,6 +221,7 @@ export const DEFAULT_FORM_DATA: AccommodationFormData = {
     cleaningFee: undefined,
     extraPersonFee: undefined,
     petFee: undefined,
+    additionalFees: [],
   },
   space: {
     capacity: 1,
