@@ -8,7 +8,7 @@ export function ValueSection() {
   const t = useTranslations('hostIntro.value');
 
   return (
-    <section className="relative bg-white">
+    <section className="relative bg-white overflow-hidden">
       {/* Top orange stripe - full width */}
       <div
         className="h-3 w-full"
@@ -94,7 +94,7 @@ export function ValueSection() {
       <div className="hidden lg:block h-[156px]" />
 
       {/* Mobile buildings - with orange overlay */}
-      <div className="relative lg:hidden">
+      <div className="relative lg:hidden -mt-px">
         {/* Orange overlay covering top 50% */}
         <div
           className="absolute top-0 left-0 right-0 h-[70%]"

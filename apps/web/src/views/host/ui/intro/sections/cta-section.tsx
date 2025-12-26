@@ -46,7 +46,7 @@ export function CtaSection() {
           <div className="relative aspect-[2/1] rounded-[2rem] overflow-hidden border-2 border-[#E5E5E5] bg-gradient-to-br from-amber-50 to-orange-50">
             {/* Background illustration */}
             <Image
-              src="/images/host-intro/cta-main.svg"
+              src="/images/host-intro/cta-main.webp"
               alt="Welcome to Snug hosting"
               fill
               className="object-contain object-center"

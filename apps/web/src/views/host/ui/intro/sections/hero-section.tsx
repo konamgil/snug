@@ -60,7 +60,7 @@ export function HeroSection() {
           <AnimateOnScroll
             variant="fadeIn"
             delay={0.2}
-            className="w-full h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.svg')] bg-contain bg-bottom bg-no-repeat"
+            className="w-full h-[80%] lg:h-[95%] translate-y-[10%] bg-[url('/images/host-intro/hero-combined.webp')] bg-contain bg-bottom bg-no-repeat"
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export function HeroSection() {
           {/* CTA Button */}
           <Link
             href="/host"
-            className={`inline-flex items-center justify-center w-full md:w-fit px-6 py-3.5 md:py-3 text-white text-base md:text-sm font-medium rounded-full transition-all duration-300 hover:opacity-90 ${slides[currentSlide]?.bgColor ?? 'bg-[#FF8200]'}`}
+            className={`inline-flex items-center justify-center w-fit px-8 py-2.5 md:px-6 md:py-3 text-white text-sm font-medium rounded-full transition-all duration-300 hover:opacity-90 ${slides[currentSlide]?.bgColor ?? 'bg-[#FF8200]'}`}
           >
             {t('cta')}
           </Link>
@@ -116,16 +116,16 @@ export function HeroSection() {
       </div>
 
       {/* Mobile Illustration - Below content */}
-      <AnimateOnScroll variant="fadeIn" delay={0.2} className="md:hidden w-full">
+      <div className="md:hidden w-full -mt-32">
         <Image
-          src="/images/host-intro/hero-mobile.svg"
+          src="/images/host-intro/hero-mobile-2.webp"
           alt="Hero illustration"
           width={390}
           height={915}
           className="w-full h-auto"
           priority
         />
-      </AnimateOnScroll>
+      </div>
     </section>
   );
 }

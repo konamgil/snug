@@ -42,7 +42,7 @@ export function DashboardSection() {
               <div className="absolute inset-[8px] rounded-full overflow-hidden bg-white">
                 <div className="relative w-[280%] h-[280%] translate-x-[7%] translate-y-[4%]">
                   <Image
-                    src="/images/host-intro/dashboard-preview.png"
+                    src="/images/host-intro/dashboard-preview.webp"
                     alt="Dashboard Sidebar Zoom"
                     width={1218}
                     height={945}
@@ -68,7 +68,7 @@ export function DashboardSection() {
               className="relative z-10 max-w-[950px] mx-auto"
             >
               <Image
-                src="/images/host-intro/dashboard-preview.png"
+                src="/images/host-intro/dashboard-preview.webp"
                 alt="Snug Host Dashboard Preview"
                 width={1218}
                 height={945}
@@ -104,7 +104,7 @@ export function DashboardSection() {
             {/* Dashboard Illustration */}
             <div className="relative flex justify-center mb-8">
               <Image
-                src="/images/host-intro/process-mobile-dashboard.png"
+                src="/images/host-intro/process-mobile-dashboard.webp"
                 alt="Dashboard Preview"
                 width={350}
                 height={427}
@@ -138,7 +138,7 @@ export function DashboardSection() {
             {/* Operations Illustration */}
             <div className="relative flex justify-center mb-8">
               <Image
-                src="/images/host-intro/process-mobile-operations.png"
+                src="/images/host-intro/process-mobile-operations.webp"
                 alt="Operations Preview"
                 width={350}
                 height={426}

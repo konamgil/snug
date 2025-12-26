@@ -26,7 +26,7 @@ export function OperationsSection() {
               <div className="absolute inset-[8px] rounded-full overflow-hidden bg-white">
                 <div className="relative w-[280%] h-[280%] -translate-x-[70%] translate-y-[4%]">
                   <Image
-                    src="/images/host-intro/operations-dashboard.png"
+                    src="/images/host-intro/operations-dashboard.webp"
                     alt="Customer Inquiry Detail Zoom"
                     width={1014}
                     height={618}
@@ -52,7 +52,7 @@ export function OperationsSection() {
               className="relative z-10 max-w-[950px] mx-auto"
             >
               <Image
-                src="/images/host-intro/operations-dashboard.png"
+                src="/images/host-intro/operations-dashboard.webp"
                 alt="Snug Host Operations Preview"
                 width={1014}
                 height={618}

@@ -46,7 +46,7 @@ export function PainPointsSection() {
               </div>
             </div>
             <Image
-              src="/images/host-intro/pain-point-2.png"
+              src="/images/host-intro/pain-point-2.webp"
               alt="Person at desk looking worried"
               width={340}
               height={410}
@@ -68,7 +68,7 @@ export function PainPointsSection() {
               </div>
             </div>
             <Image
-              src="/images/host-intro/pain-point-1.png"
+              src="/images/host-intro/pain-point-1.webp"
               alt="Person working late at night"
               width={320}
               height={343}
@@ -96,7 +96,7 @@ export function PainPointsSection() {
               </div>
             </div>
             <Image
-              src="/images/host-intro/pain-point-1.png"
+              src="/images/host-intro/pain-point-1.webp"
               alt="Person working late at night"
               width={350}
               height={375}
@@ -121,7 +121,7 @@ export function PainPointsSection() {
               </div>
             </div>
             <Image
-              src="/images/host-intro/pain-point-2.png"
+              src="/images/host-intro/pain-point-2.webp"
               alt="Person at desk looking worried"
               width={380}
               height={458}
@@ -155,7 +155,7 @@ export function PainPointsSection() {
             </div>
             {/* Woman Illustration */}
             <Image
-              src="/images/host-intro/pain-point-1.png"
+              src="/images/host-intro/pain-point-1.webp"
               alt="Person working late at night"
               width={469}
               height={502}
@@ -186,7 +186,7 @@ export function PainPointsSection() {
             </div>
             {/* Man Illustration */}
             <Image
-              src="/images/host-intro/pain-point-2.png"
+              src="/images/host-intro/pain-point-2.webp"
               alt="Person at desk looking worried"
               width={469}
               height={566}

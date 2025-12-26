@@ -22,14 +22,14 @@ export function EligibilitySection() {
       descriptionLine1: t('cards.0.descriptionLine1'),
       descriptionLine2: t('cards.0.descriptionLine2'),
       bgColor: 'bg-[#fff3de]',
-      image: '/images/host-intro/eligibility-1.png',
+      image: '/images/host-intro/eligibility-1.webp',
     },
     {
       title: t('cards.1.title'),
       descriptionLine1: t('cards.1.descriptionLine1'),
       descriptionLine2: t('cards.1.descriptionLine2'),
       bgColor: 'bg-[hsl(var(--snug-orange))]',
-      image: '/images/host-intro/eligibility-2.png',
+      image: '/images/host-intro/eligibility-2.webp',
     },
   ];
 

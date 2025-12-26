@@ -22,12 +22,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: metadata.title,
     description: metadata.description,
-    manifest: '/manifest.json',
-    appleWebApp: {
-      capable: true,
-      statusBarStyle: 'default',
-      title: 'Snug',
-    },
   };
 }
 
