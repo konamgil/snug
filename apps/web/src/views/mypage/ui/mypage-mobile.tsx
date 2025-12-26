@@ -19,6 +19,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { MobileNav } from '@/widgets/mobile-nav';
+import { useAuthStore } from '@/shared/stores';
 
 interface NavItem {
   label: string;
@@ -37,8 +38,10 @@ export function MypageMobile() {
   const t = useTranslations('mypage');
   const pathname = usePathname();
   const router = useRouter();
+  const signOut = useAuthStore((state) => state.signOut);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     router.push('/login');
   };
 

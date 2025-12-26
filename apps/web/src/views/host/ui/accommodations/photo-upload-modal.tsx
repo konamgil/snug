@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { ImagePlus, Plus, Pencil, Trash2 } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { ImagePlus, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory, PhotoItem } from './types';
 import { DEFAULT_PHOTO_GROUPS } from './types';
 import { GroupManagementModal, type GroupItem } from './group-management-modal';
+import {
+  uploadFiles,
+  validateImageFile,
+  compressImage,
+  type UploadProgress,
+} from '@/shared/lib/storage';
 
 interface PhotoUploadModalProps {
   isOpen: boolean;
@@ -13,6 +19,8 @@ interface PhotoUploadModalProps {
   categories: PhotoCategory[];
   onSave: (categories: PhotoCategory[]) => void;
   onViewGallery?: (categoryId: string, currentCategories: PhotoCategory[]) => void;
+  /** 숙소 ID (수정 시 사용, 신규 등록 시 null) */
+  accommodationId?: string | null;
 }
 
 export function PhotoUploadModal({
@@ -21,6 +29,7 @@ export function PhotoUploadModal({
   categories,
   onSave,
   onViewGallery,
+  accommodationId = null,
 }: PhotoUploadModalProps) {
   const [localCategories, setLocalCategories] = useState<PhotoCategory[]>(() => {
     // Initialize with default groups if empty
@@ -40,6 +49,11 @@ export function PhotoUploadModal({
   const [hoveredGroupId, setHoveredGroupId] = useState<string | null>(null);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [dragOverGroupId, setDragOverGroupId] = useState<string | null>(null);
+
+  // Upload state
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -87,24 +101,82 @@ export function PhotoUploadModal({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !activeGroupId) return;
 
-    const newPhotos: PhotoItem[] = Array.from(files).map((file, index) => ({
-      id: `photo_${Date.now()}_${index}`,
-      url: URL.createObjectURL(file),
-      order: localCategories.find((g) => g.id === activeGroupId)?.photos.length ?? 0 + index,
-    }));
+    const targetGroupId = activeGroupId;
+    setUploadError(null);
 
-    setLocalCategories(
-      localCategories.map((g) =>
-        g.id === activeGroupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g,
-      ),
-    );
+    // Validate files
+    const fileArray = Array.from(files);
+    const validationErrors: string[] = [];
 
-    e.target.value = '';
-    setActiveGroupId(null);
+    for (const file of fileArray) {
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        validationErrors.push(`${file.name}: ${validation.error}`);
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      setUploadError(validationErrors.join('\n'));
+      e.target.value = '';
+      setActiveGroupId(null);
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Compress images before upload
+      const compressedFiles = await Promise.all(
+        fileArray.map((file) => compressImage(file, 1920, 0.85))
+      );
+
+      // Upload to Supabase Storage
+      const results = await uploadFiles(
+        compressedFiles,
+        accommodationId,
+        targetGroupId,
+        (progress) => setUploadProgress(progress)
+      );
+
+      // Filter successful uploads and create photo items
+      const targetGroup = localCategories.find((g) => g.id === targetGroupId);
+      const successfulUploads = results.filter((r) => r.success && r.url);
+
+      if (successfulUploads.length === 0) {
+        setUploadError('모든 파일 업로드에 실패했습니다.');
+        return;
+      }
+
+      const newPhotos: PhotoItem[] = successfulUploads.map((result, index) => ({
+        id: `photo_${Date.now()}_${index}`,
+        url: result.url!,
+        order: (targetGroup?.photos.length ?? 0) + index,
+      }));
+
+      setLocalCategories(
+        localCategories.map((g) =>
+          g.id === targetGroupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g
+        )
+      );
+
+      // Show partial success message if some failed
+      const failedCount = results.filter((r) => !r.success).length;
+      if (failedCount > 0) {
+        setUploadError(`${successfulUploads.length}개 업로드 완료, ${failedCount}개 실패`);
+      }
+    } catch (error) {
+      console.error('[PhotoUpload] Error:', error);
+      setUploadError('업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress([]);
+      e.target.value = '';
+      setActiveGroupId(null);
+    }
   };
 
   const handleSave = () => {
@@ -134,7 +206,7 @@ export function PhotoUploadModal({
     setDragOverGroupId(null);
   };
 
-  const handleDrop = (e: React.DragEvent, groupId: string) => {
+  const handleDrop = async (e: React.DragEvent, groupId: string) => {
     e.preventDefault();
     setDragOverGroupId(null);
 
@@ -144,18 +216,71 @@ export function PhotoUploadModal({
     const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
     if (!imageFiles.length) return;
 
-    const targetGroup = localCategories.find((g) => g.id === groupId);
-    const newPhotos: PhotoItem[] = imageFiles.map((file, index) => ({
-      id: `photo_${Date.now()}_${index}`,
-      url: URL.createObjectURL(file),
-      order: (targetGroup?.photos.length ?? 0) + index,
-    }));
+    setUploadError(null);
 
-    setLocalCategories(
-      localCategories.map((g) =>
-        g.id === groupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g,
-      ),
-    );
+    // Validate files
+    const validationErrors: string[] = [];
+    for (const file of imageFiles) {
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        validationErrors.push(`${file.name}: ${validation.error}`);
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      setUploadError(validationErrors.join('\n'));
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Compress images before upload
+      const compressedFiles = await Promise.all(
+        imageFiles.map((file) => compressImage(file, 1920, 0.85))
+      );
+
+      // Upload to Supabase Storage
+      const results = await uploadFiles(
+        compressedFiles,
+        accommodationId,
+        groupId,
+        (progress) => setUploadProgress(progress)
+      );
+
+      // Filter successful uploads and create photo items
+      const targetGroup = localCategories.find((g) => g.id === groupId);
+      const successfulUploads = results.filter((r) => r.success && r.url);
+
+      if (successfulUploads.length === 0) {
+        setUploadError('모든 파일 업로드에 실패했습니다.');
+        return;
+      }
+
+      const newPhotos: PhotoItem[] = successfulUploads.map((result, index) => ({
+        id: `photo_${Date.now()}_${index}`,
+        url: result.url!,
+        order: (targetGroup?.photos.length ?? 0) + index,
+      }));
+
+      setLocalCategories(
+        localCategories.map((g) =>
+          g.id === groupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g
+        )
+      );
+
+      // Show partial success message if some failed
+      const failedCount = results.filter((r) => !r.success).length;
+      if (failedCount > 0) {
+        setUploadError(`${successfulUploads.length}개 업로드 완료, ${failedCount}개 실패`);
+      }
+    } catch (error) {
+      console.error('[PhotoUpload] Drop error:', error);
+      setUploadError('업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress([]);
+    }
   };
 
   return (
@@ -182,6 +307,54 @@ export function PhotoUploadModal({
             </button>
           </div>
         </div>
+
+        {/* Upload Progress Overlay */}
+        {isUploading && (
+          <div className="absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))] mb-4" />
+            <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
+              업로드 중...
+            </p>
+            {uploadProgress.length > 0 && (
+              <div className="w-64 space-y-2">
+                {uploadProgress.map((item, index) => (
+                  <div key={index} className="text-xs">
+                    <div className="flex justify-between mb-1">
+                      <span className="truncate max-w-[180px]">{item.fileName}</span>
+                      <span>{item.progress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#e0e0e0] rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          item.status === 'error'
+                            ? 'bg-red-500'
+                            : item.status === 'completed'
+                              ? 'bg-green-500'
+                              : 'bg-[hsl(var(--snug-orange))]'
+                        }`}
+                        style={{ width: `${item.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {uploadError && (
+          <div className="mx-5 mb-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs text-red-600 whitespace-pre-line">{uploadError}</p>
+            <button
+              type="button"
+              onClick={() => setUploadError(null)}
+              className="text-xs text-red-500 underline mt-1"
+            >
+              닫기
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 pb-5 no-scrollbar">
@@ -340,21 +513,22 @@ export function PhotoUploadModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-[140px] h-10 text-sm text-[hsl(var(--snug-text-primary))] bg-[#f3f3f3] hover:bg-[#e8e8e8] transition-colors"
+            disabled={isUploading}
+            className="w-[140px] h-10 text-sm text-[hsl(var(--snug-text-primary))] bg-[#f3f3f3] hover:bg-[#e8e8e8] transition-colors disabled:opacity-50"
           >
             취소
           </button>
           <button
             type="button"
             onClick={handleSave}
-            disabled={!hasAnyPhotos}
+            disabled={!hasAnyPhotos || isUploading}
             className={`flex-1 h-10 text-sm text-white transition-colors ${
-              hasAnyPhotos
+              hasAnyPhotos && !isUploading
                 ? 'bg-[hsl(var(--snug-orange))] hover:opacity-90'
                 : 'bg-[#c6c6c6] cursor-not-allowed'
             }`}
           >
-            사진 저장
+            {isUploading ? '업로드 중...' : '사진 저장'}
           </button>
         </div>
 

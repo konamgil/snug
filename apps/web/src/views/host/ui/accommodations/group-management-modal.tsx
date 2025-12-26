@@ -64,15 +64,28 @@ export function GroupManagementModal({
   };
 
   const handleToggleAccommodation = (groupId: string, accommodationId: string) => {
-    setLocalGroups((groups) =>
-      groups.map((g) => {
-        if (g.id !== groupId) return g;
-        const ids = g.accommodationIds.includes(accommodationId)
-          ? g.accommodationIds.filter((id) => id !== accommodationId)
-          : [...g.accommodationIds, accommodationId];
-        return { ...g, accommodationIds: ids };
-      }),
-    );
+    setLocalGroups((groups) => {
+      const targetGroup = groups.find((g) => g.id === groupId);
+      const isCurrentlyInGroup = targetGroup?.accommodationIds.includes(accommodationId);
+
+      return groups.map((g) => {
+        if (g.id === groupId) {
+          // Toggle in target group
+          const ids = isCurrentlyInGroup
+            ? g.accommodationIds.filter((id) => id !== accommodationId)
+            : [...g.accommodationIds, accommodationId];
+          return { ...g, accommodationIds: ids };
+        }
+        // Remove from other groups when adding to target group
+        if (!isCurrentlyInGroup) {
+          return {
+            ...g,
+            accommodationIds: g.accommodationIds.filter((id) => id !== accommodationId),
+          };
+        }
+        return g;
+      });
+    });
   };
 
   const handleSave = () => {

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Eye, EyeOff, X, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, X, ChevronDown, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
+import { useAuthStore } from '@/shared/stores';
 
 const COUNTRY_CODES = [
   { code: '+82', country: 'South Korea' },
@@ -103,6 +104,7 @@ function FloatingInput({
 export function SignupPage() {
   const t = useTranslations('auth.signupPage');
   const router = useRouter();
+  const signUpWithEmail = useAuthStore((state) => state.signUpWithEmail);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -115,6 +117,9 @@ export function SignupPage() {
   const [agreeMarketing, setAgreeMarketing] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showMoreTerms, setShowMoreTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
 
@@ -129,18 +134,22 @@ export function SignupPage() {
     lastName &&
     agreeTerms;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
-    console.log('Signup:', {
-      email,
-      password,
-      firstName,
-      lastName,
-      countryCode,
-      phoneNumber,
-      agreeMarketing,
-    });
+
+    setIsSubmitting(true);
+    setError('');
+
+    const { error } = await signUpWithEmail(email, password, { firstName, lastName });
+
+    if (error) {
+      setError(error.message);
+      setIsSubmitting(false);
+    } else {
+      setSuccess(true);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -160,8 +169,27 @@ export function SignupPage() {
           </h1>
         </div>
 
-        {/* Form */}
+        {/* Success Message */}
+        {success ? (
+          <div className="w-full max-w-[500px] text-center space-y-4">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-2xl">
+              <p className="text-green-800">{t('signupSuccess')}</p>
+              <p className="text-sm text-green-600 mt-2">{t('checkEmail')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/login')}
+              className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+            >
+              {t('goToLogin')}
+            </button>
+          </div>
+        ) : (
+        /* Form */
         <form onSubmit={handleSubmit} className="w-full max-w-[500px] space-y-4">
+          {error && (
+            <p className="text-sm text-red-500 text-center px-1">{error}</p>
+          )}
           <FloatingInput
             id="email"
             label={t('emailAddress')}
@@ -317,12 +345,14 @@ export function SignupPage() {
           {/* Continue Button */}
           <button
             type="submit"
-            disabled={!isFormValid}
-            className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 mt-6"
+            disabled={!isFormValid || isSubmitting}
+            className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 mt-6 flex items-center justify-center gap-2"
           >
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('continue')}
           </button>
         </form>
+        )}
       </main>
     </div>
   );

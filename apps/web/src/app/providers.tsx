@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { EasterEggProvider } from '@/shared/lib';
+import { AuthProvider } from '@/shared/providers';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -23,7 +24,9 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <EasterEggProvider>{children}</EasterEggProvider>
+      <AuthProvider>
+        <EasterEggProvider>{children}</EasterEggProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

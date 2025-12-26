@@ -19,7 +19,11 @@ export class RegisterDto {
 
   @IsString()
   @IsOptional()
-  name?: string;
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
 
   @IsEnum(['GUEST', 'HOST'])
   @IsOptional()

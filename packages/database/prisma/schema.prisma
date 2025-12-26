@@ -1,5 +1,5 @@
 // Snug - Room Rental Platform Database Schema
-// Using Supabase (PostgreSQL) with Prisma ORM
+// 외국인 대상 한국 부동산 중개 + 운영 지원 플랫폼
 
 generator client {
   provider = "prisma-client-js"
@@ -16,280 +16,666 @@ datasource db {
 // ============================================
 
 enum UserRole {
-  GUEST
-  HOST
-  ADMIN
+  GUEST         // 임차인 (외국인)
+  HOST          // 메인 호스트 (임대인)
+  CO_HOST       // 공동 호스트
+  SNUG_OPERATOR // 스너그 운영자
+  PARTNER       // 위탁협력 (외부업체)
 }
 
-enum RoomStatus {
-  DRAFT
-  ACTIVE
-  INACTIVE
-  DELETED
+enum PurposeOfStay {
+  WORK
+  STUDY
+  BUSINESS
+  FAMILY
+  TOURISM
+  MEDICAL
+  OTHER
 }
 
-enum RoomType {
-  STUDIO
-  ONE_ROOM
-  TWO_ROOM
+enum PartnerServiceType {
+  CLEANING
+  REPAIR
+  MOVING
+  OTHER
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  role          UserRole  @default(GUEST)
+
+  // 기본 정보
+  firstName     String?
+  lastName      String?
+  phone         String?
+  countryCode   String?   @default("+82")
+  phoneVerified Boolean   @default(false)
+  avatarUrl     String?
+
+  // Supabase Auth 연동
+  supabaseId    String?   @unique
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations - 역할별 프로필
+  guestProfile   GuestProfile?
+  hostProfile    HostProfile?
+  partnerProfile PartnerProfile?
+
+  // Relations - 호스트 멤버십 (공동 호스트)
+  ownedMemberships  HostMember[] @relation("HostOwner")    // 내가 호스트로서 초대한 멤버들
+  memberMemberships HostMember[] @relation("MemberUser")   // 내가 멤버로 속한 호스트들
+
+  // Relations - 숙소
+  accommodationGroups AccommodationGroup[]
+  accommodations      Accommodation[]
+
+  // Relations - 계약 (게스트로서)
+  contracts           Contract[]
+
+  // Relations - 즐겨찾기
+  favorites           Favorite[]
+
+  // Relations - 운영 (파트너로서 배정받은 작업)
+  assignedOperations  Operation[]
+
+  @@map("users")
+}
+
+// 게스트 추가 정보
+model GuestProfile {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  passportNumber  String?
+  nationality     String?
+  purposeOfStay   PurposeOfStay?
+  aboutMe         String?        // 최대 100자
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("guest_profiles")
+}
+
+// 호스트 추가 정보
+model HostProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  businessName    String?  // 사업자명
+  businessNumber  String?  // 사업자번호
+  bankName        String?
+  bankAccount     String?
+  accountHolder   String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("host_profiles")
+}
+
+// 위탁협력 업체 추가 정보
+model PartnerProfile {
+  id              String             @id @default(cuid())
+  userId          String             @unique
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName     String?
+  serviceType     PartnerServiceType @default(OTHER)
+  description     String?
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("partner_profiles")
+}
+
+// ============================================
+// HOST MEMBER & PERMISSIONS (공동 호스트)
+// ============================================
+
+model HostMember {
+  id          String   @id @default(cuid())
+
+  hostId      String                           // 메인 호스트
+  host        User     @relation("HostOwner", fields: [hostId], references: [id], onDelete: Cascade)
+
+  memberId    String                           // 공동 호스트로 초대된 유저
+  member      User     @relation("MemberUser", fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  permissions HostMemberPermission[]
+
+  @@unique([hostId, memberId])
+  @@map("host_members")
+}
+
+enum PermissionType {
+  CONTRACTS_VIEW
+  CONTRACTS_MANAGE
+  ACCOMMODATIONS_VIEW
+  ACCOMMODATIONS_MANAGE
+  SETTLEMENTS_VIEW
+  SETTLEMENTS_MANAGE
+  CHAT_ACCESS
+  OPERATIONS_VIEW
+  OPERATIONS_MANAGE
+  USERS_MANAGE
+}
+
+model HostMemberPermission {
+  id              String         @id @default(cuid())
+
+  hostMemberId    String
+  hostMember      HostMember     @relation(fields: [hostMemberId], references: [id], onDelete: Cascade)
+
+  permission      PermissionType
+  granted         Boolean        @default(false)
+
+  createdAt       DateTime       @default(now())
+
+  @@unique([hostMemberId, permission])
+  @@map("host_member_permissions")
+}
+
+// ============================================
+// ACCOMMODATION (숙소)
+// ============================================
+
+enum AccommodationType {
+  HOUSE
+  SHARE_ROOM
   SHARE_HOUSE
+  APARTMENT
+}
+
+enum BuildingType {
+  APARTMENT
+  VILLA
+  HOUSE
   OFFICETEL
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-  REFUNDED
+enum UsageType {
+  STAY        // 숙박
+  SHORT_TERM  // 단기임대
 }
+
+enum GenderRule {
+  MALE_ONLY
+  FEMALE_ONLY
+  PET_ALLOWED
+}
+
+enum AccommodationStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+// 숙소 그룹 (선택적)
+model AccommodationGroup {
+  id          String   @id @default(cuid())
+
+  hostId      String
+  host        User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  name        String   // "강남 셰어하우스"
+  address     String?  // 공통 주소
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accommodations Accommodation[]
+
+  @@map("accommodation_groups")
+}
+
+// 개별 숙소 (방)
+model Accommodation {
+  id          String   @id @default(cuid())
+
+  hostId      String
+  host        User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  groupId     String?  // 그룹 없이도 가능
+  group       AccommodationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  // 기본 정보
+  roomName          String              // "101호", "A룸"
+  accommodationType AccommodationType   @default(HOUSE)
+  buildingType      BuildingType?
+  usageTypes        UsageType[]         // ['STAY', 'SHORT_TERM']
+  minReservationDays Int                @default(1)
+
+  // 위치
+  address           String
+  addressDetail     String?
+  zipCode           String?
+  latitude          Float?
+  longitude         Float?
+  nearestStation    String?
+  walkingMinutes    Int?
+
+  // 가격
+  basePrice         Int                 // 기본 가격 (원)
+  includesUtilities Boolean             @default(false)
+  weekendPrice      Int?
+  weekendDays       String[]            // ['fri', 'sat']
+  managementFee     Int?
+  cleaningFee       Int?
+  extraPersonFee    Int?
+  petFee            Int?
+
+  // 공간 정보
+  capacity          Int                 @default(1)
+  genderRules       GenderRule[]
+  sizeM2            Float?
+  sizePyeong        Float?
+
+  // 방 개수
+  roomCount         Int                 @default(0)
+  livingRoomCount   Int                 @default(0)
+  kitchenCount      Int                 @default(0)
+  bathroomCount     Int                 @default(0)
+  terraceCount      Int                 @default(0)
+
+  // 침대 개수 (JSON으로 저장)
+  bedCounts         Json?               // {king: 1, queen: 0, single: 2, ...}
+
+  // 텍스트 정보
+  houseRules        String?
+  introduction      String?
+
+  // 상태
+  status            AccommodationStatus @default(DRAFT)
+  isOperating       Boolean             @default(false)
+  openDate          DateTime?
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relations
+  photos            AccommodationPhoto[]
+  facilities        AccommodationFacility[]
+  amenities         AccommodationAmenity[]
+  managers          AccommodationManager[]
+  contracts         Contract[]
+  favorites         Favorite[]
+  operations        Operation[]
+
+  @@index([hostId])
+  @@index([status])
+  @@index([latitude, longitude])
+  @@map("accommodations")
+}
+
+// 숙소 사진
+model AccommodationPhoto {
+  id              String   @id @default(cuid())
+
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  category        String   // main, room, living_room, kitchen, bathroom
+  url             String
+  order           Int      @default(0)
+
+  createdAt       DateTime @default(now())
+
+  @@index([accommodationId, category])
+  @@map("accommodation_photos")
+}
+
+// 숙소 시설
+model AccommodationFacility {
+  id              String   @id @default(cuid())
+
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  facilityCode    String   // digital_lock, wifi, tv, ...
+
+  @@unique([accommodationId, facilityCode])
+  @@map("accommodation_facilities")
+}
+
+// 숙소 어메니티
+model AccommodationAmenity {
+  id              String   @id @default(cuid())
+
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  amenityCode     String   // hair_dryer, towel, ...
+
+  @@unique([accommodationId, amenityCode])
+  @@map("accommodation_amenities")
+}
+
+// 숙소 담당자 (매니저)
+model AccommodationManager {
+  id              String   @id @default(cuid())
+
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  name            String
+  phone           String
+  additionalInfo  String?
+
+  createdAt       DateTime @default(now())
+
+  @@map("accommodation_managers")
+}
+
+// ============================================
+// CONTRACT (계약)
+// ============================================
+
+enum ContractStatus {
+  INQUIRY        // 문의
+  PENDING        // 계약 신청
+  CONFIRMED      // 예약 확정
+  CHECKIN_SOON   // 체크인 예정
+  STAYING        // 입주 중
+  CHECKOUT_SOON  // 체크아웃 예정
+  COMPLETED      // 퇴실 완료
+  REJECTED       // 거절
+  CANCELLED      // 취소/환불
+}
+
+model Contract {
+  id              String         @id @default(cuid())
+
+  // 관계
+  guestId         String
+  guest           User           @relation(fields: [guestId], references: [id])
+
+  accommodationId String
+  accommodation   Accommodation  @relation(fields: [accommodationId], references: [id])
+
+  // 상태
+  status          ContractStatus @default(INQUIRY)
+
+  // 기간
+  checkInDate     DateTime
+  checkOutDate    DateTime
+  nights          Int
+
+  // 인원
+  guestCount      Int            @default(1)
+
+  // 가격 (계약 시점 스냅샷)
+  basePrice       Int            // 숙박비
+  cleaningFee     Int            @default(0)
+  managementFee   Int            @default(0)
+  serviceFee      Int            @default(0)  // Snug 수수료
+  deposit         Int            @default(0)  // 보증금
+  discount        Int            @default(0)  // 할인
+  totalPrice      Int            // 총 금액
+
+  // 게스트 정보 (계약서용)
+  guestName       String
+  guestGender     String?
+  guestContact    String?
+  guestEmail      String?
+  passportNumber  String?
+  residentNumber  String?        // 외국인등록번호
+
+  // 부가 정보
+  purpose         String?        // 거주 목적 (공부, 취업 등)
+  detailRequest   String?        // 상세 요구사항
+
+  // 결제자 정보 (본인 아닌 경우)
+  payerName       String?        // "김여사 (모)"
+  payerContact    String?
+  payerBankAccount String?
+
+  // 결제 주기
+  paymentDay      Int?           // 매월 결제일 (1~31)
+
+  // 메모 (호스트용)
+  hostMemo        String?
+
+  // 취소/거절
+  cancelledAt     DateTime?
+  cancelReason    String?
+  rejectedAt      DateTime?
+  rejectReason    String?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  payments        Payment[]
+  chatRoom        ChatRoom?
+  operations      Operation[]
+
+  @@index([guestId])
+  @@index([accommodationId])
+  @@index([status])
+  @@index([checkInDate, checkOutDate])
+  @@map("contracts")
+}
+
+// ============================================
+// PAYMENT (결제)
+// ============================================
 
 enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
   REFUNDED
+  PARTIAL_REFUNDED
 }
 
 enum PaymentMethod {
-  STRIPE
-  TOSS
+  CARD
   BANK_TRANSFER
+  APPLE_PAY
+  ALI_PAY
+  WECHAT_PAY
 }
 
-// ============================================
-// MODELS
-// ============================================
-
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  nameKo        String?   // Korean name for hosts
-  phone         String?
-  avatar        String?
-  bio           String?
-  role          UserRole  @default(GUEST)
-  language      String    @default("en") // Preferred language
-  nationality   String?   // For guests
-  verified      Boolean   @default(false)
-
-  // Supabase Auth
-  supabaseId    String?   @unique
-
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  rooms         Room[]
-  bookings      Booking[]
-  sentMessages  Message[]    @relation("SentMessages")
-  chatRooms     ChatRoom[]   @relation("ChatParticipants")
-  reviews       Review[]     @relation("ReviewAuthor")
-  receivedReviews Review[]   @relation("ReviewTarget")
-  favorites     Favorite[]
-
-  @@map("users")
-}
-
-model Room {
-  id            String      @id @default(cuid())
-  title         String
-  titleKo       String?     // Korean title
-  description   String
-  descriptionKo String?     // Korean description
-
-  // Pricing
-  price         Int         // Monthly rent (KRW)
-  deposit       Int         // Security deposit (KRW)
-  maintenanceFee Int?       // Monthly maintenance fee
-
-  // Location
-  address       String
-  addressDetail String?
-  city          String      @default("Seoul")
-  district      String?     // 구 (Gangnam-gu, etc.)
-  neighborhood  String?     // 동 (Yeoksam-dong, etc.)
-  latitude      Float?
-  longitude     Float?
-  nearestStation String?    // Nearest subway station
-  walkingMinutes Int?       // Minutes to station
-
-  // Room Details
-  roomType      RoomType    @default(ONE_ROOM)
-  size          Float?      // Square meters
-  floor         Int?
-  totalFloors   Int?
-  direction     String?     // South-facing, etc.
-  builtYear     Int?
-
-  // Amenities & Features
-  images        String[]
-  amenities     String[]    // ["wifi", "aircon", "washer", ...]
-  rules         String[]    // House rules
-
-  // Availability
-  availableFrom DateTime?
-  minimumStay   Int?        @default(1) // Minimum months
-  maximumStay   Int?        // Maximum months
-
-  status        RoomStatus  @default(DRAFT)
-  viewCount     Int         @default(0)
-
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  // Relations
-  hostId        String
-  host          User        @relation(fields: [hostId], references: [id])
-  bookings      Booking[]
-  reviews       Review[]
-  favorites     Favorite[]
-
-  @@index([status, city])
-  @@index([hostId])
-  @@index([latitude, longitude])
-  @@map("rooms")
-}
-
-model Booking {
-  id            String        @id @default(cuid())
-
-  checkIn       DateTime
-  checkOut      DateTime
-  totalMonths   Int
-
-  // Pricing at time of booking
-  monthlyPrice  Int
-  deposit       Int
-  totalPrice    Int           // Total amount charged
-
-  status        BookingStatus @default(PENDING)
-
-  // Guest info
-  guestCount    Int           @default(1)
-  specialRequests String?
-
-  // Cancellation
-  cancelledAt   DateTime?
-  cancelReason  String?
-
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  // Relations
-  roomId        String
-  room          Room          @relation(fields: [roomId], references: [id])
-  guestId       String
-  guest         User          @relation(fields: [guestId], references: [id])
-  payment       Payment?
-  chatRoom      ChatRoom?
-
-  @@index([status])
-  @@index([guestId])
-  @@index([roomId])
-  @@map("bookings")
+enum PaymentType {
+  DEPOSIT      // 보증금
+  MONTHLY_RENT // 월세
+  CLEANING_FEE // 청소비
+  UTILITY      // 공과금
+  OTHER        // 기타
 }
 
 model Payment {
-  id            String        @id @default(cuid())
+  id              String        @id @default(cuid())
 
-  amount        Int
-  currency      String        @default("KRW")
-  method        PaymentMethod
-  status        PaymentStatus @default(PENDING)
+  contractId      String
+  contract        Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  // External payment info
-  transactionId String?       // Stripe/Toss transaction ID
-  receiptUrl    String?
+  // 결제 정보
+  type            PaymentType   @default(MONTHLY_RENT)
+  amount          Int
+  currency        String        @default("KRW")
+  method          PaymentMethod?
+  status          PaymentStatus @default(PENDING)
 
-  // Refund info
-  refundedAt    DateTime?
-  refundAmount  Int?
-  refundReason  String?
+  // 결제 예정일 / 실제 결제일
+  dueDate         DateTime?
+  paidAt          DateTime?
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  // 외부 결제 정보
+  transactionId   String?       // PG사 거래 ID
+  receiptUrl      String?
 
-  // Relations
-  bookingId     String        @unique
-  booking       Booking       @relation(fields: [bookingId], references: [id])
+  // 환불 정보
+  refundedAt      DateTime?
+  refundAmount    Int?
+  refundReason    String?
 
+  // 메모
+  description     String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([contractId])
+  @@index([status])
+  @@index([dueDate])
   @@map("payments")
 }
 
+// ============================================
+// FAVORITE (즐겨찾기)
+// ============================================
+
+model Favorite {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, accommodationId])
+  @@map("favorites")
+}
+
+// ============================================
+// OPERATION (운영/유지보수 요청)
+// ============================================
+
+enum OperationStatus {
+  REQUESTED      // 요청됨
+  ASSIGNED       // 업체 배정됨
+  SCHEDULED      // 일정 확정
+  IN_PROGRESS    // 진행 중
+  COMPLETED      // 완료
+  CANCELLED      // 취소
+}
+
+enum OperationType {
+  CLEANING       // 청소
+  REPAIR         // 수리
+  INSPECTION     // 점검
+  MOVE_IN        // 입주 준비
+  MOVE_OUT       // 퇴실 정리
+  OTHER          // 기타
+}
+
+model Operation {
+  id              String          @id @default(cuid())
+
+  // 숙소 연결
+  accommodationId String
+  accommodation   Accommodation   @relation(fields: [accommodationId], references: [id])
+
+  // 계약 연결 (선택적 - 입주자 관련 요청인 경우)
+  contractId      String?
+  contract        Contract?       @relation(fields: [contractId], references: [id])
+
+  // 요청 정보
+  type            OperationType   @default(OTHER)
+  status          OperationStatus @default(REQUESTED)
+  title           String
+  details         String?
+  location        String?         // 구체적 위치 (ex: "101호 화장실")
+
+  // 요청자 (게스트 또는 호스트)
+  requesterId     String?
+  requesterName   String?
+  requesterContact String?
+
+  // 희망 일정
+  preferredDate   DateTime?
+  preferredTime   String?         // "오전", "오후", "14:00-16:00"
+
+  // 확정 일정
+  scheduledDate   DateTime?
+  scheduledTime   String?
+
+  // 위탁업체 배정
+  partnerId       String?
+  partner         User?           @relation(fields: [partnerId], references: [id])
+
+  // 완료 정보
+  completedAt     DateTime?
+  completionNote  String?
+
+  // 비용
+  estimatedCost   Int?
+  actualCost      Int?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([accommodationId])
+  @@index([status])
+  @@index([partnerId])
+  @@map("operations")
+}
+
+// ============================================
+// CHAT (채팅)
+// ============================================
+
 model ChatRoom {
-  id            String    @id @default(cuid())
+  id              String    @id @default(cuid())
 
-  // Can be tied to a booking or just general inquiry
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  // 계약 연결 (선택적)
+  contractId      String?   @unique
+  contract        Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  // Last activity for sorting
-  lastMessageAt DateTime?
+  // 참여자 (JSON으로 저장 - 유연성)
+  participantIds  String[]
+
+  // 마지막 활동
+  lastMessageAt   DateTime?
+  lastMessage     String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
-  bookingId     String?   @unique
-  booking       Booking?  @relation(fields: [bookingId], references: [id])
-  participants  User[]    @relation("ChatParticipants")
-  messages      Message[]
+  messages        Message[]
 
   @@map("chat_rooms")
 }
 
 model Message {
-  id            String    @id @default(cuid())
-  content       String
+  id              String    @id @default(cuid())
 
-  // Message type (text, image, system)
-  type          String    @default("text")
+  chatRoomId      String
+  chatRoom        ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
 
-  // Read status
-  readAt        DateTime?
+  senderId        String
+  senderName      String?
 
-  createdAt     DateTime  @default(now())
+  // 메시지 내용
+  content         String
+  type            String    @default("text")  // text, image, file, system
 
-  // Relations
-  chatRoomId    String
-  chatRoom      ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
-  senderId      String
-  sender        User      @relation("SentMessages", fields: [senderId], references: [id])
+  // 읽음 상태 (JSON - 참여자별 읽음 시간)
+  readBy          Json?     // {"userId1": "2024-01-01T00:00:00Z", ...}
+
+  createdAt       DateTime  @default(now())
 
   @@index([chatRoomId, createdAt])
   @@map("messages")
-}
-
-model Review {
-  id            String    @id @default(cuid())
-
-  rating        Int       // 1-5
-  comment       String?
-
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  roomId        String
-  room          Room      @relation(fields: [roomId], references: [id])
-  authorId      String
-  author        User      @relation("ReviewAuthor", fields: [authorId], references: [id])
-  targetId      String    // Host being reviewed
-  target        User      @relation("ReviewTarget", fields: [targetId], references: [id])
-
-  @@unique([roomId, authorId]) // One review per room per user
-  @@map("reviews")
-}
-
-model Favorite {
-  id            String    @id @default(cuid())
-  createdAt     DateTime  @default(now())
-
-  // Relations
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
-  roomId        String
-  room          Room      @relation(fields: [roomId], references: [id])
-
-  @@unique([userId, roomId])
-  @@map("favorites")
 }

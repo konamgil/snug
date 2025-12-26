@@ -374,11 +374,11 @@ export function PaymentPage() {
                     >
                       <div className="flex items-center gap-3">
                         {payment.id === 'apple' ? (
-                          <ApplePayIcon className="w-10 h-7" />
+                          <ApplePayIcon className="w-10 h-10" />
                         ) : payment.id === 'ali' ? (
                           <AliPayIcon className="w-10 h-10" />
                         ) : (
-                          <WeChatPayIcon className="w-10 h-6" />
+                          <WeChatPayIcon className="w-10 h-10" />
                         )}
                         <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                           {payment.name}

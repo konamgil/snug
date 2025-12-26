@@ -4,9 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { RoomsModule } from './modules/rooms/rooms.module';
-import { BookingsModule } from './modules/bookings/bookings.module';
-import { ChatModule } from './modules/chat/chat.module';
+import { AccommodationsModule } from './modules/accommodations/accommodations.module';
 
 @Module({
   imports: [
@@ -47,9 +45,7 @@ import { ChatModule } from './modules/chat/chat.module';
     // Feature modules
     AuthModule,
     UsersModule,
-    RoomsModule,
-    BookingsModule,
-    ChatModule,
+    AccommodationsModule,
   ],
 })
 export class AppModule {}

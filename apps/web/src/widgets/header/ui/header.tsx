@@ -37,6 +37,10 @@ interface HeaderProps {
    */
   onSearch?: (values: SearchBarValues) => void;
   /**
+   * Custom height class (e.g., 'h-[92px]')
+   */
+  heightClass?: string;
+  /**
    * Additional class names
    */
   className?: string;
@@ -49,6 +53,7 @@ export function Header({
   showSearch = true,
   searchValues,
   onSearch,
+  heightClass,
   className,
 }: HeaderProps) {
   // with-back variant: Mobile back button / Desktop full header
@@ -127,7 +132,7 @@ export function Header({
   // default variant: Simple header with optional logo
   return (
     <header className={`sticky top-0 z-50 w-full bg-white safe-top ${className ?? ''}`}>
-      <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-6">
+      <div className={`flex items-center justify-between px-4 md:px-6 ${heightClass ?? 'h-14 md:h-16'}`}>
         {/* Left Side - Logo */}
         <div className="flex items-center">
           {showLogo && (

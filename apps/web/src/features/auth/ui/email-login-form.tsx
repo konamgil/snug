@@ -2,21 +2,36 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff, X } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+import { Eye, EyeOff, X, Loader2 } from 'lucide-react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { useAuthStore } from '@/shared/stores';
 
 export function EmailLoginForm() {
   const t = useTranslations('auth.login');
+  const router = useRouter();
+  const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
+  const _isLoading = useAuthStore((state) => state.isLoading);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(t('incorrectCredentials'));
-    console.log('Email login:', { email, password, staySignedIn });
+    setError('');
+    setIsSubmitting(true);
+
+    const { error } = await signInWithEmail(email, password);
+
+    if (error) {
+      setError(t('incorrectCredentials'));
+      setIsSubmitting(false);
+    } else {
+      router.push('/');
+    }
   };
 
   const clearPassword = () => {
@@ -96,8 +111,10 @@ export function EmailLoginForm() {
       {/* Continue Button */}
       <button
         type="submit"
-        className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+        disabled={isSubmitting || !email || !password}
+        className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
+        {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
         {t('continue')}
       </button>
 

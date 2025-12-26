@@ -1,11 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
+import { useAuthStore } from '@/shared/stores';
+import {
+  createAccommodation,
+  createAccommodationGroup,
+  getAccommodationGroups,
+} from '@/shared/api/accommodation/actions';
 import { AccommodationForm } from './accommodation-form';
 import { AccommodationPreviewPanel } from './accommodation-preview-panel';
-import type { AccommodationFormData } from './types';
+import type { AccommodationFormData, AccommodationType, BuildingType, GenderRule } from './types';
 import { DEFAULT_FORM_DATA } from './types';
+import type { GroupItem } from './group-management-modal';
 
 interface AccommodationPageHeaderProps {
   breadcrumb: string[];
@@ -94,6 +102,7 @@ interface AccommodationPageFooterProps {
   onSaveDraft?: () => void;
   onSave?: () => void;
   showDelete?: boolean;
+  isSaving?: boolean;
 }
 
 function AccommodationPageFooter({
@@ -102,6 +111,7 @@ function AccommodationPageFooter({
   onSaveDraft,
   onSave,
   showDelete = false,
+  isSaving = false,
 }: AccommodationPageFooterProps) {
   return (
     <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-[hsl(var(--snug-border))]">
@@ -110,7 +120,8 @@ function AccommodationPageFooter({
           <button
             type="button"
             onClick={onDelete}
-            className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+            disabled={isSaving}
+            className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
           >
             삭제
           </button>
@@ -121,43 +132,295 @@ function AccommodationPageFooter({
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+          disabled={isSaving}
+          className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
         >
           취소
         </button>
         <button
           type="button"
           onClick={onSaveDraft}
-          className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+          disabled={isSaving}
+          className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
         >
-          임시저장
+          {isSaving ? '저장 중...' : '임시저장'}
         </button>
         <button
           type="button"
           onClick={onSave}
-          className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
+          disabled={isSaving}
+          className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          저장
+          {isSaving ? '저장 중...' : '저장'}
         </button>
       </div>
     </div>
   );
 }
 
+// Helper: Convert form type to API type
+function toApiAccommodationType(type: AccommodationType): 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT' {
+  const map: Record<AccommodationType, 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT'> = {
+    house: 'HOUSE',
+    share_room: 'SHARE_ROOM',
+    share_house: 'SHARE_HOUSE',
+    apartment: 'APARTMENT',
+  };
+  return map[type];
+}
+
+function toApiBuildingType(type?: BuildingType): 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL' | undefined {
+  if (!type) return undefined;
+  const map: Record<BuildingType, 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL'> = {
+    apartment: 'APARTMENT',
+    villa: 'VILLA',
+    house: 'HOUSE',
+    officetel: 'OFFICETEL',
+  };
+  return map[type];
+}
+
+function toApiUsageTypes(types: ('stay' | 'short_term')[]): ('STAY' | 'SHORT_TERM')[] {
+  return types.map((t) => (t === 'stay' ? 'STAY' : 'SHORT_TERM'));
+}
+
+function toApiGenderRules(rules: GenderRule[]): ('MALE_ONLY' | 'FEMALE_ONLY' | 'PET_ALLOWED')[] {
+  const map: Record<GenderRule, 'MALE_ONLY' | 'FEMALE_ONLY' | 'PET_ALLOWED'> = {
+    male_only: 'MALE_ONLY',
+    female_only: 'FEMALE_ONLY',
+    pet_allowed: 'PET_ALLOWED',
+  };
+  return rules.map((r) => map[r]);
+}
+
+function toApiBedCounts(beds: { king: number; queen: number; single: number; superSingle: number; bunkBed: number }): Record<string, number> {
+  return { ...beds } as Record<string, number>;
+}
+
+// Convert PhotoCategory[] to AddAccommodationPhotoInput[]
+function toApiPhotos(mainPhotos: { id: string; name: string; photos: { id: string; url: string; order: number }[]; order: number }[]): { category: string; url: string; order: number }[] {
+  const apiPhotos: { category: string; url: string; order: number }[] = [];
+  let globalOrder = 0;
+
+  for (const category of mainPhotos) {
+    for (const photo of category.photos) {
+      // Skip blob URLs (not uploaded to storage)
+      if (photo.url.startsWith('blob:')) {
+        console.warn('[toApiPhotos] Skipping blob URL:', photo.url);
+        continue;
+      }
+      apiPhotos.push({
+        category: category.id,
+        url: photo.url,
+        order: globalOrder++,
+      });
+    }
+  }
+
+  return apiPhotos;
+}
+
 // New Accommodation Page
 export function AccommodationNewPage() {
+  const router = useRouter();
+  const { user, refreshUser } = useAuthStore();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
+  const [groups, setGroups] = useState<GroupItem[]>([]);
+  const [isSaving, _setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    console.log('Save accommodation:', formData);
+  // Fetch groups on mount
+  useEffect(() => {
+    async function loadGroups() {
+      if (!user?.id) return;
+      try {
+        const fetchedGroups = await getAccommodationGroups();
+        // 방어적 코딩: 배열 확인
+        const groupsArray = Array.isArray(fetchedGroups) ? fetchedGroups : [];
+        setGroups(
+          groupsArray.map((g) => ({
+            id: g.id,
+            name: g.name,
+            isSelected: false,
+            accommodationIds: [],
+          }))
+        );
+      } catch (error) {
+        console.error('Failed to load groups:', error);
+      }
+    }
+    loadGroups();
+  }, [user?.id]);
+
+  const handleSave = async () => {
+    if (!user?.id) return;
+
+    setIsSaving(true);
+    try {
+      // Find or create group if specified
+      let groupId: string | undefined;
+      if (formData.groupName) {
+        const existingGroup = groups.find((g) => g.name === formData.groupName);
+        if (existingGroup) {
+          groupId = existingGroup.id;
+        } else {
+          // Create new group
+          // hostId is derived from JWT token on server side
+          const newGroup = await createAccommodationGroup({
+            name: formData.groupName,
+            address: formData.address || undefined,
+          });
+          groupId = newGroup.id;
+        }
+      }
+
+      // Convert photos to API format
+      const apiPhotos = toApiPhotos(formData.mainPhotos);
+
+      // Create accommodation
+      // hostId is derived from JWT token on server side
+      const { accommodation, roleUpgraded } = await createAccommodation({
+        groupId,
+        roomName: formData.roomName,
+        accommodationType: toApiAccommodationType(formData.accommodationType),
+        buildingType: toApiBuildingType(formData.buildingType),
+        usageTypes: toApiUsageTypes(formData.usageTypes),
+        minReservationDays: formData.minReservationDays,
+        address: formData.address,
+        addressDetail: formData.addressDetail || undefined,
+        zipCode: formData.zipCode || undefined,
+        basePrice: formData.pricing.basePrice,
+        includesUtilities: formData.pricing.includesUtilities,
+        weekendPrice: formData.pricing.weekendPrice,
+        weekendDays: formData.pricing.weekendDays,
+        managementFee: formData.pricing.managementFee,
+        cleaningFee: formData.pricing.cleaningFee,
+        extraPersonFee: formData.pricing.extraPersonFee,
+        petFee: formData.pricing.petFee,
+        capacity: formData.space.capacity,
+        genderRules: toApiGenderRules(formData.space.genderRules),
+        sizeM2: formData.space.sizeM2,
+        sizePyeong: formData.space.sizePyeong,
+        roomCount: formData.space.rooms.room,
+        livingRoomCount: formData.space.rooms.livingRoom,
+        kitchenCount: formData.space.rooms.kitchen,
+        bathroomCount: formData.space.rooms.bathroom,
+        terraceCount: formData.space.rooms.terrace,
+        bedCounts: toApiBedCounts(formData.space.beds),
+        houseRules: formData.space.houseRules || undefined,
+        introduction: formData.space.introduction || undefined,
+        status: 'ACTIVE',
+        isOperating: formData.isOperating,
+        photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+      });
+
+      console.log('Accommodation created:', accommodation);
+
+      // If role was upgraded (GUEST → HOST), refresh user state
+      if (roleUpgraded) {
+        await refreshUser();
+        console.log('User role upgraded to HOST');
+      }
+
+      // Navigate to properties list
+      router.push('/host/properties');
+    } catch (error) {
+      console.error('Failed to save accommodation:', error);
+      // TODO: Show error toast
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveDraft = () => {
-    console.log('Save draft:', formData);
+  const handleSaveDraft = async () => {
+    if (!user?.id) return;
+
+    setIsSaving(true);
+    try {
+      // Similar to handleSave but with status: 'DRAFT'
+      let groupId: string | undefined;
+      if (formData.groupName) {
+        const existingGroup = groups.find((g) => g.name === formData.groupName);
+        if (existingGroup) {
+          groupId = existingGroup.id;
+        } else {
+          const newGroup = await createAccommodationGroup({
+            name: formData.groupName,
+            address: formData.address || undefined,
+          });
+          groupId = newGroup.id;
+        }
+      }
+
+      // Convert photos to API format
+      const apiPhotos = toApiPhotos(formData.mainPhotos);
+
+      await createAccommodation({
+        groupId,
+        roomName: formData.roomName || '임시 저장',
+        accommodationType: toApiAccommodationType(formData.accommodationType),
+        buildingType: toApiBuildingType(formData.buildingType),
+        usageTypes: toApiUsageTypes(formData.usageTypes),
+        minReservationDays: formData.minReservationDays,
+        address: formData.address || '주소 미입력',
+        addressDetail: formData.addressDetail || undefined,
+        zipCode: formData.zipCode || undefined,
+        basePrice: formData.pricing.basePrice || 0,
+        includesUtilities: formData.pricing.includesUtilities,
+        weekendPrice: formData.pricing.weekendPrice,
+        weekendDays: formData.pricing.weekendDays,
+        managementFee: formData.pricing.managementFee,
+        cleaningFee: formData.pricing.cleaningFee,
+        extraPersonFee: formData.pricing.extraPersonFee,
+        petFee: formData.pricing.petFee,
+        capacity: formData.space.capacity || 1,
+        genderRules: toApiGenderRules(formData.space.genderRules),
+        sizeM2: formData.space.sizeM2,
+        sizePyeong: formData.space.sizePyeong,
+        roomCount: formData.space.rooms.room,
+        livingRoomCount: formData.space.rooms.livingRoom,
+        kitchenCount: formData.space.rooms.kitchen,
+        bathroomCount: formData.space.rooms.bathroom,
+        terraceCount: formData.space.rooms.terrace,
+        bedCounts: toApiBedCounts(formData.space.beds),
+        houseRules: formData.space.houseRules || undefined,
+        introduction: formData.space.introduction || undefined,
+        status: 'DRAFT',
+        isOperating: false,
+        photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+      });
+
+      router.push('/host/properties');
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    console.log('Cancel');
+    router.back();
+  };
+
+  const handleAddGroup = async (groupName: string) => {
+    if (!user?.id) return;
+
+    try {
+      const newGroup = await createAccommodationGroup({
+        name: groupName,
+      });
+
+      setGroups([
+        ...groups,
+        {
+          id: newGroup.id,
+          name: newGroup.name,
+          isSelected: false,
+          accommodationIds: [],
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to create group:', error);
+    }
   };
 
   return (
@@ -173,7 +436,12 @@ export function AccommodationNewPage() {
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-6">
-          <AccommodationForm initialData={formData} onChange={setFormData} />
+          <AccommodationForm
+            initialData={formData}
+            onChange={setFormData}
+            groups={groups}
+            onAddGroup={handleAddGroup}
+          />
         </div>
 
         {/* Preview Panel - Desktop Only */}
@@ -188,6 +456,7 @@ export function AccommodationNewPage() {
         onSaveDraft={handleSaveDraft}
         onSave={handleSave}
         showDelete={false}
+        isSaving={isSaving}
       />
     </div>
   );
@@ -199,6 +468,8 @@ interface AccommodationEditPageProps {
 }
 
 export function AccommodationEditPage({ accommodationId }: AccommodationEditPageProps) {
+  const router = useRouter();
+  const { user, refreshUser } = useAuthStore();
   // In real app, fetch data based on accommodationId
   const [formData, setFormData] = useState<AccommodationFormData>({
     ...DEFAULT_FORM_DATA,
@@ -206,21 +477,73 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     lastModifiedBy: '2025.05.30 김러그',
     isOperating: false,
   });
+  const [groups, setGroups] = useState<GroupItem[]>([]);
+  const [isSaving, _setIsSaving] = useState(false);
+
+  // Fetch groups on mount
+  useEffect(() => {
+    async function loadGroups() {
+      if (!user?.id) return;
+      try {
+        const fetchedGroups = await getAccommodationGroups();
+        // 방어적 코딩: 배열 확인
+        const groupsArray = Array.isArray(fetchedGroups) ? fetchedGroups : [];
+        setGroups(
+          groupsArray.map((g) => ({
+            id: g.id,
+            name: g.name,
+            isSelected: false,
+            accommodationIds: [],
+          }))
+        );
+      } catch (error) {
+        console.error('Failed to load groups:', error);
+      }
+    }
+    loadGroups();
+  }, [user?.id]);
+
+  // TODO: Fetch accommodation data based on accommodationId
 
   const handleSave = () => {
+    // TODO: Implement update logic
     console.log('Save accommodation:', formData);
   };
 
   const handleSaveDraft = () => {
+    // TODO: Implement draft update logic
     console.log('Save draft:', formData);
   };
 
   const handleCancel = () => {
-    console.log('Cancel');
+    router.back();
   };
 
   const handleDelete = () => {
+    // TODO: Implement delete logic
     console.log('Delete accommodation:', accommodationId);
+  };
+
+  const handleAddGroup = async (groupName: string) => {
+    if (!user?.id) return;
+
+    try {
+      const newGroup = await createAccommodationGroup({
+        name: groupName,
+      });
+
+      setGroups([
+        ...groups,
+        {
+          id: newGroup.id,
+          name: newGroup.name,
+          isSelected: false,
+          accommodationIds: [],
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to create group:', error);
+    }
   };
 
   return (
@@ -238,7 +561,12 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-6">
-          <AccommodationForm initialData={formData} onChange={setFormData} />
+          <AccommodationForm
+            initialData={formData}
+            onChange={setFormData}
+            groups={groups}
+            onAddGroup={handleAddGroup}
+          />
         </div>
 
         {/* Preview Panel - Desktop Only */}
@@ -254,6 +582,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         onSaveDraft={handleSaveDraft}
         onSave={handleSave}
         showDelete={true}
+        isSaving={isSaving}
       />
     </div>
   );

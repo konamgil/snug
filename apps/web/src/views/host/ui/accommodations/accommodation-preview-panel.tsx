@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import type { AccommodationFormData } from './types';
+import { AccommodationPreviewModal } from './accommodation-preview-modal';
 
 interface AccommodationPreviewPanelProps {
   data: AccommodationFormData;
@@ -13,6 +15,7 @@ export function AccommodationPreviewPanel({
   data,
   contractorName = '',
 }: AccommodationPreviewPanelProps) {
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const formatPrice = (price: number | undefined) => {
     if (!price) return '-';
     return price.toLocaleString('ko-KR') + '원';
@@ -38,12 +41,6 @@ export function AccommodationPreviewPanel({
     if (data.space.genderRules.includes('pet_allowed')) rules.push('반려동물');
     return rules.length > 0 ? rules.join(', ') : '-';
   };
-
-  const hasData =
-    data.roomName ||
-    data.address ||
-    data.pricing.basePrice > 0 ||
-    data.mainPhotos.some((cat) => cat.photos.length > 0);
 
   const getMainPhoto = () => {
     // First photo from "main" category, or first photo from any category
@@ -177,15 +174,18 @@ export function AccommodationPreviewPanel({
       {/* Preview Button */}
       <button
         type="button"
-        disabled={!hasData}
-        className={`w-full mt-6 py-3 text-sm font-medium rounded-lg transition-colors ${
-          hasData
-            ? 'bg-[hsl(var(--snug-orange))] text-white hover:opacity-90'
-            : 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-gray))] cursor-not-allowed'
-        }`}
+        onClick={() => setIsPreviewModalOpen(true)}
+        className="w-full mt-6 py-3 text-sm font-medium rounded-lg transition-colors bg-[hsl(var(--snug-orange))] text-white hover:opacity-90"
       >
         숙소 상세 미리 보기
       </button>
+
+      {/* Preview Modal */}
+      <AccommodationPreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        data={data}
+      />
     </div>
   );
 }

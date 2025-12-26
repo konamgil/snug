@@ -1,12 +1,70 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import type { User } from '@snug/database';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  /**
+   * 인증 테스트용 Ping 엔드포인트
+   *
+   * Supabase JWT 토큰이 유효한지 확인합니다.
+   * 유효한 토큰이면 현재 로그인한 사용자 정보를 반환합니다.
+   *
+   * @example
+   * // Request
+   * GET /auth/ping
+   * Authorization: Bearer <supabase-jwt-token>
+   *
+   * // Response
+   * {
+   *   "message": "pong",
+   *   "user": { "id": "...", "email": "...", "role": "GUEST" }
+   * }
+   */
+  @Get('ping')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Test authentication (ping/pong)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Authentication successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'pong' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            email: { type: 'string' },
+            role: { type: 'string', enum: ['GUEST', 'HOST', 'PARTNER', 'ADMIN'] },
+          },
+        },
+        timestamp: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid or missing token' })
+  ping(@CurrentUser() user: User) {
+    return {
+      message: 'pong',
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })

@@ -216,7 +216,7 @@ export const DEFAULT_FORM_DATA: AccommodationFormData = {
     petFee: undefined,
   },
   space: {
-    capacity: 0,
+    capacity: 1,
     genderRules: [],
     sizeM2: undefined,
     sizePyeong: undefined,

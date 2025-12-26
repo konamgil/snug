@@ -6,8 +6,10 @@ import { User, UserRole } from '@prisma/client';
 const USER_SELECT = {
   id: true,
   email: true,
-  name: true,
-  avatar: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  avatarUrl: true,
   role: true,
   createdAt: true,
 } as const;
@@ -20,11 +22,12 @@ export class UsersRepository extends BaseRepository<User> {
     super(prisma);
   }
 
-  async create(data: { email: string; name?: string; role?: UserRole }) {
+  async create(data: { email: string; firstName?: string; lastName?: string; role?: UserRole }) {
     return this.prisma.user.create({
       data: {
         email: data.email,
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
         role: data.role ?? 'GUEST',
       },
     });
@@ -49,7 +52,7 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
-  async update(id: string, data: { name?: string; avatar?: string }) {
+  async update(id: string, data: { firstName?: string; lastName?: string; avatarUrl?: string }) {
     return this.prisma.user.update({
       where: { id },
       data,

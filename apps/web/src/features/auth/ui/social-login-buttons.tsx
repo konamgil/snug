@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Mail } from 'lucide-react';
+import { Mail, Loader2 } from 'lucide-react';
+import { useAuthStore } from '@/shared/stores';
 
 interface SocialLoginButtonsProps {
   onEmailClick: () => void;
@@ -12,14 +14,16 @@ interface SocialButtonProps {
   label: string;
   onClick?: () => void;
   badge?: string;
+  disabled?: boolean;
 }
 
-function SocialButton({ icon, label, onClick, badge }: SocialButtonProps) {
+function SocialButton({ icon, label, onClick, badge, disabled }: SocialButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-between px-4 py-3.5 border border-[hsl(var(--snug-border))] rounded-full hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] active:bg-[hsl(var(--snug-border))] active:scale-[0.98] transition-all"
+      disabled={disabled}
+      className="w-full flex items-center justify-between px-4 py-3.5 border border-[hsl(var(--snug-border))] rounded-full hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] active:bg-[hsl(var(--snug-border))] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-[hsl(var(--snug-border))]"
     >
       <div className="w-6 flex justify-center">{icon}</div>
       <span className="flex-1 text-center text-sm font-medium text-[hsl(var(--snug-text-primary))]">
@@ -91,49 +95,72 @@ function FacebookIcon() {
 
 export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const t = useTranslations('auth.login');
+  const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle);
+  const signInWithKakao = useAuthStore((state) => state.signInWithKakao);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google login');
+  const handleGoogleLogin = async () => {
+    setLoadingProvider('google');
+    setError(null);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setError(error.message);
+      setLoadingProvider(null);
+    }
   };
 
   const handleAppleLogin = () => {
-    // TODO: Implement Apple OAuth
-    console.log('Apple login');
+    // Apple OAuth - 추후 구현
+    setError('Apple login is not available yet');
   };
 
-  const handleKakaoLogin = () => {
-    // TODO: Implement Kakao OAuth
-    console.log('Kakao login');
+  const handleKakaoLogin = async () => {
+    setLoadingProvider('kakao');
+    setError(null);
+    const { error } = await signInWithKakao();
+    if (error) {
+      setError(error.message);
+      setLoadingProvider(null);
+    }
   };
 
   const handleFacebookLogin = () => {
-    // TODO: Implement Facebook OAuth
-    console.log('Facebook login');
+    // Facebook OAuth - 추후 구현
+    setError('Facebook login is not available yet');
   };
+
+  const isLoading = loadingProvider !== null;
 
   return (
     <div className="space-y-3">
+      {error && (
+        <p className="text-sm text-red-500 text-center px-1">{error}</p>
+      )}
       <SocialButton
-        icon={<GoogleIcon />}
+        icon={loadingProvider === 'google' ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
         label={t('continueWithGoogle')}
         onClick={handleGoogleLogin}
         badge="recent"
+        disabled={isLoading}
       />
       <SocialButton
         icon={<AppleIcon />}
         label={t('continueWithApple')}
         onClick={handleAppleLogin}
+        disabled={isLoading}
       />
       <SocialButton
-        icon={<KakaoIcon />}
+        icon={loadingProvider === 'kakao' ? <Loader2 className="w-5 h-5 animate-spin" /> : <KakaoIcon />}
         label={t('continueWithKakao')}
         onClick={handleKakaoLogin}
+        disabled={isLoading}
       />
       <SocialButton
         icon={<FacebookIcon />}
         label={t('continueWithFacebook')}
         onClick={handleFacebookLogin}
+        disabled={isLoading}
       />
 
       {/* Divider */}
@@ -148,6 +175,7 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
         icon={<Mail className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />}
         label={t('continueWithEmail')}
         onClick={onEmailClick}
+        disabled={isLoading}
       />
     </div>
   );

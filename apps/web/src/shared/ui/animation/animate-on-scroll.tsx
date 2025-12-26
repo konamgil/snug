@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 type AnimationVariant = 'fadeUp' | 'fadeIn' | 'slideLeft' | 'slideRight' | 'scale';
 
 interface AnimateOnScrollProps {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   variant?: AnimationVariant;
   delay?: number;

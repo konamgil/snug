@@ -1,42 +1,38 @@
-// User Types
+// User Types - Prisma 스키마와 동기화
 
-export type UserRole = 'GUEST' | 'HOST' | 'ADMIN';
+export type UserRole = 'GUEST' | 'HOST' | 'CO_HOST' | 'SNUG_OPERATOR' | 'PARTNER';
 
 export interface User {
   id: string;
   email: string;
-  name: string | null;
-  nameKo: string | null;
-  phone: string | null;
-  avatar: string | null;
-  bio: string | null;
   role: UserRole;
-  language: string;
-  nationality: string | null;
-  verified: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  countryCode: string | null;
+  phoneVerified: boolean;
+  avatarUrl: string | null;
+  supabaseId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface UserProfile extends Pick<User, 'id' | 'name' | 'avatar' | 'role' | 'verified'> {
-  reviewCount?: number;
-  averageRating?: number;
+export interface UserProfile extends Pick<User, 'id' | 'firstName' | 'lastName' | 'avatarUrl' | 'role'> {
+  fullName: string | null;
 }
 
 export interface CreateUserInput {
   email: string;
-  name?: string;
+  supabaseId: string;
+  firstName?: string;
+  lastName?: string;
   role?: UserRole;
-  language?: string;
-  nationality?: string;
 }
 
 export interface UpdateUserInput {
-  name?: string;
-  nameKo?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
-  avatar?: string;
-  bio?: string;
-  language?: string;
-  nationality?: string;
+  countryCode?: string;
+  avatarUrl?: string;
 }

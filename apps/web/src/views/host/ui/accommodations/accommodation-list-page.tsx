@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AccommodationList } from './accommodation-list';
@@ -11,25 +11,132 @@ import {
   type AccommodationSimple,
 } from './group-management-modal';
 import type { AccommodationListItem } from './types';
+import {
+  getAccommodations,
+  getAccommodationGroups,
+  updateAccommodation,
+  deleteAccommodation,
+} from '@/shared/api/accommodation/actions';
+import type { Accommodation, AccommodationGroup } from '@snug/types';
+
+/**
+ * API Accommodation을 프론트엔드 AccommodationListItem으로 변환
+ */
+function toListItem(acc: Accommodation): AccommodationListItem {
+  // 첫 번째 사진을 썸네일로 사용
+  const thumbnailUrl = acc.photos?.[0]?.url || '';
+
+  // usageType 변환 (API: 'STAY' | 'SHORT_TERM' → UI: 'stay' | 'short_term')
+  const usageType = acc.usageTypes[0]?.toLowerCase() as 'stay' | 'short_term' || 'stay';
+
+  return {
+    id: acc.id,
+    thumbnailUrl,
+    groupName: acc.group?.name,
+    roomName: acc.roomName,
+    nickname: undefined, // API에 별명 필드가 없음
+    usageType,
+    isOperating: acc.isOperating,
+    pricing: {
+      nights: 30, // 기본값
+      includesUtilities: acc.includesUtilities,
+      totalPrice: acc.basePrice,
+    },
+    address: acc.address,
+    sharedSpace: {
+      totalSizeM2: acc.sizeM2 || 0,
+      description: `거실 ${acc.livingRoomCount}, 부엌 ${acc.kitchenCount}, 화장실 ${acc.bathroomCount}`,
+    },
+    privateSpace: {
+      sizeM2: acc.sizeM2 || 0,
+      description: `방 ${acc.roomCount}`,
+    },
+    houseRule: acc.houseRules || undefined,
+  };
+}
+
+/**
+ * API AccommodationGroup을 프론트엔드 GroupItem으로 변환
+ */
+function toGroupItem(group: AccommodationGroup, accommodations: Accommodation[]): GroupItem {
+  const accommodationIds = accommodations
+    .filter((acc) => acc.groupId === group.id)
+    .map((acc) => acc.id);
+
+  return {
+    id: group.id,
+    name: group.name,
+    isSelected: false,
+    accommodationIds,
+  };
+}
 
 export function AccommodationListPage() {
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<AccommodationListItem | null>(null);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
-  const [groups, setGroups] = useState<GroupItem[]>([
-    { id: '1', name: 'Snug Stay', isSelected: false, accommodationIds: ['acc_1', 'acc_2'] },
-    { id: '2', name: 'Korea Stay', isSelected: false, accommodationIds: ['acc_3'] },
-    { id: '3', name: 'House cozy', isSelected: false, accommodationIds: [] },
-  ]);
 
-  // Mock accommodations data - 실제로는 API에서 가져옴
-  const accommodations: AccommodationSimple[] = [
-    { id: 'acc_1', name: '서울 강남점' },
-    { id: 'acc_2', name: '서울 홍대점' },
-    { id: 'acc_3', name: '부산 해운대점' },
-    { id: 'acc_4', name: '제주 서귀포점' },
-    { id: 'acc_5', name: '대구 동성로점' },
-  ];
+  // API 데이터 상태
+  const [items, setItems] = useState<AccommodationListItem[]>([]);
+  const [groups, setGroups] = useState<GroupItem[]>([]);
+  const [accommodationSimples, setAccommodationSimples] = useState<AccommodationSimple[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 원본 Accommodation 데이터 (상태 업데이트에 필요)
+  const [rawAccommodations, setRawAccommodations] = useState<Accommodation[]>([]);
+
+  /**
+   * 데이터 로드
+   */
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // 숙소와 그룹 데이터를 병렬로 로드
+      const [accommodationsData, groupsData] = await Promise.all([
+        getAccommodations(),
+        getAccommodationGroups(),
+      ]);
+
+      // 방어적 코딩: 배열 확인
+      const accommodations = Array.isArray(accommodationsData) ? accommodationsData : [];
+      const groups = Array.isArray(groupsData) ? groupsData : [];
+
+      console.log('[AccommodationListPage] Loaded data:', {
+        accommodationsCount: accommodations.length,
+        groupsCount: groups.length,
+      });
+
+      // 원본 데이터 저장
+      setRawAccommodations(accommodations);
+
+      // 프론트엔드 형식으로 변환
+      const listItems = accommodations.map(toListItem);
+      setItems(listItems);
+
+      // 그룹 데이터 변환
+      const groupItems = groups.map((g) => toGroupItem(g, accommodations));
+      setGroups(groupItems);
+
+      // 그룹 모달용 간단한 숙소 목록
+      const simples: AccommodationSimple[] = accommodations.map((acc) => ({
+        id: acc.id,
+        name: acc.roomName,
+      }));
+      setAccommodationSimples(simples);
+    } catch (err) {
+      console.error('Failed to load accommodations:', err);
+      setError('숙소 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleSelect = (item: AccommodationListItem) => {
     setSelectedItem(item);
@@ -47,16 +154,62 @@ export function AccommodationListPage() {
     setIsGroupModalOpen(true);
   };
 
-  const handleGroupSave = (updatedGroups: GroupItem[]) => {
+  const handleGroupSave = async (updatedGroups: GroupItem[]) => {
     setGroups(updatedGroups);
+    // 그룹 변경사항은 개별 API 호출로 처리해야 함
+    // 현재는 로컬 상태만 업데이트
   };
 
-  const handleBulkStatusChange = (ids: string[], status: boolean) => {
-    console.log('Bulk status change:', ids, status);
+  /**
+   * 일괄 운영상태 변경
+   */
+  const handleBulkStatusChange = async (ids: string[], status: boolean) => {
+    try {
+      // 모든 선택된 숙소의 운영상태를 병렬로 업데이트
+      await Promise.all(
+        ids.map((id) => updateAccommodation(id, { isOperating: status }))
+      );
+
+      // 로컬 상태 업데이트
+      setItems((prev) =>
+        prev.map((item) =>
+          ids.includes(item.id) ? { ...item, isOperating: status } : item
+        )
+      );
+
+      // 선택된 아이템도 업데이트
+      if (selectedItem && ids.includes(selectedItem.id)) {
+        setSelectedItem({ ...selectedItem, isOperating: status });
+      }
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      alert('운영상태 변경에 실패했습니다.');
+    }
   };
 
-  const handleBulkDelete = (ids: string[]) => {
-    console.log('Bulk delete:', ids);
+  /**
+   * 일괄 삭제
+   */
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!confirm(`${ids.length}개의 숙소를 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      // 모든 선택된 숙소를 병렬로 삭제
+      await Promise.all(ids.map((id) => deleteAccommodation(id)));
+
+      // 로컬 상태 업데이트
+      setItems((prev) => prev.filter((item) => !ids.includes(item.id)));
+
+      // 선택된 아이템이 삭제된 경우 선택 해제
+      if (selectedItem && ids.includes(selectedItem.id)) {
+        setSelectedItem(null);
+      }
+    } catch (err) {
+      console.error('Failed to delete accommodations:', err);
+      alert('숙소 삭제에 실패했습니다.');
+    }
   };
 
   const handleEditInfo = (id: string) => {
@@ -65,7 +218,33 @@ export function AccommodationListPage() {
 
   const handleManagePricing = (id: string) => {
     console.log('Manage pricing:', id);
+    // TODO: 가격 관리 페이지 구현 후 라우팅
   };
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--snug-orange))]" />
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-white gap-4">
+        <p className="text-[hsl(var(--snug-gray))]">{error}</p>
+        <button
+          type="button"
+          onClick={loadData}
+          className="px-4 py-2 text-sm font-medium text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -74,6 +253,7 @@ export function AccommodationListPage() {
         {/* List Section */}
         <div className={`${selectedItem ? 'hidden md:block md:flex-1' : 'flex-1'} overflow-hidden`}>
           <AccommodationList
+            items={items}
             selectedId={selectedItem?.id}
             onSelect={handleSelect}
             onNewAccommodation={handleNewAccommodation}
@@ -127,7 +307,7 @@ export function AccommodationListPage() {
         isOpen={isGroupModalOpen}
         onClose={() => setIsGroupModalOpen(false)}
         groups={groups}
-        accommodations={accommodations}
+        accommodations={accommodationSimples}
         onSave={handleGroupSave}
       />
     </div>

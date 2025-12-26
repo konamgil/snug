@@ -2,15 +2,21 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Camera, ChevronDown, User } from 'lucide-react';
+import { ArrowLeft, Camera, ChevronDown, User, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { CustomSelect, type SelectOption } from '@/shared/ui';
 import { MypageSidebar } from './mypage-sidebar';
+import { useAuthStore } from '@/shared/stores/auth-store';
+import {
+  getProfile,
+  updateProfile,
+  type ProfileData as ApiProfileData,
+} from '@/shared/api/profile';
 
 type VerificationState = 'idle' | 'code_sent' | 'success' | 'error';
 
-interface ProfileData {
+interface ProfileFormData {
   firstName: string;
   lastName: string;
   aboutMe: string;
@@ -22,6 +28,22 @@ interface ProfileData {
   passportNumber: string;
 }
 
+// PurposeOfStay enum 매핑 (DB 값 <-> UI 값)
+const PURPOSE_MAP: Record<string, string> = {
+  WORK: 'work',
+  STUDY: 'study',
+  BUSINESS: 'business',
+  FAMILY: 'family',
+  TOURISM: 'tourism',
+  MEDICAL: 'medical',
+  OTHER: 'other',
+};
+
+const PURPOSE_REVERSE_MAP: Record<string, string> = Object.entries(PURPOSE_MAP).reduce(
+  (acc, [key, value]) => ({ ...acc, [value]: key }),
+  {} as Record<string, string>,
+);
+
 const ABOUT_ME_MAX_LENGTH = 100;
 
 const COUNTRY_CODES = [
@@ -32,9 +54,28 @@ const COUNTRY_CODES = [
   { code: '+84', label: '+84 (Vietnam)' },
 ];
 
+// API 데이터를 폼 데이터로 변환
+function apiToFormData(data: ApiProfileData): ProfileFormData {
+  return {
+    firstName: data.firstName || '',
+    lastName: data.lastName || '',
+    aboutMe: data.aboutMe || '',
+    purposeOfStay: data.purposeOfStay ? PURPOSE_MAP[data.purposeOfStay] || '' : '',
+    email: data.email,
+    countryCode: data.countryCode || '+82',
+    phone: data.phone || '',
+    phoneVerified: data.phoneVerified,
+    passportNumber: data.passportNumber || '',
+  };
+}
+
 export function ProfilePage() {
   const t = useTranslations('mypage.profile');
   const router = useRouter();
+  const { user, isInitialized, refreshUser } = useAuthStore();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [verificationState, setVerificationState] = useState<VerificationState>('idle');
   const [verificationCode, setVerificationCode] = useState('');
@@ -55,22 +96,48 @@ export function ProfilePage() {
     [t],
   );
 
-  // Mock profile data
-  const [profile, setProfile] = useState<ProfileData>({
-    firstName: 'Gildong',
-    lastName: 'Hong',
-    aboutMe:
-      "Hi, I'm Hong Gil-dong. I always keep things clean and tidy. Looking forward to staying at your place!",
-    purposeOfStay: 'work',
-    email: 'gildong@gmail.com',
+  // 프로필 데이터 상태
+  const [profile, setProfile] = useState<ProfileFormData>({
+    firstName: '',
+    lastName: '',
+    aboutMe: '',
+    purposeOfStay: '',
+    email: '',
     countryCode: '+82',
-    phone: '010-1234-5678',
-    phoneVerified: true,
-    passportNumber: 'M 123456',
+    phone: '',
+    phoneVerified: false,
+    passportNumber: '',
   });
 
-  const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
+  const [editedProfile, setEditedProfile] = useState<ProfileFormData>(profile);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+
+  // 프로필 데이터 로드
+  useEffect(() => {
+    async function loadProfile() {
+      if (!isInitialized || !user) {
+        if (isInitialized && !user) {
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const data = await getProfile(user.id);
+        if (data) {
+          const formData = apiToFormData(data);
+          setProfile(formData);
+          setEditedProfile(formData);
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadProfile();
+  }, [isInitialized, user]);
 
   // Timer effect
   useEffect(() => {
@@ -98,10 +165,47 @@ export function ProfilePage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
-    setShowCountryDropdown(false);
+  const handleSave = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      const purposeOfStay = editedProfile.purposeOfStay
+        ? (PURPOSE_REVERSE_MAP[editedProfile.purposeOfStay] as
+            | 'WORK'
+            | 'STUDY'
+            | 'BUSINESS'
+            | 'FAMILY'
+            | 'TOURISM'
+            | 'MEDICAL'
+            | 'OTHER')
+        : undefined;
+
+      const result = await updateProfile(user.id, {
+        firstName: editedProfile.firstName || undefined,
+        lastName: editedProfile.lastName || undefined,
+        phone: editedProfile.phone || undefined,
+        countryCode: editedProfile.countryCode || undefined,
+        phoneVerified: editedProfile.phoneVerified,
+        aboutMe: editedProfile.aboutMe || undefined,
+        purposeOfStay,
+        passportNumber: editedProfile.passportNumber || undefined,
+      });
+
+      if (result) {
+        const formData = apiToFormData(result);
+        setProfile(formData);
+        setEditedProfile(formData);
+        await refreshUser();
+      }
+
+      setIsEditing(false);
+      setShowCountryDropdown(false);
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEdit = () => {
@@ -132,7 +236,7 @@ export function ProfilePage() {
     setVerificationState('code_sent');
   };
 
-  const handleInputChange = useCallback((field: keyof ProfileData, value: string) => {
+  const handleInputChange = useCallback((field: keyof ProfileFormData, value: string) => {
     setEditedProfile((prev) => ({ ...prev, [field]: value }));
   }, []);
 
@@ -150,6 +254,41 @@ export function ProfilePage() {
   const readOnlyFieldClass =
     'px-4 py-3 bg-[hsl(var(--snug-light-gray))]/50 rounded-3xl text-sm text-[hsl(var(--snug-text-primary))]';
 
+  // 로딩 상태
+  if (isLoading || !isInitialized) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="hidden md:block">
+          <Header showLogo />
+        </div>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+        </div>
+      </div>
+    );
+  }
+
+  // 로그인 안 된 상태
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="hidden md:block">
+          <Header showLogo />
+        </div>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <p className="text-[hsl(var(--snug-gray))]">{t('loginRequired') || '로그인이 필요합니다.'}</p>
+          <button
+            type="button"
+            onClick={() => router.push('/login')}
+            className="px-6 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-2xl text-sm font-medium"
+          >
+            {t('goToLogin') || '로그인하기'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* PC Header with Logo */}
@@ -166,9 +305,10 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={handleSave}
-            className="text-base font-extrabold text-[hsl(var(--snug-text-primary))]"
+            disabled={isSaving}
+            className="text-base font-extrabold text-[hsl(var(--snug-text-primary))] disabled:opacity-50"
           >
-            {t('save')}
+            {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : t('save')}
           </button>
         ) : (
           <button
@@ -541,8 +681,10 @@ export function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="px-8 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-2xl text-sm font-medium hover:opacity-90 transition-opacity"
+                    disabled={isSaving}
+                    className="px-8 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-2xl text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
                   >
+                    {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                     {t('save')}
                   </button>
                 ) : (

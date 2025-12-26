@@ -16,7 +16,8 @@ export class UsersService {
     // TODO: Hash password with Supabase Auth or bcrypt
     return this.usersRepository.create({
       email: data.email,
-      name: data.name,
+      firstName: data.firstName,
+      lastName: data.lastName,
       role: data.role ?? 'GUEST',
     });
   }
@@ -39,7 +40,7 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
-  async update(id: string, data: { name?: string; avatar?: string }) {
+  async update(id: string, data: { firstName?: string; lastName?: string; avatarUrl?: string }) {
     await this.findOne(id);
     return this.usersRepository.update(id, data);
   }

@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronRight,
 } from 'lucide-react';
+import { useAuthStore } from '@/shared/stores';
 
 interface NavItem {
   label: string;
@@ -30,9 +31,10 @@ export function MypageSidebar() {
   const t = useTranslations('mypage');
   const pathname = usePathname();
   const router = useRouter();
+  const signOut = useAuthStore((state) => state.signOut);
 
-  const handleLogout = () => {
-    // TODO: Add actual logout logic (clear tokens, session, etc.)
+  const handleLogout = async () => {
+    await signOut();
     router.push('/login');
   };
 

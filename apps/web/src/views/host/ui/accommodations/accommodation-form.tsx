@@ -15,6 +15,7 @@ import type {
   ManagerInfo,
   PhotoCategory,
 } from './types';
+import type { GroupItem } from './group-management-modal';
 import {
   ACCOMMODATION_TYPE_OPTIONS,
   BUILDING_TYPE_OPTIONS,
@@ -27,11 +28,15 @@ import {
 interface AccommodationFormProps {
   initialData?: AccommodationFormData;
   onChange: (data: AccommodationFormData) => void;
+  groups?: GroupItem[];
+  onAddGroup?: (groupName: string) => void;
 }
 
 export function AccommodationForm({
   initialData = DEFAULT_FORM_DATA,
   onChange,
+  groups = [],
+  onAddGroup,
 }: AccommodationFormProps) {
   const [data, setData] = useState<AccommodationFormData>(initialData);
   const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false);
@@ -46,6 +51,9 @@ export function AccommodationForm({
   const [galleryInitialCategoryId, setGalleryInitialCategoryId] = useState<string>('main');
   const [galleryCategories, setGalleryCategories] = useState<PhotoCategory[]>([]);
   const [galleryOpenedFrom, setGalleryOpenedFrom] = useState<'main' | 'uploadModal'>('main');
+  const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
+  const [isAddingNewGroup, setIsAddingNewGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
 
   const updateData = (updates: Partial<AccommodationFormData>) => {
     const newData = { ...data, ...updates };
@@ -143,17 +151,128 @@ export function AccommodationForm({
             </div>
 
             {/* 그룹명 */}
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
                 그룹명 (선택)
               </label>
-              <input
-                type="text"
-                value={data.groupName ?? ''}
-                onChange={(e) => updateData({ groupName: e.target.value })}
-                placeholder="건물 또는 지역명 입력 ex) 서울빌라, 강남구"
-                className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-              />
+              <button
+                type="button"
+                onClick={() => setIsGroupDropdownOpen(!isGroupDropdownOpen)}
+                className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] flex items-center justify-between bg-white"
+              >
+                <span className={data.groupName ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-gray))]'}>
+                  {data.groupName || '그룹 선택'}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${isGroupDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isGroupDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => {
+                    setIsGroupDropdownOpen(false);
+                    setIsAddingNewGroup(false);
+                    setNewGroupName('');
+                  }} />
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20 max-h-[200px] overflow-y-auto">
+                    {/* 선택 안함 */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateData({ groupName: undefined });
+                        setIsGroupDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--snug-gray))] hover:bg-[hsl(var(--snug-light-gray))]"
+                    >
+                      선택 안함
+                    </button>
+
+                    {/* 기존 그룹 목록 */}
+                    {groups.map((group) => (
+                      <button
+                        key={group.id}
+                        type="button"
+                        onClick={() => {
+                          updateData({ groupName: group.name });
+                          setIsGroupDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] ${
+                          data.groupName === group.name
+                            ? 'text-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-light-gray))]'
+                            : 'text-[hsl(var(--snug-text-primary))]'
+                        }`}
+                      >
+                        {group.name}
+                      </button>
+                    ))}
+
+                    {/* 구분선 */}
+                    <div className="border-t border-[hsl(var(--snug-border))]" />
+
+                    {/* 새 그룹 추가 */}
+                    {isAddingNewGroup ? (
+                      <div className="p-3">
+                        <input
+                          type="text"
+                          value={newGroupName}
+                          onChange={(e) => setNewGroupName(e.target.value)}
+                          placeholder="새 그룹명 입력"
+                          className="w-full px-3 py-2 border border-[hsl(var(--snug-border))] rounded text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newGroupName.trim()) {
+                              onAddGroup?.(newGroupName.trim());
+                              updateData({ groupName: newGroupName.trim() });
+                              setNewGroupName('');
+                              setIsAddingNewGroup(false);
+                              setIsGroupDropdownOpen(false);
+                            }
+                            if (e.key === 'Escape') {
+                              setIsAddingNewGroup(false);
+                              setNewGroupName('');
+                            }
+                          }}
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsAddingNewGroup(false);
+                              setNewGroupName('');
+                            }}
+                            className="flex-1 px-3 py-1.5 text-xs text-[hsl(var(--snug-gray))] hover:bg-[hsl(var(--snug-light-gray))] rounded"
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newGroupName.trim()) {
+                                onAddGroup?.(newGroupName.trim());
+                                updateData({ groupName: newGroupName.trim() });
+                                setNewGroupName('');
+                                setIsAddingNewGroup(false);
+                                setIsGroupDropdownOpen(false);
+                              }
+                            }}
+                            className="flex-1 px-3 py-1.5 text-xs text-white bg-[hsl(var(--snug-orange))] hover:opacity-90 rounded"
+                          >
+                            추가
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingNewGroup(true)}
+                        className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        새 그룹 추가
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* 방 이름 */}

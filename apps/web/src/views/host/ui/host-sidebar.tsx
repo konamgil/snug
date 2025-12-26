@@ -82,7 +82,7 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
     >
       {/* Logo */}
       <div className="px-4 py-5">
-        <Link href="/host" className="block">
+        <Link href="/" className="block">
           {isCollapsed ? (
             <Image
               src="/images/logo/favicon.svg"

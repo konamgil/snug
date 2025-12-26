@@ -22,90 +22,8 @@ interface AccommodationListProps {
   onBulkDelete?: (ids: string[]) => void;
 }
 
-const MOCK_ITEMS: AccommodationListItem[] = [
-  {
-    id: '1',
-    thumbnailUrl: '',
-    groupName: '그룹명',
-    roomName: '방이름',
-    nickname: '별명',
-    usageType: 'short_term',
-    isOperating: true,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-  {
-    id: '2',
-    thumbnailUrl: '',
-    groupName: undefined,
-    roomName: 'Korea Stay 101호',
-    usageType: 'stay',
-    isOperating: false,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-  {
-    id: '3',
-    thumbnailUrl: '',
-    groupName: undefined,
-    roomName: 'Korea Stay 101호',
-    usageType: 'short_term',
-    isOperating: true,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-  {
-    id: '4',
-    thumbnailUrl: '',
-    groupName: '강남빌라',
-    roomName: 'Korea Stay 101호',
-    usageType: 'short_term',
-    isOperating: false,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-  {
-    id: '5',
-    thumbnailUrl: '',
-    groupName: undefined,
-    roomName: 'Korea Stay 101호',
-    usageType: 'stay',
-    isOperating: true,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-  {
-    id: '6',
-    thumbnailUrl: '',
-    groupName: '강남빌라',
-    roomName: 'Korea Stay 101호',
-    usageType: 'stay',
-    isOperating: true,
-    pricing: { nights: 30, includesUtilities: false, totalPrice: 650000 },
-    address: '서울시 강남구 압구정로 123',
-    sharedSpace: { totalSizeM2: 59, description: '거실, 부엌, 화장실 1' },
-    privateSpace: { sizeM2: 8, description: '방 1' },
-    houseRule: '여성전용',
-  },
-];
-
 export function AccommodationList({
-  items = MOCK_ITEMS,
+  items = [],
   selectedId,
   onSelect,
   onNewAccommodation,
@@ -177,7 +95,7 @@ export function AccommodationList({
       <div className="px-4 md:px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-[hsl(var(--snug-text-primary))]">
-            숙소 목록 <span className="text-[hsl(var(--snug-orange))]">999+</span>
+            숙소 목록 <span className="text-[hsl(var(--snug-orange))]">{items.length}</span>
           </h2>
           <div className="flex items-center gap-2 md:gap-3">
             <button

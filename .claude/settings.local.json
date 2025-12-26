@@ -56,7 +56,19 @@
       "Bash(head:*)",
       "Bash(git check-ignore:*)",
       "Bash(pnpm --filter @snug/web typecheck:*)",
-      "WebFetch(domain:www.figma.com)"
+      "WebFetch(domain:www.figma.com)",
+      "Bash(pnpm db:seed:*)",
+      "Bash(claude mcp add:*)",
+      "mcp__supabase__execute_sql",
+      "Bash(node:*)",
+      "mcp__figma__whoami",
+      "Bash(python:*)",
+      "Bash(if [ -f \"$HOME/AppData/Roaming/Claude/claude_desktop_config.json\" ])",
+      "Bash(then cat \"$HOME/AppData/Roaming/Claude/claude_desktop_config.json\")",
+      "Bash(fi)",
+      "Bash(powershell -Command \"Get-ChildItem Env: | Where-Object { $_Name -like ''*FIGMA*'' } | Format-Table -AutoSize\")",
+      "Bash(pnpm --filter @snug/web dev:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
