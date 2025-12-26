@@ -276,7 +276,9 @@ export function ProfilePage() {
           <Header showLogo />
         </div>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="text-[hsl(var(--snug-gray))]">{t('loginRequired') || '로그인이 필요합니다.'}</p>
+          <p className="text-[hsl(var(--snug-gray))]">
+            {t('loginRequired') || '로그인이 필요합니다.'}
+          </p>
           <button
             type="button"
             onClick={() => router.push('/login')}
@@ -323,7 +325,7 @@ export function ProfilePage() {
 
       <div className="flex">
         {/* Sidebar - Desktop only, fixed to left */}
-        <div className="hidden lg:block w-[260px] flex-shrink-0 px-6 py-8 border-r border-[hsl(var(--snug-border))]">
+        <div className="hidden lg:block w-[280px] flex-shrink-0 px-6 py-8 border-r border-[hsl(var(--snug-border))]">
           <MypageSidebar />
         </div>
 

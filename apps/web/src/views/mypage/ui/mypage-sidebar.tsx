@@ -126,7 +126,7 @@ export function MypageSidebar() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
-                        <span className="text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                           {item.label}
                         </span>
                       </div>
@@ -142,7 +142,7 @@ export function MypageSidebar() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
-                        <span className="text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                           {item.label}
                         </span>
                       </div>

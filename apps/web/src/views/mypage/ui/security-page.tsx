@@ -282,7 +282,7 @@ export function SecurityPage() {
 
       <div className="flex">
         {/* Sidebar - Desktop only */}
-        <div className="hidden lg:block w-[260px] flex-shrink-0 px-6 py-8 border-r border-[hsl(var(--snug-border))]">
+        <div className="hidden lg:block w-[280px] flex-shrink-0 px-6 py-8 border-r border-[hsl(var(--snug-border))]">
           <MypageSidebar />
         </div>
 
