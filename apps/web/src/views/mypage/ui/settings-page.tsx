@@ -28,6 +28,17 @@ export function SettingsPage() {
   const [aiAutoResponder, setAiAutoResponder] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  const handleAiToggle = () => {
+    if (!aiAutoResponder) {
+      // 켜려고 할 때 토스트 표시
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } else {
+      setAiAutoResponder(false);
+    }
+  };
 
   const languages: LanguageOption[] = [
     { code: 'ko', label: '한국어', country: '대한민국' },
@@ -101,7 +112,7 @@ export function SettingsPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setAiAutoResponder(!aiAutoResponder)}
+                    onClick={handleAiToggle}
                     className={`relative w-[52px] h-[28px] rounded-full transition-colors flex-shrink-0 ${
                       aiAutoResponder
                         ? 'bg-[hsl(var(--snug-orange))]'
@@ -234,6 +245,13 @@ export function SettingsPage() {
             setShowCurrencyDropdown(false);
           }}
         />
+      )}
+
+      {/* Toast */}
+      {showToast && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-[#3D3D3D] text-white text-sm rounded-lg shadow-lg z-50">
+          아직 준비중인 기능입니다
+        </div>
       )}
     </div>
   );
