@@ -1,7 +1,6 @@
 'use server';
 
-import { prisma } from '@snug/database';
-import type { PurposeOfStay } from '@prisma/client';
+import { prisma, type PurposeOfStay } from '@snug/database';
 
 export interface ProfileData {
   // User 테이블
@@ -88,7 +87,7 @@ export interface UpdateProfileInput {
 
 export async function updateProfile(
   userId: string,
-  data: UpdateProfileInput
+  data: UpdateProfileInput,
 ): Promise<ProfileData | null> {
   // User 테이블 업데이트
   const userUpdateData: Record<string, unknown> = {};

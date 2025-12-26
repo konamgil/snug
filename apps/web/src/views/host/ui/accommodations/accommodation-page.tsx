@@ -159,7 +159,9 @@ function AccommodationPageFooter({
 }
 
 // Helper: Convert form type to API type
-function toApiAccommodationType(type: AccommodationType): 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT' {
+function toApiAccommodationType(
+  type: AccommodationType,
+): 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT' {
   const map: Record<AccommodationType, 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT'> = {
     house: 'HOUSE',
     share_room: 'SHARE_ROOM',
@@ -169,7 +171,9 @@ function toApiAccommodationType(type: AccommodationType): 'HOUSE' | 'SHARE_ROOM'
   return map[type];
 }
 
-function toApiBuildingType(type?: BuildingType): 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL' | undefined {
+function toApiBuildingType(
+  type?: BuildingType,
+): 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL' | undefined {
   if (!type) return undefined;
   const map: Record<BuildingType, 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL'> = {
     apartment: 'APARTMENT',
@@ -193,12 +197,25 @@ function toApiGenderRules(rules: GenderRule[]): ('MALE_ONLY' | 'FEMALE_ONLY' | '
   return rules.map((r) => map[r]);
 }
 
-function toApiBedCounts(beds: { king: number; queen: number; single: number; superSingle: number; bunkBed: number }): Record<string, number> {
+function toApiBedCounts(beds: {
+  king: number;
+  queen: number;
+  single: number;
+  superSingle: number;
+  bunkBed: number;
+}): Record<string, number> {
   return { ...beds } as Record<string, number>;
 }
 
 // Convert PhotoCategory[] to AddAccommodationPhotoInput[]
-function toApiPhotos(mainPhotos: { id: string; name: string; photos: { id: string; url: string; order: number }[]; order: number }[]): { category: string; url: string; order: number }[] {
+function toApiPhotos(
+  mainPhotos: {
+    id: string;
+    name: string;
+    photos: { id: string; url: string; order: number }[];
+    order: number;
+  }[],
+): { category: string; url: string; order: number }[] {
   const apiPhotos: { category: string; url: string; order: number }[] = [];
   let globalOrder = 0;
 
@@ -223,7 +240,7 @@ function toApiPhotos(mainPhotos: { id: string; name: string; photos: { id: strin
 // New Accommodation Page
 export function AccommodationNewPage() {
   const router = useRouter();
-  const { user, refreshUser: _refreshUser } = useAuthStore();
+  const { user, refreshUser } = useAuthStore();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -242,7 +259,7 @@ export function AccommodationNewPage() {
             name: g.name,
             isSelected: false,
             accommodationIds: [],
-          }))
+          })),
         );
       } catch (error) {
         console.error('Failed to load groups:', error);
@@ -494,7 +511,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
             name: g.name,
             isSelected: false,
             accommodationIds: [],
-          }))
+          })),
         );
       } catch (error) {
         console.error('Failed to load groups:', error);

@@ -85,18 +85,18 @@ export function HeroSection() {
 
           {/* Title with animated keyword */}
           <div className="mb-4">
-            <h1 className="text-[32px] md:text-[43px] font-medium leading-tight text-[hsl(var(--snug-text-primary))]">
-              {t('titlePrefix')}
-              <br />
+            <h1 className="text-[32px] md:text-[43px] font-semibold leading-tight text-[hsl(var(--snug-text-primary))]">
+              {t('titlePrefix')}{' '}
               <span className="inline-flex items-center">
                 [
                 <span
-                  className={`mx-1 font-bold ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
+                  className={`mx-1 font-extrabold ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
                 >
                   {slides[currentSlide]?.keyword ?? ''}
                 </span>
                 ]
-              </span>{' '}
+              </span>
+              <br />
               {t('titleSuffix')}
             </h1>
           </div>
