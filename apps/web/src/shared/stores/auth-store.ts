@@ -7,8 +7,9 @@ import { config } from '@/shared/config';
 
 function getAppUrl(): string {
   if (typeof window !== 'undefined') {
-    // Client-side: use env var or fallback to window.location.origin
-    return config.app.url !== 'http://localhost:3000' ? config.app.url : window.location.origin;
+    // Client-side: if localhost or not set, use window.location.origin
+    const isLocalhost = config.app.url.includes('localhost');
+    return isLocalhost ? window.location.origin : config.app.url;
   }
   return config.app.url;
 }
