@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
+import type { Locale } from '@/i18n/config';
 
 interface LanguageOption {
-  code: string;
+  code: Locale;
   label: string;
   country: string;
 }
@@ -21,9 +22,11 @@ interface CurrencyOption {
 export function SettingsPage() {
   const t = useTranslations('mypage.settings');
   const router = useRouter();
+  const pathname = usePathname();
+  const currentLocale = useLocale() as Locale;
   const [isHostMode] = useState(true); // Show AI Auto-Responder toggle
 
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguage, setSelectedLanguage] = useState(currentLocale);
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [aiAutoResponder, setAiAutoResponder] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
@@ -165,6 +168,7 @@ export function SettingsPage() {
                           onClick={() => {
                             setSelectedLanguage(lang.code);
                             setShowLanguageDropdown(false);
+                            router.replace(pathname, { locale: lang.code });
                           }}
                           className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-colors ${
                             selectedLanguage === lang.code
