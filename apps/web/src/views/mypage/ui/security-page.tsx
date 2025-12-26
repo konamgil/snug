@@ -8,6 +8,7 @@ import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { getSupabaseClient } from '@/shared/lib/supabase';
+import { config } from '@/shared/config';
 import type { UserIdentity, Provider } from '@supabase/supabase-js';
 
 type TabType = 'login' | 'social';
@@ -109,7 +110,9 @@ export function SecurityPage() {
 
       // 최소 1개의 identity는 있어야 함
       if (identityCount <= 1) {
-        setToastMessage(t('cannotUnlinkLastIdentity') || '마지막 로그인 방법은 해제할 수 없습니다.');
+        setToastMessage(
+          t('cannotUnlinkLastIdentity') || '마지막 로그인 방법은 해제할 수 없습니다.',
+        );
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
         return;
@@ -148,7 +151,7 @@ export function SecurityPage() {
         const { error: linkError } = await supabase.auth.linkIdentity({
           provider: provider as Provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`,
+            redirectTo: `${config.app.url}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`,
           },
         });
 
@@ -247,7 +250,9 @@ export function SecurityPage() {
           <Header showLogo />
         </div>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="text-[hsl(var(--snug-gray))]">{t('loginRequired') || '로그인이 필요합니다.'}</p>
+          <p className="text-[hsl(var(--snug-gray))]">
+            {t('loginRequired') || '로그인이 필요합니다.'}
+          </p>
           <button
             type="button"
             onClick={() => router.push('/login')}

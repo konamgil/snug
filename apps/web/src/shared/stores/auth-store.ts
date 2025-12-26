@@ -3,6 +3,15 @@ import type { User as SupabaseUser, Session, AuthChangeEvent } from '@supabase/s
 import type { User } from '@snug/types';
 import { getSupabaseClient } from '@/shared/lib/supabase';
 import { upsertUserFromAuth, getUserBySupabaseId } from '@/shared/api/user';
+import { config } from '@/shared/config';
+
+function getAppUrl(): string {
+  if (typeof window !== 'undefined') {
+    // Client-side: use env var or fallback to window.location.origin
+    return config.app.url !== 'http://localhost:3000' ? config.app.url : window.location.origin;
+  }
+  return config.app.url;
+}
 
 interface AuthState {
   // Supabase Auth 상태
@@ -22,7 +31,7 @@ interface AuthState {
   signUpWithEmail: (
     email: string,
     password: string,
-    metadata?: { firstName?: string; lastName?: string }
+    metadata?: { firstName?: string; lastName?: string },
   ) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signInWithKakao: () => Promise<{ error: Error | null }>;
@@ -160,7 +169,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getAppUrl()}/auth/callback`,
         scopes: 'openid email profile',
         queryParams: {
           access_type: 'offline',
@@ -182,7 +191,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getAppUrl()}/auth/callback`,
       },
     });
 
