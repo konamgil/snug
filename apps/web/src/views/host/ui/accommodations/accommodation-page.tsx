@@ -223,10 +223,10 @@ function toApiPhotos(mainPhotos: { id: string; name: string; photos: { id: strin
 // New Accommodation Page
 export function AccommodationNewPage() {
   const router = useRouter();
-  const { user, refreshUser } = useAuthStore();
+  const { user, refreshUser: _refreshUser } = useAuthStore();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
-  const [isSaving, _setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Fetch groups on mount
   useEffect(() => {
@@ -469,7 +469,7 @@ interface AccommodationEditPageProps {
 
 export function AccommodationEditPage({ accommodationId }: AccommodationEditPageProps) {
   const router = useRouter();
-  const { user, refreshUser } = useAuthStore();
+  const { user } = useAuthStore();
   // In real app, fetch data based on accommodationId
   const [formData, setFormData] = useState<AccommodationFormData>({
     ...DEFAULT_FORM_DATA,

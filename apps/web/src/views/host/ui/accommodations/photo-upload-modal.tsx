@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { ImagePlus, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory, PhotoItem } from './types';

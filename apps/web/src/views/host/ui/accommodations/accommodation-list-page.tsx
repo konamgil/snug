@@ -84,7 +84,7 @@ export function AccommodationListPage() {
   const [error, setError] = useState<string | null>(null);
 
   // 원본 Accommodation 데이터 (상태 업데이트에 필요)
-  const [rawAccommodations, setRawAccommodations] = useState<Accommodation[]>([]);
+  const [_rawAccommodations, setRawAccommodations] = useState<Accommodation[]>([]);
 
   /**
    * 데이터 로드
