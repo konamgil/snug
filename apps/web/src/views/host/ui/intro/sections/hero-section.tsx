@@ -85,12 +85,13 @@ export function HeroSection() {
 
           {/* Title with animated keyword */}
           <div className="mb-4">
-            <h1 className="text-[32px] md:text-[43px] font-bold leading-tight text-[hsl(var(--snug-text-primary))]">
-              {t('titlePrefix')}{' '}
+            <h1 className="text-[32px] md:text-[43px] font-medium leading-tight text-[hsl(var(--snug-text-primary))]">
+              {t('titlePrefix')}
+              <br />
               <span className="inline-flex items-center">
                 [
                 <span
-                  className={`mx-1 ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
+                  className={`mx-1 font-bold ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
                 >
                   {slides[currentSlide]?.keyword ?? ''}
                 </span>
@@ -101,7 +102,7 @@ export function HeroSection() {
           </div>
 
           {/* Description - fixed height to prevent button position shift */}
-          <p className="text-sm md:text-base text-[hsl(var(--snug-gray))] max-w-[400px] min-h-[48px] md:min-h-[56px] mb-8 whitespace-pre-line transition-all duration-300">
+          <p className="text-base md:text-lg text-[hsl(var(--snug-gray))] max-w-[400px] min-h-[52px] md:min-h-[60px] mb-8 whitespace-pre-line transition-all duration-300">
             {slides[currentSlide]?.description ?? ''}
           </p>
 
