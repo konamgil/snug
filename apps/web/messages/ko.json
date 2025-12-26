@@ -271,7 +271,8 @@
       "resendCode": "인증번호 재전송",
       "verificationSuccess": "전화번호가 성공적으로 인증되었습니다",
       "verificationError": "잘못된 인증번호입니다. 다시 시도해 주세요.",
-      "tryAgain": "다시 시도"
+      "tryAgain": "다시 시도",
+      "loginRequired": "로그인이 필요합니다."
     },
     "security": {
       "title": "로그인 및 보안",

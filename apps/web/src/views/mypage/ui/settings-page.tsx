@@ -21,7 +21,7 @@ interface CurrencyOption {
 export function SettingsPage() {
   const t = useTranslations('mypage.settings');
   const router = useRouter();
-  const [isHostMode] = useState(true); // Show AI Auto-Responder toggle
+  const [isHostMode] = useState(false); // AI Auto-Responder - not ready for release yet
 
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
