@@ -65,9 +65,25 @@ async function bootstrap() {
     },
   });
 
-  // CORS configuration
+  // CORS configuration - 여러 origin 지원
+  const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5757')
+    .split(',')
+    .map((origin) => origin.trim());
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5757',
+    origin: (origin, callback) => {
+      // origin이 없는 경우 (같은 origin 요청, Postman 등) 허용
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      // 허용된 origin 목록에 있는지 확인
+      if (corsOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
   });
 

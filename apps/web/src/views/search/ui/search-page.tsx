@@ -11,6 +11,7 @@ import { SearchModal, type SearchParams } from '@/features/search';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { FilterBar } from './filter-bar';
 import { RoomCard, type Room } from './room-card';
+import { RoomCardSkeletonList } from './room-card-skeleton';
 import { SearchMap } from './search-map';
 import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
@@ -281,11 +282,11 @@ function SearchPageContent() {
                 >
                   ← {t('resultsCount', { count: totalCount, location: searchLocation })}
                 </button>
+              ) : isLoading ? (
+                <div className="h-4 w-32 bg-[hsl(var(--snug-light-gray))] rounded animate-pulse" />
               ) : (
                 <p className="text-sm text-[hsl(var(--snug-gray))]">
-                  {isLoading
-                    ? 'Loading...'
-                    : t('resultsCount', { count: totalCount, location: searchLocation })}
+                  {t('resultsCount', { count: totalCount, location: searchLocation })}
                 </p>
               )}
               {!selectedMapRoomId && <SortDropdown value={sortOption} onChange={setSortOption} />}
@@ -300,9 +301,7 @@ function SearchPageContent() {
               }
             >
               {isLoading ? (
-                <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
-                  Loading accommodations...
-                </div>
+                <RoomCardSkeletonList count={6} viewMode={view} />
               ) : rooms.length === 0 ? (
                 <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
                   No accommodations found
@@ -332,20 +331,20 @@ function SearchPageContent() {
       <div className="md:hidden pb-28">
         {/* Results Header */}
         <div className="flex items-center justify-between px-4 py-2.5">
-          <p className="text-[13px] text-[hsl(var(--snug-gray))]">
-            {isLoading
-              ? 'Loading...'
-              : t('resultsCount', { count: totalCount, location: searchLocation })}
-          </p>
+          {isLoading ? (
+            <div className="h-4 w-28 bg-[hsl(var(--snug-light-gray))] rounded animate-pulse" />
+          ) : (
+            <p className="text-[13px] text-[hsl(var(--snug-gray))]">
+              {t('resultsCount', { count: totalCount, location: searchLocation })}
+            </p>
+          )}
           <SortDropdown value={sortOption} onChange={setSortOption} />
         </div>
 
         {/* Room List - Mobile uses larger cards */}
         <div className="px-4 space-y-6">
           {isLoading ? (
-            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
-              Loading accommodations...
-            </div>
+            <RoomCardSkeletonList count={4} viewMode="mobile" />
           ) : rooms.length === 0 ? (
             <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
               No accommodations found
