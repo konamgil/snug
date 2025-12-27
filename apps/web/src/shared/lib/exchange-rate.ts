@@ -6,7 +6,7 @@
  * 환율은 매일 자정(KST) 업데이트됨
  */
 
-import { type CurrencyCode, BASE_CURRENCY } from './currency';
+import { type CurrencyCode, BASE_CURRENCY, CURRENCIES } from './currency';
 import { config } from '@/shared/config';
 
 /**
@@ -189,7 +189,10 @@ export function convertCurrency(
   // 2. KRW → to
   const converted = to === 'KRW' ? amountInKRW : amountInKRW * exchangeRates[to];
 
-  return converted;
+  // 3. 통화별 소수점에 맞게 올림
+  const { decimals } = CURRENCIES[to];
+  const multiplier = Math.pow(10, decimals);
+  return Math.ceil(converted * multiplier) / multiplier;
 }
 
 /**
