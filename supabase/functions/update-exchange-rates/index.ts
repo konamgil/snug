@@ -33,12 +33,13 @@ serve(async (req: Request) => {
       throw new Error(`API responded with status ${response.status}: ${errorText}`);
     }
 
-    const data = await response.json();
+    const response_data = await response.json();
+    const result = response_data.data; // API 응답의 data 필드 접근
 
     console.log('Exchange rates updated successfully:', {
-      base: data.base,
-      currencies: data.rates?.map((r: { currency: string }) => r.currency),
-      updatedAt: data.updatedAt,
+      base: result.base,
+      currencies: result.rates?.map((r: { currency: string }) => r.currency),
+      updatedAt: result.updatedAt,
     });
 
     return new Response(
@@ -46,9 +47,9 @@ serve(async (req: Request) => {
         success: true,
         message: 'Exchange rates updated successfully',
         data: {
-          base: data.base,
-          currencies: data.rates?.length || 0,
-          updatedAt: data.updatedAt,
+          base: result.base,
+          currencies: result.rates?.length || 0,
+          updatedAt: result.updatedAt,
         },
       }),
       {
