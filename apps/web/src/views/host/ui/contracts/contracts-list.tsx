@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, ChevronDown, Star } from 'lucide-react';
 import Image from 'next/image';
 
@@ -41,30 +42,6 @@ interface ContractsListProps {
   onSelect: (item: ContractListItem) => void;
   compact?: boolean;
 }
-
-const FILTERS: FilterTab[] = [
-  { id: 'all', label: '전체', count: 376 },
-  { id: 'pending', label: '계약 신청', count: 999 },
-  { id: 'checkin', label: '체크인 예정', count: 999 },
-  { id: 'checkout', label: '체크아웃 예정', count: 999 },
-  { id: 'scheduled', label: '입주 예정', count: 999 },
-  { id: 'staying', label: '입주 중', count: 999 },
-  { id: 'completed', label: '퇴실 완료', count: 999 },
-  { id: 'rejected', label: '거절', count: 999 },
-  { id: 'cancelled', label: '취소/환불', count: 999 },
-];
-
-const SORT_OPTIONS: { id: SortOption; label: string }[] = [
-  { id: 'latest', label: '최신순' },
-  { id: 'oldest', label: '오래된순' },
-  { id: 'name', label: '이름순' },
-];
-
-const RESPONSE_OPTIONS: { id: ResponseFilter; label: string }[] = [
-  { id: 'all', label: '전체' },
-  { id: 'responded', label: '응답 완료' },
-  { id: 'unresponded', label: '미응답' },
-];
 
 const MOCK_CONTRACTS: ContractListItem[] = [
   {
@@ -136,11 +113,37 @@ const MOCK_CONTRACTS: ContractListItem[] = [
 ];
 
 export function ContractsList({ selectedId, onSelect, compact = false }: ContractsListProps) {
+  const t = useTranslations('host.contracts');
+
   const [activeFilter, setActiveFilter] = useState<ContractFilter>('all');
   const [sortOption, setSortOption] = useState<SortOption>('latest');
   const [responseFilter, setResponseFilter] = useState<ResponseFilter>('all');
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isResponseDropdownOpen, setIsResponseDropdownOpen] = useState(false);
+
+  const FILTERS: FilterTab[] = [
+    { id: 'all', label: t('filters.all'), count: 376 },
+    { id: 'pending', label: t('status.pending'), count: 999 },
+    { id: 'checkin', label: t('status.checkInScheduled'), count: 999 },
+    { id: 'checkout', label: t('status.checkOutScheduled'), count: 999 },
+    { id: 'scheduled', label: t('status.moveInScheduled'), count: 999 },
+    { id: 'staying', label: t('status.inProgress'), count: 999 },
+    { id: 'completed', label: t('status.completed'), count: 999 },
+    { id: 'rejected', label: t('status.rejected'), count: 999 },
+    { id: 'cancelled', label: t('status.cancelledRefunded'), count: 999 },
+  ];
+
+  const SORT_OPTIONS: { id: SortOption; label: string }[] = [
+    { id: 'latest', label: t('sort.newest') },
+    { id: 'oldest', label: t('sort.oldest') },
+    { id: 'name', label: t('sort.byName') },
+  ];
+
+  const RESPONSE_OPTIONS: { id: ResponseFilter; label: string }[] = [
+    { id: 'all', label: t('responseFilter.all') },
+    { id: 'responded', label: t('responseFilter.responded') },
+    { id: 'unresponded', label: t('responseFilter.unresponded') },
+  ];
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -148,7 +151,7 @@ export function ContractsList({ selectedId, onSelect, compact = false }: Contrac
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-            계약 목록 <span className="text-[hsl(var(--snug-orange))]">999+</span>
+            {t('title')} <span className="text-[hsl(var(--snug-orange))]">999+</span>
           </h2>
           <button
             type="button"
@@ -180,7 +183,7 @@ export function ContractsList({ selectedId, onSelect, compact = false }: Contrac
               type="button"
               className="flex-shrink-0 px-3 py-1.5 text-sm rounded-full border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-gray))]"
             >
-              체크...
+              {t('moreFilters')}
             </button>
           )}
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
@@ -76,6 +77,9 @@ export function AccommodationPreviewModal({
   data,
   accommodationId,
 }: AccommodationPreviewModalProps) {
+  const t = useTranslations('host.accommodation.preview');
+  const tDetails = useTranslations('host.accommodation.details');
+
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
     guidelines: true,
@@ -236,7 +240,7 @@ export function AccommodationPreviewModal({
                 <Image src={mainPhoto.url} alt="Main photo" fill className="object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <p className="text-[#6f6f6f]">등록된 사진이 없습니다</p>
+                  <p className="text-[#6f6f6f]">{t('noPhotos')}</p>
                 </div>
               )}
 
@@ -267,7 +271,7 @@ export function AccommodationPreviewModal({
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-bold text-[#161616]">
-                  {data.address || <span className="text-[#a8a8a8]">주소 미입력</span>}
+                  {data.address || <span className="text-[#a8a8a8]">{t('addressNotEntered')}</span>}
                 </h2>
                 <HeartIcon className="w-[18px] h-[18px] text-[#161616]" />
               </div>
@@ -276,51 +280,51 @@ export function AccommodationPreviewModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-[#6f6f6f]">
                   <HotelIcon className="w-3.5 h-3.5" />
-                  <span>{data.space.rooms.room || 0} Rooms</span>
+                  <span>{t('rooms', { count: data.space.rooms.room || 0 })}</span>
                   <span>·</span>
-                  <span>{data.space.rooms.bathroom || 0} Bathroom</span>
+                  <span>{t('bathrooms', { count: data.space.rooms.bathroom || 0 })}</span>
                   <span>·</span>
-                  <span>{getTotalBeds() || 0} Bed</span>
+                  <span>{t('beds', { count: getTotalBeds() || 0 })}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-[#6f6f6f]">
                   <UserIcon className="w-3.5 h-3.5" />
-                  <span>{data.space.capacity || 0} Guests</span>
+                  <span>{t('guests', { count: data.space.capacity || 0 })}</span>
                 </div>
               </div>
             </div>
 
             {/* Stay Description */}
             <Section
-              title="Stay Description"
+              title={t('stayDescription')}
               expanded={expandedSections.description}
               onToggle={() => toggleSection('description')}
             >
               <p className="text-xs font-medium text-[#161616] mb-1">
-                {data.roomName || <span className="text-[#a8a8a8]">방 이름 미입력</span>}
+                {data.roomName || <span className="text-[#a8a8a8]">{t('roomNameNotEntered')}</span>}
               </p>
               <p className="text-xs text-[#6f6f6f] leading-relaxed">
                 {data.space.introduction || (
-                  <span className="text-[#a8a8a8]">숙소 소개를 입력해주세요</span>
+                  <span className="text-[#a8a8a8]">{t('descriptionNotEntered')}</span>
                 )}
               </p>
             </Section>
 
             {/* Guidelines */}
             <Section
-              title="Guidelines"
+              title={t('guidelines')}
               expanded={expandedSections.guidelines}
               onToggle={() => toggleSection('guidelines')}
             >
               <p className="text-xs text-[#6f6f6f] leading-relaxed whitespace-pre-line">
                 {data.space.houseRules || (
-                  <span className="text-[#a8a8a8]">이용 규칙을 입력해주세요</span>
+                  <span className="text-[#a8a8a8]">{t('guidelinesNotEntered')}</span>
                 )}
               </p>
             </Section>
 
             {/* Details */}
             <Section
-              title="Details"
+              title={t('details')}
               expanded={expandedSections.details}
               onToggle={() => toggleSection('details')}
             >
@@ -328,12 +332,12 @@ export function AccommodationPreviewModal({
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <DetailIconItem
                   icon="area"
-                  label="면적"
+                  label={tDetails('area')}
                   value={data.space.sizeM2 ? `${data.space.sizeM2}m²` : '-'}
                 />
                 <DetailIconItem
                   icon="area"
-                  label="평수"
+                  label={tDetails('pyeong')}
                   value={data.space.sizePyeong ? `${data.space.sizePyeong}평` : '-'}
                 />
                 <div />
@@ -343,27 +347,31 @@ export function AccommodationPreviewModal({
 
               {/* Row 2 - Rooms */}
               <div className="grid grid-cols-3 gap-3 mb-3">
-                <DetailIconItem icon="room" label="방" value={String(data.space.rooms.room || 0)} />
+                <DetailIconItem
+                  icon="room"
+                  label={tDetails('room')}
+                  value={String(data.space.rooms.room || 0)}
+                />
                 <DetailIconItem
                   icon="living"
-                  label="거실"
+                  label={tDetails('livingRoom')}
                   value={String(data.space.rooms.livingRoom || 0)}
                 />
                 <DetailIconItem
                   icon="bathroom"
-                  label="화장실"
+                  label={tDetails('bathroom')}
                   value={String(data.space.rooms.bathroom || 0)}
                 />
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <DetailIconItem
                   icon="kitchen"
-                  label="주방"
+                  label={tDetails('kitchen')}
                   value={String(data.space.rooms.kitchen || 0)}
                 />
                 <DetailIconItem
                   icon="balcony"
-                  label="테라스"
+                  label={tDetails('terrace')}
                   value={String(data.space.rooms.terrace || 0)}
                 />
                 <div />
@@ -372,7 +380,7 @@ export function AccommodationPreviewModal({
 
             {/* Facilities */}
             <Section
-              title="Facilities"
+              title={t('facilities')}
               expanded={expandedSections.facilities}
               onToggle={() => toggleSection('facilities')}
             >
@@ -393,18 +401,18 @@ export function AccommodationPreviewModal({
                       type="button"
                       className="w-full py-3 border border-[#e0e0e0] rounded-xl text-xs font-medium text-[#161616] hover:bg-[#f4f4f4] transition-colors"
                     >
-                      +{getFacilityLabels().length - 9}개 더 보기
+                      {t('viewMore', { count: getFacilityLabels().length - 9 })}
                     </button>
                   )}
                 </>
               ) : (
-                <p className="text-xs text-[#a8a8a8]">시설을 선택해주세요</p>
+                <p className="text-xs text-[#a8a8a8]">{t('selectFacilities')}</p>
               )}
             </Section>
 
             {/* House Amenities */}
             <Section
-              title="House Amenities"
+              title={t('houseAmenities')}
               expanded={expandedSections.amenities}
               onToggle={() => toggleSection('amenities')}
             >
@@ -418,18 +426,18 @@ export function AccommodationPreviewModal({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-[#a8a8a8]">어메니티를 선택해주세요</p>
+                <p className="text-xs text-[#a8a8a8]">{t('selectAmenities')}</p>
               )}
             </Section>
 
             {/* Location */}
             <Section
-              title="Location"
+              title={t('location')}
               expanded={expandedSections.location}
               onToggle={() => toggleSection('location')}
             >
               <p className="text-xs text-[#161616] mb-3">
-                {data.address || <span className="text-[#a8a8a8]">주소 미입력</span>}
+                {data.address || <span className="text-[#a8a8a8]">{t('addressNotEntered')}</span>}
               </p>
 
               {/* Map */}
@@ -437,14 +445,12 @@ export function AccommodationPreviewModal({
                 {!isMapLoaded || isGeocodingLoading ? (
                   <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
                     <div className="w-6 h-6 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin" />
-                    <span className="text-xs text-[#6f6f6f]">지도 로딩 중...</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('mapLoading')}</span>
                   </div>
                 ) : !data.address ? (
                   <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
                     <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
-                    <span className="text-xs text-[#6f6f6f]">
-                      주소를 입력하면 지도가 표시됩니다
-                    </span>
+                    <span className="text-xs text-[#6f6f6f]">{t('enterAddressForMap')}</span>
                   </div>
                 ) : mapCenter ? (
                   <GoogleMap
@@ -459,23 +465,28 @@ export function AccommodationPreviewModal({
                 ) : (
                   <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
                     <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
-                    <span className="text-xs text-[#6f6f6f]">지도를 불러올 수 없습니다</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('mapLoadError')}</span>
                   </div>
                 )}
               </div>
             </Section>
 
             {/* Pricing Information */}
-            <Section title="요금 정보" expanded={true} onToggle={() => {}} showToggle={false}>
+            <Section
+              title={t('pricingInfo')}
+              expanded={true}
+              onToggle={() => {}}
+              showToggle={false}
+            >
               <div className="space-y-3">
                 {/* Base Price */}
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-[#6f6f6f]">기본가 (1박)</span>
+                  <span className="text-xs text-[#6f6f6f]">{t('basePrice')}</span>
                   <span className="text-xs font-semibold text-[#161616]">
                     {data.pricing.basePrice > 0 ? (
                       `₩${data.pricing.basePrice.toLocaleString()}`
                     ) : (
-                      <span className="text-[#a8a8a8]">미입력</span>
+                      <span className="text-[#a8a8a8]">{t('notEntered')}</span>
                     )}
                   </span>
                 </div>
@@ -483,7 +494,7 @@ export function AccommodationPreviewModal({
                 {/* Weekend Price */}
                 {data.pricing.weekendPrice && (
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#6f6f6f]">주말가</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('weekendPrice')}</span>
                     <span className="text-xs font-semibold text-[#161616]">
                       ₩{data.pricing.weekendPrice.toLocaleString()}
                     </span>
@@ -493,7 +504,7 @@ export function AccommodationPreviewModal({
                 {/* Management Fee */}
                 {data.pricing.managementFee && (
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#6f6f6f]">관리비</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('managementFee')}</span>
                     <span className="text-xs font-semibold text-[#161616]">
                       ₩{data.pricing.managementFee.toLocaleString()}
                     </span>
@@ -503,7 +514,7 @@ export function AccommodationPreviewModal({
                 {/* Cleaning Fee */}
                 {data.pricing.cleaningFee && (
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#6f6f6f]">청소비</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('cleaningFee')}</span>
                     <span className="text-xs font-semibold text-[#161616]">
                       ₩{data.pricing.cleaningFee.toLocaleString()}
                     </span>
@@ -513,7 +524,7 @@ export function AccommodationPreviewModal({
                 {/* Extra Person Fee */}
                 {data.pricing.extraPersonFee && (
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#6f6f6f]">추가 인원 요금</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('extraPersonFee')}</span>
                     <span className="text-xs font-semibold text-[#161616]">
                       ₩{data.pricing.extraPersonFee.toLocaleString()}
                     </span>
@@ -523,7 +534,7 @@ export function AccommodationPreviewModal({
                 {/* Pet Fee */}
                 {data.pricing.petFee && (
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#6f6f6f]">반려동물 요금</span>
+                    <span className="text-xs text-[#6f6f6f]">{t('petFee')}</span>
                     <span className="text-xs font-semibold text-[#161616]">
                       ₩{data.pricing.petFee.toLocaleString()}
                     </span>
@@ -548,7 +559,9 @@ export function AccommodationPreviewModal({
                       className={`w-2 h-2 rounded-full ${data.pricing.includesUtilities ? 'bg-green-500' : 'bg-[#a8a8a8]'}`}
                     />
                     <span className="text-xs text-[#6f6f6f]">
-                      {data.pricing.includesUtilities ? '공과금 포함' : '공과금 별도'}
+                      {data.pricing.includesUtilities
+                        ? t('utilitiesIncluded')
+                        : t('utilitiesExcluded')}
                     </span>
                   </div>
                 </div>
@@ -557,7 +570,12 @@ export function AccommodationPreviewModal({
 
             {/* Manager Info */}
             {data.managers.length > 0 && (
-              <Section title="담당자 정보" expanded={true} onToggle={() => {}} showToggle={false}>
+              <Section
+                title={t('managerInfo')}
+                expanded={true}
+                onToggle={() => {}}
+                showToggle={false}
+              >
                 <div className="space-y-3">
                   {data.managers.map((manager) => (
                     <div key={manager.id} className="flex justify-between items-center">
@@ -571,7 +589,7 @@ export function AccommodationPreviewModal({
 
             {/* Other Stays You May Like */}
             <Section
-              title="Other Stays You May Like"
+              title={t('otherStaysYouMayLike')}
               expanded={true}
               onToggle={() => {}}
               showToggle={false}
@@ -581,11 +599,11 @@ export function AccommodationPreviewModal({
                   <div className="w-6 h-6 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : !accommodationId ? (
-                <p className="text-xs text-[#a8a8a8] text-center py-4">
-                  저장 후 유사 숙소가 표시됩니다
-                </p>
+                <p className="text-xs text-[#a8a8a8] text-center py-4">{t('showAfterSave')}</p>
               ) : similarAccommodations.length === 0 ? (
-                <p className="text-xs text-[#a8a8a8] text-center py-4">유사한 숙소가 없습니다</p>
+                <p className="text-xs text-[#a8a8a8] text-center py-4">
+                  {t('noSimilarAccommodations')}
+                </p>
               ) : (
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5">
                   {similarAccommodations.map((item) => (
@@ -610,18 +628,19 @@ export function AccommodationPreviewModal({
                       <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-0.5">
                         <HotelIcon className="w-3 h-3" />
                         <span>
-                          {item.roomCount} Rooms · {item.bathroomCount} Bathroom
+                          {t('rooms', { count: item.roomCount })} ·{' '}
+                          {t('bathrooms', { count: item.bathroomCount })}
                         </span>
                       </div>
                       <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-1">
                         <UserIcon className="w-3 h-3" />
-                        <span>{item.capacity} Guests</span>
+                        <span>{t('guests', { count: item.capacity })}</span>
                       </div>
                       <p className="text-xs">
                         <span className="font-bold text-[hsl(var(--snug-orange))]">
                           ₩{item.basePrice.toLocaleString()}
                         </span>
-                        <span className="text-[10px] text-[#6f6f6f]"> / night</span>
+                        <span className="text-[10px] text-[#6f6f6f]"> {t('perNight')}</span>
                       </p>
                     </div>
                   ))}
@@ -630,26 +649,28 @@ export function AccommodationPreviewModal({
             </Section>
 
             {/* Information - TODO: 추후 실제 데이터 연결 */}
-            <Section title="Information" expanded={true} onToggle={() => {}} showToggle={false}>
+            <Section
+              title={t('information')}
+              expanded={true}
+              onToggle={() => {}}
+              showToggle={false}
+            >
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <h4 className="text-xs font-semibold text-[#161616]">
-                    Included in Maintenance Fee
+                    {t('includedInMaintenanceFee')}
                   </h4>
-                  <span className="text-xs text-[#6f6f6f]">
-                    (Gas, Water, Internet, Electricity)
-                  </span>
+                  <span className="text-xs text-[#6f6f6f]">({t('includedServices')})</span>
                 </div>
                 <p className="text-xs text-[#6f6f6f] leading-relaxed">
-                  All utility charges and internet fees are included in the maintenance fee. If any
-                  of the included services are used excessively, additional charges may apply.
+                  {t('includedServicesDesc')}
                 </p>
               </div>
             </Section>
 
             {/* Refund Policy - TODO: 추후 실제 데이터 연결 */}
             <Section
-              title="Refund Policy"
+              title={t('refundPolicy')}
               expanded={expandedSections.refundPolicy}
               onToggle={() => toggleSection('refundPolicy')}
             >
@@ -670,7 +691,7 @@ export function AccommodationPreviewModal({
 
             {/* Long-Term Stay Discount - TODO: 추후 실제 데이터 연결 */}
             <Section
-              title="Long-Term Stay Discount"
+              title={t('longTermDiscount')}
               expanded={expandedSections.longTermDiscount}
               onToggle={() => toggleSection('longTermDiscount')}
             >
@@ -692,7 +713,7 @@ export function AccommodationPreviewModal({
 
             {/* Notes - TODO: 추후 실제 데이터 연결 */}
             <Section
-              title="Notes"
+              title={t('notes')}
               expanded={expandedSections.notes}
               onToggle={() => toggleSection('notes')}
             >

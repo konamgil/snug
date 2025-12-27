@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 interface MonthlyData {
@@ -21,33 +22,36 @@ const CURRENT_SETTLEMENT = {
 };
 
 export function SettlementSection() {
+  const t = useTranslations('host.dashboard');
   const maxValue = 100;
 
   return (
     <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">정산</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('settlement')}
+        </h2>
         <Link
           href="/host/settlements"
           className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
         >
-          모든 정산목록 보기
+          {t('viewAllSettlements')}
         </Link>
       </div>
 
       {/* Amount Display */}
       <div className="mb-6">
         <p className="text-sm text-[hsl(var(--snug-gray))] mb-1">
-          {CURRENT_SETTLEMENT.month} 정산금액
+          {t('settlementAmount', { month: CURRENT_SETTLEMENT.month })}
         </p>
         <div className="flex items-baseline gap-2 flex-wrap">
           <span className="text-2xl md:text-3xl font-bold text-[hsl(var(--snug-orange))]">
             {CURRENT_SETTLEMENT.amount.toLocaleString('ko-KR')}
-            {CURRENT_SETTLEMENT.unit}
+            {t('thousandWon')}
           </span>
           <span className="text-xs md:text-sm text-[hsl(var(--snug-gray))]">
-            (전월 대비 {CURRENT_SETTLEMENT.comparison})
+            ({t('comparedToPrevMonth', { amount: CURRENT_SETTLEMENT.comparison })})
           </span>
         </div>
       </div>
@@ -79,7 +83,7 @@ export function SettlementSection() {
                 {isLastMonth && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-white border border-[hsl(var(--snug-border))] rounded text-xs font-medium text-[hsl(var(--snug-text-primary))] whitespace-nowrap shadow-sm">
                     {CURRENT_SETTLEMENT.amount.toLocaleString('ko-KR')}
-                    {CURRENT_SETTLEMENT.unit}
+                    {t('thousandWon')}
                   </div>
                 )}
 
@@ -110,25 +114,27 @@ export function SettlementSection() {
 }
 
 export function SettlementEmptySection() {
+  const t = useTranslations('host.dashboard');
+
   return (
     <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">정산</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('settlement')}
+        </h2>
         <Link
           href="/host/settlements"
           className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
         >
-          모든 정산목록 보기
+          {t('viewAllSettlements')}
         </Link>
       </div>
 
       {/* Empty State */}
       <div className="flex flex-col items-center justify-center h-[200px] text-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">아직 정산 내역이 없습니다.</p>
-        <p className="text-sm text-[hsl(var(--snug-gray))]">
-          새로운 정산이 발생하면 이곳에서 확인할 수 있습니다.
-        </p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noSettlementsYet')}</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('settlementsAppearHere')}</p>
       </div>
     </section>
   );

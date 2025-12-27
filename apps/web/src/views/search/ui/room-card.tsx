@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
+import { useCurrencySafe } from '@/shared/providers';
 
 export interface Room {
   id: string;
@@ -49,6 +50,8 @@ const tagSecondColors = {
 
 export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCardProps) {
   const locale = useLocale();
+  const t = useTranslations('rooms');
+  const { format } = useCurrencySafe();
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const totalImages = 10; // Mock total images
@@ -124,28 +127,30 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
             <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
+              {t('roomCount', { count: room.rooms })} ·{' '}
+              {t('bathroomCount', { count: room.bathrooms })} ·{' '}
+              {t('bedCount', { count: room.beds })}
             </span>
           </div>
 
           {/* Guests */}
           <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
             <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{room.guests} Guests</span>
+            <span>{t('guestCount', { count: room.guests })}</span>
           </div>
 
           {/* Price */}
           <div className="flex items-baseline gap-1.5">
             {room.originalPrice && (
               <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
-                ${room.originalPrice}
+                {format(room.originalPrice)}
               </span>
             )}
             <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
-              ${room.price}
+              {format(room.price)}
             </span>
             <span className="text-[13px] text-[hsl(var(--snug-gray))]">
-              for {room.nights} nights
+              {t('forNights', { count: room.nights })}
             </span>
           </div>
         </div>
@@ -223,27 +228,31 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-0.5">
             <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
-              {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
+              {t('roomCount', { count: room.rooms })} ·{' '}
+              {t('bathroomCount', { count: room.bathrooms })} ·{' '}
+              {t('bedCount', { count: room.beds })}
             </span>
           </div>
 
           {/* Guests */}
           <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-2">
             <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{room.guests} Guests</span>
+            <span>{t('guestCount', { count: room.guests })}</span>
           </div>
 
           {/* Price */}
           <div className="flex items-baseline gap-1.5">
             {room.originalPrice && (
               <span className="text-sm text-[hsl(var(--snug-gray))] line-through">
-                ${room.originalPrice}
+                {format(room.originalPrice)}
               </span>
             )}
             <span className="text-base font-bold text-[hsl(var(--snug-orange))]">
-              ${room.price}
+              {format(room.price)}
             </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">for {room.nights} nights</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">
+              {t('forNights', { count: room.nights })}
+            </span>
           </div>
         </div>
       </Link>
@@ -299,17 +308,17 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
         <div className="flex items-center gap-1.5 text-[11px] text-[hsl(var(--snug-gray))] mb-0.5">
           <span className="flex items-center gap-0.5">
             <HotelIcon className="w-3 h-3" />
-            {room.rooms}R
+            {t('roomsShort', { count: room.rooms })}
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
             <Bath className="w-3 h-3" />
-            {room.bathrooms}B
+            {t('bathroomsShort', { count: room.bathrooms })}
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
             <BedDouble className="w-3 h-3" />
-            {room.beds}Bed
+            {t('bedsShort', { count: room.beds })}
           </span>
           <span>·</span>
           <span className="flex items-center gap-0.5">
@@ -322,11 +331,15 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
         <div className="flex items-baseline gap-1.5 mt-1">
           {room.originalPrice && (
             <span className="text-xs text-[hsl(var(--snug-gray))] line-through">
-              ${room.originalPrice}
+              {format(room.originalPrice)}
             </span>
           )}
-          <span className="text-base font-bold text-[hsl(var(--snug-orange))]">${room.price}</span>
-          <span className="text-xs text-[hsl(var(--snug-gray))]">/ {room.nights}nights</span>
+          <span className="text-base font-bold text-[hsl(var(--snug-orange))]">
+            {format(room.price)}
+          </span>
+          <span className="text-xs text-[hsl(var(--snug-gray))]">
+            {t('perNights', { count: room.nights })}
+          </span>
         </div>
       </div>
     </Link>

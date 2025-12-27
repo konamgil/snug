@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, RotateCcw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -20,22 +21,7 @@ export interface FilterState {
   amenities: string[];
 }
 
-const ROOM_TYPES = ['House', 'Shared House', 'Shared Room'];
-const PROPERTY_TYPES = ['Apartment', 'Villa', 'House', 'Officetel'];
 const APARTMENT_SIZES = ['≥58㎡', '≥82㎡', '≥92㎡'];
-const HOUSE_RULES = ['Women Only', 'Men Only', 'Pets allowed'];
-const FACILITIES = [
-  'All',
-  'Parking lot',
-  'Lift',
-  'Wifi',
-  'Public gate with lock',
-  'Fully furnished',
-  'Private bathroom',
-  'Washing machine',
-  'Balcony/Terrace',
-];
-const AMENITIES = ['All', 'Queen sized Bed', 'Air conditioning', 'Dryer'];
 
 const DEFAULT_FILTERS: FilterState = {
   roomTypes: [],
@@ -49,7 +35,43 @@ const DEFAULT_FILTERS: FilterState = {
 };
 
 export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
+  const t = useTranslations('search.filters');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+
+  // Translated filter options
+  const ROOM_TYPES = [
+    { key: 'house', label: t('roomTypes.house') },
+    { key: 'sharedHouse', label: t('roomTypes.sharedHouse') },
+    { key: 'sharedRoom', label: t('roomTypes.sharedRoom') },
+  ];
+  const PROPERTY_TYPES = [
+    { key: 'apartment', label: t('propertyTypes.apartment') },
+    { key: 'villa', label: t('propertyTypes.villa') },
+    { key: 'house', label: t('propertyTypes.house') },
+    { key: 'officetel', label: t('propertyTypes.officetel') },
+  ];
+  const HOUSE_RULES = [
+    { key: 'womenOnly', label: t('womenOnly') },
+    { key: 'menOnly', label: t('menOnly') },
+    { key: 'petsAllowed', label: t('petsAllowed') },
+  ];
+  const FACILITIES = [
+    { key: 'all', label: t('facilitiesOptions.all') },
+    { key: 'parkingLot', label: t('facilitiesOptions.parkingLot') },
+    { key: 'lift', label: t('facilitiesOptions.lift') },
+    { key: 'wifi', label: t('facilitiesOptions.wifi') },
+    { key: 'publicGate', label: t('facilitiesOptions.publicGate') },
+    { key: 'fullyFurnished', label: t('facilitiesOptions.fullyFurnished') },
+    { key: 'privateBathroom', label: t('facilitiesOptions.privateBathroom') },
+    { key: 'washingMachine', label: t('facilitiesOptions.washingMachine') },
+    { key: 'balcony', label: t('facilitiesOptions.balcony') },
+  ];
+  const AMENITIES = [
+    { key: 'all', label: t('amenitiesOptions.all') },
+    { key: 'queenBed', label: t('amenitiesOptions.queenBed') },
+    { key: 'airConditioning', label: t('amenitiesOptions.airConditioning') },
+    { key: 'dryer', label: t('amenitiesOptions.dryer') },
+  ];
 
   const toggleArrayItem = (array: string[], item: string): string[] => {
     return array.includes(item) ? array.filter((i) => i !== item) : [...array, item];
@@ -105,20 +127,22 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
     <div className="space-y-8">
       {/* Room Type */}
       <div>
-        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">Room Type</h3>
+        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+          {t('roomType')}
+        </h3>
         <div className="flex flex-wrap gap-2">
           {ROOM_TYPES.map((type) => (
             <button
-              key={type}
+              key={type.key}
               type="button"
-              onClick={() => handleRoomTypeToggle(type)}
+              onClick={() => handleRoomTypeToggle(type.key)}
               className={`px-4 py-2 text-sm border rounded-full transition-colors ${
-                filters.roomTypes.includes(type)
+                filters.roomTypes.includes(type.key)
                   ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
                   : 'border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))]'
               }`}
             >
-              {type}
+              {type.label}
             </button>
           ))}
         </div>
@@ -127,21 +151,21 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
       {/* Property Type */}
       <div>
         <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
-          Property Type
+          {t('propertyType')}
         </h3>
         <div className="flex flex-wrap gap-2">
           {PROPERTY_TYPES.map((type) => (
             <button
-              key={type}
+              key={type.key}
               type="button"
-              onClick={() => handlePropertyTypeToggle(type)}
+              onClick={() => handlePropertyTypeToggle(type.key)}
               className={`px-4 py-2 text-sm border rounded-full transition-colors ${
-                filters.propertyTypes.includes(type)
+                filters.propertyTypes.includes(type.key)
                   ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
                   : 'border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))]'
               }`}
             >
-              {type}
+              {type.label}
             </button>
           ))}
         </div>
@@ -150,7 +174,8 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
       {/* Budget */}
       <div>
         <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
-          Budget <span className="font-normal text-[hsl(var(--snug-gray))]">· Monthly payment</span>
+          {t('budget')}{' '}
+          <span className="font-normal text-[hsl(var(--snug-gray))]">· {t('monthlyPayment')}</span>
         </h3>
 
         {/* Range Slider */}
@@ -173,7 +198,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
                 budgetMin: Math.min(Number(e.target.value), prev.budgetMax - 50),
               }))
             }
-            className="absolute w-full h-1 appearance-none bg-transparent pointer-events-auto cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
+            className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:pointer-events-auto"
           />
           <input
             type="range"
@@ -186,14 +211,16 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
                 budgetMax: Math.max(Number(e.target.value), prev.budgetMin + 50),
               }))
             }
-            className="absolute w-full h-1 appearance-none bg-transparent pointer-events-auto cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
+            className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:pointer-events-auto"
           />
         </div>
 
         {/* Min/Max Inputs */}
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <label className="text-xs text-[hsl(var(--snug-gray))] mb-1 block">Minimum</label>
+            <label className="text-xs text-[hsl(var(--snug-gray))] mb-1 block">
+              {t('minimum')}
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[hsl(var(--snug-text-primary))]">
                 $
@@ -210,7 +237,9 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
           </div>
           <span className="text-[hsl(var(--snug-gray))] mt-5">–</span>
           <div className="flex-1">
-            <label className="text-xs text-[hsl(var(--snug-gray))] mb-1 block">Maximum</label>
+            <label className="text-xs text-[hsl(var(--snug-gray))] mb-1 block">
+              {t('maximum')}
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[hsl(var(--snug-text-primary))]">
                 $
@@ -231,7 +260,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
       {/* Apartment Size */}
       <div>
         <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
-          Apartment Size
+          {t('apartmentSize')}
         </h3>
         <div className="flex items-center gap-6">
           {APARTMENT_SIZES.map((size) => (
@@ -256,19 +285,21 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
 
       {/* House Rules */}
       <div>
-        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">House Rules</h3>
+        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+          {t('houseRules')}
+        </h3>
         <div className="space-y-3">
           {HOUSE_RULES.map((rule) => (
-            <label key={rule} className="flex items-center gap-3 cursor-pointer">
+            <label key={rule.key} className="flex items-center gap-3 cursor-pointer">
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                  filters.houseRules.includes(rule)
+                  filters.houseRules.includes(rule.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleHouseRuleToggle(rule)}
+                onClick={() => handleHouseRuleToggle(rule.key)}
               >
-                {filters.houseRules.includes(rule) && (
+                {filters.houseRules.includes(rule.key) && (
                   <svg
                     className="w-3 h-3 text-white"
                     fill="none"
@@ -284,7 +315,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
                   </svg>
                 )}
               </div>
-              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{rule}</span>
+              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{rule.label}</span>
             </label>
           ))}
         </div>
@@ -292,19 +323,21 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
 
       {/* Facilities */}
       <div>
-        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">Facilities</h3>
+        <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+          {t('facilities')}
+        </h3>
         <div className="grid grid-cols-2 gap-3">
           {FACILITIES.map((facility) => (
-            <label key={facility} className="flex items-center gap-3 cursor-pointer">
+            <label key={facility.key} className="flex items-center gap-3 cursor-pointer">
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                  filters.facilities.includes(facility)
+                  filters.facilities.includes(facility.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleFacilityToggle(facility)}
+                onClick={() => handleFacilityToggle(facility.key)}
               >
-                {filters.facilities.includes(facility) && (
+                {filters.facilities.includes(facility.key) && (
                   <svg
                     className="w-3 h-3 text-white"
                     fill="none"
@@ -320,7 +353,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
                   </svg>
                 )}
               </div>
-              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{facility}</span>
+              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{facility.label}</span>
             </label>
           ))}
         </div>
@@ -329,20 +362,20 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
       {/* House amenities */}
       <div>
         <h3 className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
-          House amenities
+          {t('amenities')}
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {AMENITIES.map((amenity) => (
-            <label key={amenity} className="flex items-center gap-3 cursor-pointer">
+            <label key={amenity.key} className="flex items-center gap-3 cursor-pointer">
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                  filters.amenities.includes(amenity)
+                  filters.amenities.includes(amenity.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleAmenityToggle(amenity)}
+                onClick={() => handleAmenityToggle(amenity.key)}
               >
-                {filters.amenities.includes(amenity) && (
+                {filters.amenities.includes(amenity.key) && (
                   <svg
                     className="w-3 h-3 text-white"
                     fill="none"
@@ -358,7 +391,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
                   </svg>
                 )}
               </div>
-              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{amenity}</span>
+              <span className="text-sm text-[hsl(var(--snug-text-primary))]">{amenity.label}</span>
             </label>
           ))}
         </div>
@@ -374,14 +407,14 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
       >
         <RotateCcw className="w-4 h-4" />
-        Reset
+        {t('reset')}
       </button>
       <button
         type="button"
         onClick={handleApply}
         className="flex-1 py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
       >
-        Show Results
+        {t('showResults')}
       </button>
     </div>
   );
@@ -392,7 +425,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
       <div className="lg:hidden fixed inset-0 z-[100] bg-white flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--snug-border))]">
-          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">Filters</h2>
+          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">{t('filters')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -418,7 +451,9 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-xl flex flex-col max-h-[85vh]">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--snug-border))]">
-            <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">Filters</h2>
+            <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+              {t('filters')}
+            </h2>
             <button
               type="button"
               onClick={onClose}

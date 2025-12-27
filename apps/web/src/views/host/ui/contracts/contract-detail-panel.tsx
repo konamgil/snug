@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 
@@ -85,12 +86,13 @@ export function ContractDetailPanel({
   onChat,
   onViewContract,
 }: ContractDetailPanelProps) {
+  const t = useTranslations('host.contracts.detail');
   const [isAdditionalInfoOpen, setIsAdditionalInfoOpen] = useState(false);
 
   if (!data) return null;
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('ko-KR') + '원';
+    return price.toLocaleString('ko-KR') + t('won');
   };
 
   // Determine which action buttons to show based on status
@@ -107,14 +109,14 @@ export function ContractDetailPanel({
                 onClick={onOtherProposal}
                 className="py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
               >
-                다른 제안
+                {t('otherProposal')}
               </button>
               <button
                 type="button"
                 onClick={onConfirmReservation}
                 className="py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
               >
-                예약 확정
+                {t('confirmReservation')}
               </button>
             </div>
           </div>
@@ -131,7 +133,7 @@ export function ContractDetailPanel({
               onClick={onPaymentRequest}
               className="w-full py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
             >
-              결제 요청
+              {t('paymentRequest')}
             </button>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -139,14 +141,14 @@ export function ContractDetailPanel({
                 onClick={onOtherProposal}
                 className="py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
               >
-                다른 제안
+                {t('otherProposal')}
               </button>
               <button
                 type="button"
                 onClick={onChat}
                 className="py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
               >
-                1:1 채팅
+                {t('oneOnOneChat')}
               </button>
             </div>
           </div>
@@ -161,7 +163,7 @@ export function ContractDetailPanel({
             onClick={onViewContract}
             className="w-full py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
           >
-            계약서 확인
+            {t('viewContract')}
           </button>
         );
 
@@ -174,7 +176,7 @@ export function ContractDetailPanel({
             onClick={onViewContract}
             className="w-full py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
           >
-            계약서 확인
+            {t('viewContract')}
           </button>
         );
 
@@ -188,7 +190,7 @@ export function ContractDetailPanel({
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--snug-border))]">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">계약 내용 상세</h2>
+          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">{t('title')}</h2>
           <span
             className={`px-2 py-0.5 text-xs font-medium border rounded-full ${getStatusBadgeStyle(data.status)}`}
           >
@@ -244,14 +246,14 @@ export function ContractDetailPanel({
         {/* Guest Count & Price Summary */}
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-text-primary))]">인원</span>
+            <span className="text-sm text-[hsl(var(--snug-text-primary))]">{t('guestCount')}</span>
             <span className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
-              {data.guestCount}명
+              {t('guestCountValue', { count: data.guestCount })}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-              {data.nights}박 (공과금 미포함)
+              {t('nightsExcludingUtilities', { count: data.nights })}
             </span>
             <span className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
               {formatPrice(data.basePrice)}
@@ -265,7 +267,7 @@ export function ContractDetailPanel({
         {/* Detail Request */}
         <div className="mb-4">
           <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-            상세 요구사항
+            {t('detailRequest')}
           </p>
           <p className="text-sm text-[hsl(var(--snug-text-primary))] leading-relaxed whitespace-pre-line">
             {data.detailRequest}
@@ -274,30 +276,32 @@ export function ContractDetailPanel({
 
         {/* Basic Info Box */}
         <div className="bg-[hsl(var(--snug-light-gray))] rounded-lg p-4 mb-4">
-          <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">기본 정보</p>
+          <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+            {t('basicInfo')}
+          </p>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-[hsl(var(--snug-gray))]">계약자명</span>
+              <span className="text-sm text-[hsl(var(--snug-gray))]">{t('contractorName')}</span>
               <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                 {data.guestName} ({data.guestGender})
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[hsl(var(--snug-gray))]">연락처</span>
+              <span className="text-sm text-[hsl(var(--snug-gray))]">{t('contact')}</span>
               <span className="text-sm text-[hsl(var(--snug-text-primary))]">{data.contact}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[hsl(var(--snug-gray))]">이메일</span>
+              <span className="text-sm text-[hsl(var(--snug-gray))]">{t('email')}</span>
               <span className="text-sm text-[hsl(var(--snug-text-primary))]">{data.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[hsl(var(--snug-gray))]">여권번호</span>
+              <span className="text-sm text-[hsl(var(--snug-gray))]">{t('passportNumber')}</span>
               <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                 {data.passportNumber}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[hsl(var(--snug-gray))]">주민번호</span>
+              <span className="text-sm text-[hsl(var(--snug-gray))]">{t('residentNumber')}</span>
               <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                 {data.residentNumber}
               </span>
@@ -306,28 +310,30 @@ export function ContractDetailPanel({
 
           {/* Additional Info Section */}
           <div className="mt-4">
-            <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">부가 정보</p>
+            <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
+              {t('additionalInfo')}
+            </p>
 
             {isAdditionalInfoOpen && (
               <div className="space-y-2 mb-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">거주 목적</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('purpose')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {data.purpose}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">결제자</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('payer')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">{data.payer}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">계좌</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('bankAccount')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {data.bankAccount}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">결제일</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('paymentDate')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {data.paymentDate}
                   </span>
@@ -340,7 +346,7 @@ export function ContractDetailPanel({
               onClick={() => setIsAdditionalInfoOpen(!isAdditionalInfoOpen)}
               className="flex items-center gap-1 text-sm text-[hsl(var(--snug-text-primary))] mx-auto"
             >
-              {isAdditionalInfoOpen ? '닫기' : '더보기'}
+              {isAdditionalInfoOpen ? t('close') : t('showMore')}
               {isAdditionalInfoOpen ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -353,32 +359,32 @@ export function ContractDetailPanel({
           {isAdditionalInfoOpen && (
             <div className="mt-4 pt-4 border-t border-[hsl(var(--snug-border))]">
               <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-3">
-                결제 정보
+                {t('paymentInfo')}
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-[hsl(var(--snug-gray))]">
-                    {data.nights}박 (공과금 미포함)
+                    {t('nightsExcludingUtilities', { count: data.nights })}
                   </span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {formatPrice(data.basePrice)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">청소비</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('cleaningFee')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {formatPrice(data.cleaningFee)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">관리비</span>
+                  <span className="text-sm text-[hsl(var(--snug-gray))]">{t('managementFee')}</span>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {formatPrice(data.managementFee)}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-[hsl(var(--snug-border))]">
                   <span className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
-                    총 금액
+                    {t('totalAmount')}
                   </span>
                   <span className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
                     {formatPrice(data.totalPrice)}
@@ -392,7 +398,9 @@ export function ContractDetailPanel({
         {/* Memo */}
         {data.memo && (
           <div className="mb-6">
-            <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-2">기타 메모</p>
+            <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))] mb-2">
+              {t('memo')}
+            </p>
             <p className="text-sm text-[hsl(var(--snug-text-primary))]">{data.memo}</p>
           </div>
         )}

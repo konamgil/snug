@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, Check } from 'lucide-react';
 
 interface SelectionOption {
@@ -29,6 +30,7 @@ export function SelectionModal({
   initialSelected,
   sectionTitle,
 }: SelectionModalProps) {
+  const tCommon = useTranslations('common');
   // Use initialSelected as initial state - parent should use key prop to reset if needed
   const [selected, setSelected] = useState<string[]>(initialSelected);
 
@@ -120,14 +122,14 @@ export function SelectionModal({
             onClick={onClose}
             className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
           >
-            취소
+            {tCommon('cancel')}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
           >
-            완료
+            {tCommon('done')}
           </button>
         </div>
       </div>
@@ -144,15 +146,18 @@ interface FacilityModalProps {
 }
 
 export function FacilityModal({ isOpen, onClose, onConfirm, initialSelected }: FacilityModalProps) {
+  const t = useTranslations('host.accommodation.modal');
+  const tFacilities = useTranslations('host.facilities');
+
   const FACILITY_OPTIONS = [
-    { id: 'digital_lock', label: '디지털 도어락' },
-    { id: 'refrigerator', label: '냉장고' },
-    { id: 'air_conditioner', label: '컨디셔너' },
-    { id: 'coffee_maker', label: '커피 메이커' },
-    { id: 'washer', label: '세탁기' },
-    { id: 'closet', label: '옷걸이' },
+    { id: 'digital_lock', label: tFacilities('digitalLock') },
+    { id: 'refrigerator', label: tFacilities('refrigerator') },
+    { id: 'air_conditioner', label: tFacilities('airConditioner') },
+    { id: 'coffee_maker', label: tFacilities('coffeeMaker') },
+    { id: 'washer', label: tFacilities('washingMachine') },
+    { id: 'closet', label: tFacilities('clothRack') },
     { id: 'tv', label: 'TV' },
-    { id: 'wifi', label: '와이파이' },
+    { id: 'wifi', label: tFacilities('wifi') },
     { id: 'cctv', label: 'CCTV' },
   ];
 
@@ -161,11 +166,11 @@ export function FacilityModal({ isOpen, onClose, onConfirm, initialSelected }: F
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="시설 추가"
-      subtitle="추가하실 시설을 선택해주세요."
+      title={t('addFacilities')}
+      subtitle={t('selectFacilitiesToAdd')}
       options={FACILITY_OPTIONS}
       initialSelected={initialSelected}
-      sectionTitle="시설"
+      sectionTitle={t('facilities')}
     />
   );
 }
@@ -179,15 +184,18 @@ interface AmenityModalProps {
 }
 
 export function AmenityModal({ isOpen, onClose, onConfirm, initialSelected }: AmenityModalProps) {
+  const t = useTranslations('host.accommodation.modal');
+  const tAmenities = useTranslations('host.amenities');
+
   const AMENITY_OPTIONS = [
-    { id: 'hair_dryer', label: '헤어 드라이어' },
-    { id: 'shampoo', label: '샴푸' },
-    { id: 'conditioner', label: '컨디셔너' },
-    { id: 'body_wash', label: '바디워셔' },
-    { id: 'soap', label: '비누' },
-    { id: 'towel', label: '수건' },
-    { id: 'toothbrush', label: '칫솔' },
-    { id: 'toothpaste', label: '치약' },
+    { id: 'hair_dryer', label: tAmenities('hairDryer') },
+    { id: 'shampoo', label: tAmenities('shampoo') },
+    { id: 'conditioner', label: tAmenities('conditioner') },
+    { id: 'body_wash', label: tAmenities('bodyWash') },
+    { id: 'soap', label: tAmenities('soap') },
+    { id: 'towel', label: tAmenities('towel') },
+    { id: 'toothbrush', label: tAmenities('toothbrush') },
+    { id: 'toothpaste', label: tAmenities('toothpaste') },
   ];
 
   return (
@@ -195,11 +203,11 @@ export function AmenityModal({ isOpen, onClose, onConfirm, initialSelected }: Am
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="어메니티 추가"
-      subtitle="추가하실 어메니티를 선택해주세요."
+      title={t('addAmenities')}
+      subtitle={t('selectAmenitiesToAdd')}
       options={AMENITY_OPTIONS}
       initialSelected={initialSelected}
-      sectionTitle="어메니티"
+      sectionTitle={t('amenities')}
     />
   );
 }
@@ -212,6 +220,8 @@ interface ManagerModalProps {
 }
 
 export function ManagerModal({ isOpen, onClose, onConfirm }: ManagerModalProps) {
+  const t = useTranslations('host.accommodation.modal');
+  const tCommon = useTranslations('common');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
@@ -244,11 +254,9 @@ export function ManagerModal({ isOpen, onClose, onConfirm }: ManagerModalProps) 
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-                관리자 추가
+                {t('addManager')}
               </h2>
-              <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
-                관리자 정보를 입력해주세요.
-              </p>
+              <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">{t('enterManagerInfo')}</p>
             </div>
             <button
               type="button"
@@ -263,33 +271,39 @@ export function ManagerModal({ isOpen, onClose, onConfirm }: ManagerModalProps) 
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
           <div>
-            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">관리자</label>
+            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">
+              {t('manager')}
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="관리자명"
+              placeholder={t('managerNamePlaceholder')}
               className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">연락처</label>
+            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">
+              {t('contact')}
+            </label>
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="010 - 0000 - 0000"
+              placeholder={t('contactPlaceholder')}
               className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">추가 정보</label>
+            <label className="block text-sm text-[hsl(var(--snug-gray))] mb-1">
+              {t('additionalInfo')}
+            </label>
             <textarea
               value={additionalInfo}
               onChange={(e) => setAdditionalInfo(e.target.value)}
-              placeholder="추가 정보가 있는 경우 입력해주세요."
+              placeholder={t('additionalInfoPlaceholder')}
               rows={3}
               className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] resize-none"
             />
@@ -303,7 +317,7 @@ export function ManagerModal({ isOpen, onClose, onConfirm }: ManagerModalProps) 
             onClick={onClose}
             className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
           >
-            취소
+            {tCommon('cancel')}
           </button>
           <button
             type="button"
@@ -311,7 +325,7 @@ export function ManagerModal({ isOpen, onClose, onConfirm }: ManagerModalProps) 
             disabled={!name.trim()}
             className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            완료
+            {tCommon('done')}
           </button>
         </div>
       </div>

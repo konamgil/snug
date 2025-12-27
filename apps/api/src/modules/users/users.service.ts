@@ -40,7 +40,16 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
-  async update(id: string, data: { firstName?: string; lastName?: string; avatarUrl?: string }) {
+  async update(
+    id: string,
+    data: {
+      firstName?: string;
+      lastName?: string;
+      avatarUrl?: string;
+      preferredCurrency?: string;
+      preferredLanguage?: string;
+    },
+  ) {
     await this.findOne(id);
     return this.usersRepository.update(id, data);
   }

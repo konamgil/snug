@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
 import { InquiryDetailPanel, type InquiryDetailData } from './inquiry-detail-panel';
 import { InquiryChatView } from './inquiry-chat-view';
@@ -19,35 +20,21 @@ interface Inquiry {
   status: InquiryStatus;
 }
 
-// Inquiry type labels and colors
-const inquiryTypeConfig: Record<
-  InquiryType,
-  { label: string; bgColor: string; textColor: string }
-> = {
+// Inquiry type colors (labels will be translated)
+const inquiryTypeColors: Record<InquiryType, { bgColor: string; textColor: string }> = {
   cleaning: {
-    label: '청소',
     bgColor: 'bg-[#d0e2ff]',
     textColor: 'text-[#0043ce]',
   },
   repair: {
-    label: '수리',
     bgColor: 'bg-[#ffd7d9]',
     textColor: 'text-[#a2191f]',
   },
   bedding: {
-    label: '침구',
     bgColor: 'bg-[#9ef0f0]',
     textColor: 'text-[#005d5d]',
   },
 };
-
-// Filter tab config
-const filterTabs: { key: FilterTab; label: string }[] = [
-  { key: 'all', label: '전체' },
-  { key: 'received', label: '요청접수' },
-  { key: 'in_progress', label: '요청 진행중' },
-  { key: 'completed', label: '요청 완료' },
-];
 
 // Mock data
 const mockInquiries: Inquiry[] = [
@@ -142,19 +129,19 @@ const mockInquiries: Inquiry[] = [
 ];
 
 // Inquiry Type Badge Component
-function InquiryTypeBadge({ type }: { type: InquiryType }) {
-  const config = inquiryTypeConfig[type];
+function InquiryTypeBadge({ type, label }: { type: InquiryType; label: string }) {
+  const colors = inquiryTypeColors[type];
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal ${config.bgColor} ${config.textColor}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal ${colors.bgColor} ${colors.textColor}`}
     >
-      {config.label}
+      {label}
     </span>
   );
 }
 
 // Filter Tab Component
-function FilterTab({
+function FilterTabButton({
   active,
   label,
   onClick,
@@ -179,9 +166,26 @@ function FilterTab({
 }
 
 export function OperationsPage() {
+  const t = useTranslations('host.operations');
+  const tTypes = useTranslations('host.operations.inquiryTypes');
+  const tFilters = useTranslations('host.operations.filters');
+  const tTable = useTranslations('host.operations.table');
+  const tRequestTypes = useTranslations('host.operations.requestTypes');
+
   const [selectedFilter, setSelectedFilter] = useState<FilterTab>('all');
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [showChatView, setShowChatView] = useState(false);
+
+  const filterTabs: { key: FilterTab; label: string }[] = [
+    { key: 'all', label: tFilters('all') },
+    { key: 'received', label: tFilters('received') },
+    { key: 'in_progress', label: tFilters('inProgress') },
+    { key: 'completed', label: tFilters('completed') },
+  ];
+
+  const getInquiryTypeLabel = (type: InquiryType): string => {
+    return tTypes(type);
+  };
 
   // Filter inquiries based on selected tab
   const filteredInquiries = mockInquiries.filter((inquiry) => {
@@ -196,14 +200,14 @@ export function OperationsPage() {
     inquiryDateTime: `${inquiry.receivedDate} 06:30`,
     requestType:
       inquiry.type === 'bedding'
-        ? '침구 1세트 추가 요청'
+        ? tRequestTypes('beddingRequest')
         : inquiry.type === 'cleaning'
-          ? '청소 요청'
-          : '수리 요청',
+          ? tRequestTypes('cleaningRequest')
+          : tRequestTypes('repairRequest'),
     requestDetails: inquiry.type === 'bedding' ? ['베개, 이불 추가 요청'] : [inquiry.content],
     desiredDate: '25.09.12 10:00',
     location: 'Seoul Dwell 201호',
-    keywords: [inquiryTypeConfig[inquiry.type].label],
+    keywords: [getInquiryTypeLabel(inquiry.type)],
     managerVisitDate: '25.09.12',
     managerVisitTime: '10:00',
     managerStatus: 'pending',
@@ -240,7 +244,7 @@ export function OperationsPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-1">
-                <h2 className="text-lg font-bold text-black">고객 문의</h2>
+                <h2 className="text-lg font-bold text-black">{t('customerInquiry')}</h2>
                 <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">
                   {filteredInquiries.length}
                 </span>
@@ -253,7 +257,7 @@ export function OperationsPage() {
             {/* Filter Tabs */}
             <div className="flex items-center gap-3.5 mb-6">
               {filterTabs.map((tab) => (
-                <FilterTab
+                <FilterTabButton
                   key={tab.key}
                   active={selectedFilter === tab.key}
                   label={tab.label}
@@ -264,11 +268,11 @@ export function OperationsPage() {
 
             {/* Table Header */}
             <div className="flex items-center text-xs font-bold text-black mb-2 px-0.5">
-              <div className="w-[60px]">접수일</div>
-              <div className="w-[70px]">질문자</div>
-              <div className="flex-1">문의 내용</div>
-              <div className="w-[70px] text-center">문의 유형</div>
-              <div className="w-[60px] text-center">처리일</div>
+              <div className="w-[60px]">{tTable('receivedDate')}</div>
+              <div className="w-[70px]">{tTable('questioner')}</div>
+              <div className="flex-1">{tTable('inquiryContent')}</div>
+              <div className="w-[70px] text-center">{tTable('inquiryType')}</div>
+              <div className="w-[60px] text-center">{tTable('processedDate')}</div>
             </div>
             <div className="border-t border-[#a8a8a8] mb-2" />
 
@@ -288,7 +292,10 @@ export function OperationsPage() {
                     {inquiry.content}
                   </div>
                   <div className="w-[70px] flex justify-center">
-                    <InquiryTypeBadge type={inquiry.type} />
+                    <InquiryTypeBadge
+                      type={inquiry.type}
+                      label={getInquiryTypeLabel(inquiry.type)}
+                    />
                   </div>
                   <div className="w-[60px] text-xs text-black text-center">
                     {inquiry.processedDate}

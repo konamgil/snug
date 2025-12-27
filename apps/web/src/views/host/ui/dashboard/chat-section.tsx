@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 
@@ -40,6 +41,7 @@ const MOCK_CHATS: ChatMessage[] = [
 ];
 
 export function ChatSection() {
+  const t = useTranslations('host.dashboard');
   const [filter, setFilter] = useState<ChatFilter>('all');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -47,9 +49,11 @@ export function ChatSection() {
     <section className="bg-white rounded-xl p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">최신 채팅</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('recentChats')}
+        </h2>
         <Link href="/host/chat" className="text-sm text-[hsl(var(--snug-orange))] hover:underline">
-          모든 채팅목록 보기
+          {t('viewAllChats')}
         </Link>
       </div>
 
@@ -60,7 +64,7 @@ export function ChatSection() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center gap-1 text-sm text-[hsl(var(--snug-text-primary))]"
         >
-          {filter === 'all' ? '전체' : '안 읽음'}
+          {filter === 'all' ? t('all') : t('unread')}
           <ChevronDown className="w-4 h-4" />
         </button>
 
@@ -78,7 +82,7 @@ export function ChatSection() {
                   : 'text-[hsl(var(--snug-text-primary))]'
               }`}
             >
-              전체
+              {t('all')}
             </button>
             <button
               type="button"
@@ -92,7 +96,7 @@ export function ChatSection() {
                   : 'text-[hsl(var(--snug-text-primary))]'
               }`}
             >
-              안 읽음
+              {t('unread')}
             </button>
           </div>
         )}
@@ -129,15 +133,18 @@ export function ChatSection() {
 }
 
 export function ChatEmptySection() {
+  const t = useTranslations('host.dashboard');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <section className="bg-white rounded-xl p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">최신 채팅</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('recentChats')}
+        </h2>
         <Link href="/host/chat" className="text-sm text-[hsl(var(--snug-orange))] hover:underline">
-          모든 채팅목록 보기
+          {t('viewAllChats')}
         </Link>
       </div>
 
@@ -148,17 +155,15 @@ export function ChatEmptySection() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center gap-1 text-sm text-[hsl(var(--snug-text-primary))]"
         >
-          전체
+          {t('all')}
           <ChevronDown className="w-4 h-4" />
         </button>
       </div>
 
       {/* Empty State */}
       <div className="flex flex-col items-center justify-center h-[120px] text-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">최근 채팅이 없습니다.</p>
-        <p className="text-sm text-[hsl(var(--snug-gray))]">
-          숙소 문의나 게스트 메시지가 도착하면 이곳에서 확인할 수 있습니다.
-        </p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noRecentChats')}</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('chatsAppearHere')}</p>
       </div>
     </section>
   );

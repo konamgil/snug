@@ -6,6 +6,7 @@
     "retry": "再試行",
     "save": "保存",
     "cancel": "キャンセル",
+    "done": "完了",
     "confirm": "確認",
     "delete": "削除",
     "edit": "編集",
@@ -18,7 +19,9 @@
     "next": "次へ",
     "previous": "前へ",
     "submit": "送信",
-    "close": "閉じる"
+    "close": "閉じる",
+    "add": "追加",
+    "select": "選択"
   },
   "metadata": {
     "title": "Snug - 韓国で完璧な部屋を見つけよう",
@@ -34,6 +37,69 @@
     "login": "ログイン",
     "signup": "新規登録",
     "logout": "ログアウト"
+  },
+  "search": {
+    "resultsCount": "{location}で{count}件の宿泊施設",
+    "noResults": "宿泊施設が見つかりません",
+    "anywhere": "すべての地域",
+    "guest": "ゲスト",
+    "guests": "ゲスト",
+    "guestCount": "ゲスト {count}名",
+    "filters": {
+      "filters": "フィルター",
+      "roomType": "部屋タイプ",
+      "propertyType": "建物タイプ",
+      "budget": "予算",
+      "monthlyPayment": "月払い",
+      "minimum": "最小",
+      "maximum": "最大",
+      "apartmentSize": "広さ",
+      "houseRules": "ハウスルール",
+      "facilities": "設備",
+      "amenities": "アメニティ",
+      "reset": "リセット",
+      "showResults": "結果を表示",
+      "womenOnly": "女性専用",
+      "menOnly": "男性専用",
+      "petsAllowed": "ペット可",
+      "parking": "駐車場",
+      "roomTypes": {
+        "house": "一軒家",
+        "sharedHouse": "シェアハウス",
+        "sharedRoom": "シェアルーム"
+      },
+      "propertyTypes": {
+        "apartment": "マンション",
+        "villa": "ビラ",
+        "house": "一戸建て",
+        "officetel": "オフィステル"
+      },
+      "facilitiesOptions": {
+        "all": "すべて",
+        "parkingLot": "駐車場",
+        "lift": "エレベーター",
+        "wifi": "Wi-Fi",
+        "publicGate": "オートロック",
+        "fullyFurnished": "家具付き",
+        "privateBathroom": "専用バスルーム",
+        "washingMachine": "洗濯機",
+        "balcony": "バルコニー/テラス"
+      },
+      "amenitiesOptions": {
+        "all": "すべて",
+        "queenBed": "クイーンベッド",
+        "airConditioning": "エアコン",
+        "dryer": "乾燥機"
+      }
+    },
+    "sort": {
+      "recommended": "おすすめ順",
+      "newest": "新着順",
+      "oldest": "古い順",
+      "priceHigh": "高い順",
+      "priceLow": "安い順"
+    },
+    "mapPlaceholder": "地図を見る"
   },
   "home": {
     "hero": {
@@ -84,7 +150,16 @@
     "contact": "ホストに連絡",
     "book": "今すぐ予約",
     "addToFavorites": "お気に入りに追加",
-    "removeFromFavorites": "お気に入りから削除"
+    "removeFromFavorites": "お気に入りから削除",
+    "roomCount": "{count}部屋",
+    "bathroomCount": "{count}バスルーム",
+    "bedCount": "{count}ベッド",
+    "guestCount": "{count}名",
+    "forNights": "{count}泊",
+    "perNights": "/ {count}泊",
+    "roomsShort": "{count}R",
+    "bathroomsShort": "{count}B",
+    "bedsShort": "{count}Bed"
   },
   "booking": {
     "title": "予約",
@@ -197,23 +272,6 @@
     "privacy": "プライバシーポリシー",
     "contact": "お問い合わせ",
     "copyright": "© {year} Snug. All rights reserved."
-  },
-  "search": {
-    "resultsCount": "{location}の{count}件の宿泊先",
-    "filters": {
-      "filters": "フィルター",
-      "roomType": "部屋タイプ",
-      "womenOnly": "女性専用",
-      "parking": "駐車場"
-    },
-    "sort": {
-      "recommended": "おすすめ",
-      "newest": "新着順",
-      "oldest": "古い順",
-      "priceHigh": "高い価格",
-      "priceLow": "低い価格"
-    },
-    "mapPlaceholder": "地図表示"
   },
   "mypage": {
     "sidebar": {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Star, Search, Paperclip, Send } from 'lucide-react';
 import Image from 'next/image';
 
@@ -73,10 +74,12 @@ export function ContractsChat({
   isFavorite,
   onToggleFavorite,
 }: ContractsChatProps) {
+  const t = useTranslations('host.contracts.chat');
+  const tDetail = useTranslations('host.contracts.detail');
   const [message, setMessage] = useState('');
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('ko-KR') + '원';
+    return price.toLocaleString('ko-KR') + tDetail('won');
   };
 
   return (
@@ -214,13 +217,13 @@ export function ContractsChat({
                       type="button"
                       className="px-4 py-2 text-sm text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-full hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
                     >
-                      고객 문의 등록
+                      {t('registerInquiry')}
                     </button>
                   )}
 
                   {msg.timestamp && (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-[hsl(var(--snug-gray))]">읽음</span>
+                      <span className="text-xs text-[hsl(var(--snug-gray))]">{t('read')}</span>
                       <span className="text-xs text-[hsl(var(--snug-gray))]">{msg.timestamp}</span>
                     </div>
                   )}
@@ -238,7 +241,7 @@ export function ContractsChat({
 
                   {msg.timestamp && (
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-xs text-[hsl(var(--snug-gray))]">읽음</span>
+                      <span className="text-xs text-[hsl(var(--snug-gray))]">{t('read')}</span>
                       <span className="text-xs text-[hsl(var(--snug-gray))]">{msg.timestamp}</span>
                     </div>
                   )}
@@ -261,7 +264,7 @@ export function ContractsChat({
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="내용을 입력해주세요."
+            placeholder={t('inputPlaceholder')}
             className="flex-1 text-sm focus:outline-none"
           />
           <button
@@ -279,21 +282,21 @@ export function ContractsChat({
             className="flex items-center gap-1 text-sm text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]"
           >
             <Paperclip className="w-4 h-4" />
-            첨부
+            {t('attachment')}
           </button>
           <button
             type="button"
             className="flex items-center gap-1 text-sm text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]"
           >
             <span className="w-4 h-4">💡</span>
-            빠른 답변
+            {t('quickReply')}
           </button>
           <button
             type="button"
             className="flex items-center gap-1 text-sm text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]"
           >
             <span className="w-4 h-4">📅</span>
-            예약 전송
+            {t('sendReservation')}
           </button>
         </div>
       </div>

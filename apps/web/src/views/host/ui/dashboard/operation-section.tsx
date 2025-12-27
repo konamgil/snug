@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { OperationDetailData } from './operation-detail-drawer';
 
@@ -22,13 +23,6 @@ interface OperationRequest {
 interface OperationSectionProps {
   onItemClick?: (data: OperationDetailData) => void;
 }
-
-const FILTERS: FilterTab[] = [
-  { id: 'all', label: '전체' },
-  { id: 'received', label: '요청 접수' },
-  { id: 'in_progress', label: '요청 진행중' },
-  { id: 'completed', label: '요청 완료' },
-];
 
 const MOCK_REQUESTS: OperationRequest[] = [
   {
@@ -77,18 +71,28 @@ function getDetailData(request: OperationRequest): OperationDetailData {
 }
 
 export function OperationSection({ onItemClick }: OperationSectionProps) {
+  const t = useTranslations('host.dashboard');
   const [activeFilter, setActiveFilter] = useState<OperationFilter>('all');
+
+  const FILTERS: FilterTab[] = [
+    { id: 'all', label: t('all') },
+    { id: 'received', label: t('operationStatus.received') },
+    { id: 'in_progress', label: t('operationStatus.inProgress') },
+    { id: 'completed', label: t('operationStatus.completed') },
+  ];
 
   return (
     <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">하우스 운영 관리</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('houseOperations')}
+        </h2>
         <Link
           href="/host/operations"
           className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
         >
-          모든 관리목록 보기
+          {t('viewAllOperations')}
         </Link>
       </div>
 
@@ -136,18 +140,28 @@ export function OperationSection({ onItemClick }: OperationSectionProps) {
 }
 
 export function OperationEmptySection() {
+  const t = useTranslations('host.dashboard');
   const [activeFilter, setActiveFilter] = useState<OperationFilter>('all');
+
+  const FILTERS: FilterTab[] = [
+    { id: 'all', label: t('all') },
+    { id: 'received', label: t('operationStatus.received') },
+    { id: 'in_progress', label: t('operationStatus.inProgress') },
+    { id: 'completed', label: t('operationStatus.completed') },
+  ];
 
   return (
     <section className="bg-white rounded-xl p-4 md:p-5 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">하우스 운영 관리</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('houseOperations')}
+        </h2>
         <Link
           href="/host/operations"
           className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
         >
-          모든 관리목록 보기
+          {t('viewAllOperations')}
         </Link>
       </div>
 
@@ -171,10 +185,8 @@ export function OperationEmptySection() {
 
       {/* Empty State */}
       <div className="flex flex-col items-center justify-center h-[160px] text-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">현재 게스트 문의 내역이 없습니다.</p>
-        <p className="text-sm text-[hsl(var(--snug-gray))]">
-          게스트가 숙소 관련 문의를 남기면 이곳에서 확인할 수 있습니다.
-        </p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noInquiriesYet')}</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('inquiriesAppearHere')}</p>
       </div>
     </section>
   );

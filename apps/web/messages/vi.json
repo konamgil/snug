@@ -6,6 +6,7 @@
     "retry": "Thử lại",
     "save": "Lưu",
     "cancel": "Hủy",
+    "done": "Hoàn tất",
     "confirm": "Xác nhận",
     "delete": "Xóa",
     "edit": "Sửa",
@@ -18,7 +19,9 @@
     "next": "Tiếp theo",
     "previous": "Trước đó",
     "submit": "Gửi",
-    "close": "Đóng"
+    "close": "Đóng",
+    "add": "Thêm",
+    "select": "Chọn"
   },
   "metadata": {
     "title": "Snug - Tìm phòng hoàn hảo tại Hàn Quốc",
@@ -34,6 +37,69 @@
     "login": "Đăng nhập",
     "signup": "Đăng ký",
     "logout": "Đăng xuất"
+  },
+  "search": {
+    "resultsCount": "{count} chỗ ở tại {location}",
+    "noResults": "Không tìm thấy chỗ ở",
+    "anywhere": "Mọi nơi",
+    "guest": "Khách",
+    "guests": "Khách",
+    "guestCount": "{count} khách",
+    "filters": {
+      "filters": "Bộ lọc",
+      "roomType": "Loại phòng",
+      "propertyType": "Loại nhà",
+      "budget": "Ngân sách",
+      "monthlyPayment": "Thanh toán hàng tháng",
+      "minimum": "Tối thiểu",
+      "maximum": "Tối đa",
+      "apartmentSize": "Diện tích",
+      "houseRules": "Quy tắc nhà",
+      "facilities": "Tiện ích",
+      "amenities": "Tiện nghi",
+      "reset": "Đặt lại",
+      "showResults": "Hiển thị kết quả",
+      "womenOnly": "Chỉ nữ",
+      "menOnly": "Chỉ nam",
+      "petsAllowed": "Cho phép thú cưng",
+      "parking": "Bãi đỗ xe",
+      "roomTypes": {
+        "house": "Nhà riêng",
+        "sharedHouse": "Nhà chia sẻ",
+        "sharedRoom": "Phòng chia sẻ"
+      },
+      "propertyTypes": {
+        "apartment": "Căn hộ",
+        "villa": "Biệt thự",
+        "house": "Nhà",
+        "officetel": "Officetel"
+      },
+      "facilitiesOptions": {
+        "all": "Tất cả",
+        "parkingLot": "Bãi đỗ xe",
+        "lift": "Thang máy",
+        "wifi": "Wi-Fi",
+        "publicGate": "Cổng khóa",
+        "fullyFurnished": "Đầy đủ nội thất",
+        "privateBathroom": "Phòng tắm riêng",
+        "washingMachine": "Máy giặt",
+        "balcony": "Ban công/Sân thượng"
+      },
+      "amenitiesOptions": {
+        "all": "Tất cả",
+        "queenBed": "Giường Queen",
+        "airConditioning": "Điều hòa",
+        "dryer": "Máy sấy"
+      }
+    },
+    "sort": {
+      "recommended": "Đề xuất",
+      "newest": "Mới nhất",
+      "oldest": "Cũ nhất",
+      "priceHigh": "Giá cao",
+      "priceLow": "Giá thấp"
+    },
+    "mapPlaceholder": "Xem bản đồ"
   },
   "home": {
     "hero": {
@@ -84,7 +150,16 @@
     "contact": "Liên hệ chủ nhà",
     "book": "Đặt ngay",
     "addToFavorites": "Thêm vào yêu thích",
-    "removeFromFavorites": "Xóa khỏi yêu thích"
+    "removeFromFavorites": "Xóa khỏi yêu thích",
+    "roomCount": "{count} phòng",
+    "bathroomCount": "{count} phòng tắm",
+    "bedCount": "{count} giường",
+    "guestCount": "{count} khách",
+    "forNights": "{count} đêm",
+    "perNights": "/ {count} đêm",
+    "roomsShort": "{count}R",
+    "bathroomsShort": "{count}B",
+    "bedsShort": "{count}Bed"
   },
   "booking": {
     "title": "Đặt phòng",
@@ -197,23 +272,6 @@
     "privacy": "Chính sách bảo mật",
     "contact": "Liên hệ",
     "copyright": "© {year} Snug. Bảo lưu mọi quyền."
-  },
-  "search": {
-    "resultsCount": "{count} chỗ ở tại {location}",
-    "filters": {
-      "filters": "Bộ lọc",
-      "roomType": "Loại phòng",
-      "womenOnly": "Chỉ nữ",
-      "parking": "Bãi đậu xe"
-    },
-    "sort": {
-      "recommended": "Đề xuất",
-      "newest": "Mới nhất",
-      "oldest": "Cũ nhất",
-      "priceHigh": "Giá cao",
-      "priceLow": "Giá thấp"
-    },
-    "mapPlaceholder": "Xem bản đồ"
   },
   "mypage": {
     "sidebar": {

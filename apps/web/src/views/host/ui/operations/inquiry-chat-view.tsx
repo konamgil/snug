@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Star, Globe, MoreVertical } from 'lucide-react';
 
 interface ChatMessage {
@@ -120,11 +121,13 @@ function GuestMessage({
   isSelected,
   onSelect,
   showCheckbox,
+  readLabel,
 }: {
   message: ChatMessage;
   isSelected: boolean;
   onSelect: () => void;
   showCheckbox: boolean;
+  readLabel: string;
 }) {
   return (
     <div className="flex items-start gap-2">
@@ -146,7 +149,7 @@ function GuestMessage({
             )}
           </div>
           <div className="flex items-center gap-1 mt-1 ml-1">
-            <span className="text-[10px] text-[#a8a8a8]">읽음</span>
+            <span className="text-[10px] text-[#a8a8a8]">{readLabel}</span>
             <span className="text-[10px] text-[#a8a8a8]">{message.time}</span>
           </div>
         </div>
@@ -161,18 +164,20 @@ function HostMessage({
   isSelected,
   onSelect,
   showCheckbox,
+  readLabel,
 }: {
   message: ChatMessage;
   isSelected: boolean;
   onSelect: () => void;
   showCheckbox: boolean;
+  readLabel: string;
 }) {
   return (
     <div className="flex items-start gap-2 justify-end">
       <div className="flex items-start gap-2">
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-1 mb-1 mr-1">
-            <span className="text-[10px] text-[#a8a8a8]">읽음</span>
+            <span className="text-[10px] text-[#a8a8a8]">{readLabel}</span>
             <span className="text-[10px] text-[#a8a8a8]">{message.time}</span>
           </div>
           <div className="bg-[#f4f4f4] rounded-lg px-3 py-2 max-w-[280px]">
@@ -191,6 +196,7 @@ function HostMessage({
 }
 
 export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
+  const t = useTranslations('host.operations.chat');
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
   const [isSelectionMode] = useState(true);
 
@@ -245,9 +251,7 @@ export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
         {/* AI Notice */}
         <div className="flex justify-center mb-6">
           <div className="bg-[#f4f4f4] rounded-full px-3 py-1.5">
-            <p className="text-[10px] text-[#525252]">
-              현재 호스트는 응답이 어려운 시간대입니다. AI가 대신 안내해드립니다.
-            </p>
+            <p className="text-[10px] text-[#525252]">{t('aiNotice')}</p>
           </div>
         </div>
 
@@ -261,6 +265,7 @@ export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
                 isSelected={selectedMessages.has(message.id)}
                 onSelect={() => handleToggleMessage(message.id)}
                 showCheckbox={isSelectionMode}
+                readLabel={t('read')}
               />
             ) : (
               <HostMessage
@@ -269,6 +274,7 @@ export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
                 isSelected={selectedMessages.has(message.id)}
                 onSelect={() => handleToggleMessage(message.id)}
                 showCheckbox={isSelectionMode}
+                readLabel={t('read')}
               />
             ),
           )}
@@ -279,23 +285,21 @@ export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
       {isSelectionMode && (
         <div className="px-5 py-4 border-t border-[#e0e0e0]">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-[#525252]">
-              고객 문의 내용을 수정하기 위한 메시지를 선택하세요.
-            </p>
+            <p className="text-xs text-[#525252]">{t('selectionPrompt')}</p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleCancel}
                 className="px-6 py-2 border border-[#e0e0e0] rounded text-xs text-[#161616] hover:bg-[#f4f4f4] transition-colors"
               >
-                취소
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleComplete}
                 className="px-6 py-2 bg-[hsl(var(--snug-orange))] rounded text-xs text-white hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
               >
-                완료
+                {t('complete')}
               </button>
             </div>
           </div>

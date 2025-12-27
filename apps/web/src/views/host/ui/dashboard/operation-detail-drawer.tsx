@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, Calendar, Clock, ChevronDown } from 'lucide-react';
 
 export interface OperationDetailData {
@@ -24,19 +25,14 @@ interface OperationDetailDrawerProps {
 
 type ConfirmStatus = 'pending' | 'not_started' | 'in_progress' | 'completed';
 
-const STATUS_OPTIONS: { id: ConfirmStatus; label: string }[] = [
-  { id: 'pending', label: '확인 예정' },
-  { id: 'not_started', label: '미진행' },
-  { id: 'in_progress', label: '진행 예정' },
-  { id: 'completed', label: '처리 완료' },
-];
-
 export function OperationDetailDrawer({
   isOpen,
   onClose,
   data,
   onWorkRequest,
 }: OperationDetailDrawerProps) {
+  const t = useTranslations('host.operations.detail');
+  const tStatus = useTranslations('host.operations.status');
   const [visitDate, setVisitDate] = useState('25.09.12');
   const [visitTime, setVisitTime] = useState('10:00');
   const [confirmStatus, setConfirmStatus] = useState<ConfirmStatus>('in_progress');
@@ -44,6 +40,13 @@ export function OperationDetailDrawer({
   const [managerName, setManagerName] = useState('');
   const [hostMemo, setHostMemo] = useState('');
   const [partnerMemo, setPartnerMemo] = useState('');
+
+  const STATUS_OPTIONS: { id: ConfirmStatus; label: string }[] = [
+    { id: 'pending', label: tStatus('pendingReview') },
+    { id: 'not_started', label: tStatus('notStarted') },
+    { id: 'in_progress', label: tStatus('scheduled') },
+    { id: 'completed', label: tStatus('completed') },
+  ];
 
   if (!data) return null;
 
@@ -64,9 +67,7 @@ export function OperationDetailDrawer({
       >
         {/* Header */}
         <div className="sticky top-0 bg-white z-10 flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--snug-border))] md:border-b-0">
-          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-            고객 문의 내용 상세
-          </h2>
+          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">{t('title')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -85,13 +86,15 @@ export function OperationDetailDrawer({
               <p className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
                 {data.customerName}
               </p>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">문의일시 {data.inquiryDate}</p>
+              <p className="text-xs text-[hsl(var(--snug-gray))]">
+                {t('inquiryDateTime', { date: data.inquiryDate })}
+              </p>
             </div>
             <button
               type="button"
               className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
             >
-              문의내용 보기
+              {t('viewInquiry')}
             </button>
           </div>
 
@@ -107,13 +110,13 @@ export function OperationDetailDrawer({
             ))}
             <div className="mt-3 space-y-1">
               <p className="text-sm text-[hsl(var(--snug-text-primary))]">
-                <span className="text-[hsl(var(--snug-gray))]">희망일자</span>{' '}
+                <span className="text-[hsl(var(--snug-gray))]">{t('preferredDate')}</span>{' '}
                 <span className="font-bold">
                   {data.preferredDate} {data.preferredTime}
                 </span>
               </p>
               <p className="text-sm text-[hsl(var(--snug-text-primary))]">
-                <span className="text-[hsl(var(--snug-gray))]">숙소위치</span>{' '}
+                <span className="text-[hsl(var(--snug-gray))]">{t('accommodationLocation')}</span>{' '}
                 <span className="font-bold">{data.location}</span>
               </p>
             </div>
@@ -124,12 +127,12 @@ export function OperationDetailDrawer({
             type="button"
             className="w-full py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors mb-6"
           >
-            고객 문의 수정
+            {t('editCustomerInquiry')}
           </button>
 
           {/* Keywords */}
           <div className="mb-6">
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">키워드</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('keywords')}</p>
             <div className="flex flex-wrap gap-2">
               {data.keywords.map((keyword) => (
                 <span
@@ -145,7 +148,7 @@ export function OperationDetailDrawer({
           {/* Visit Date/Time */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">관리자 방문 예정일</p>
+              <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('managerVisitDate')}</p>
               <div className="relative">
                 <input
                   type="text"
@@ -157,7 +160,7 @@ export function OperationDetailDrawer({
               </div>
             </div>
             <div>
-              <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">관리자 방문 예정 시간</p>
+              <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('managerVisitTime')}</p>
               <div className="relative">
                 <input
                   type="text"
@@ -172,7 +175,7 @@ export function OperationDetailDrawer({
 
           {/* Confirm Status Dropdown */}
           <div className="mb-4">
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">관리자 확인상태</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('managerConfirmStatus')}</p>
             <div className="relative">
               <button
                 type="button"
@@ -214,7 +217,7 @@ export function OperationDetailDrawer({
 
           {/* Manager Name */}
           <div className="mb-4">
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">관리자명</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('managerName')}</p>
             <input
               type="text"
               value={managerName}
@@ -226,7 +229,7 @@ export function OperationDetailDrawer({
 
           {/* Host Memo */}
           <div className="mb-4">
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">호스트 메모</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('hostMemo')}</p>
             <textarea
               value={hostMemo}
               onChange={(e) => setHostMemo(e.target.value)}
@@ -237,7 +240,7 @@ export function OperationDetailDrawer({
 
           {/* Partner Memo */}
           <div className="mb-6">
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">협력업체 메모</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('partnerMemo')}</p>
             <textarea
               value={partnerMemo}
               onChange={(e) => setPartnerMemo(e.target.value)}
@@ -253,13 +256,13 @@ export function OperationDetailDrawer({
               onClick={onWorkRequest}
               className="w-full py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
             >
-              작업 요청
+              {t('workRequest')}
             </button>
             <button
               type="button"
               className="w-full py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] bg-[hsl(var(--snug-light-gray))] rounded-lg hover:bg-[hsl(var(--snug-border))] transition-colors"
             >
-              1:1 채팅
+              {t('oneOnOneChat')}
             </button>
           </div>
         </div>
@@ -271,13 +274,13 @@ export function OperationDetailDrawer({
             onClick={onWorkRequest}
             className="w-full py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg active:opacity-90 transition-opacity"
           >
-            작업 요청
+            {t('workRequest')}
           </button>
           <button
             type="button"
             className="w-full py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] bg-[hsl(var(--snug-light-gray))] rounded-lg active:bg-[hsl(var(--snug-border))] transition-colors"
           >
-            1:1 채팅
+            {t('oneOnOneChat')}
           </button>
         </div>
       </aside>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, ChevronDown, Calendar, Clock } from 'lucide-react';
 
 type ManagerStatus = 'pending' | 'not_started' | 'in_progress' | 'completed';
@@ -25,24 +26,23 @@ interface InquiryDetailPanelProps {
   onChat: () => void;
 }
 
-// Manager status options
-const managerStatusOptions: { value: ManagerStatus; label: string }[] = [
-  { value: 'pending', label: '확인 예정' },
-  { value: 'not_started', label: '미진행' },
-  { value: 'in_progress', label: '진행 예정' },
-  { value: 'completed', label: '처리 완료' },
-];
-
 // Keyword Badge Component
-function KeywordBadge({ label }: { label: string }) {
-  // Determine color based on label
+function KeywordBadge({ label, colorKey }: { label: string; colorKey?: string }) {
+  // Determine color based on colorKey or label
   const getColors = () => {
-    switch (label) {
+    const key = colorKey || label;
+    switch (key) {
+      case 'cleaning':
       case '청소':
+      case 'Cleaning':
         return 'bg-[#d0e2ff] text-[#0043ce]';
+      case 'repair':
       case '수리':
+      case 'Repair':
         return 'bg-[#ffd7d9] text-[#a2191f]';
+      case 'bedding':
       case '침구':
+      case 'Bedding':
         return 'bg-[#9ef0f0] text-[#005d5d]';
       default:
         return 'bg-[#e0e0e0] text-[#525252]';
@@ -57,17 +57,26 @@ function KeywordBadge({ label }: { label: string }) {
 }
 
 export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanelProps) {
+  const t = useTranslations('host.operations.detail');
+  const tStatus = useTranslations('host.operations.status');
   const [managerStatus, setManagerStatus] = useState<ManagerStatus>(data.managerStatus);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [visitDate, setVisitDate] = useState(data.managerVisitDate);
   const [visitTime, setVisitTime] = useState(data.managerVisitTime);
+
+  const managerStatusOptions: { value: ManagerStatus; label: string }[] = [
+    { value: 'pending', label: tStatus('pendingReview') },
+    { value: 'not_started', label: tStatus('notStarted') },
+    { value: 'in_progress', label: tStatus('scheduled') },
+    { value: 'completed', label: tStatus('completed') },
+  ];
 
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
       <div className="px-5 py-4 border-b border-[#f0f0f0]">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-black">고객 문의 내용 상세</h2>
+          <h2 className="text-sm font-bold text-black">{t('title')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -85,13 +94,15 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-black">{data.guestName}</h3>
-              <p className="text-xs text-[#525252]">문의일시 {data.inquiryDateTime}</p>
+              <p className="text-xs text-[#525252]">
+                {t('inquiryDateTime', { date: data.inquiryDateTime })}
+              </p>
             </div>
             <button
               type="button"
               className="text-xs text-[hsl(var(--snug-orange))] hover:underline"
             >
-              문의내용 보기
+              {t('viewInquiry')}
             </button>
           </div>
 
@@ -108,11 +119,11 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
             </ul>
             <div className="mt-3 space-y-1">
               <p className="text-xs text-[#161616]">
-                <span className="text-[#525252]">희망일자 </span>
+                <span className="text-[#525252]">{t('preferredDate')} </span>
                 <span className="font-medium">{data.desiredDate}</span>
               </p>
               <p className="text-xs text-[#161616]">
-                <span className="text-[#525252]">숙소위치 </span>
+                <span className="text-[#525252]">{t('accommodationLocation')} </span>
                 <span className="font-medium">{data.location}</span>
               </p>
             </div>
@@ -123,12 +134,12 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
             type="button"
             className="w-full py-2.5 border border-[#161616] rounded text-xs font-medium text-[#161616] hover:bg-[#f4f4f4] transition-colors"
           >
-            고객 문의 수정
+            {t('editCustomerInquiry')}
           </button>
 
           {/* Keywords */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-[#161616]">키워드</h4>
+            <h4 className="text-xs font-bold text-[#161616]">{t('keywords')}</h4>
             <div className="flex flex-wrap gap-2">
               {data.keywords.map((keyword, index) => (
                 <KeywordBadge key={index} label={keyword} />
@@ -140,7 +151,7 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs text-[#525252]">관리자 방문 예정일</label>
+                <label className="text-xs text-[#525252]">{t('managerVisitDate')}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -152,7 +163,7 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs text-[#525252]">관리자 방문 예정 시간</label>
+                <label className="text-xs text-[#525252]">{t('managerVisitTime')}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -168,7 +179,7 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
 
           {/* Manager Status */}
           <div className="space-y-1.5">
-            <label className="text-xs text-[#525252]">관리자 확인상태</label>
+            <label className="text-xs text-[#525252]">{t('managerConfirmStatus')}</label>
             <div className="relative">
               <button
                 type="button"
@@ -205,10 +216,10 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
           {/* Manager Name (shown when status is in_progress or completed) */}
           {(managerStatus === 'in_progress' || managerStatus === 'completed') && (
             <div className="space-y-1.5">
-              <label className="text-xs text-[#525252]">관리자명</label>
+              <label className="text-xs text-[#525252]">{t('managerName')}</label>
               <input
                 type="text"
-                placeholder="관리자 이름 입력"
+                placeholder={t('managerNamePlaceholder')}
                 className="w-full px-3 py-2 border border-[#e0e0e0] rounded text-xs text-[#161616]"
               />
             </div>
@@ -222,14 +233,14 @@ export function InquiryDetailPanel({ data, onClose, onChat }: InquiryDetailPanel
           type="button"
           className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
         >
-          작업 요청
+          {t('workRequest')}
         </button>
         <button
           type="button"
           onClick={onChat}
           className="w-full py-3 border border-[#e0e0e0] text-[#161616] text-sm font-medium rounded hover:bg-[#f4f4f4] transition-colors"
         >
-          1:1 채팅
+          {t('oneOnOneChat')}
         </button>
       </div>
     </div>

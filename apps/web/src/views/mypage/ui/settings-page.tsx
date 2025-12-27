@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Check, AlertCircle } from 'lucide-react';
 import { useRouter, usePathname } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
+import { useAuthStore } from '@/shared/stores';
+import { updateProfile } from '@/shared/api/profile';
+import { useCurrency } from '@/shared/providers';
+import { type CurrencyCode, isValidCurrency } from '@/shared/lib';
 import type { Locale } from '@/i18n/config';
 
 interface LanguageOption {
@@ -15,7 +19,7 @@ interface LanguageOption {
 }
 
 interface CurrencyOption {
-  code: string;
+  code: CurrencyCode;
   name: string;
 }
 
@@ -26,20 +30,66 @@ export function SettingsPage() {
   const currentLocale = useLocale() as Locale;
   const [isHostMode] = useState(true); // Show AI Auto-Responder toggle
 
+  // Auth & Currency
+  const user = useAuthStore((state) => state.user);
+  const { setCurrency } = useCurrency();
+
+  // State
   const [selectedLanguage, setSelectedLanguage] = useState(currentLocale);
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('KRW');
   const [aiAutoResponder, setAiAutoResponder] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
+  const [_isSaving, setIsSaving] = useState(false);
+
+  // 사용자 설정 초기화
+  useEffect(() => {
+    if (user?.preferredCurrency && isValidCurrency(user.preferredCurrency)) {
+      setSelectedCurrency(user.preferredCurrency as CurrencyCode);
+    }
+  }, [user?.preferredCurrency]);
+
+  // 토스트 표시 함수
+  const showToastMessage = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   const handleAiToggle = () => {
     if (!aiAutoResponder) {
       // 켜려고 할 때 토스트 표시
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      showToastMessage('아직 준비중인 기능입니다', 'info');
     } else {
       setAiAutoResponder(false);
+    }
+  };
+
+  // 통화 변경 저장
+  const handleCurrencyChange = async (currencyCode: CurrencyCode) => {
+    if (!user?.id) {
+      showToastMessage('로그인이 필요합니다', 'error');
+      return;
+    }
+
+    setSelectedCurrency(currencyCode);
+    setShowCurrencyDropdown(false);
+    setCurrency(currencyCode); // 전역 상태 업데이트
+
+    // API 저장
+    setIsSaving(true);
+    try {
+      await updateProfile(user.id, { preferredCurrency: currencyCode });
+      showToastMessage('통화 설정이 저장되었습니다', 'success');
+    } catch (error) {
+      console.error('Failed to save currency preference:', error);
+      showToastMessage('저장에 실패했습니다', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -218,10 +268,7 @@ export function SettingsPage() {
                         <button
                           key={currency.code}
                           type="button"
-                          onClick={() => {
-                            setSelectedCurrency(currency.code);
-                            setShowCurrencyDropdown(false);
-                          }}
+                          onClick={() => handleCurrencyChange(currency.code)}
                           className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-colors ${
                             selectedCurrency === currency.code
                               ? 'bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]'
@@ -253,8 +300,18 @@ export function SettingsPage() {
 
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-[#3D3D3D] text-white text-sm rounded-lg shadow-lg z-50">
-          아직 준비중인 기능입니다
+        <div
+          className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+            toastType === 'success'
+              ? 'bg-green-600'
+              : toastType === 'error'
+                ? 'bg-red-600'
+                : 'bg-[#3D3D3D]'
+          }`}
+        >
+          {toastType === 'success' && <Check className="w-4 h-4" />}
+          {toastType === 'error' && <AlertCircle className="w-4 h-4" />}
+          {toastMessage}
         </div>
       )}
     </div>

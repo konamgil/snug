@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronDown, HelpCircle, Plus, Minus, X } from 'lucide-react';
 import { PhotoUploadSection } from './photo-upload-section';
 import { PhotoUploadModal } from './photo-upload-modal';
@@ -39,6 +40,10 @@ export function AccommodationForm({
   groups = [],
   onAddGroup,
 }: AccommodationFormProps) {
+  const t = useTranslations('host.accommodation.form');
+  const tCommon = useTranslations('common');
+  const tSpaceTypes = useTranslations('host.accommodation.spaceTypes');
+  const tBedTypes = useTranslations('host.accommodation.bedTypes');
   const [data, setData] = useState<AccommodationFormData>(initialData);
 
   // Sync internal state when initialData changes (for edit mode)
@@ -150,7 +155,9 @@ export function AccommodationForm({
     <div className="space-y-8">
       {/* 기본 정보 (Basic Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">기본 정보</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+          {t('basicInfo')}
+        </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
@@ -159,14 +166,14 @@ export function AccommodationForm({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-                  대표 사진 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                  {t('mainPhoto')} <span className="text-[hsl(var(--snug-orange))]">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsPhotoUploadModalOpen(true)}
                   className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
                 >
-                  + 사진 등록
+                  {t('addPhoto')}
                 </button>
               </div>
               <PhotoUploadSection
@@ -185,7 +192,7 @@ export function AccommodationForm({
             {/* 그룹명 */}
             <div className="relative">
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                그룹명 (선택)
+                {t('groupNameLabel')}
               </label>
               <button
                 type="button"
@@ -199,7 +206,7 @@ export function AccommodationForm({
                       : 'text-[hsl(var(--snug-gray))]'
                   }
                 >
-                  {data.groupName || '그룹 선택'}
+                  {data.groupName || t('selectGroup')}
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 text-[hsl(var(--snug-gray))] transition-transform ${isGroupDropdownOpen ? 'rotate-180' : ''}`}
@@ -226,7 +233,7 @@ export function AccommodationForm({
                       }}
                       className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--snug-gray))] hover:bg-[hsl(var(--snug-light-gray))]"
                     >
-                      선택 안함
+                      {t('noSelection')}
                     </button>
 
                     {/* 기존 그룹 목록 */}
@@ -258,7 +265,7 @@ export function AccommodationForm({
                           type="text"
                           value={newGroupName}
                           onChange={(e) => setNewGroupName(e.target.value)}
-                          placeholder="새 그룹명 입력"
+                          placeholder={t('newGroupNamePlaceholder')}
                           className="w-full px-3 py-2 border border-[hsl(var(--snug-border))] rounded text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                           autoFocus
                           onKeyDown={(e) => {
@@ -284,7 +291,7 @@ export function AccommodationForm({
                             }}
                             className="flex-1 px-3 py-1.5 text-xs text-[hsl(var(--snug-gray))] hover:bg-[hsl(var(--snug-light-gray))] rounded"
                           >
-                            취소
+                            {tCommon('cancel')}
                           </button>
                           <button
                             type="button"
@@ -299,7 +306,7 @@ export function AccommodationForm({
                             }}
                             className="flex-1 px-3 py-1.5 text-xs text-white bg-[hsl(var(--snug-orange))] hover:opacity-90 rounded"
                           >
-                            추가
+                            {tCommon('add')}
                           </button>
                         </div>
                       </div>
@@ -309,7 +316,8 @@ export function AccommodationForm({
                         onClick={() => setIsAddingNewGroup(true)}
                         className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] flex items-center gap-2"
                       >
-                        <Plus className="w-4 h-4" />새 그룹 추가
+                        <Plus className="w-4 h-4" />
+                        {t('addNewGroup')}
                       </button>
                     )}
                   </div>
@@ -320,13 +328,13 @@ export function AccommodationForm({
             {/* 방 이름 */}
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                방 이름 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                {t('roomName')} <span className="text-[hsl(var(--snug-orange))]">*</span>
               </label>
               <input
                 type="text"
                 value={data.roomName}
                 onChange={(e) => updateData({ roomName: e.target.value })}
-                placeholder="방 호실 또는 명칭 입력"
+                placeholder={t('roomNamePlaceholder')}
                 className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
               />
             </div>
@@ -337,13 +345,13 @@ export function AccommodationForm({
             {/* 주소명 */}
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                주소명 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                {t('addressLabel')} <span className="text-[hsl(var(--snug-orange))]">*</span>
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={data.zipCode}
-                  placeholder="우편번호"
+                  placeholder={t('zipCode')}
                   className="flex-1 px-4 py-3 bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))] rounded-lg text-sm"
                   readOnly
                 />
@@ -352,13 +360,13 @@ export function AccommodationForm({
                   onClick={() => setIsAddressModalOpen(true)}
                   className="px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
                 >
-                  주소 검색
+                  {t('searchAddress')}
                 </button>
               </div>
               <input
                 type="text"
                 value={data.address}
-                placeholder="주소를 검색해주세요"
+                placeholder={t('searchAddressPlaceholder')}
                 className="w-full mt-2 px-4 py-3 bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))] rounded-lg text-sm"
                 readOnly
               />
@@ -366,7 +374,7 @@ export function AccommodationForm({
                 type="text"
                 value={data.addressDetail}
                 onChange={(e) => updateData({ addressDetail: e.target.value })}
-                placeholder="상세 주소 입력"
+                placeholder={t('detailedAddressPlaceholder')}
                 className="w-full mt-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
               />
             </div>
@@ -375,7 +383,7 @@ export function AccommodationForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="flex items-center gap-1 text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                  숙소 이용 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                  {t('accommodationType')} <span className="text-[hsl(var(--snug-orange))]">*</span>
                   <HelpCircle className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
                 </label>
                 <div className="flex items-center gap-4">
@@ -386,7 +394,9 @@ export function AccommodationForm({
                       onChange={() => toggleUsageType('stay')}
                       className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                     />
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">숙박</span>
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {t('stay')}
+                    </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -395,14 +405,17 @@ export function AccommodationForm({
                       onChange={() => toggleUsageType('short_term')}
                       className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                     />
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">단기임대</span>
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {t('shortTermRental')}
+                    </span>
                   </label>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                  최소 예약일 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                  {t('minimumReservationDays')}{' '}
+                  <span className="text-[hsl(var(--snug-orange))]">*</span>
                 </label>
                 <div className="relative">
                   <button
@@ -410,7 +423,7 @@ export function AccommodationForm({
                     onClick={() => setIsMinDaysOpen(!isMinDaysOpen)}
                     className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
                   >
-                    {data.minReservationDays}일
+                    {t('daysUnit', { count: data.minReservationDays })}
                     <ChevronDown className="w-4 h-4" />
                   </button>
                   {isMinDaysOpen && (
@@ -431,7 +444,7 @@ export function AccommodationForm({
                                 : 'text-[hsl(var(--snug-text-primary))]'
                             }`}
                           >
-                            {days}일
+                            {t('daysUnit', { count: days })}
                           </button>
                         ))}
                       </div>
@@ -444,7 +457,8 @@ export function AccommodationForm({
             {/* 숙소 유형 */}
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                숙소 유형 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                {t('accommodationTypeLabel')}{' '}
+                <span className="text-[hsl(var(--snug-orange))]">*</span>
               </label>
               <div className="relative">
                 <button
@@ -453,7 +467,7 @@ export function AccommodationForm({
                   className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
                 >
                   {ACCOMMODATION_TYPE_OPTIONS.find((opt) => opt.id === data.accommodationType)
-                    ?.label ?? '선택'}
+                    ?.label ?? tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 {isAccommodationTypeOpen && (
@@ -491,7 +505,7 @@ export function AccommodationForm({
             {/* 건물 유형 */}
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                건물 유형
+                {t('buildingType')}
               </label>
               <div className="relative">
                 <button
@@ -501,7 +515,7 @@ export function AccommodationForm({
                 >
                   {data.buildingType
                     ? BUILDING_TYPE_OPTIONS.find((opt) => opt.id === data.buildingType)?.label
-                    : '선택'}
+                    : tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 {isBuildingTypeOpen && (
@@ -539,19 +553,21 @@ export function AccommodationForm({
 
       {/* 요금 정보 (Pricing Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">요금 정보</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+          {t('pricingInfo')}
+        </h2>
 
         <div className="space-y-6">
           {/* 기본 요금 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              기본 요금 (1박) <span className="text-[hsl(var(--snug-orange))]">*</span>
+              {t('basePrice')} <span className="text-[hsl(var(--snug-orange))]">*</span>
             </label>
             <input
               type="number"
               value={data.pricing.basePrice || ''}
               onChange={(e) => updatePricing({ basePrice: parseInt(e.target.value) || 0 })}
-              placeholder="금액 입력"
+              placeholder={t('amountPlaceholder')}
               className="w-full max-w-xs px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
             />
             <label className="flex items-center gap-2 mt-2 cursor-pointer">
@@ -561,14 +577,16 @@ export function AccommodationForm({
                 onChange={(e) => updatePricing({ includesUtilities: e.target.checked })}
                 className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
               />
-              <span className="text-sm text-[hsl(var(--snug-text-primary))]">공과금 포함</span>
+              <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                {t('utilitiesIncluded')}
+              </span>
             </label>
           </div>
 
           {/* 주말 요금 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              주말 요금 (1박) (선택)
+              {t('weekendPriceOptional')}
             </label>
             <input
               type="number"
@@ -578,7 +596,7 @@ export function AccommodationForm({
                   weekendPrice: parseInt(e.target.value) || undefined,
                 })
               }
-              placeholder="금액 입력"
+              placeholder={t('amountPlaceholder')}
               className="w-full max-w-xs px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
             />
             <div className="flex flex-wrap gap-3 mt-3">
@@ -600,19 +618,21 @@ export function AccommodationForm({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-                추가 요금 (선택)
+                {t('additionalFeeOptional')}
               </label>
               <button
                 type="button"
                 onClick={addAdditionalFee}
                 className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
               >
-                + 추가 요금 항목 추가
+                {t('addFeeItemButton')}
               </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">관리비</label>
+                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                  {t('managementFee')}
+                </label>
                 <input
                   type="number"
                   value={data.pricing.managementFee || ''}
@@ -621,12 +641,14 @@ export function AccommodationForm({
                       managementFee: parseInt(e.target.value) || undefined,
                     })
                   }
-                  placeholder="금액 입력"
+                  placeholder={t('amountPlaceholder')}
                   className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">청소비</label>
+                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                  {t('cleaningFee')}
+                </label>
                 <input
                   type="number"
                   value={data.pricing.cleaningFee || ''}
@@ -635,12 +657,14 @@ export function AccommodationForm({
                       cleaningFee: parseInt(e.target.value) || undefined,
                     })
                   }
-                  placeholder="금액 입력"
+                  placeholder={t('amountPlaceholder')}
                   className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">추가 인원</label>
+                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                  {t('additionalGuest')}
+                </label>
                 <input
                   type="number"
                   value={data.pricing.extraPersonFee || ''}
@@ -649,12 +673,14 @@ export function AccommodationForm({
                       extraPersonFee: parseInt(e.target.value) || undefined,
                     })
                   }
-                  placeholder="금액 입력"
+                  placeholder={t('amountPlaceholder')}
                   className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">반려동물</label>
+                <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                  {t('pet')}
+                </label>
                 <input
                   type="number"
                   value={data.pricing.petFee || ''}
@@ -663,7 +689,7 @@ export function AccommodationForm({
                       petFee: parseInt(e.target.value) || undefined,
                     })
                   }
-                  placeholder="금액 입력"
+                  placeholder={t('amountPlaceholder')}
                   className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
               </div>
@@ -672,25 +698,27 @@ export function AccommodationForm({
                 <div key={fee.id} className="col-span-2 flex items-end gap-3">
                   <div className="flex-1">
                     <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
-                      항목명
+                      {t('itemName')}
                     </label>
                     <input
                       type="text"
                       value={fee.name}
                       onChange={(e) => updateAdditionalFee(fee.id, { name: e.target.value })}
-                      placeholder="항목명 입력"
+                      placeholder={t('itemNamePlaceholder')}
                       className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">금액</label>
+                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                      {t('amount')}
+                    </label>
                     <input
                       type="number"
                       value={fee.amount || ''}
                       onChange={(e) =>
                         updateAdditionalFee(fee.id, { amount: parseInt(e.target.value) || 0 })
                       }
-                      placeholder="금액 입력"
+                      placeholder={t('amountPlaceholder')}
                       className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                     />
                   </div>
@@ -698,7 +726,7 @@ export function AccommodationForm({
                     type="button"
                     onClick={() => removeAdditionalFee(fee.id)}
                     className="p-3 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                    aria-label="삭제"
+                    aria-label={tCommon('delete')}
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -711,14 +739,16 @@ export function AccommodationForm({
 
       {/* 공간 정보 (Space Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">공간 정보</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+          {t('spaceInfo')}
+        </h2>
 
         <div className="space-y-6">
           {/* 수용 인원 & 이용 규칙 */}
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                수용 인원 <span className="text-[hsl(var(--snug-orange))]">*</span>
+                {t('capacity')} <span className="text-[hsl(var(--snug-orange))]">*</span>
               </label>
               <input
                 type="number"
@@ -731,7 +761,7 @@ export function AccommodationForm({
             </div>
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                숙소 이용 규칙 (선택)
+                {t('usageRulesOptional')}
               </label>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -741,7 +771,9 @@ export function AccommodationForm({
                     onChange={() => toggleGenderRule('male_only')}
                     className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                   />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">남성전용</span>
+                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {t('menOnly')}
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -750,7 +782,9 @@ export function AccommodationForm({
                     onChange={() => toggleGenderRule('female_only')}
                     className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                   />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">여성전용</span>
+                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {t('womenOnly')}
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -759,7 +793,9 @@ export function AccommodationForm({
                     onChange={() => toggleGenderRule('pet_allowed')}
                     className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                   />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">반려동물</span>
+                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {t('allowPets')}
+                  </span>
                 </label>
               </div>
             </div>
@@ -768,7 +804,7 @@ export function AccommodationForm({
           {/* 공간 사이즈 */}
           <div>
             <label className="flex items-center gap-1 text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              공간 사이즈 (선택)
+              {t('spaceSizeOptional')}
               <HelpCircle className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
             </label>
             <div className="flex gap-4">
@@ -777,10 +813,10 @@ export function AccommodationForm({
                   type="number"
                   value={data.space.sizeM2 || ''}
                   onChange={(e) => updateSpace({ sizeM2: parseFloat(e.target.value) || undefined })}
-                  placeholder="공간 사이즈"
+                  placeholder={t('spaceSizePlaceholder')}
                   className="w-32 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
-                <span className="text-sm text-[hsl(var(--snug-gray))]">m²</span>
+                <span className="text-sm text-[hsl(var(--snug-gray))]">{t('sqmUnit')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -791,10 +827,10 @@ export function AccommodationForm({
                       sizePyeong: parseFloat(e.target.value) || undefined,
                     })
                   }
-                  placeholder="공간 사이즈"
+                  placeholder={t('spaceSizePlaceholder')}
                   className="w-32 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                 />
-                <span className="text-sm text-[hsl(var(--snug-gray))]">평</span>
+                <span className="text-sm text-[hsl(var(--snug-gray))]">{t('pyeongUnit')}</span>
               </div>
             </div>
           </div>
@@ -802,15 +838,15 @@ export function AccommodationForm({
           {/* 공간 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              공간 <span className="text-[hsl(var(--snug-orange))]">*</span>
+              {t('space')} <span className="text-[hsl(var(--snug-orange))]">*</span>
             </label>
             <div className="flex flex-wrap gap-3">
               {[
-                { key: 'room', label: '방' },
-                { key: 'livingRoom', label: '거실' },
-                { key: 'kitchen', label: '부엌' },
-                { key: 'bathroom', label: '화장실' },
-                { key: 'terrace', label: '테라스' },
+                { key: 'room', label: tSpaceTypes('room') },
+                { key: 'livingRoom', label: tSpaceTypes('livingRoom') },
+                { key: 'kitchen', label: tSpaceTypes('kitchen') },
+                { key: 'bathroom', label: tSpaceTypes('bathroom') },
+                { key: 'terrace', label: tSpaceTypes('terrace') },
               ].map((room) => (
                 <div
                   key={room.key}
@@ -856,15 +892,15 @@ export function AccommodationForm({
           {/* 침대 종류 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              침대 종류 (선택)
+              {t('bedTypeOptional')}
             </label>
             <div className="flex flex-wrap gap-3">
               {[
-                { key: 'king', label: '킹' },
-                { key: 'queen', label: '퀸' },
-                { key: 'single', label: '싱글' },
-                { key: 'superSingle', label: '슈퍼 싱글' },
-                { key: 'bunkBed', label: '이층 침대' },
+                { key: 'king', label: tBedTypes('king') },
+                { key: 'queen', label: tBedTypes('queen') },
+                { key: 'single', label: tBedTypes('single') },
+                { key: 'superSingle', label: tBedTypes('superSingle') },
+                { key: 'bunkBed', label: tBedTypes('bunk') },
               ].map((bed) => (
                 <div
                   key={bed.key}
@@ -908,12 +944,12 @@ export function AccommodationForm({
           {/* 하우스 룰 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              하우스 룰 (선택)
+              {t('houseRulesOptional')}
             </label>
             <textarea
               value={data.space.houseRules || ''}
               onChange={(e) => updateSpace({ houseRules: e.target.value })}
-              placeholder="하우스 룰이 있는 경우 입력해주세요."
+              placeholder={t('houseRulesPlaceholder')}
               rows={3}
               className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] resize-none"
             />
@@ -922,12 +958,12 @@ export function AccommodationForm({
           {/* 하우스 소개 */}
           <div>
             <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-              하우스 소개 (선택)
+              {t('introductionOptional')}
             </label>
             <textarea
               value={data.space.introduction || ''}
               onChange={(e) => updateSpace({ introduction: e.target.value })}
-              placeholder="하우스 소개 내용을 입력해주세요."
+              placeholder={t('descriptionPlaceholder')}
               rows={4}
               className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] resize-none"
             />
@@ -937,14 +973,14 @@ export function AccommodationForm({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-                시설 (선택)
+                {t('facilitiesOptional')}
               </label>
               <button
                 type="button"
                 onClick={() => setIsFacilityModalOpen(true)}
                 className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
               >
-                + 시설 추가
+                {t('addFacilities')}
               </button>
             </div>
             {data.facilities.length > 0 ? (
@@ -954,7 +990,7 @@ export function AccommodationForm({
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-[hsl(var(--snug-gray))]">등록된 시설이 없습니다.</p>
+              <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noFacilitiesAdded')}</p>
             )}
           </div>
 
@@ -962,14 +998,14 @@ export function AccommodationForm({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-                어메니티 (선택)
+                {t('amenitiesOptional')}
               </label>
               <button
                 type="button"
                 onClick={() => setIsAmenityModalOpen(true)}
                 className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
               >
-                + 어메니티 추가
+                {t('addAmenities')}
               </button>
             </div>
             {data.amenities.length > 0 ? (
@@ -979,7 +1015,7 @@ export function AccommodationForm({
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-[hsl(var(--snug-gray))]">등록된 어메니티가 없습니다.</p>
+              <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noAmenitiesAdded')}</p>
             )}
           </div>
         </div>
@@ -989,19 +1025,17 @@ export function AccommodationForm({
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-            관리자 정보 (선택)
+            {t('managerInfoOptional')}
           </h2>
           <button
             type="button"
             onClick={() => setIsManagerModalOpen(true)}
             className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
           >
-            + 관리자 추가
+            {t('addManager')}
           </button>
         </div>
-        <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">
-          관리자 정보 미 기입 시 호스트 정보가 기입됩니다.
-        </p>
+        <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">{t('managerInfoHint')}</p>
 
         {data.managers.length > 0 ? (
           <div className="space-y-4">
@@ -1009,17 +1043,17 @@ export function AccommodationForm({
               <div key={manager.id} className="p-4 bg-[hsl(var(--snug-light-gray))] rounded-lg">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-[hsl(var(--snug-gray))]">관리자</p>
+                    <p className="text-xs text-[hsl(var(--snug-gray))]">{t('manager')}</p>
                     <p className="text-sm text-[hsl(var(--snug-text-primary))]">{manager.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[hsl(var(--snug-gray))]">연락처</p>
+                    <p className="text-xs text-[hsl(var(--snug-gray))]">{t('contact')}</p>
                     <p className="text-sm text-[hsl(var(--snug-text-primary))]">{manager.phone}</p>
                   </div>
                 </div>
                 {manager.additionalInfo && (
                   <div className="mt-2">
-                    <p className="text-xs text-[hsl(var(--snug-gray))]">추가 정보</p>
+                    <p className="text-xs text-[hsl(var(--snug-gray))]">{t('additionalInfo')}</p>
                     <p className="text-sm text-[hsl(var(--snug-text-primary))]">
                       {manager.additionalInfo}
                     </p>
@@ -1031,27 +1065,33 @@ export function AccommodationForm({
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">관리자</label>
+              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                {t('manager')}
+              </label>
               <input
                 type="text"
-                placeholder="관리자명"
+                placeholder={t('managerNamePlaceholder')}
                 disabled
                 className="w-full max-w-xs px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm bg-[hsl(var(--snug-light-gray))]"
               />
             </div>
             <div>
-              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">연락처</label>
+              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                {t('contact')}
+              </label>
               <input
                 type="text"
-                placeholder="010 - 0000 - 0000"
+                placeholder={t('contactPlaceholder')}
                 disabled
                 className="w-full max-w-xs px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm bg-[hsl(var(--snug-light-gray))]"
               />
             </div>
             <div>
-              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">추가 정보</label>
+              <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                {t('additionalInfo')}
+              </label>
               <textarea
-                placeholder="추가 정보가 있는 경우 입력해주세요."
+                placeholder={t('additionalInfoPlaceholder')}
                 disabled
                 rows={3}
                 className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm bg-[hsl(var(--snug-light-gray))] resize-none"

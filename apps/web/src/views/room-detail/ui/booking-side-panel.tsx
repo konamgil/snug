@@ -8,6 +8,7 @@ import {
   formatGuestSummary,
   type GuestCount,
 } from '@/features/search/ui/guest-picker';
+import { useCurrencySafe } from '@/shared/providers';
 
 interface PriceBreakdown {
   pricePerNight: number;
@@ -67,6 +68,7 @@ export function BookingSidePanel({
   onBook,
   onChatWithHost,
 }: BookingSidePanelProps) {
+  const { format } = useCurrencySafe();
   const [activeDropdown, setActiveDropdown] = useState<'dates' | 'guests' | null>(null);
   const [lastDropdown, setLastDropdown] = useState<'dates' | 'guests' | null>(null);
   const [checkIn, setCheckIn] = useState<Date | null>(initialCheckIn);
@@ -253,7 +255,7 @@ export function BookingSidePanel({
               <p className="text-xs text-[hsl(var(--snug-gray))]">(Including Maintenance Fee)</p>
             </div>
             <span className="text-sm font-extrabold text-[hsl(var(--snug-orange))]">
-              ${priceBreakdown.pricePerNight}
+              {format(priceBreakdown.pricePerNight)}
             </span>
           </div>
 
@@ -262,23 +264,27 @@ export function BookingSidePanel({
           {/* Nights calculation */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {nights}nights X ${priceBreakdown.pricePerNight}
+              {nights}nights X {format(priceBreakdown.pricePerNight)}
             </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">${subtotal}</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
+              {format(subtotal)}
+            </span>
           </div>
 
           {/* Cleaning fee */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))]">Cleaning(After check-out)</span>
             <span className="text-xs text-[hsl(var(--snug-gray))]">
-              ${priceBreakdown.cleaningFee}
+              {format(priceBreakdown.cleaningFee)}
             </span>
           </div>
 
           {/* Deposit */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))]">Deposit(Refundable)</span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">${priceBreakdown.deposit}</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">
+              {format(priceBreakdown.deposit)}
+            </span>
           </div>
 
           {/* Long-stay Discount */}
@@ -287,7 +293,9 @@ export function BookingSidePanel({
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
                 Long-stay Discount(Over {priceBreakdown.longStayThreshold} days)
               </span>
-              <span className="text-xs text-[hsl(var(--snug-orange))]">-${longStayDiscount}</span>
+              <span className="text-xs text-[hsl(var(--snug-orange))]">
+                -{format(longStayDiscount)}
+              </span>
             </div>
           )}
 
@@ -296,7 +304,7 @@ export function BookingSidePanel({
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
               Snug service fee({priceBreakdown.serviceFeePercent}%)
             </span>
-            <span className="text-xs text-[hsl(var(--snug-orange))]">-${serviceFee}</span>
+            <span className="text-xs text-[hsl(var(--snug-orange))]">-{format(serviceFee)}</span>
           </div>
 
           <div className="h-px bg-[#f0f0f0]" />
@@ -307,7 +315,7 @@ export function BookingSidePanel({
               Total
             </span>
             <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
-              ${total}
+              {format(total)}
             </span>
           </div>
         </div>

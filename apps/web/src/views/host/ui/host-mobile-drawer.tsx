@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { X, User } from 'lucide-react';
 import {
   LayoutDashboard,
@@ -15,44 +16,44 @@ import {
 } from 'lucide-react';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
   {
-    label: '대시보드',
+    labelKey: 'dashboard',
     href: '/host',
     icon: <LayoutDashboard className="w-5 h-5" />,
   },
   {
-    label: '계약 관리',
+    labelKey: 'contracts',
     href: '/host/contracts',
     icon: <FileText className="w-5 h-5" />,
   },
   {
-    label: '숙소 관리',
+    labelKey: 'accommodations',
     href: '/host/properties',
     icon: <Home className="w-5 h-5" />,
   },
   {
-    label: '정산 관리',
+    labelKey: 'settlements',
     href: '/host/settlements',
     icon: <Wallet className="w-5 h-5" />,
   },
   {
-    label: '채팅',
+    labelKey: 'chat',
     href: '/host/chat',
     icon: <MessageSquare className="w-5 h-5" />,
   },
   {
-    label: '하우스 운영 관리',
+    labelKey: 'operations',
     href: '/host/operations',
     icon: <Settings className="w-5 h-5" />,
   },
   {
-    label: '사용자 관리',
+    labelKey: 'users',
     href: '/host/users',
     icon: <Users className="w-5 h-5" />,
   },
@@ -65,6 +66,7 @@ interface HostMobileDrawerProps {
 
 export function HostMobileDrawer({ isOpen, onClose }: HostMobileDrawerProps) {
   const pathname = usePathname();
+  const t = useTranslations('host.sidebar');
 
   const isActive = (href: string) => {
     if (href === '/host') {
@@ -125,7 +127,7 @@ export function HostMobileDrawer({ isOpen, onClose }: HostMobileDrawerProps) {
                   }`}
                 >
                   {item.icon}
-                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="text-sm font-medium">{t(item.labelKey)}</span>
                 </Link>
               </li>
             ))}

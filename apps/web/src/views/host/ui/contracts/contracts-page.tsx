@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ContractsList, type ContractListItem } from './contracts-list';
 import { ContractsChat } from './contracts-chat';
 import { ContractDetailPanel, type ContractPanelData } from './contract-detail-panel';
@@ -145,13 +146,13 @@ export function ContractsPage() {
 
 // Empty state page
 export function ContractsEmptyPage() {
+  const t = useTranslations('host.contracts.empty');
+
   return (
     <div className="h-full flex items-center justify-center bg-white">
       <div className="text-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">아직 계약 내역이 없습니다.</p>
-        <p className="text-sm text-[hsl(var(--snug-gray))]">
-          계약이 완료되면 이곳에서 확인할 수 있습니다.
-        </p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noContracts')}</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('contractsAppearHere')}</p>
       </div>
     </div>
   );

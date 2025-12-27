@@ -57,6 +57,10 @@ model User {
   phoneVerified Boolean   @default(false)
   avatarUrl     String?
 
+  // 사용자 설정
+  preferredCurrency String @default("KRW")   // KRW, USD, JPY, CNY, EUR
+  preferredLanguage String @default("ko")    // ko, en, ja, zh, vi
+
   // Supabase Auth 연동
   supabaseId    String?   @unique
 
@@ -750,4 +754,36 @@ model Message {
 
   @@index([chatRoomId, createdAt])
   @@map("messages")
+}
+
+// ============================================
+// EXCHANGE RATES (환율)
+// ============================================
+
+model ExchangeRate {
+  id            String    @id @default(cuid())
+
+  // 통화 코드 (KRW 기준)
+  currency      String    @unique  // USD, JPY, CNY, EUR
+
+  // 환율 (1 KRW = ? 외화)
+  rate          Decimal   @db.Decimal(20, 10)
+
+  // 역환율 (1 외화 = ? KRW) - 조회 편의용
+  inverseRate   Decimal   @db.Decimal(20, 4)
+
+  // 마진 적용 환율 (사용자에게 표시)
+  displayRate   Decimal   @db.Decimal(20, 10)
+
+  // 마진 퍼센트
+  marginPercent Decimal   @default(2.5) @db.Decimal(5, 2)
+
+  // 데이터 소스
+  source        String    @default("open.er-api.com")
+
+  // 업데이트 시간
+  fetchedAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("exchange_rates")
 }

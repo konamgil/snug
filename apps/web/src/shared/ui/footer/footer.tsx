@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export function Footer() {
+  const t = useTranslations('footer');
   return (
     <footer className="bg-white border-t border-[#E5E5E5]">
       <div className="max-w-[1312px] mx-auto px-5 py-5">
@@ -50,21 +52,18 @@ export function Footer() {
                 </svg>
                 <div className="w-px h-2.5 bg-black" />
                 <span className="text-xs font-extrabold text-black tracking-[-0.18px]">
-                  (주)스너그랩
+                  {t('companyName')}
                 </span>
               </div>
               {/* Company Details */}
               <div className="text-[11px] text-black tracking-[-0.165px] leading-[17px]">
-                <p>사업자 등록 번호: 284-88-03165 · 대표이사 김소영 · 연락처: 1811-6619</p>
-                <p>
-                  통신판매업 신고번호: 2023 - 서울 종로 - 1113, 서울특별시 강남구 봉은사로
-                  224(혜전빌딩), 501호
-                </p>
+                <p>{t('companyInfo')}</p>
+                <p>{t('licenseInfo')}</p>
               </div>
             </div>
             {/* Copyright */}
             <p className="text-[11px] text-black tracking-[-0.165px]">
-              Copyright. 2025 Snuglab. All rights reserved.
+              {t('copyright', { year: new Date().getFullYear() })}
             </p>
           </div>
 
@@ -73,10 +72,10 @@ export function Footer() {
             {/* Links */}
             <div className="flex items-center gap-2.5 text-xs font-extrabold text-black tracking-[-0.18px]">
               <Link href="/terms" className="hover:underline">
-                이용약관
+                {t('termsOfService')}
               </Link>
               <Link href="/privacy" className="hover:underline">
-                개인정보취급방침
+                {t('privacyPolicy')}
               </Link>
             </div>
             <div className="w-px h-2.5 bg-black" />

@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AccommodationsModule } from './modules/accommodations/accommodations.module';
+import { ExchangeRatesModule } from './modules/exchange-rates/exchange-rates.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AccommodationsModule } from './modules/accommodations/accommodations.mo
     AuthModule,
     UsersModule,
     AccommodationsModule,
+    ExchangeRatesModule,
   ],
 })
 export class AppModule {}

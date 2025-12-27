@@ -67,3 +67,4 @@ apps/web/android/app/src/main/assets/public
 # Cache
 .cache
 .parcel-cache
+supabase/.temp/

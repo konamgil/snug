@@ -29,6 +29,7 @@ import { Header, type SearchBarValues } from '@/widgets/header';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { formatGuestSummary, type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel } from './booking-side-panel';
+import { useCurrencySafe } from '@/shared/providers';
 
 // Mock room data
 const roomData = {
@@ -166,6 +167,7 @@ export function RoomDetailPage() {
   const params = useParams();
   const router = useRouter();
   const i18nRouter = useI18nRouter();
+  const { format } = useCurrencySafe();
   const roomId = (params.id as string) || '1';
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -813,7 +815,7 @@ export function RoomDetailPage() {
         <div className="flex items-center justify-between mb-3">
           <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">Total</span>
           <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-            ${roomData.total}
+            {format(roomData.total)}
           </span>
         </div>
         {/* Bottom Row: Actions */}

@@ -12,6 +12,9 @@ export interface ProfileData {
   countryCode: string | null;
   phoneVerified: boolean;
   avatarUrl: string | null;
+  // 사용자 설정
+  preferredCurrency: string;
+  preferredLanguage: string;
   // GuestProfile 테이블
   aboutMe: string | null;
   purposeOfStay: PurposeOfStay | null;
@@ -38,6 +41,8 @@ export async function getProfile(userId: string): Promise<ProfileData | null> {
     countryCode: user.countryCode,
     phoneVerified: user.phoneVerified,
     avatarUrl: user.avatarUrl,
+    preferredCurrency: user.preferredCurrency,
+    preferredLanguage: user.preferredLanguage,
     aboutMe: user.guestProfile?.aboutMe ?? null,
     purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
     passportNumber: user.guestProfile?.passportNumber ?? null,
@@ -64,6 +69,8 @@ export async function getProfileBySupabaseId(supabaseId: string): Promise<Profil
     countryCode: user.countryCode,
     phoneVerified: user.phoneVerified,
     avatarUrl: user.avatarUrl,
+    preferredCurrency: user.preferredCurrency,
+    preferredLanguage: user.preferredLanguage,
     aboutMe: user.guestProfile?.aboutMe ?? null,
     purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
     passportNumber: user.guestProfile?.passportNumber ?? null,
@@ -78,6 +85,9 @@ export interface UpdateProfileInput {
   countryCode?: string;
   phoneVerified?: boolean;
   avatarUrl?: string;
+  // 사용자 설정
+  preferredCurrency?: string;
+  preferredLanguage?: string;
   // GuestProfile
   aboutMe?: string;
   purposeOfStay?: PurposeOfStay;
@@ -97,6 +107,10 @@ export async function updateProfile(
   if (data.countryCode !== undefined) userUpdateData.countryCode = data.countryCode;
   if (data.phoneVerified !== undefined) userUpdateData.phoneVerified = data.phoneVerified;
   if (data.avatarUrl !== undefined) userUpdateData.avatarUrl = data.avatarUrl;
+  if (data.preferredCurrency !== undefined)
+    userUpdateData.preferredCurrency = data.preferredCurrency;
+  if (data.preferredLanguage !== undefined)
+    userUpdateData.preferredLanguage = data.preferredLanguage;
 
   // GuestProfile 테이블 업데이트
   const guestProfileData: Record<string, unknown> = {};
@@ -134,6 +148,8 @@ export async function updateProfile(
     countryCode: user.countryCode,
     phoneVerified: user.phoneVerified,
     avatarUrl: user.avatarUrl,
+    preferredCurrency: user.preferredCurrency,
+    preferredLanguage: user.preferredLanguage,
     aboutMe: user.guestProfile?.aboutMe ?? null,
     purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
     passportNumber: user.guestProfile?.passportNumber ?? null,

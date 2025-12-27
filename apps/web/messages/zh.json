@@ -6,6 +6,7 @@
     "retry": "重试",
     "save": "保存",
     "cancel": "取消",
+    "done": "完成",
     "confirm": "确认",
     "delete": "删除",
     "edit": "编辑",
@@ -18,7 +19,9 @@
     "next": "下一步",
     "previous": "上一步",
     "submit": "提交",
-    "close": "关闭"
+    "close": "关闭",
+    "add": "添加",
+    "select": "选择"
   },
   "metadata": {
     "title": "Snug - 在韩国找到完美的房间",
@@ -34,6 +37,69 @@
     "login": "登录",
     "signup": "注册",
     "logout": "退出"
+  },
+  "search": {
+    "resultsCount": "在{location}找到{count}处住宿",
+    "noResults": "未找到住宿",
+    "anywhere": "所有地区",
+    "guest": "客人",
+    "guests": "客人",
+    "guestCount": "{count}位客人",
+    "filters": {
+      "filters": "筛选",
+      "roomType": "房间类型",
+      "propertyType": "房屋类型",
+      "budget": "预算",
+      "monthlyPayment": "月付款",
+      "minimum": "最低",
+      "maximum": "最高",
+      "apartmentSize": "面积",
+      "houseRules": "房屋规则",
+      "facilities": "设施",
+      "amenities": "便利设施",
+      "reset": "重置",
+      "showResults": "显示结果",
+      "womenOnly": "仅限女性",
+      "menOnly": "仅限男性",
+      "petsAllowed": "允许宠物",
+      "parking": "停车位",
+      "roomTypes": {
+        "house": "独立住宅",
+        "sharedHouse": "合租房",
+        "sharedRoom": "合住房间"
+      },
+      "propertyTypes": {
+        "apartment": "公寓",
+        "villa": "别墅",
+        "house": "住宅",
+        "officetel": "酒店式公寓"
+      },
+      "facilitiesOptions": {
+        "all": "全部",
+        "parkingLot": "停车场",
+        "lift": "电梯",
+        "wifi": "Wi-Fi",
+        "publicGate": "门禁系统",
+        "fullyFurnished": "全装修",
+        "privateBathroom": "独立卫浴",
+        "washingMachine": "洗衣机",
+        "balcony": "阳台/露台"
+      },
+      "amenitiesOptions": {
+        "all": "全部",
+        "queenBed": "大床",
+        "airConditioning": "空调",
+        "dryer": "烘干机"
+      }
+    },
+    "sort": {
+      "recommended": "推荐",
+      "newest": "最新",
+      "oldest": "最早",
+      "priceHigh": "价格从高到低",
+      "priceLow": "价格从低到高"
+    },
+    "mapPlaceholder": "查看地图"
   },
   "home": {
     "hero": {
@@ -84,7 +150,16 @@
     "contact": "联系房东",
     "book": "立即预订",
     "addToFavorites": "添加收藏",
-    "removeFromFavorites": "取消收藏"
+    "removeFromFavorites": "取消收藏",
+    "roomCount": "{count}间房",
+    "bathroomCount": "{count}间卫浴",
+    "bedCount": "{count}张床",
+    "guestCount": "{count}位",
+    "forNights": "{count}晚",
+    "perNights": "/ {count}晚",
+    "roomsShort": "{count}R",
+    "bathroomsShort": "{count}B",
+    "bedsShort": "{count}Bed"
   },
   "booking": {
     "title": "预订",
@@ -197,23 +272,6 @@
     "privacy": "隐私政策",
     "contact": "联系我们",
     "copyright": "© {year} Snug. 保留所有权利。"
-  },
-  "search": {
-    "resultsCount": "{location}的{count}个住所",
-    "filters": {
-      "filters": "筛选",
-      "roomType": "房间类型",
-      "womenOnly": "仅限女性",
-      "parking": "停车位"
-    },
-    "sort": {
-      "recommended": "推荐",
-      "newest": "最新",
-      "oldest": "最旧",
-      "priceHigh": "高价格",
-      "priceLow": "低价格"
-    },
-    "mapPlaceholder": "地图视图"
   },
   "mypage": {
     "sidebar": {

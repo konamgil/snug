@@ -1,0 +1,25 @@
+# Supabase Configuration
+# https://supabase.com/docs/guides/cli/config
+
+# Edge Functions
+[functions.update-exchange-rates]
+verify_jwt = false  # Cron에서 호출하므로 JWT 검증 비활성화
+
+# Cron Jobs (pg_cron)
+# 매일 자정 (KST = UTC+9, 즉 UTC 15:00)
+# Supabase Dashboard > SQL Editor에서 아래 쿼리 실행 필요:
+#
+# SELECT cron.schedule(
+#   'update-exchange-rates',
+#   '0 15 * * *',  -- 매일 UTC 15:00 (KST 00:00)
+#   $$
+#   SELECT net.http_post(
+#     url := 'https://vrelxffwogpqnudmginp.supabase.co/functions/v1/update-exchange-rates',
+#     headers := jsonb_build_object(
+#       'Content-Type', 'application/json',
+#       'Authorization', 'Bearer ' || current_setting('app.settings.cron_secret', true)
+#     ),
+#     body := '{}'::jsonb
+#   );
+#   $$
+# );

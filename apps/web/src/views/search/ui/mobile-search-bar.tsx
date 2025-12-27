@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { FilterIcon } from '@/shared/ui/icons';
 
 interface MobileSearchBarProps {
@@ -19,7 +20,8 @@ export function MobileSearchBar({
   onSearchClick,
   onFilterClick,
 }: MobileSearchBarProps) {
-  const guestText = guests > 0 ? `${guests} Guest${guests > 1 ? 's' : ''}` : '';
+  const t = useTranslations('search');
+  const guestText = guests > 0 ? t('guestCount', { count: guests }) : '';
   const summaryParts = [dateRange, guestText].filter(Boolean).join(' · ');
 
   return (
@@ -30,7 +32,7 @@ export function MobileSearchBar({
         className="flex-1 flex flex-col items-start justify-center px-5 py-2.5 border border-[hsl(var(--snug-border))] rounded-full bg-white min-h-[52px]"
       >
         <span className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-          {location || 'Anywhere'}
+          {location || t('anywhere')}
         </span>
         {summaryParts && (
           <span className="text-[13px] text-[hsl(var(--snug-gray))] mt-0.5">{summaryParts}</span>
@@ -40,7 +42,7 @@ export function MobileSearchBar({
         type="button"
         onClick={onFilterClick}
         className="relative w-11 h-11 flex items-center justify-center flex-shrink-0"
-        aria-label="Filters"
+        aria-label={t('filters.filters')}
       >
         <FilterIcon className="w-[22px] h-[22px] text-[hsl(var(--snug-text-primary))]" />
         {hasActiveFilters && (

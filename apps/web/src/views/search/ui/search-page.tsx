@@ -369,7 +369,7 @@ function SearchPageContent() {
                 <RoomCardSkeletonList count={6} viewMode={view} />
               ) : rooms.length === 0 ? (
                 <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
-                  No accommodations found
+                  {t('noResults')}
                 </div>
               ) : selectedMapRoomId ? (
                 // Show only selected room
@@ -411,9 +411,7 @@ function SearchPageContent() {
           {isLoading ? (
             <RoomCardSkeletonList count={4} viewMode="mobile" />
           ) : rooms.length === 0 ? (
-            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
-              No accommodations found
-            </div>
+            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">{t('noResults')}</div>
           ) : (
             rooms.map((room) => <RoomCard key={room.id} room={room} viewMode="mobile" />)
           )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { ContractDetailData } from './contract-detail-drawer';
@@ -36,18 +37,6 @@ interface RoomCard {
   price: number;
   nights: number;
 }
-
-const MOCK_FILTERS: FilterTab[] = [
-  { id: 'all', label: '전체', count: 376 },
-  { id: 'pending', label: '계약 신청', count: 20 },
-  { id: 'scheduled', label: '입주 예정', count: 9 },
-  { id: 'checkin', label: '체크인 예정', count: 15 },
-  { id: 'checkout', label: '체크아웃 예정', count: 8 },
-  { id: 'staying', label: '입주 중', count: 120 },
-  { id: 'completed', label: '퇴실 완료', count: 180 },
-  { id: 'rejected', label: '거절', count: 12 },
-  { id: 'cancelled', label: '취소/환불', count: 12 },
-];
 
 const MOCK_ROOMS: RoomCard[] = [
   {
@@ -178,8 +167,22 @@ function getContractDetailData(room: RoomCard): ContractDetailData {
 }
 
 export function ContractSection({ onItemClick }: ContractSectionProps) {
+  const t = useTranslations('host.dashboard');
+  const tContracts = useTranslations('host.contracts');
   const [activeFilter, setActiveFilter] = useState<ContractFilter>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const FILTERS: FilterTab[] = [
+    { id: 'all', label: tContracts('filters.all'), count: 376 },
+    { id: 'pending', label: tContracts('status.pending'), count: 20 },
+    { id: 'scheduled', label: tContracts('status.moveInScheduled'), count: 9 },
+    { id: 'checkin', label: tContracts('status.checkInScheduled'), count: 15 },
+    { id: 'checkout', label: tContracts('status.checkOutScheduled'), count: 8 },
+    { id: 'staying', label: tContracts('status.inProgress'), count: 120 },
+    { id: 'completed', label: tContracts('status.completed'), count: 180 },
+    { id: 'rejected', label: tContracts('status.rejected'), count: 12 },
+    { id: 'cancelled', label: tContracts('status.cancelledRefunded'), count: 12 },
+  ];
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -195,18 +198,20 @@ export function ContractSection({ onItemClick }: ContractSectionProps) {
     <section className="bg-white rounded-xl p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">입주/계약 관리</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+          {t('contractManagement')}
+        </h2>
         <Link
           href="/host/contracts"
           className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
         >
-          모든 계약목록 보기
+          {t('viewAllContracts')}
         </Link>
       </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 mb-4 md:mb-5 overflow-x-auto no-scrollbar pb-1">
-        {MOCK_FILTERS.map((filter) => (
+        {FILTERS.map((filter) => (
           <button
             key={filter.id}
             type="button"
@@ -287,14 +292,17 @@ export function ContractSection({ onItemClick }: ContractSectionProps) {
                   {room.hostName}
                 </p>
                 <p className="text-xs text-[hsl(var(--snug-gray))] truncate">
-                  {room.propertyName} · {room.guestCount}명
+                  {room.propertyName} · {t('guests', { count: room.guestCount })}
                 </p>
                 <p className="text-xs text-[hsl(var(--snug-gray))]">{room.dateRange}</p>
                 <p className="text-sm mt-1">
                   <span className="font-bold text-[hsl(var(--snug-orange))]">
                     {formatPrice(room.price)}
                   </span>
-                  <span className="text-xs text-[hsl(var(--snug-gray))]"> · {room.nights}박</span>
+                  <span className="text-xs text-[hsl(var(--snug-gray))]">
+                    {' '}
+                    · {t('nights', { count: room.nights })}
+                  </span>
                 </p>
               </div>
             </div>

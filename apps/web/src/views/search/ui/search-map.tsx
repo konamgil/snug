@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { X, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
+import { useCurrencySafe } from '@/shared/providers';
 import type { Room } from './room-card';
 
 interface SearchMapProps {
@@ -32,9 +33,11 @@ const mapOptions: google.maps.MapOptions = {
   fullscreenControl: false,
 };
 
-function createPriceMarkerIcon(price: number, isSelected: boolean): string {
+function createPriceMarkerIcon(formattedPrice: string, isSelected: boolean): string {
   const bgColor = isSelected ? '%23ff7900' : '%236B7280';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="30"><rect x="0" y="0" width="60" height="30" rx="15" fill="${bgColor}"/><text x="30" y="20" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial">$${price}</text></svg>`;
+  // URL encode the formatted price for SVG data URI
+  const encodedPrice = encodeURIComponent(formattedPrice);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="30"><rect x="0" y="0" width="80" height="30" rx="15" fill="${bgColor}"/><text x="40" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial">${encodedPrice}</text></svg>`;
   return `data:image/svg+xml,${svg}`;
 }
 
@@ -56,6 +59,7 @@ const tagSecondColors = {
 
 export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
   const locale = useLocale();
+  const { format } = useCurrencySafe();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex] = useState(0);
@@ -130,9 +134,12 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
             position={{ lat: room.lat, lng: room.lng }}
             onClick={() => handleMarkerClick(room)}
             icon={{
-              url: createPriceMarkerIcon(room.price, selectedRoom?.id === room.id),
-              scaledSize: new google.maps.Size(60, 30),
-              anchor: new google.maps.Point(30, 15),
+              url: createPriceMarkerIcon(
+                format(room.price, { compact: true }),
+                selectedRoom?.id === room.id,
+              ),
+              scaledSize: new google.maps.Size(80, 30),
+              anchor: new google.maps.Point(40, 15),
             }}
           />
         ))}
@@ -221,11 +228,11 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
               <div className="flex items-baseline gap-1.5">
                 {selectedRoom.originalPrice && (
                   <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
-                    ${selectedRoom.originalPrice}
+                    {format(selectedRoom.originalPrice)}
                   </span>
                 )}
                 <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
-                  ${selectedRoom.price}
+                  {format(selectedRoom.price)}
                 </span>
                 <span className="text-[13px] text-[hsl(var(--snug-gray))]">
                   for {selectedRoom.nights} nights

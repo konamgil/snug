@@ -65,7 +65,9 @@ export async function updateUser(
     phone?: string;
     countryCode?: string;
     avatarUrl?: string;
-  }
+    preferredCurrency?: string;
+    preferredLanguage?: string;
+  },
 ): Promise<User> {
   return prisma.user.update({
     where: { id },

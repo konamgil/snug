@@ -13,11 +13,17 @@ export interface User {
   phoneVerified: boolean;
   avatarUrl: string | null;
   supabaseId: string | null;
+  // 사용자 설정
+  preferredCurrency: string;
+  preferredLanguage: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface UserProfile extends Pick<User, 'id' | 'firstName' | 'lastName' | 'avatarUrl' | 'role'> {
+export interface UserProfile extends Pick<
+  User,
+  'id' | 'firstName' | 'lastName' | 'avatarUrl' | 'role'
+> {
   fullName: string | null;
 }
 
@@ -35,4 +41,6 @@ export interface UpdateUserInput {
   phone?: string;
   countryCode?: string;
   avatarUrl?: string;
+  preferredCurrency?: string;
+  preferredLanguage?: string;
 }
