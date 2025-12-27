@@ -7,7 +7,7 @@
 ### Supabase MCP
 - **필수**: Yes
 - **용도**: 데이터베이스 스키마 조회, SQL 실행, 마이그레이션 관리
-- **Project URL**: https://qvmsnqtyvnibvhpknasc.supabase.co
+- **Project URL**: https://vrelxffwogpqnudmginp.supabase.co
 
 설치 확인:
 ```bash
