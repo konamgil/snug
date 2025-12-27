@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, ChevronDown, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { UserDetailPanel, type UserDetailData } from './user-detail-panel';
 
@@ -19,30 +20,17 @@ interface UserData {
   status: UserStatus;
 }
 
-// Permission type labels
-const permissionLabels: Record<PermissionType, string> = {
-  snug_operator: '스너그 운영자',
-  host: '호스트',
-  guest: '게스트',
-  co_host: '공동호스트',
-  admin: '관리자',
-  consignment: '위탁협력',
-};
-
-// Status labels and colors
-const statusConfig: Record<UserStatus, { label: string; bgColor: string; textColor: string }> = {
+// Status colors (labels will be translated)
+const statusColors: Record<UserStatus, { bgColor: string; textColor: string }> = {
   active: {
-    label: '사용중',
     bgColor: 'bg-[#d0e2ff]',
     textColor: 'text-[#0043ce]',
   },
   withdrawn: {
-    label: '탈퇴',
     bgColor: 'bg-[#ffd7d9]',
     textColor: 'text-[#da1e28]',
   },
   dormant: {
-    label: '휴면',
     bgColor: 'bg-[#e0e0e0]',
     textColor: 'text-[#525252]',
   },
@@ -132,37 +120,16 @@ const mockUsers: UserData[] = [
   },
 ];
 
-// Convert user data to detail panel data
-function getUserDetailData(user: UserData): UserDetailData {
-  return {
-    id: user.id,
-    name: user.name,
-    status: user.status,
-    permissionType: user.permissionType,
-    phone: user.phone,
-    email: user.email,
-    nationality: user.nationality,
-    gender: user.gender,
-    screenPermissions: [
-      { id: 'dashboard', name: '대시보드', canView: true, canEdit: false },
-      { id: 'contracts', name: '계약 관리', canView: true, canEdit: false },
-      { id: 'properties', name: '숙소 관리', canView: false, canEdit: true },
-      { id: 'settlements', name: '정산 관리', canView: false, canEdit: true },
-      { id: 'chat', name: '채팅', canView: true, canEdit: false },
-      { id: 'operations', name: '하우스 운영 관리', canView: true, canEdit: false },
-      { id: 'users', name: '사용자 관리', canView: true, canEdit: false },
-    ],
-  };
-}
+// Convert user data to detail panel data - moved inside component to access translations
 
 // Status Badge Component
-function StatusBadge({ status }: { status: UserStatus }) {
-  const config = statusConfig[status];
+function StatusBadge({ status, label }: { status: UserStatus; label: string }) {
+  const colors = statusColors[status];
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colors.bgColor} ${colors.textColor}`}
     >
-      {config.label}
+      {label}
     </span>
   );
 }
@@ -301,11 +268,51 @@ function Pagination({
 }
 
 export function UsersPage() {
+  const t = useTranslations('host.users');
+  const tPermissions = useTranslations('host.users.permissionTypes');
+  const tStatus = useTranslations('host.users.status');
+  const tTable = useTranslations('host.users.table');
+  const tScreens = useTranslations('host.users.screens');
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [detailData, setDetailData] = useState<UserDetailData | null>(null);
   const totalPages = 30;
+
+  const getPermissionLabel = (type: PermissionType): string => tPermissions(type);
+  const getStatusLabel = (status: UserStatus): string => tStatus(status);
+  const getScreenLabel = (screenId: string): string => {
+    const key = screenId as
+      | 'dashboard'
+      | 'contracts'
+      | 'properties'
+      | 'settlements'
+      | 'chat'
+      | 'operations'
+      | 'users';
+    return tScreens(key);
+  };
+
+  const getUserDetailData = (user: UserData): UserDetailData => ({
+    id: user.id,
+    name: user.name,
+    status: user.status,
+    permissionType: user.permissionType,
+    phone: user.phone,
+    email: user.email,
+    nationality: user.nationality,
+    gender: user.gender,
+    screenPermissions: [
+      { id: 'dashboard', name: getScreenLabel('dashboard'), canView: true, canEdit: false },
+      { id: 'contracts', name: getScreenLabel('contracts'), canView: true, canEdit: false },
+      { id: 'properties', name: getScreenLabel('properties'), canView: false, canEdit: true },
+      { id: 'settlements', name: getScreenLabel('settlements'), canView: false, canEdit: true },
+      { id: 'chat', name: getScreenLabel('chat'), canView: true, canEdit: false },
+      { id: 'operations', name: getScreenLabel('operations'), canView: true, canEdit: false },
+      { id: 'users', name: getScreenLabel('users'), canView: true, canEdit: false },
+    ],
+  });
 
   const handleSelectAll = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -352,7 +359,7 @@ export function UsersPage() {
         {/* Title and Actions */}
         <div className="px-5 py-4 border-b border-[#f0f0f0]">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-[#161616]">사용자 목록</h1>
+            <h1 className="text-lg font-semibold text-[#161616]">{t('title')}</h1>
             <div className="flex items-center gap-2">
               <button type="button" className="p-2 hover:bg-[#f4f4f4] rounded-lg transition-colors">
                 <Search className="w-5 h-5 text-[#525252]" />
@@ -362,13 +369,13 @@ export function UsersPage() {
                 disabled={selectedIds.size === 0}
                 className="px-4 py-2 text-sm border border-[#d8d8d8] rounded-lg hover:bg-[#f4f4f4] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                삭제 ({selectedIds.size})
+                {t('deleteCount', { count: selectedIds.size })}
               </button>
               <button
                 type="button"
                 className="px-4 py-2 text-sm text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
               >
-                신규 추가
+                {t('addNew')}
               </button>
             </div>
           </div>
@@ -386,20 +393,30 @@ export function UsersPage() {
                     onChange={handleSelectAll}
                   />
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">게스트</th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">연락처</th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">이메일</th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">국적</th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">성별</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                  {tTable('guest')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                  {tTable('phone')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                  {tTable('email')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                  {tTable('nationality')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                  {tTable('gender')}
+                </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
                   <span className="inline-flex items-center gap-1">
-                    권한 유형
+                    {tTable('permissionType')}
                     <ChevronDown className="w-3 h-3" />
                   </span>
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
                   <span className="inline-flex items-center gap-1">
-                    상태
+                    {tTable('status')}
                     <ChevronDown className="w-3 h-3" />
                   </span>
                 </th>
@@ -431,10 +448,10 @@ export function UsersPage() {
                   <td className="px-3 py-3 text-sm text-[#161616]">{user.nationality}</td>
                   <td className="px-3 py-3 text-sm text-[#161616]">{user.gender}</td>
                   <td className="px-3 py-3 text-sm text-[#161616]">
-                    {permissionLabels[user.permissionType]}
+                    {getPermissionLabel(user.permissionType)}
                   </td>
                   <td className="px-3 py-3">
-                    <StatusBadge status={user.status} />
+                    <StatusBadge status={user.status} label={getStatusLabel(user.status)} />
                   </td>
                 </tr>
               ))}

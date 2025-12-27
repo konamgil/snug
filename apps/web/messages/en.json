@@ -972,6 +972,52 @@
         "cancel": "Cancel",
         "complete": "Complete"
       }
+    },
+    "users": {
+      "title": "User List",
+      "deleteCount": "Delete ({count})",
+      "addNew": "Add New",
+      "permissionTypes": {
+        "snug_operator": "Snug Operator",
+        "host": "Host",
+        "guest": "Guest",
+        "co_host": "Co-Host",
+        "admin": "Admin",
+        "consignment": "Consignment"
+      },
+      "status": {
+        "active": "Active",
+        "withdrawn": "Withdrawn",
+        "dormant": "Dormant"
+      },
+      "table": {
+        "guest": "Guest",
+        "phone": "Phone",
+        "email": "Email",
+        "nationality": "Nationality",
+        "gender": "Gender",
+        "permissionType": "Permission Type",
+        "status": "Status"
+      },
+      "detail": {
+        "title": "User Info",
+        "basicInfo": "Basic Info",
+        "screenPermissions": "Screen Permissions",
+        "screenName": "Screen Name",
+        "view": "View",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "screens": {
+        "dashboard": "Dashboard",
+        "contracts": "Contract Management",
+        "properties": "Property Management",
+        "settlements": "Settlement Management",
+        "chat": "Chat",
+        "operations": "House Operations",
+        "users": "User Management"
+      }
     }
   },
   "chat": {

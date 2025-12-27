@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { X, ChevronDown } from 'lucide-react';
 
 type UserStatus = 'active' | 'withdrawn' | 'dormant';
@@ -31,54 +32,30 @@ interface UserDetailPanelProps {
   onSave: (data: UserDetailData) => void;
 }
 
-// Permission type labels
-const permissionLabels: Record<PermissionType, string> = {
-  snug_operator: '스너그 운영자',
-  host: '호스트',
-  guest: '게스트',
-  co_host: '공동호스트',
-  admin: '관리자',
-  consignment: '위탁협력',
-};
-
-// Status labels and colors
-const statusConfig: Record<UserStatus, { label: string; bgColor: string; textColor: string }> = {
+// Status colors (labels will be translated)
+const statusColors: Record<UserStatus, { bgColor: string; textColor: string }> = {
   active: {
-    label: '사용중',
     bgColor: 'bg-[#d0e2ff]',
     textColor: 'text-[#0043ce]',
   },
   withdrawn: {
-    label: '탈퇴',
     bgColor: 'bg-[#ffd7d9]',
     textColor: 'text-[#da1e28]',
   },
   dormant: {
-    label: '휴면',
     bgColor: 'bg-[#e0e0e0]',
     textColor: 'text-[#525252]',
   },
 };
 
-// Default screen permissions
-const defaultScreenPermissions: ScreenPermission[] = [
-  { id: 'dashboard', name: '대시보드', canView: true, canEdit: false },
-  { id: 'contracts', name: '계약 관리', canView: true, canEdit: false },
-  { id: 'properties', name: '숙소 관리', canView: false, canEdit: true },
-  { id: 'settlements', name: '정산 관리', canView: false, canEdit: true },
-  { id: 'chat', name: '채팅', canView: true, canEdit: false },
-  { id: 'operations', name: '하우스 운영 관리', canView: true, canEdit: false },
-  { id: 'users', name: '사용자 관리', canView: true, canEdit: false },
-];
-
 // Status Badge Component
-function StatusBadge({ status }: { status: UserStatus }) {
-  const config = statusConfig[status];
+function StatusBadge({ status, label }: { status: UserStatus; label: string }) {
+  const colors = statusColors[status];
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colors.bgColor} ${colors.textColor}`}
     >
-      {config.label}
+      {label}
     </span>
   );
 }
@@ -109,13 +86,19 @@ function PermissionCheckbox({ checked, onChange }: { checked: boolean; onChange:
 }
 
 export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps) {
-  const [permissions, setPermissions] = useState<ScreenPermission[]>(
-    data?.screenPermissions ?? defaultScreenPermissions,
-  );
+  const t = useTranslations('host.users.detail');
+  const tTable = useTranslations('host.users.table');
+  const tPermissions = useTranslations('host.users.permissionTypes');
+  const tStatus = useTranslations('host.users.status');
+
+  const [permissions, setPermissions] = useState<ScreenPermission[]>(data?.screenPermissions ?? []);
   const [selectedPermissionType, setSelectedPermissionType] = useState<PermissionType>(
     data?.permissionType ?? 'guest',
   );
   const [showPermissionDropdown, setShowPermissionDropdown] = useState(false);
+
+  const getPermissionLabel = (type: PermissionType): string => tPermissions(type);
+  const getStatusLabel = (status: UserStatus): string => tStatus(status);
 
   if (!data) return null;
 
@@ -136,7 +119,7 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
       {/* Header */}
       <div className="px-5 py-6 border-b border-[#f0f0f0]">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-black">사용자 정보</h2>
+          <h2 className="text-lg font-bold text-black">{t('title')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -154,31 +137,31 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">{data.name}</span>
-              <StatusBadge status={data.status} />
+              <StatusBadge status={data.status} label={getStatusLabel(data.status)} />
             </div>
 
             {/* Basic Info */}
             <div className="bg-[#f1f1f1] rounded p-5">
-              <h3 className="text-xs font-bold text-[#161616] mb-2">기본 정보</h3>
+              <h3 className="text-xs font-bold text-[#161616] mb-2">{t('basicInfo')}</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#525252]">권한 유형</span>
-                  <span className="text-[#161616]">{permissionLabels[data.permissionType]}</span>
+                  <span className="text-[#525252]">{tTable('permissionType')}</span>
+                  <span className="text-[#161616]">{getPermissionLabel(data.permissionType)}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#525252]">연락처</span>
+                  <span className="text-[#525252]">{tTable('phone')}</span>
                   <span className="text-[#161616]">{data.phone}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#525252]">이메일</span>
+                  <span className="text-[#525252]">{tTable('email')}</span>
                   <span className="text-[#161616]">{data.email}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#525252]">국적</span>
+                  <span className="text-[#525252]">{tTable('nationality')}</span>
                   <span className="text-[#161616]">{data.nationality}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#525252]">성별</span>
+                  <span className="text-[#525252]">{tTable('gender')}</span>
                   <span className="text-[#161616]">{data.gender}</span>
                 </div>
               </div>
@@ -188,19 +171,28 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
           {/* Screen Permissions */}
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-black">화면권한</h3>
+              <h3 className="text-sm font-bold text-black">{t('screenPermissions')}</h3>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setShowPermissionDropdown(!showPermissionDropdown)}
                   className="flex items-center gap-2 text-xs text-[#161616]"
                 >
-                  <span>{permissionLabels[selectedPermissionType]}</span>
+                  <span>{getPermissionLabel(selectedPermissionType)}</span>
                   <ChevronDown className="w-3.5 h-3.5" />
                 </button>
                 {showPermissionDropdown && (
                   <div className="absolute right-0 top-full mt-1 bg-white border border-[#e0e0e0] rounded shadow-lg z-10 min-w-[120px]">
-                    {(Object.keys(permissionLabels) as PermissionType[]).map((type) => (
+                    {(
+                      [
+                        'snug_operator',
+                        'host',
+                        'guest',
+                        'co_host',
+                        'admin',
+                        'consignment',
+                      ] as PermissionType[]
+                    ).map((type) => (
                       <button
                         key={type}
                         type="button"
@@ -210,7 +202,7 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
                         }}
                         className="w-full px-3 py-2 text-left text-xs hover:bg-[#f4f4f4] transition-colors"
                       >
-                        {permissionLabels[type]}
+                        {getPermissionLabel(type)}
                       </button>
                     ))}
                   </div>
@@ -222,10 +214,10 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
             <div className="space-y-3">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#161616]">화면명</span>
+                <span className="text-xs text-[#161616]">{t('screenName')}</span>
                 <div className="flex items-center justify-between w-[85px] text-xs text-[#161616]">
-                  <span>조회</span>
-                  <span>편집</span>
+                  <span>{t('view')}</span>
+                  <span>{t('edit')}</span>
                 </div>
               </div>
               <div className="border-t border-[#a8a8a8]" />
@@ -261,14 +253,14 @@ export function UserDetailPanel({ data, onClose, onSave }: UserDetailPanelProps)
             onClick={onClose}
             className="flex-1 px-4 py-2.5 text-sm text-[#161616] bg-[#f3f3f3] rounded hover:bg-[#e8e8e8] transition-colors"
           >
-            취소
+            {t('cancel')}
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="flex-[2] px-4 py-2.5 text-sm text-white bg-[hsl(var(--snug-orange))] rounded hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
           >
-            저장
+            {t('save')}
           </button>
         </div>
       </div>

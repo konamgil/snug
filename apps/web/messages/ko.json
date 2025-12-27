@@ -977,6 +977,52 @@
         "cancel": "취소",
         "complete": "완료"
       }
+    },
+    "users": {
+      "title": "사용자 목록",
+      "deleteCount": "삭제 ({count})",
+      "addNew": "신규 추가",
+      "permissionTypes": {
+        "snug_operator": "스너그 운영자",
+        "host": "호스트",
+        "guest": "게스트",
+        "co_host": "공동호스트",
+        "admin": "관리자",
+        "consignment": "위탁협력"
+      },
+      "status": {
+        "active": "사용중",
+        "withdrawn": "탈퇴",
+        "dormant": "휴면"
+      },
+      "table": {
+        "guest": "게스트",
+        "phone": "연락처",
+        "email": "이메일",
+        "nationality": "국적",
+        "gender": "성별",
+        "permissionType": "권한 유형",
+        "status": "상태"
+      },
+      "detail": {
+        "title": "사용자 정보",
+        "basicInfo": "기본 정보",
+        "screenPermissions": "화면권한",
+        "screenName": "화면명",
+        "view": "조회",
+        "edit": "편집",
+        "cancel": "취소",
+        "save": "저장"
+      },
+      "screens": {
+        "dashboard": "대시보드",
+        "contracts": "계약 관리",
+        "properties": "숙소 관리",
+        "settlements": "정산 관리",
+        "chat": "채팅",
+        "operations": "하우스 운영 관리",
+        "users": "사용자 관리"
+      }
     }
   },
   "chat": {
