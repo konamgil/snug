@@ -107,12 +107,15 @@ async function fetchExchangeRatesFromAPI(): Promise<ExchangeRates> {
     const data = await response.json();
 
     // API 응답을 ExchangeRates 형식으로 변환
-    const rates: Record<CurrencyCode, number> = { KRW: 1 };
+    // 폴백 환율로 초기화 후 API 데이터로 덮어쓰기
+    const rates: Record<CurrencyCode, number> = { ...FALLBACK_RATES };
 
     for (const rateData of data.rates || []) {
       const currency = rateData.currency as CurrencyCode;
       // displayRate 사용 (마진 적용된 환율)
-      rates[currency] = rateData.displayRate;
+      if (currency in rates) {
+        rates[currency] = rateData.displayRate;
+      }
     }
 
     const exchangeRates: ExchangeRates = {
