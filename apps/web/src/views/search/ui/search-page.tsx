@@ -328,7 +328,14 @@ function SearchPageContent() {
         <div className="w-[480px] flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar">
           <div className="px-4">
             {/* Filter Bar - hide when room is selected from map */}
-            {!selectedMapRoomId && <FilterBar currentView={view} onViewChange={setView} />}
+            {!selectedMapRoomId && (
+              <FilterBar
+                currentView={view}
+                onViewChange={setView}
+                onFilterClick={() => setIsFilterModalOpen(true)}
+                hasActiveFilters={hasActiveFilters}
+              />
+            )}
 
             {/* Results Header */}
             <div className="flex items-center justify-between py-3">
@@ -427,7 +434,7 @@ function SearchPageContent() {
       {/* Mobile Navigation */}
       <MobileNav />
 
-      {/* Filter Modal for Mobile */}
+      {/* Filter Modal - Shared by PC & Mobile */}
       <FilterModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}

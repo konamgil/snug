@@ -4,22 +4,22 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { FilterIcon, GridViewIcon, ListViewIcon } from '@/shared/ui/icons';
-import { FilterModal, type FilterState } from './filter-modal';
 
 interface FilterBarProps {
   onViewChange?: (view: 'grid' | 'list') => void;
   currentView?: 'grid' | 'list';
-  onFilterChange?: (filters: FilterState) => void;
+  onFilterClick?: () => void;
+  hasActiveFilters?: boolean;
 }
 
-export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }: FilterBarProps) {
+export function FilterBar({
+  onViewChange,
+  currentView = 'grid',
+  onFilterClick,
+  hasActiveFilters = false,
+}: FilterBarProps) {
   const t = useTranslations('search.filters');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-
-  const handleFilterApply = (filters: FilterState) => {
-    onFilterChange?.(filters);
-  };
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prev) =>
@@ -37,8 +37,12 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
       {/* Filters Button */}
       <button
         type="button"
-        onClick={() => setIsFilterModalOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 border border-[hsl(var(--snug-border))] rounded-full text-xs hover:border-[hsl(var(--snug-gray))] transition-colors whitespace-nowrap"
+        onClick={onFilterClick}
+        className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-full text-xs transition-colors whitespace-nowrap ${
+          hasActiveFilters
+            ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
+            : 'border-[hsl(var(--snug-border))] hover:border-[hsl(var(--snug-gray))]'
+        }`}
       >
         <FilterIcon className="w-3.5 h-3.5 flex-shrink-0" />
         {t('filters')}
@@ -97,13 +101,6 @@ export function FilterBar({ onViewChange, currentView = 'grid', onFilterChange }
           <ListViewIcon className="w-4 h-4" />
         </button>
       </div>
-
-      {/* Filter Modal */}
-      <FilterModal
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-        onApply={handleFilterApply}
-      />
     </div>
   );
 }
