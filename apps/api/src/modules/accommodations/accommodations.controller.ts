@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -16,6 +17,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import type { User } from '@snug/database';
 import { AccommodationsService } from './accommodations.service';
@@ -24,6 +26,7 @@ import {
   UpdateAccommodationDto,
   CreateAccommodationGroupDto,
   UpdateAccommodationGroupDto,
+  SearchAccommodationsDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser, Public } from '../../common/decorators';
@@ -59,17 +62,57 @@ export class AccommodationsController {
   }
 
   /**
-   * 숙소 상세 조회
+   * 주소 자동완성 (한글/영문 지원)
+   * 인증 불필요
    */
-  @Get(':id')
-  @ApiOperation({ summary: 'Get accommodation details' })
-  @ApiParam({ name: 'id', description: 'Accommodation ID' })
-  @ApiResponse({ status: 200, description: 'Returns accommodation details' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - not the owner' })
+  @Get('address/autocomplete')
+  @Public()
+  @ApiOperation({ summary: 'Address autocomplete for search' })
+  @ApiQuery({ name: 'q', required: true, description: 'Search query (Korean or English)' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Max results (default: 10)' })
+  @ApiResponse({ status: 200, description: 'Returns matching addresses' })
+  async addressAutocomplete(@Query('q') query: string, @Query('limit') limit?: string) {
+    return this.accommodationsService.searchAddresses(query, limit ? parseInt(limit, 10) : 10);
+  }
+
+  /**
+   * 공개 숙소 목록 조회 (검색 페이지용)
+   * 인증 불필요
+   * NOTE: 이 라우트는 반드시 :id 라우트보다 먼저 정의되어야 함
+   */
+  @Get('public')
+  @Public()
+  @ApiOperation({ summary: 'Get public accommodations list with search/filter' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
+  @ApiQuery({ name: 'location', required: false, description: 'Location search' })
+  @ApiQuery({ name: 'guests', required: false, description: 'Number of guests' })
+  @ApiQuery({ name: 'accommodationType', required: false, isArray: true })
+  @ApiQuery({ name: 'minPrice', required: false })
+  @ApiQuery({ name: 'maxPrice', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['price_asc', 'price_desc', 'newest', 'recommended'],
+  })
+  @ApiResponse({ status: 200, description: 'Returns paginated public accommodations list' })
+  async findPublicList(@Query() dto: SearchAccommodationsDto) {
+    return this.accommodationsService.findPublicList(dto);
+  }
+
+  /**
+   * 유사 숙소 조회 (같은 지역 + 같은 타입)
+   * 인증 불필요
+   */
+  @Get('public/similar/:id')
+  @Public()
+  @ApiOperation({ summary: 'Get similar accommodations (same region + type)' })
+  @ApiParam({ name: 'id', description: 'Accommodation ID to find similar ones' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Max results (default: 6)' })
+  @ApiResponse({ status: 200, description: 'Returns similar accommodations' })
   @ApiResponse({ status: 404, description: 'Accommodation not found' })
-  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.accommodationsService.findOne(id, user);
+  async findSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
+    return this.accommodationsService.findSimilar(id, limit ? parseInt(limit, 10) : 6);
   }
 
   /**
@@ -84,6 +127,21 @@ export class AccommodationsController {
   @ApiResponse({ status: 404, description: 'Accommodation not found or not active' })
   async findPublic(@Param('id') id: string) {
     return this.accommodationsService.findPublic(id);
+  }
+
+  /**
+   * 숙소 상세 조회
+   * NOTE: 이 라우트는 public 라우트들보다 뒤에 정의되어야 함
+   */
+  @Get(':id')
+  @ApiOperation({ summary: 'Get accommodation details' })
+  @ApiParam({ name: 'id', description: 'Accommodation ID' })
+  @ApiResponse({ status: 200, description: 'Returns accommodation details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not the owner' })
+  @ApiResponse({ status: 404, description: 'Accommodation not found' })
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.accommodationsService.findOne(id, user);
   }
 
   /**

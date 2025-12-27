@@ -191,6 +191,62 @@ model HostMemberPermission {
 }
 
 // ============================================
+// ADDRESS MAPPING (주소 영문 매핑)
+// ============================================
+
+// 시/도, 시/군/구, 동 영문 매핑 테이블
+model AddressMapping {
+  id          String   @id @default(cuid())
+
+  // 한글
+  sido        String              // 서울특별시
+  sigungu     String?             // 강남구 (시/도 레벨은 null)
+  bname       String?             // 역삼동 (구 레벨은 null)
+
+  // 영문
+  sidoEn      String              // Seoul
+  sigunguEn   String?             // Gangnam-gu
+  bnameEn     String?             // Yeoksam-dong
+
+  // 법정동코드 (공공데이터)
+  code        String?  @unique    // 1168010100
+
+  createdAt   DateTime @default(now())
+
+  @@unique([sido, sigungu, bname])
+  @@index([sido])
+  @@index([sigungu])
+  @@index([sidoEn])
+  @@index([sigunguEn])
+  @@map("address_mappings")
+}
+
+// 인기 지역명 별칭 테이블 (홍대, 이태원, 강남역 등)
+model AddressAlias {
+  id          String   @id @default(cuid())
+
+  // 별칭 (검색어)
+  alias       String              // 홍대, 강남역, 건대
+  aliasEn     String?             // hongdae, gangnam station, konkuk
+
+  // 매핑 대상 주소
+  targetSido    String            // 서울특별시
+  targetSigungu String?           // 마포구 (null이면 시/도 레벨)
+  targetBname   String?           // 서교동 (null이면 구/군 레벨)
+
+  // 매핑 대상 영문
+  targetSidoEn    String          // Seoul
+  targetSigunguEn String?         // Mapo-gu
+  targetBnameEn   String?         // Seogyo-dong
+
+  createdAt   DateTime @default(now())
+
+  @@index([alias])
+  @@index([aliasEn])
+  @@map("address_aliases")
+}
+
+// ============================================
 // ACCOMMODATION (숙소)
 // ============================================
 
@@ -261,12 +317,28 @@ model Accommodation {
   usageTypes        UsageType[]         // ['STAY', 'SHORT_TERM']
   minReservationDays Int                @default(1)
 
-  // 위치
-  address           String
-  addressDetail     String?
-  zipCode           String?
+  // 위치 - 기본
+  address           String              // 전체 주소 (표시용)
+  addressDetail     String?             // 상세 주소 (호, 동)
+  zipCode           String?             // 우편번호
+  roadAddress       String?             // 도로명 주소
+
+  // 위치 - 구조화 (다음 주소 API에서 파싱)
+  sido              String?             // 시/도 (서울특별시)
+  sigungu           String?             // 시/군/구 (강남구)
+  bname             String?             // 법정동/리 (역삼동)
+  buildingName      String?             // 건물명 (강남빌딩)
+
+  // 위치 - 영문 (매핑 테이블에서 조회)
+  sidoEn            String?             // Seoul
+  sigunguEn         String?             // Gangnam-gu
+  bnameEn           String?             // Yeoksam-dong
+
+  // 위치 - 좌표 (카카오 API에서 조회)
   latitude          Float?
   longitude         Float?
+
+  // 위치 - 교통
   nearestStation    String?
   walkingMinutes    Int?
 

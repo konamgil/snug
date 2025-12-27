@@ -62,7 +62,9 @@
       "location": "Find your snug stay",
       "dates": "Stay Dates",
       "guests": "Guests",
-      "popularSearches": "Popular Searches"
+      "popularSearches": "Popular Searches",
+      "recentSearches": "Recent Searches",
+      "searchPlaceholder": "Search by city or district"
     },
     "banner": {
       "slide1": "Your first stay just got better. Welcome to snug stay!",

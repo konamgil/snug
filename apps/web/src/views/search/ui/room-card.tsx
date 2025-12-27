@@ -85,7 +85,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           <div className="absolute top-3 left-3 flex gap-2">
             {room.tags.map((tag, index) => (
               <span
-                key={tag.label}
+                key={index}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
                   index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}
@@ -168,7 +168,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           <div className="absolute top-2.5 left-2.5 flex gap-1.5">
             {room.tags.map((tag, index) => (
               <span
-                key={tag.label}
+                key={index}
                 className={`px-2.5 py-1 text-[10px] font-semibold rounded-full ${
                   index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}
@@ -284,7 +284,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
           <div className="flex flex-wrap gap-1 flex-shrink-0">
             {room.tags.map((tag, index) => (
               <span
-                key={tag.label}
+                key={index}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${
                   index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}

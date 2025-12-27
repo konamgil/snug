@@ -101,10 +101,24 @@ export interface Accommodation {
   usageTypes: UsageType[];
   minReservationDays: number;
 
-  // 위치
+  // 위치 - 기본
   address: string;
   addressDetail: string | null;
   zipCode: string | null;
+  roadAddress: string | null;
+
+  // 위치 - 구조화 (다음 주소 API에서 파싱)
+  sido: string | null; // 시/도 (서울특별시)
+  sigungu: string | null; // 시/군/구 (강남구)
+  bname: string | null; // 법정동/리 (역삼동)
+  buildingName: string | null; // 건물명
+
+  // 위치 - 영문 (매핑 테이블에서 조회)
+  sidoEn: string | null; // Seoul
+  sigunguEn: string | null; // Gangnam-gu
+  bnameEn: string | null; // Yeoksam-dong
+
+  // 위치 - 좌표
   latitude: number | null;
   longitude: number | null;
   nearestStation: string | null;
@@ -189,6 +203,13 @@ export interface CreateAccommodationInput {
   address: string;
   addressDetail?: string;
   zipCode?: string;
+  roadAddress?: string;
+  // 구조화된 주소
+  sido?: string;
+  sigungu?: string;
+  bname?: string;
+  buildingName?: string;
+  // 좌표
   latitude?: number;
   longitude?: number;
   nearestStation?: string;
@@ -231,6 +252,13 @@ export interface UpdateAccommodationInput {
   address?: string;
   addressDetail?: string | null;
   zipCode?: string | null;
+  roadAddress?: string | null;
+  // 구조화된 주소
+  sido?: string | null;
+  sigungu?: string | null;
+  bname?: string | null;
+  buildingName?: string | null;
+  // 좌표
   latitude?: number | null;
   longitude?: number | null;
   nearestStation?: string | null;
@@ -342,4 +370,80 @@ export interface AccommodationPublic {
   photos: AccommodationPhoto[];
   facilities: string[]; // facilityCode 목록
   amenities: string[]; // amenityCode 목록
+}
+
+// ============================================
+// SEARCH / PUBLIC LIST TYPES
+// ============================================
+
+/**
+ * 숙소 검색 파라미터 (공개 목록 조회용)
+ */
+export interface AccommodationSearchParams {
+  // 페이지네이션
+  page?: number;
+  limit?: number;
+
+  // 위치 검색
+  location?: string; // 지역명 (예: '강남구')
+  latitude?: number; // 지도 중심 위도
+  longitude?: number; // 지도 중심 경도
+  radius?: number; // 검색 반경 (km)
+
+  // 날짜/인원
+  checkIn?: string; // ISO date string
+  checkOut?: string; // ISO date string
+  guests?: number;
+
+  // 필터
+  accommodationType?: AccommodationType[];
+  buildingType?: BuildingType[];
+  minPrice?: number;
+  maxPrice?: number;
+  genderRules?: GenderRule[];
+
+  // 정렬
+  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'recommended';
+}
+
+/**
+ * 숙소 목록 아이템 (검색 결과용, 간소화된 정보)
+ */
+export interface AccommodationListItem {
+  id: string;
+  roomName: string;
+  accommodationType: AccommodationType;
+  buildingType: BuildingType | null;
+
+  // 위치 - 좌표
+  latitude: number | null;
+  longitude: number | null;
+  nearestStation: string | null;
+  walkingMinutes: number | null;
+
+  // 위치 - 영문 주소 (검색 결과 표시용)
+  sidoEn: string | null; // Seoul
+  sigunguEn: string | null; // Gangnam-gu
+
+  // 가격
+  basePrice: number;
+
+  // 공간 정보
+  capacity: number;
+  roomCount: number;
+  bathroomCount: number;
+
+  // 대표 이미지
+  thumbnailUrl: string | null;
+}
+
+/**
+ * 공개 숙소 목록 응답
+ */
+export interface AccommodationPublicListResponse {
+  data: AccommodationListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  hasNext: boolean;
 }

@@ -8,7 +8,11 @@ import {
   createAccommodation,
   createAccommodationGroup,
   getAccommodationGroups,
+  getAccommodation,
+  updateAccommodation,
+  deleteAccommodation,
 } from '@/shared/api/accommodation/actions';
+import type { Accommodation } from '@snug/types';
 import { AccommodationForm } from './accommodation-form';
 import { AccommodationPreviewPanel } from './accommodation-preview-panel';
 import type { AccommodationFormData, AccommodationType, BuildingType, GenderRule } from './types';
@@ -237,6 +241,176 @@ function toApiPhotos(
   return apiPhotos;
 }
 
+// ============================================
+// API → Form Type Converters (Reverse mapping)
+// ============================================
+
+function fromApiAccommodationType(
+  type: 'HOUSE' | 'SHARE_ROOM' | 'SHARE_HOUSE' | 'APARTMENT',
+): AccommodationType {
+  const map: Record<string, AccommodationType> = {
+    HOUSE: 'house',
+    SHARE_ROOM: 'share_room',
+    SHARE_HOUSE: 'share_house',
+    APARTMENT: 'apartment',
+  };
+  return map[type] || 'house';
+}
+
+function fromApiBuildingType(
+  type: 'APARTMENT' | 'VILLA' | 'HOUSE' | 'OFFICETEL' | null,
+): BuildingType | undefined {
+  if (!type) return undefined;
+  const map: Record<string, BuildingType> = {
+    APARTMENT: 'apartment',
+    VILLA: 'villa',
+    HOUSE: 'house',
+    OFFICETEL: 'officetel',
+  };
+  return map[type];
+}
+
+function fromApiUsageTypes(
+  types: ('STAY' | 'SHORT_TERM')[] | undefined | null,
+): ('stay' | 'short_term')[] {
+  if (!types || !Array.isArray(types)) return [];
+  return types.map((t) => (t === 'STAY' ? 'stay' : 'short_term'));
+}
+
+function fromApiGenderRules(
+  rules: ('MALE_ONLY' | 'FEMALE_ONLY' | 'PET_ALLOWED')[] | undefined | null,
+): GenderRule[] {
+  if (!rules || !Array.isArray(rules)) return [];
+  const map: Record<string, GenderRule> = {
+    MALE_ONLY: 'male_only',
+    FEMALE_ONLY: 'female_only',
+    PET_ALLOWED: 'pet_allowed',
+  };
+  return rules.map((r) => map[r]).filter((r): r is GenderRule => r !== undefined);
+}
+
+// Convert API Accommodation to Form Data
+function accommodationToFormData(acc: Accommodation, groupName?: string): AccommodationFormData {
+  // Convert photos from flat array to categorized structure
+  const photosByCategory = new Map<string, { id: string; url: string; order: number }[]>();
+  if (acc.photos) {
+    for (const photo of acc.photos) {
+      const category = photo.category || 'main';
+      if (!photosByCategory.has(category)) {
+        photosByCategory.set(category, []);
+      }
+      photosByCategory.get(category)!.push({
+        id: photo.id,
+        url: photo.url,
+        order: photo.order,
+      });
+    }
+  }
+
+  // Build mainPhotos array
+  const mainPhotos: AccommodationFormData['mainPhotos'] = [];
+  const categoryOrder = ['main', 'room', 'living_room', 'kitchen', 'bathroom'];
+  const categoryNames: Record<string, string> = {
+    main: '대표사진',
+    room: '방',
+    living_room: '거실',
+    kitchen: '부엌',
+    bathroom: '화장실',
+  };
+
+  let orderIndex = 0;
+  for (const catId of categoryOrder) {
+    const photos = photosByCategory.get(catId) || [];
+    if (photos.length > 0) {
+      mainPhotos.push({
+        id: catId,
+        name: categoryNames[catId] || catId,
+        photos: photos.sort((a, b) => a.order - b.order),
+        order: orderIndex++,
+      });
+    }
+  }
+
+  // Add any remaining categories not in the default list
+  for (const [catId, photos] of photosByCategory) {
+    if (!categoryOrder.includes(catId)) {
+      mainPhotos.push({
+        id: catId,
+        name: catId,
+        photos: photos.sort((a, b) => a.order - b.order),
+        order: orderIndex++,
+      });
+    }
+  }
+
+  // Convert bedCounts
+  const bedCounts = acc.bedCounts as Record<string, number> | null;
+
+  return {
+    mainPhotos,
+    address: acc.address || '',
+    addressDetail: acc.addressDetail || '',
+    zipCode: acc.zipCode || '',
+    roadAddress: acc.roadAddress || undefined,
+    sido: acc.sido || undefined,
+    sigungu: acc.sigungu || undefined,
+    bname: acc.bname || undefined,
+    buildingName: acc.buildingName || undefined,
+    usageTypes: fromApiUsageTypes(acc.usageTypes),
+    minReservationDays: acc.minReservationDays || 1,
+    groupName,
+    accommodationType: fromApiAccommodationType(acc.accommodationType),
+    roomName: acc.roomName || '',
+    buildingType: fromApiBuildingType(acc.buildingType),
+    pricing: {
+      basePrice: acc.basePrice || 0,
+      includesUtilities: acc.includesUtilities || false,
+      weekendPrice: acc.weekendPrice || undefined,
+      weekendDays: acc.weekendDays || [],
+      managementFee: acc.managementFee || undefined,
+      cleaningFee: acc.cleaningFee || undefined,
+      extraPersonFee: acc.extraPersonFee || undefined,
+      petFee: acc.petFee || undefined,
+      additionalFees: [], // TODO: Load additional fees if stored
+    },
+    space: {
+      capacity: acc.capacity || 1,
+      genderRules: fromApiGenderRules(acc.genderRules),
+      sizeM2: acc.sizeM2 || undefined,
+      sizePyeong: acc.sizePyeong || undefined,
+      rooms: {
+        room: acc.roomCount || 0,
+        livingRoom: acc.livingRoomCount || 0,
+        kitchen: acc.kitchenCount || 0,
+        bathroom: acc.bathroomCount || 0,
+        terrace: acc.terraceCount || 0,
+      },
+      beds: {
+        king: bedCounts?.king || 0,
+        queen: bedCounts?.queen || 0,
+        single: bedCounts?.single || 0,
+        superSingle: bedCounts?.superSingle || 0,
+        bunkBed: bedCounts?.bunkBed || bedCounts?.bunk || 0,
+      },
+      houseRules: acc.houseRules || '',
+      introduction: acc.introduction || '',
+    },
+    facilities: acc.facilities?.map((f) => f.facilityCode) || [],
+    amenities: acc.amenities?.map((a) => a.amenityCode) || [],
+    managers:
+      acc.managers?.map((m) => ({
+        id: m.id,
+        name: m.name,
+        phone: m.phone,
+        additionalInfo: m.additionalInfo || undefined,
+      })) || [],
+    isOperating: acc.isOperating || false,
+    openDate: acc.openDate ? new Date(acc.openDate).toLocaleDateString('ko-KR') : undefined,
+    lastModifiedBy: undefined,
+    lastModifiedAt: acc.updatedAt ? new Date(acc.updatedAt).toLocaleDateString('ko-KR') : undefined,
+  };
+}
+
 // New Accommodation Page
 export function AccommodationNewPage() {
   const router = useRouter();
@@ -295,7 +469,7 @@ export function AccommodationNewPage() {
 
       // Create accommodation
       // hostId is derived from JWT token on server side
-      const { accommodation, roleUpgraded } = await createAccommodation({
+      const { accommodation: _accommodation, roleUpgraded } = await createAccommodation({
         groupId,
         roomName: formData.roomName,
         accommodationType: toApiAccommodationType(formData.accommodationType),
@@ -305,6 +479,12 @@ export function AccommodationNewPage() {
         address: formData.address,
         addressDetail: formData.addressDetail || undefined,
         zipCode: formData.zipCode || undefined,
+        // 구조화된 주소 (다음 주소 API에서 파싱)
+        roadAddress: formData.roadAddress || undefined,
+        sido: formData.sido || undefined,
+        sigungu: formData.sigungu || undefined,
+        bname: formData.bname || undefined,
+        buildingName: formData.buildingName || undefined,
         basePrice: formData.pricing.basePrice,
         includesUtilities: formData.pricing.includesUtilities,
         weekendPrice: formData.pricing.weekendPrice,
@@ -330,12 +510,9 @@ export function AccommodationNewPage() {
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
       });
 
-      console.log('Accommodation created:', accommodation);
-
       // If role was upgraded (GUEST → HOST), refresh user state
       if (roleUpgraded) {
         await refreshUser();
-        console.log('User role upgraded to HOST');
       }
 
       // Navigate to properties list
@@ -381,6 +558,12 @@ export function AccommodationNewPage() {
         address: formData.address || '주소 미입력',
         addressDetail: formData.addressDetail || undefined,
         zipCode: formData.zipCode || undefined,
+        // 구조화된 주소 (다음 주소 API에서 파싱)
+        roadAddress: formData.roadAddress || undefined,
+        sido: formData.sido || undefined,
+        sigungu: formData.sigungu || undefined,
+        bname: formData.bname || undefined,
+        buildingName: formData.buildingName || undefined,
         basePrice: formData.pricing.basePrice || 0,
         includesUtilities: formData.pricing.includesUtilities,
         weekendPrice: formData.pricing.weekendPrice,
@@ -487,49 +670,202 @@ interface AccommodationEditPageProps {
 export function AccommodationEditPage({ accommodationId }: AccommodationEditPageProps) {
   const router = useRouter();
   const { user } = useAuthStore();
-  // In real app, fetch data based on accommodationId
-  const [formData, setFormData] = useState<AccommodationFormData>({
-    ...DEFAULT_FORM_DATA,
-    openDate: '2025.01.01',
-    lastModifiedBy: '2025.05.30 김러그',
-    isOperating: false,
-  });
+  const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
-  const [isSaving, _setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Fetch groups on mount
+  // Fetch groups and accommodation data on mount
   useEffect(() => {
-    async function loadGroups() {
-      if (!user?.id) return;
+    async function loadData() {
+      setIsLoading(true);
       try {
-        const fetchedGroups = await getAccommodationGroups();
-        // 방어적 코딩: 배열 확인
+        // 그룹과 숙소 데이터 병렬 로드
+        const [fetchedGroups, accommodation] = await Promise.all([
+          getAccommodationGroups(),
+          getAccommodation(accommodationId),
+        ]);
+
+        // 그룹 설정
         const groupsArray = Array.isArray(fetchedGroups) ? fetchedGroups : [];
-        setGroups(
-          groupsArray.map((g) => ({
-            id: g.id,
-            name: g.name,
-            isSelected: false,
-            accommodationIds: [],
-          })),
-        );
+        const groupItems = groupsArray.map((g) => ({
+          id: g.id,
+          name: g.name,
+          isSelected: false,
+          accommodationIds: [],
+        }));
+        setGroups(groupItems);
+
+        // 숙소 데이터를 폼 데이터로 변환
+        if (accommodation) {
+          // 그룹 이름 찾기
+          const groupName = accommodation.groupId
+            ? groupItems.find((g) => g.id === accommodation.groupId)?.name
+            : undefined;
+
+          const formDataFromApi = accommodationToFormData(accommodation, groupName);
+          setFormData(formDataFromApi);
+        } else {
+          router.push('/host/properties');
+        }
       } catch (error) {
-        console.error('Failed to load groups:', error);
+        console.error('Failed to load accommodation:', error);
+        router.push('/host/properties');
+      } finally {
+        setIsLoading(false);
       }
     }
-    loadGroups();
-  }, [user?.id]);
+    loadData();
+  }, [accommodationId, router]);
 
-  // TODO: Fetch accommodation data based on accommodationId
+  const handleSave = async () => {
+    if (!user?.id) return;
 
-  const handleSave = () => {
-    // TODO: Implement update logic
-    console.log('Save accommodation:', formData);
+    setIsSaving(true);
+    try {
+      // Find or create group if specified
+      let groupId: string | undefined | null = undefined;
+      if (formData.groupName) {
+        const existingGroup = groups.find((g) => g.name === formData.groupName);
+        if (existingGroup) {
+          groupId = existingGroup.id;
+        } else {
+          // Create new group
+          const newGroup = await createAccommodationGroup({
+            name: formData.groupName,
+          });
+          groupId = newGroup.id;
+        }
+      } else {
+        groupId = null; // Disconnect from group
+      }
+
+      // Convert photos to API format
+      const apiPhotos = toApiPhotos(formData.mainPhotos);
+
+      // Update accommodation
+      await updateAccommodation(accommodationId, {
+        groupId,
+        roomName: formData.roomName,
+        accommodationType: toApiAccommodationType(formData.accommodationType),
+        buildingType: toApiBuildingType(formData.buildingType),
+        usageTypes: toApiUsageTypes(formData.usageTypes),
+        minReservationDays: formData.minReservationDays,
+        address: formData.address,
+        addressDetail: formData.addressDetail || undefined,
+        zipCode: formData.zipCode || undefined,
+        roadAddress: formData.roadAddress || undefined,
+        sido: formData.sido || undefined,
+        sigungu: formData.sigungu || undefined,
+        bname: formData.bname || undefined,
+        buildingName: formData.buildingName || undefined,
+        basePrice: formData.pricing.basePrice,
+        includesUtilities: formData.pricing.includesUtilities,
+        weekendPrice: formData.pricing.weekendPrice,
+        weekendDays: formData.pricing.weekendDays,
+        managementFee: formData.pricing.managementFee,
+        cleaningFee: formData.pricing.cleaningFee,
+        extraPersonFee: formData.pricing.extraPersonFee,
+        petFee: formData.pricing.petFee,
+        capacity: formData.space.capacity,
+        genderRules: toApiGenderRules(formData.space.genderRules),
+        sizeM2: formData.space.sizeM2,
+        sizePyeong: formData.space.sizePyeong,
+        roomCount: formData.space.rooms.room,
+        livingRoomCount: formData.space.rooms.livingRoom,
+        kitchenCount: formData.space.rooms.kitchen,
+        bathroomCount: formData.space.rooms.bathroom,
+        terraceCount: formData.space.rooms.terrace,
+        bedCounts: toApiBedCounts(formData.space.beds),
+        houseRules: formData.space.houseRules || undefined,
+        introduction: formData.space.introduction || undefined,
+        status: 'ACTIVE',
+        isOperating: formData.isOperating,
+        photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+      });
+
+      console.log('Accommodation updated successfully');
+      router.push('/host/properties');
+    } catch (error) {
+      console.error('Failed to save accommodation:', error);
+      // TODO: Show error toast
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveDraft = () => {
-    // TODO: Implement draft update logic
-    console.log('Save draft:', formData);
+  const handleSaveDraft = async () => {
+    if (!user?.id) return;
+
+    setIsSaving(true);
+    try {
+      // Similar to handleSave but with status: 'DRAFT'
+      let groupId: string | undefined | null = undefined;
+      if (formData.groupName) {
+        const existingGroup = groups.find((g) => g.name === formData.groupName);
+        if (existingGroup) {
+          groupId = existingGroup.id;
+        } else {
+          const newGroup = await createAccommodationGroup({
+            name: formData.groupName,
+          });
+          groupId = newGroup.id;
+        }
+      } else {
+        groupId = null;
+      }
+
+      // Convert photos to API format
+      const apiPhotos = toApiPhotos(formData.mainPhotos);
+
+      await updateAccommodation(accommodationId, {
+        groupId,
+        roomName: formData.roomName || '임시 저장',
+        accommodationType: toApiAccommodationType(formData.accommodationType),
+        buildingType: toApiBuildingType(formData.buildingType),
+        usageTypes: toApiUsageTypes(formData.usageTypes),
+        minReservationDays: formData.minReservationDays,
+        address: formData.address || '주소 미입력',
+        addressDetail: formData.addressDetail || undefined,
+        zipCode: formData.zipCode || undefined,
+        roadAddress: formData.roadAddress || undefined,
+        sido: formData.sido || undefined,
+        sigungu: formData.sigungu || undefined,
+        bname: formData.bname || undefined,
+        buildingName: formData.buildingName || undefined,
+        basePrice: formData.pricing.basePrice || 0,
+        includesUtilities: formData.pricing.includesUtilities,
+        weekendPrice: formData.pricing.weekendPrice,
+        weekendDays: formData.pricing.weekendDays,
+        managementFee: formData.pricing.managementFee,
+        cleaningFee: formData.pricing.cleaningFee,
+        extraPersonFee: formData.pricing.extraPersonFee,
+        petFee: formData.pricing.petFee,
+        capacity: formData.space.capacity || 1,
+        genderRules: toApiGenderRules(formData.space.genderRules),
+        sizeM2: formData.space.sizeM2,
+        sizePyeong: formData.space.sizePyeong,
+        roomCount: formData.space.rooms.room,
+        livingRoomCount: formData.space.rooms.livingRoom,
+        kitchenCount: formData.space.rooms.kitchen,
+        bathroomCount: formData.space.rooms.bathroom,
+        terraceCount: formData.space.rooms.terrace,
+        bedCounts: toApiBedCounts(formData.space.beds),
+        houseRules: formData.space.houseRules || undefined,
+        introduction: formData.space.introduction || undefined,
+        status: 'DRAFT',
+        isOperating: false,
+        photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+      });
+
+      router.push('/host/properties');
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -537,8 +873,22 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
   };
 
   const handleDelete = () => {
-    // TODO: Implement delete logic
-    console.log('Delete accommodation:', accommodationId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccommodation(accommodationId);
+      console.log('Accommodation deleted successfully');
+      router.push('/host/properties');
+    } catch (error) {
+      console.error('Failed to delete accommodation:', error);
+      // TODO: Show error toast
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
   };
 
   const handleAddGroup = async (groupName: string) => {
@@ -563,13 +913,30 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-[hsl(var(--snug-light-gray))]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-[hsl(var(--snug-gray))]">숙소 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Debug: log formData before render
+  console.log('[EditPage] Rendering with formData:', formData);
+  console.log('[EditPage] formData.roomName:', formData.roomName);
+  console.log('[EditPage] formData.address:', formData.address);
+
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
       {/* Header */}
       <AccommodationPageHeader
-        breadcrumb={['숙소 관리', '신규등록']}
+        breadcrumb={['숙소 관리', formData.roomName || '수정']}
         openDate={formData.openDate}
-        lastModifiedBy={formData.lastModifiedBy}
+        lastModifiedBy={formData.lastModifiedAt}
         isOperating={formData.isOperating}
         onToggleOperating={(value) => setFormData((prev) => ({ ...prev, isOperating: value }))}
       />
@@ -588,7 +955,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
 
         {/* Preview Panel - Desktop Only */}
         <div className="hidden lg:block w-[380px] flex-shrink-0 overflow-y-auto no-scrollbar p-6 border-l border-[hsl(var(--snug-border))] bg-[hsl(var(--snug-light-gray))]">
-          <AccommodationPreviewPanel data={formData} />
+          <AccommodationPreviewPanel data={formData} accommodationId={accommodationId} />
         </div>
       </div>
 
@@ -601,6 +968,40 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         showDelete={true}
         isSaving={isSaving}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
+              숙소 삭제
+            </h3>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">
+              정말로 이 숙소를 삭제하시겠습니까?
+              <br />
+              삭제된 숙소는 복구할 수 없습니다.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 text-sm font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

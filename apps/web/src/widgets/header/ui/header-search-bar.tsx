@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Clock, Loader2 } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { LocationIcon, CalendarIcon, UserIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from '@/features/search/ui/date-picker';
 import {
@@ -9,6 +10,17 @@ import {
   formatGuestSummary,
   type GuestCount,
 } from '@/features/search/ui/guest-picker';
+import { AddressAutocompleteDropdown } from '@/features/search/ui/address-autocomplete-dropdown';
+import {
+  useAddressAutocomplete,
+  type AutocompleteResult,
+} from '@/features/search/lib/use-address-autocomplete';
+import {
+  getRecentSearches,
+  saveRecentSearch,
+  removeRecentSearch,
+  type RecentSearch,
+} from '@/features/search/lib/recent-searches';
 
 // Popular search locations
 const popularLocations = [
@@ -19,9 +31,6 @@ const popularLocations = [
   { dong: 'Cheongdam-dong', gu: 'Gangnam-gu' },
   { dong: 'Yangjae-dong', gu: 'Gangnam-gu' },
   { dong: 'Bangbae-dong', gu: 'Gangnam-gu' },
-  { dong: 'Sinsa-dong', gu: 'Gangnam-gu' },
-  { dong: 'Nonhyeon-dong', gu: 'Gangnam-gu' },
-  { dong: 'Dogok-dong', gu: 'Gangnam-gu' },
 ];
 
 export interface SearchBarValues {
@@ -38,6 +47,7 @@ interface HeaderSearchBarProps {
 }
 
 export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSearchBarProps) {
+  const locale = useLocale();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isDateFocused, setIsDateFocused] = useState(false);
   const [isGuestFocused, setIsGuestFocused] = useState(false);
@@ -50,10 +60,30 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
   const [guests, setGuests] = useState<GuestCount>(
     initialValues?.guests || { adults: 0, children: 0, infants: 0 },
   );
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+
+  // Autocomplete hook
+  const {
+    query: _autocompleteQuery,
+    setQuery: setAutocompleteQuery,
+    results: autocompleteResults,
+    isLoading: isLoadingAutocomplete,
+    isSuggested: isAutocompleteSuggested,
+    showResults: showAutocomplete,
+    clearResults: clearAutocomplete,
+    startSelecting,
+  } = useAddressAutocomplete();
 
   const searchBarRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);
+
+  // 최근 검색어 로드
+  useEffect(() => {
+    if (isSearchFocused) {
+      setRecentSearches(getRecentSearches());
+    }
+  }, [isSearchFocused]);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -108,8 +138,43 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
   const visibleDropdown = activeDropdown || lastDropdown;
 
   const handleLocationSelect = (dong: string, gu: string) => {
-    setLocationValue(`${dong}, ${gu}`);
+    const newLocation = `${dong}, ${gu}`;
+    setLocationValue(newLocation);
+    clearAutocomplete();
     setIsSearchFocused(false);
+  };
+
+  const handleAutocompleteSelect = (result: AutocompleteResult) => {
+    const displayLabel = locale === 'ko' ? result.labelKo : result.label;
+    setLocationValue(displayLabel);
+    clearAutocomplete();
+    setIsSearchFocused(false);
+    setIsDateFocused(true);
+  };
+
+  const handleRecentSearchSelect = (searchLocation: string) => {
+    setLocationValue(searchLocation);
+    clearAutocomplete();
+    setIsSearchFocused(false);
+    setIsDateFocused(true);
+  };
+
+  const handleRemoveRecentSearch = (e: React.MouseEvent, searchLocation: string) => {
+    e.stopPropagation();
+    removeRecentSearch(searchLocation);
+    setRecentSearches(getRecentSearches());
+  };
+
+  const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocationValue(value);
+    setAutocompleteQuery(value);
+    // 타이핑 시 location 드롭다운 열기
+    if (!isSearchFocused) {
+      setIsSearchFocused(true);
+      setIsDateFocused(false);
+      setIsGuestFocused(false);
+    }
   };
 
   const handleDateSelect = (newCheckIn: Date | null, newCheckOut: Date | null) => {
@@ -122,6 +187,10 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
   };
 
   const handleSearch = () => {
+    // 검색어 저장
+    if (locationValue.trim()) {
+      saveRecentSearch(locationValue);
+    }
     onSearch?.({
       location: locationValue,
       checkIn,
@@ -135,6 +204,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
     setCheckIn(null);
     setCheckOut(null);
     setGuests({ adults: 0, children: 0, infants: 0 });
+    clearAutocomplete();
   };
 
   const guestSummary = formatGuestSummary(guests);
@@ -183,7 +253,7 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
             <input
               type="text"
               value={locationValue}
-              onChange={(e) => setLocationValue(e.target.value)}
+              onChange={handleLocationInputChange}
               onFocus={() => {
                 setIsSearchFocused(true);
                 setIsDateFocused(false);
@@ -192,6 +262,9 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
               placeholder="Gangnam-gu, Seoul-si"
               className="text-xs text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-placeholder))] bg-transparent outline-none w-full tracking-tight"
             />
+            {isLoadingAutocomplete && (
+              <Loader2 className="w-3.5 h-3.5 text-[hsl(var(--snug-gray))] animate-spin flex-shrink-0" />
+            )}
           </div>
 
           {/* Stay Dates */}
@@ -272,26 +345,79 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
           <div className="overflow-hidden">
             {visibleDropdown && <div className="border-t border-[hsl(var(--snug-border))]" />}
 
-            {/* Popular Searches */}
+            {/* Location Dropdown */}
             {visibleDropdown === 'location' && (
               <div className="p-4">
-                <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3 tracking-tight">
-                  Popular Searches
-                </p>
-                <div className="space-y-0.5">
-                  {popularLocations.map((location) => (
-                    <button
-                      key={location.dong}
-                      type="button"
-                      onClick={() => handleLocationSelect(location.dong, location.gu)}
-                      className="w-full text-left py-1.5 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
-                    >
-                      <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
-                        {location.dong}, {location.gu}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {/* 자동완성 결과 */}
+                {showAutocomplete && (
+                  <AddressAutocompleteDropdown
+                    results={autocompleteResults}
+                    isLoading={isLoadingAutocomplete}
+                    isSuggested={isAutocompleteSuggested}
+                    onSelect={handleAutocompleteSelect}
+                    onStartSelecting={startSelecting}
+                    variant="header"
+                  />
+                )}
+
+                {/* 최근 검색 - 자동완성이 없을 때만 표시 */}
+                {!showAutocomplete && recentSearches.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" />
+                      Recent Searches
+                    </p>
+                    <div className="space-y-0.5">
+                      {recentSearches.map((search) => (
+                        <div
+                          key={search.timestamp}
+                          className="flex items-center justify-between group"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleRecentSearchSelect(search.location)}
+                            className="flex-1 text-left py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                          >
+                            <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                              {search.location}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => handleRemoveRecentSearch(e, search.location)}
+                            className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-all"
+                          >
+                            <X className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 인기 검색 - 자동완성이 없을 때만 표시 */}
+                {!showAutocomplete && (
+                  <div>
+                    <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                      <LocationIcon className="w-3 h-3" />
+                      Popular Searches
+                    </p>
+                    <div className="space-y-0.5">
+                      {popularLocations.map((location) => (
+                        <button
+                          key={location.dong}
+                          type="button"
+                          onClick={() => handleLocationSelect(location.dong, location.gu)}
+                          className="w-full text-left py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                        >
+                          <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                            {location.dong}, {location.gu}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

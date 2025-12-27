@@ -45,7 +45,9 @@
       "location": "Tìm nơi ở snug của bạn",
       "dates": "Ngày lưu trú",
       "guests": "Khách",
-      "popularSearches": "Tìm kiếm phổ biến"
+      "popularSearches": "Tìm kiếm phổ biến",
+      "recentSearches": "Tìm kiếm gần đây",
+      "searchPlaceholder": "Tìm theo thành phố hoặc quận"
     },
     "banner": {
       "slide1": "Kỳ nghỉ đầu tiên của bạn vừa trở nên tốt hơn. Chào mừng đến với snug stay!",

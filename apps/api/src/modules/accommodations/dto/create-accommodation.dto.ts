@@ -77,6 +77,31 @@ export class CreateAccommodationDto {
   @IsString()
   zipCode?: string;
 
+  @ApiPropertyOptional({ description: '도로명 주소' })
+  @IsOptional()
+  @IsString()
+  roadAddress?: string;
+
+  @ApiPropertyOptional({ description: '시/도 (예: 서울특별시)' })
+  @IsOptional()
+  @IsString()
+  sido?: string;
+
+  @ApiPropertyOptional({ description: '시/군/구 (예: 강남구)' })
+  @IsOptional()
+  @IsString()
+  sigungu?: string;
+
+  @ApiPropertyOptional({ description: '법정동/리 (예: 역삼동)' })
+  @IsOptional()
+  @IsString()
+  bname?: string;
+
+  @ApiPropertyOptional({ description: '건물명' })
+  @IsOptional()
+  @IsString()
+  buildingName?: string;
+
   @ApiPropertyOptional({ description: '위도' })
   @IsOptional()
   @IsNumber()

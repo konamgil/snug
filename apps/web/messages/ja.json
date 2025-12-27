@@ -45,7 +45,9 @@
       "location": "snugステイを探す",
       "dates": "滞在日",
       "guests": "人数",
-      "popularSearches": "人気の検索"
+      "popularSearches": "人気の検索",
+      "recentSearches": "最近の検索",
+      "searchPlaceholder": "都市または地区で検索"
     },
     "banner": {
       "slide1": "初めての滞在がもっと良くなりました。snug stayへようこそ！",

@@ -9,11 +9,13 @@ import { AccommodationPreviewModal } from './accommodation-preview-modal';
 interface AccommodationPreviewPanelProps {
   data: AccommodationFormData;
   contractorName?: string;
+  accommodationId?: string; // 편집 모드에서 유사 숙소 조회용
 }
 
 export function AccommodationPreviewPanel({
   data,
   contractorName = '',
+  accommodationId,
 }: AccommodationPreviewPanelProps) {
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const formatPrice = (price: number | undefined) => {
@@ -185,6 +187,7 @@ export function AccommodationPreviewPanel({
         isOpen={isPreviewModalOpen}
         onClose={() => setIsPreviewModalOpen(false)}
         data={data}
+        accommodationId={accommodationId}
       />
     </div>
   );

@@ -4,6 +4,7 @@ export {
   getAccommodations,
   getAccommodation,
   getAccommodationPublic,
+  getPublicAccommodations,
   createAccommodation,
   updateAccommodation,
   deleteAccommodation,
@@ -12,4 +13,6 @@ export {
   createAccommodationGroup,
   updateAccommodationGroup,
   deleteAccommodationGroup,
+  // Similar Accommodations
+  getSimilarAccommodations,
 } from './actions';

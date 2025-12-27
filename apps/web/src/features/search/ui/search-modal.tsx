@@ -1,10 +1,19 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { useTranslations } from 'next-intl';
-import { X, MapPin, Calendar, Users, RotateCcw } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { X, RotateCcw, Clock, Loader2 } from 'lucide-react';
+import { LocationIcon, CalendarIcon, UserIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from './date-picker';
 import { GuestPicker, formatGuestSummary, type GuestCount } from './guest-picker';
+import { AddressAutocompleteDropdown } from './address-autocomplete-dropdown';
+import {
+  getRecentSearches,
+  saveRecentSearch,
+  removeRecentSearch,
+  type RecentSearch,
+} from '../lib/recent-searches';
+import { useAddressAutocomplete, type AutocompleteResult } from '../lib/use-address-autocomplete';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -71,18 +80,40 @@ function formatDateRange(checkIn: Date | null, checkOut: Date | null): string | 
 
 export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
   const t = useTranslations('home.search');
+  const locale = useLocale();
   const [expandedSection, setExpandedSection] = useState<ExpandedSection>('location');
   const [location, setLocation] = useState('');
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [guests, setGuests] = useState<GuestCount>(DEFAULT_GUESTS);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+
+  // Autocomplete hook
+  const {
+    query: locationInput,
+    setQuery: setLocationInput,
+    results: autocompleteResults,
+    isLoading: isLoadingAutocomplete,
+    isSuggested: isAutocompleteSuggested,
+    showResults: showAutocomplete,
+    clearResults: clearAutocomplete,
+    startSelecting,
+  } = useAddressAutocomplete();
 
   const locationRef = useRef<HTMLDivElement>(null);
   const datesRef = useRef<HTMLDivElement>(null);
   const guestsRef = useRef<HTMLDivElement>(null);
+  const locationInputRef = useRef<HTMLInputElement>(null);
+
+  // 최근 검색어 로드
+  useEffect(() => {
+    if (isOpen) {
+      setRecentSearches(getRecentSearches());
+    }
+  }, [isOpen]);
 
   const handleContentClick = (e: React.MouseEvent) => {
-    const target = e.target as Node;
+    const target = e.target as HTMLElement;
 
     // Check if click is outside all section cards
     const isOutsideLocation = locationRef.current && !locationRef.current.contains(target);
@@ -100,21 +131,61 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
     setCheckOut(null);
     setGuests(DEFAULT_GUESTS);
     setExpandedSection('none');
+    clearAutocomplete();
   };
 
   const handleSearch = () => {
-    onSearch({ location, checkIn, checkOut, guests });
+    // Use selected location or typed input
+    const searchLocation = location || locationInput.trim();
+    // 검색어가 있으면 최근 검색에 저장
+    if (searchLocation) {
+      saveRecentSearch(searchLocation);
+    }
+    onSearch({ location: searchLocation, checkIn, checkOut, guests });
     onClose();
   };
 
-  const handleLocationSelect = (dong: string, gu: string) => {
-    setLocation(`${dong}, ${gu}`);
+  const handleRecentSearchSelect = (searchLocation: string) => {
+    setLocation(searchLocation);
+    clearAutocomplete();
     setExpandedSection('dates');
+  };
+
+  const handleRemoveRecentSearch = (e: React.MouseEvent, searchLocation: string) => {
+    e.stopPropagation();
+    removeRecentSearch(searchLocation);
+    setRecentSearches(getRecentSearches());
+  };
+
+  const handleLocationSelect = (dong: string, gu: string) => {
+    const newLocation = `${dong}, ${gu}`;
+    setLocation(newLocation);
+    clearAutocomplete();
+    setExpandedSection('dates');
+  };
+
+  const handleAutocompleteSelect = (result: AutocompleteResult) => {
+    const displayLabel = locale === 'ko' ? result.labelKo : result.label;
+    setLocation(displayLabel);
+    clearAutocomplete();
+    setExpandedSection('dates');
+  };
+
+  const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocationInput(value);
+    setLocation(''); // Clear selected location when typing
+
+    // 확장 섹션 열기
+    if (expandedSection !== 'location') {
+      setExpandedSection('location');
+    }
   };
 
   const handleClearLocation = (e: React.MouseEvent) => {
     e.stopPropagation();
     setLocation('');
+    clearAutocomplete();
   };
 
   const handleDateSelect = useCallback((newCheckIn: Date | null, newCheckOut: Date | null) => {
@@ -172,34 +243,42 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             ref={locationRef}
             className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
               expandedSection === 'location'
-                ? 'border-[#ff7900] border-2'
+                ? 'border-[hsl(var(--snug-orange))] border-2'
                 : 'border-[hsl(var(--snug-border))]'
             }`}
           >
-            <div className="flex items-center justify-between p-4">
-              <button
-                type="button"
-                onClick={() =>
-                  setExpandedSection(expandedSection === 'location' ? 'none' : 'location')
-                }
-                className="flex items-center gap-2 flex-1"
-              >
-                <MapPin className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                <span
-                  className={`text-sm ${location ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
-                >
-                  {location || t('location')}
-                </span>
-              </button>
-              {location && (
-                <button
-                  type="button"
-                  onClick={handleClearLocation}
-                  className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                </button>
-              )}
+            {/* 헤더 인풋 필드 */}
+            <div className="p-4">
+              <div className="flex items-center gap-2">
+                <LocationIcon
+                  className={`w-4 h-4 flex-shrink-0 ${
+                    expandedSection === 'location'
+                      ? 'text-[hsl(var(--snug-orange))]'
+                      : 'text-[hsl(var(--snug-gray))]'
+                  }`}
+                />
+                <input
+                  ref={locationInputRef}
+                  type="text"
+                  value={location || locationInput}
+                  onChange={handleLocationInputChange}
+                  onFocus={() => setExpandedSection('location')}
+                  placeholder={t('location')}
+                  className="flex-1 text-sm bg-transparent border-none outline-none placeholder:text-[hsl(var(--snug-placeholder))] tracking-tight"
+                />
+                {isLoadingAutocomplete && (
+                  <Loader2 className="w-4 h-4 text-[hsl(var(--snug-gray))] animate-spin flex-shrink-0" />
+                )}
+                {(location || locationInput) && !isLoadingAutocomplete && (
+                  <button
+                    type="button"
+                    onClick={handleClearLocation}
+                    className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Expandable Content */}
@@ -210,21 +289,82 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             >
               <div className="px-4 pb-4">
                 <div className="border-t border-[hsl(var(--snug-border))] pt-3">
-                  <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                    {t('popularSearches')}
-                  </p>
-                  <div className="space-y-1">
-                    {popularLocations.map((loc) => (
-                      <button
-                        key={loc.dong}
-                        type="button"
-                        onClick={() => handleLocationSelect(loc.dong, loc.gu)}
-                        className="w-full text-left py-2 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
-                      >
-                        {loc.dong}, {loc.gu}
-                      </button>
-                    ))}
-                  </div>
+                  {/* 자동완성 결과 */}
+                  {showAutocomplete && (
+                    <AddressAutocompleteDropdown
+                      results={autocompleteResults}
+                      isLoading={isLoadingAutocomplete}
+                      isSuggested={isAutocompleteSuggested}
+                      onSelect={handleAutocompleteSelect}
+                      onStartSelecting={startSelecting}
+                      variant="header"
+                    />
+                  )}
+
+                  {/* 최근 검색 섹션 - 자동완성이 없을 때만 표시 */}
+                  {!showAutocomplete && recentSearches.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                        <Clock className="w-3 h-3" />
+                        {t('recentSearches')}
+                      </p>
+                      <div className="space-y-0.5">
+                        {recentSearches.map((search) => (
+                          <div
+                            key={search.timestamp}
+                            className="flex items-center justify-between group"
+                          >
+                            <button
+                              type="button"
+                              onPointerDown={(e) => {
+                                e.preventDefault();
+                                handleRecentSearchSelect(search.location);
+                              }}
+                              className="flex-1 text-left py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                            >
+                              <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                                {search.location}
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleRemoveRecentSearch(e, search.location)}
+                              className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-all"
+                            >
+                              <X className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 인기 검색 섹션 - 자동완성이 없을 때만 표시 */}
+                  {!showAutocomplete && (
+                    <div>
+                      <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                        <LocationIcon className="w-3 h-3" />
+                        {t('popularSearches')}
+                      </p>
+                      <div className="space-y-0.5">
+                        {popularLocations.map((loc) => (
+                          <button
+                            key={loc.dong}
+                            type="button"
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              handleLocationSelect(loc.dong, loc.gu);
+                            }}
+                            className="w-full text-left py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                          >
+                            <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                              {loc.dong}, {loc.gu}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -235,7 +375,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             ref={datesRef}
             className={`border rounded-2xl mb-3 transition-all duration-300 overflow-hidden ${
               expandedSection === 'dates'
-                ? 'border-[#ff7900] border-2'
+                ? 'border-[hsl(var(--snug-orange))] border-2'
                 : 'border-[hsl(var(--snug-border))]'
             }`}
           >
@@ -245,9 +385,19 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
                 onClick={() => setExpandedSection(expandedSection === 'dates' ? 'none' : 'dates')}
                 className="flex items-center gap-2 flex-1"
               >
-                <Calendar className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                <CalendarIcon
+                  className={`w-4 h-4 flex-shrink-0 ${
+                    expandedSection === 'dates'
+                      ? 'text-[hsl(var(--snug-orange))]'
+                      : 'text-[hsl(var(--snug-gray))]'
+                  }`}
+                />
                 <span
-                  className={`text-sm ${dateRangeText ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
+                  className={`text-sm tracking-tight ${
+                    dateRangeText
+                      ? 'text-[hsl(var(--snug-text-primary))]'
+                      : 'text-[hsl(var(--snug-placeholder))]'
+                  } ${expandedSection === 'dates' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
                 >
                   {dateRangeText || t('dates')}
                 </span>
@@ -286,7 +436,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             ref={guestsRef}
             className={`border rounded-2xl transition-all duration-300 overflow-hidden ${
               expandedSection === 'guests'
-                ? 'border-[#ff7900] border-2'
+                ? 'border-[hsl(var(--snug-orange))] border-2'
                 : 'border-[hsl(var(--snug-border))]'
             }`}
           >
@@ -295,9 +445,19 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               onClick={() => setExpandedSection(expandedSection === 'guests' ? 'none' : 'guests')}
               className="w-full flex items-center gap-2 p-4"
             >
-              <Users className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+              <UserIcon
+                className={`w-4 h-4 flex-shrink-0 ${
+                  expandedSection === 'guests'
+                    ? 'text-[hsl(var(--snug-orange))]'
+                    : 'text-[hsl(var(--snug-gray))]'
+                }`}
+              />
               <span
-                className={`text-sm ${guestSummary ? 'text-[hsl(var(--snug-text-primary))]' : 'text-[hsl(var(--snug-placeholder))]'}`}
+                className={`text-sm tracking-tight ${
+                  guestSummary
+                    ? 'text-[hsl(var(--snug-text-primary))]'
+                    : 'text-[hsl(var(--snug-placeholder))]'
+                } ${expandedSection === 'guests' ? 'text-[hsl(var(--snug-orange))]' : ''}`}
               >
                 {guestSummary || t('guests')}
               </span>
@@ -323,7 +483,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+            className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))] tracking-tight"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Reset</span>
@@ -331,9 +491,10 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
           <button
             type="button"
             onClick={handleSearch}
-            className="flex-1 bg-[hsl(var(--snug-orange))] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="flex-1 bg-[hsl(var(--snug-orange))] text-white py-3 rounded-full text-sm font-semibold tracking-tight hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
-            Show Results
+            <SearchIcon className="w-4 h-4" />
+            <span>Search</span>
           </button>
         </div>
       </div>

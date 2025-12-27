@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, HelpCircle, Plus, Minus, X } from 'lucide-react';
 import { PhotoUploadSection } from './photo-upload-section';
 import { PhotoUploadModal } from './photo-upload-modal';
@@ -40,6 +40,12 @@ export function AccommodationForm({
   onAddGroup,
 }: AccommodationFormProps) {
   const [data, setData] = useState<AccommodationFormData>(initialData);
+
+  // Sync internal state when initialData changes (for edit mode)
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
   const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false);
   const [isAmenityModalOpen, setIsAmenityModalOpen] = useState(false);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
@@ -1063,6 +1069,12 @@ export function AccommodationForm({
           updateData({
             zipCode: addressData.zonecode,
             address: addressData.address,
+            // 구조화된 주소 데이터 저장
+            roadAddress: addressData.roadAddress,
+            sido: addressData.sido,
+            sigungu: addressData.sigungu,
+            bname: addressData.bname,
+            buildingName: addressData.buildingName,
           });
         }}
       />

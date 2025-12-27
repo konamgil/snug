@@ -85,6 +85,15 @@ export interface AccommodationFormData {
   address: string;
   addressDetail: string;
   zipCode: string;
+  // 구조화된 주소 (다음 주소 API에서 파싱)
+  roadAddress?: string; // 도로명 주소
+  sido?: string; // 시/도 (서울특별시)
+  sigungu?: string; // 시/군/구 (강남구)
+  bname?: string; // 법정동/리 (역삼동)
+  buildingName?: string; // 건물명
+  // 좌표 (Geocoding 결과)
+  latitude?: number;
+  longitude?: number;
   usageTypes: UsageType[];
   minReservationDays: number;
   groupName?: string;
@@ -206,6 +215,11 @@ export const DEFAULT_FORM_DATA: AccommodationFormData = {
   address: '',
   addressDetail: '',
   zipCode: '',
+  roadAddress: '',
+  sido: '',
+  sigungu: '',
+  bname: '',
+  buildingName: '',
   usageTypes: [],
   minReservationDays: 1,
   groupName: '',

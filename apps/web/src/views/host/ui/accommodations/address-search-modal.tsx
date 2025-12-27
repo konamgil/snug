@@ -3,14 +3,24 @@
 import { X } from 'lucide-react';
 import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
 
+// 구조화된 주소 데이터 타입
+export interface StructuredAddressData {
+  zonecode: string; // 우편번호
+  address: string; // 기본 주소 (표시용)
+  addressType: 'R' | 'J'; // R: 도로명, J: 지번
+  roadAddress: string; // 도로명 주소
+  jibunAddress: string; // 지번 주소
+  // 구조화된 주소 (다음 API에서 제공)
+  sido: string; // 시/도 (서울특별시)
+  sigungu: string; // 시/군/구 (강남구)
+  bname: string; // 법정동/리 (역삼동)
+  buildingName: string; // 건물명
+}
+
 interface AddressSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onComplete: (data: {
-    zonecode: string;
-    address: string;
-    addressType: 'R' | 'J'; // R: 도로명, J: 지번
-  }) => void;
+  onComplete: (data: StructuredAddressData) => void;
 }
 
 export function AddressSearchModal({ isOpen, onClose, onComplete }: AddressSearchModalProps) {
@@ -25,6 +35,13 @@ export function AddressSearchModal({ isOpen, onClose, onComplete }: AddressSearc
       zonecode: data.zonecode,
       address,
       addressType,
+      roadAddress: data.roadAddress,
+      jibunAddress: data.jibunAddress,
+      // 구조화된 주소 데이터
+      sido: data.sido,
+      sigungu: data.sigungu,
+      bname: data.bname,
+      buildingName: data.buildingName,
     });
     onClose();
   };

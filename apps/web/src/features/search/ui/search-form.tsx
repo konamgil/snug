@@ -1,11 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { X } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { X, Clock, Loader2 } from 'lucide-react';
 import { LocationIcon, CalendarIcon, UserIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from './date-picker';
 import { GuestPicker, formatGuestSummary, type GuestCount } from './guest-picker';
+import { AddressAutocompleteDropdown } from './address-autocomplete-dropdown';
+import { useAddressAutocomplete, type AutocompleteResult } from '../lib/use-address-autocomplete';
+import {
+  getRecentSearches,
+  saveRecentSearch,
+  removeRecentSearch,
+  type RecentSearch,
+} from '../lib/recent-searches';
 import type { SearchParams } from './search-modal';
 
 interface SearchFormProps {
@@ -70,14 +78,35 @@ function formatDateRange(checkIn: Date | null, checkOut: Date | null): string | 
 
 export function SearchForm({ className, onFocusChange, onSearch }: SearchFormProps) {
   const t = useTranslations('home.search');
+  const locale = useLocale();
   const [focusState, setFocusState] = useState<FocusState>('none');
   const [locationValue, setLocationValue] = useState('');
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [guests, setGuests] = useState<GuestCount>(DEFAULT_GUESTS);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Autocomplete hook
+  const {
+    query: _autocompleteQuery,
+    setQuery: setAutocompleteQuery,
+    results: autocompleteResults,
+    isLoading: isLoadingAutocomplete,
+    isSuggested: isAutocompleteSuggested,
+    showResults: showAutocomplete,
+    clearResults: clearAutocomplete,
+    startSelecting,
+  } = useAddressAutocomplete();
+
   const isFocused = focusState !== 'none';
+
+  // 최근 검색어 로드
+  useEffect(() => {
+    if (focusState === 'location') {
+      setRecentSearches(getRecentSearches());
+    }
+  }, [focusState]);
 
   // Notify parent when focus changes
   useEffect(() => {
@@ -103,7 +132,37 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
 
   const handleLocationSelect = (dong: string, gu: string) => {
     setLocationValue(`${dong}, ${gu}`);
-    setFocusState('none');
+    clearAutocomplete();
+    setFocusState('dates');
+  };
+
+  const handleAutocompleteSelect = (result: AutocompleteResult) => {
+    const displayLabel = locale === 'ko' ? result.labelKo : result.label;
+    setLocationValue(displayLabel);
+    clearAutocomplete();
+    setFocusState('dates');
+  };
+
+  const handleRecentSearchSelect = (searchLocation: string) => {
+    setLocationValue(searchLocation);
+    clearAutocomplete();
+    setFocusState('dates');
+  };
+
+  const handleRemoveRecentSearch = (e: React.MouseEvent, searchLocation: string) => {
+    e.stopPropagation();
+    removeRecentSearch(searchLocation);
+    setRecentSearches(getRecentSearches());
+  };
+
+  const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocationValue(value);
+    setAutocompleteQuery(value);
+    // 타이핑 시 location 드롭다운 열기
+    if (focusState !== 'location') {
+      setFocusState('location');
+    }
   };
 
   const handleDateSelect = useCallback((newCheckIn: Date | null, newCheckOut: Date | null) => {
@@ -142,6 +201,10 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
   const guestSummary = formatGuestSummary(guests);
 
   const handleSearch = () => {
+    // 검색어가 있으면 최근 검색에 저장
+    if (locationValue.trim()) {
+      saveRecentSearch(locationValue);
+    }
     onSearch?.({
       location: locationValue,
       checkIn,
@@ -155,7 +218,9 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
       {/* Unified Container with Orange Border on Focus */}
       <div
         className={`bg-white border-[1.5px] rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
-          isFocused ? 'border-[#ff7900] shadow-lg' : 'border-[#d8d8d8]'
+          isFocused
+            ? 'border-[hsl(var(--snug-orange))] shadow-lg'
+            : 'border-[hsl(var(--snug-border))]'
         }`}
       >
         {/* Main Search Form */}
@@ -173,10 +238,13 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
               type="text"
               placeholder={t('location')}
               value={locationValue}
-              onChange={(e) => setLocationValue(e.target.value)}
+              onChange={handleLocationInputChange}
               onFocus={() => setFocusState('location')}
               className="flex-1 text-xs text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-placeholder))] bg-transparent outline-none tracking-tight"
             />
+            {isLoadingAutocomplete && (
+              <Loader2 className="w-3 h-3 text-[hsl(var(--snug-gray))] animate-spin flex-shrink-0" />
+            )}
           </div>
 
           {/* Date and Guests Row */}
@@ -256,7 +324,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
           </div>
         </div>
 
-        {/* Popular Searches Dropdown - Location Focus */}
+        {/* Location Dropdown - Location Focus */}
         <div
           className={`transition-all duration-300 ease-out overflow-hidden ${
             focusState === 'location'
@@ -268,26 +336,79 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
           <div className="border-t border-[hsl(var(--snug-border))] mx-4" />
 
           <div className="p-4 pt-3">
-            {/* Popular Searches Title */}
-            <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-3 tracking-tight">
-              {t('popularSearches')}
-            </p>
+            {/* 자동완성 결과 */}
+            {showAutocomplete && (
+              <AddressAutocompleteDropdown
+                results={autocompleteResults}
+                isLoading={isLoadingAutocomplete}
+                isSuggested={isAutocompleteSuggested}
+                onSelect={handleAutocompleteSelect}
+                onStartSelecting={startSelecting}
+                variant="header"
+              />
+            )}
 
-            {/* Location List */}
-            <div className="space-y-0.5">
-              {popularLocations.map((location) => (
-                <button
-                  key={location.dong}
-                  type="button"
-                  onClick={() => handleLocationSelect(location.dong, location.gu)}
-                  className="w-full flex items-center py-1.5 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors text-left"
-                >
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
-                    {location.dong}, {location.gu}
-                  </span>
-                </button>
-              ))}
-            </div>
+            {/* 최근 검색 - 자동완성이 없을 때만 표시 */}
+            {!showAutocomplete && recentSearches.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                  <Clock className="w-3 h-3" />
+                  {t('recentSearches')}
+                </p>
+                <div className="space-y-0.5">
+                  {recentSearches.map((search) => (
+                    <div key={search.timestamp} className="flex items-center justify-between group">
+                      <button
+                        type="button"
+                        onPointerDown={(e) => {
+                          e.preventDefault();
+                          handleRecentSearchSelect(search.location);
+                        }}
+                        className="flex-1 text-left py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                      >
+                        <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                          {search.location}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveRecentSearch(e, search.location)}
+                        className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-all"
+                      >
+                        <X className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 인기 검색 - 자동완성이 없을 때만 표시 */}
+            {!showAutocomplete && (
+              <div>
+                <p className="text-xs font-semibold text-[hsl(var(--snug-text-primary))] mb-2 tracking-tight flex items-center gap-1.5">
+                  <LocationIcon className="w-3 h-3" />
+                  {t('popularSearches')}
+                </p>
+                <div className="space-y-0.5">
+                  {popularLocations.map((location) => (
+                    <button
+                      key={location.dong}
+                      type="button"
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        handleLocationSelect(location.dong, location.gu);
+                      }}
+                      className="w-full flex items-center py-1.5 px-2 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors text-left"
+                    >
+                      <span className="text-sm text-[hsl(var(--snug-text-primary))] tracking-tight">
+                        {location.dong}, {location.gu}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

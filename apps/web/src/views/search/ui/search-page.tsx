@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MapIcon } from '@/shared/ui/icons';
@@ -15,127 +15,62 @@ import { SearchMap } from './search-map';
 import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
+import { getPublicAccommodations } from '@/shared/api/accommodation';
+import type { AccommodationListItem, AccommodationSearchParams } from '@snug/types';
 
-// Mock data with Gangnam area coordinates
-const MOCK_ROOMS: Room[] = [
-  {
-    id: '1',
-    title: 'Cozy Studio',
-    location: 'Nonhyeon-dong',
-    district: 'Gangnam-gu',
-    rooms: 1,
-    bathrooms: 1,
-    beds: 2,
-    guests: 2,
-    originalPrice: 200,
-    price: 160,
-    nights: 2,
-    tags: [
-      { label: 'Shared Room', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-1.jpg',
-    lat: 37.5145,
-    lng: 127.0352,
-  },
-  {
-    id: '2',
-    title: 'Spacious Apartment',
-    location: 'Cheongdam-dong',
-    district: 'Gangnam-gu',
-    rooms: 2,
-    bathrooms: 1,
-    beds: 3,
-    guests: 4,
-    price: 240,
-    nights: 10,
-    tags: [
-      { label: 'House', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-2.jpg',
-    lat: 37.5205,
-    lng: 127.0535,
-  },
-  {
-    id: '3',
-    title: 'Modern Share House',
-    location: 'Nonhyeon-dong',
-    district: 'Gangnam-gu',
-    rooms: 1,
-    bathrooms: 1,
-    beds: 2,
-    guests: 2,
-    originalPrice: 200,
-    price: 160,
-    nights: 2,
-    tags: [
-      { label: 'Shared Room', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-3.jpg',
-    lat: 37.5172,
-    lng: 127.0405,
-  },
-  {
-    id: '4',
-    title: 'Luxury Suite',
-    location: 'Cheongdam-dong',
-    district: 'Gangnam-gu',
-    rooms: 2,
-    bathrooms: 1,
-    beds: 3,
-    guests: 4,
-    price: 210,
-    nights: 10,
-    tags: [
-      { label: 'Shared House', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-4.jpg',
-    lat: 37.5158,
-    lng: 127.0475,
-  },
-  {
-    id: '5',
-    title: 'Comfortable Room',
-    location: 'Nonhyeon-dong',
-    district: 'Gangnam-gu',
-    rooms: 1,
-    bathrooms: 1,
-    beds: 2,
-    guests: 2,
-    originalPrice: 200,
-    price: 350,
-    nights: 2,
-    tags: [
-      { label: 'House', color: 'orange' },
-      { label: 'Hotel', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-5.jpg',
-    lat: 37.5195,
-    lng: 127.0565,
-  },
-  {
-    id: '6',
-    title: 'Premium Studio',
-    location: 'Cheongdam-dong',
-    district: 'Gangnam-gu',
-    rooms: 2,
-    bathrooms: 1,
-    beds: 3,
-    guests: 4,
-    price: 500,
-    nights: 10,
-    tags: [
-      { label: 'Shared Room', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-6.jpg',
-    lat: 37.5132,
-    lng: 127.0425,
-  },
-];
+// 숙소 타입 → 태그 라벨 변환
+const accommodationTypeLabels: Record<string, string> = {
+  HOUSE: 'House',
+  SHARE_ROOM: 'Shared Room',
+  SHARE_HOUSE: 'Share House',
+  APARTMENT: 'Apartment',
+};
+
+const buildingTypeLabels: Record<string, string> = {
+  APARTMENT: 'Apartment',
+  VILLA: 'Villa',
+  HOUSE: 'House',
+  OFFICETEL: 'Officetel',
+};
+
+// API 응답 → Room 타입 변환
+function mapAccommodationToRoom(item: AccommodationListItem, nights: number = 1): Room {
+  const tags: Room['tags'] = [];
+
+  // 숙소 타입 태그
+  if (item.accommodationType) {
+    tags.push({
+      label: accommodationTypeLabels[item.accommodationType] || item.accommodationType,
+      color: 'orange',
+    });
+  }
+
+  // 건물 타입 태그
+  if (item.buildingType) {
+    tags.push({
+      label: buildingTypeLabels[item.buildingType] || item.buildingType,
+      color: 'purple',
+    });
+  }
+
+  return {
+    id: item.id,
+    title: item.roomName,
+    // 영문 주소 표시: sigunguEn (구/군), sidoEn (시/도)
+    location: item.sigunguEn || item.nearestStation || 'Seoul',
+    district: item.sidoEn || 'Seoul',
+    rooms: item.roomCount,
+    bathrooms: item.bathroomCount,
+    beds: 1, // 상세 정보는 상세 페이지에서
+    guests: item.capacity,
+    price: item.basePrice,
+    nights,
+    tags,
+    imageUrl: item.thumbnailUrl || '/images/rooms/placeholder.jpg',
+    lat: item.latitude || 37.5665,
+    lng: item.longitude || 126.978,
+  };
+}
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
@@ -175,11 +110,70 @@ function SearchPageContent() {
     return { adults: guestCount, children: 0, infants: 0 };
   });
 
-  const roomCount = MOCK_ROOMS.length;
-  const displayLocation = locationValue || 'Gangnam-gu, Seoul-si';
-  const searchLocation = locationValue
-    ? locationValue.split(',')[0]?.trim() || 'Gangnam'
-    : 'Gangnam';
+  // 실제 API 데이터 상태
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 날짜로 숙박일 계산
+  const calculateNights = useCallback(() => {
+    if (checkIn && checkOut) {
+      const diffTime = checkOut.getTime() - checkIn.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays > 0 ? diffDays : 1;
+    }
+    return 1;
+  }, [checkIn, checkOut]);
+
+  // sortOption → API sortBy 변환
+  const mapSortOption = useCallback((option: SortOption): AccommodationSearchParams['sortBy'] => {
+    switch (option) {
+      case 'priceLow':
+        return 'price_asc';
+      case 'priceHigh':
+        return 'price_desc';
+      case 'newest':
+        return 'newest';
+      default:
+        return 'recommended';
+    }
+  }, []);
+
+  // 숙소 목록 가져오기
+  const fetchAccommodations = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const totalGuests = guests.adults + guests.children;
+      const params: AccommodationSearchParams = {
+        location: locationValue || undefined,
+        guests: totalGuests > 0 ? totalGuests : undefined,
+        sortBy: mapSortOption(sortOption),
+      };
+
+      const result = await getPublicAccommodations(params);
+      const nights = calculateNights();
+      const mappedRooms = result.data.map((item: AccommodationListItem) =>
+        mapAccommodationToRoom(item, nights),
+      );
+
+      setRooms(mappedRooms);
+      setTotalCount(result.total);
+    } catch (error) {
+      console.error('Failed to fetch accommodations:', error);
+      setRooms([]);
+      setTotalCount(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [locationValue, guests, sortOption, calculateNights, mapSortOption]);
+
+  // 초기 로딩 및 검색 조건 변경 시 데이터 fetch
+  useEffect(() => {
+    fetchAccommodations();
+  }, [fetchAccommodations]);
+
+  const displayLocation = locationValue || 'Seoul';
+  const searchLocation = locationValue ? locationValue.split(',')[0]?.trim() || 'Seoul' : 'Seoul';
 
   // Handle search from Header's search bar
   const handleHeaderSearch = (values: SearchBarValues) => {
@@ -285,11 +279,13 @@ function SearchPageContent() {
                   onClick={() => setSelectedMapRoomId(null)}
                   className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
                 >
-                  ← {t('resultsCount', { count: roomCount, location: searchLocation })}
+                  ← {t('resultsCount', { count: totalCount, location: searchLocation })}
                 </button>
               ) : (
                 <p className="text-sm text-[hsl(var(--snug-gray))]">
-                  {t('resultsCount', { count: roomCount, location: searchLocation })}
+                  {isLoading
+                    ? 'Loading...'
+                    : t('resultsCount', { count: totalCount, location: searchLocation })}
                 </p>
               )}
               {!selectedMapRoomId && <SortDropdown value={sortOption} onChange={setSortOption} />}
@@ -303,13 +299,23 @@ function SearchPageContent() {
                   : 'space-y-0 pb-6'
               }
             >
-              {selectedMapRoomId
-                ? // Show only selected room
-                  MOCK_ROOMS.filter((room) => room.id === selectedMapRoomId).map((room) => (
-                    <RoomCard key={room.id} room={room} viewMode="list" />
-                  ))
-                : // Show all rooms
-                  MOCK_ROOMS.map((room) => <RoomCard key={room.id} room={room} viewMode={view} />)}
+              {isLoading ? (
+                <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
+                  Loading accommodations...
+                </div>
+              ) : rooms.length === 0 ? (
+                <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
+                  No accommodations found
+                </div>
+              ) : selectedMapRoomId ? (
+                // Show only selected room
+                rooms
+                  .filter((room) => room.id === selectedMapRoomId)
+                  .map((room) => <RoomCard key={room.id} room={room} viewMode="list" />)
+              ) : (
+                // Show all rooms
+                rooms.map((room) => <RoomCard key={room.id} room={room} viewMode={view} />)
+              )}
             </div>
           </div>
         </div>
@@ -317,7 +323,7 @@ function SearchPageContent() {
         {/* Right Side - Map */}
         <div className="flex-1 sticky top-20 h-[calc(100vh-80px)] p-4">
           <div className="w-full h-full rounded-2xl overflow-hidden">
-            <SearchMap rooms={MOCK_ROOMS} onRoomSelect={setSelectedMapRoomId} />
+            <SearchMap rooms={rooms} onRoomSelect={setSelectedMapRoomId} />
           </div>
         </div>
       </div>
@@ -327,16 +333,26 @@ function SearchPageContent() {
         {/* Results Header */}
         <div className="flex items-center justify-between px-4 py-2.5">
           <p className="text-[13px] text-[hsl(var(--snug-gray))]">
-            {t('resultsCount', { count: roomCount, location: searchLocation })}
+            {isLoading
+              ? 'Loading...'
+              : t('resultsCount', { count: totalCount, location: searchLocation })}
           </p>
           <SortDropdown value={sortOption} onChange={setSortOption} />
         </div>
 
         {/* Room List - Mobile uses larger cards */}
         <div className="px-4 space-y-6">
-          {MOCK_ROOMS.map((room) => (
-            <RoomCard key={room.id} room={room} viewMode="mobile" />
-          ))}
+          {isLoading ? (
+            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
+              Loading accommodations...
+            </div>
+          ) : rooms.length === 0 ? (
+            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
+              No accommodations found
+            </div>
+          ) : (
+            rooms.map((room) => <RoomCard key={room.id} room={room} viewMode="mobile" />)
+          )}
         </div>
 
         {/* View on Map Button - Floating */}

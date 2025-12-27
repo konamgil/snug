@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import type { AccommodationListItem } from '@snug/types';
 import {
   HeartIcon,
   HotelIcon,
@@ -18,6 +20,7 @@ import {
   FloorIcon,
   BalconyIcon,
 } from '@/shared/ui/icons';
+import { getSimilarAccommodations } from '@/shared/api/accommodation';
 import type { AccommodationFormData } from './types';
 import {
   FACILITY_OPTIONS,
@@ -39,16 +42,39 @@ const detailIcons: Record<string, React.ComponentType<{ className?: string }>> =
   balcony: BalconyIcon,
 };
 
+// Map configuration
+const mapContainerStyle = {
+  width: '100%',
+  height: '250px',
+  borderRadius: '20px',
+};
+
+const mapOptions: google.maps.MapOptions = {
+  disableDefaultUI: true,
+  zoomControl: true,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+};
+
+// Default center (Gangnam-gu)
+const defaultCenter = {
+  lat: 37.5172,
+  lng: 127.0473,
+};
+
 interface AccommodationPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: AccommodationFormData;
+  accommodationId?: string; // 편집 모드에서만 제공 (유사 숙소 조회용)
 }
 
 export function AccommodationPreviewModal({
   isOpen,
   onClose,
   data,
+  accommodationId,
 }: AccommodationPreviewModalProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
@@ -61,6 +87,77 @@ export function AccommodationPreviewModal({
     longTermDiscount: false,
     notes: false,
   });
+
+  // Map state
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [isGeocodingLoading, setIsGeocodingLoading] = useState(false);
+  const mapRef = useRef<google.maps.Map | null>(null);
+
+  // Similar accommodations state
+  const [similarAccommodations, setSimilarAccommodations] = useState<AccommodationListItem[]>([]);
+  const [isSimilarLoading, setIsSimilarLoading] = useState(false);
+
+  // Load Google Maps
+  const { isLoaded: isMapLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    id: 'google-map-script',
+  });
+
+  // Geocode address to get coordinates
+  useEffect(() => {
+    if (!isOpen || !isMapLoaded || !data.address) {
+      setMapCenter(null);
+      return;
+    }
+
+    // If coordinates are already provided, use them
+    if (data.latitude && data.longitude) {
+      setMapCenter({ lat: data.latitude, lng: data.longitude });
+      return;
+    }
+
+    // Otherwise, geocode the address
+    const geocoder = new google.maps.Geocoder();
+    setIsGeocodingLoading(true);
+
+    geocoder.geocode({ address: data.address }, (results, status) => {
+      setIsGeocodingLoading(false);
+      if (status === 'OK' && results && results[0]) {
+        const location = results[0].geometry.location;
+        setMapCenter({ lat: location.lat(), lng: location.lng() });
+      } else {
+        // Fallback to default center if geocoding fails
+        setMapCenter(defaultCenter);
+      }
+    });
+  }, [isOpen, isMapLoaded, data.address, data.latitude, data.longitude]);
+
+  // Fetch similar accommodations when modal opens and ID is available
+  useEffect(() => {
+    if (!isOpen || !accommodationId) {
+      setSimilarAccommodations([]);
+      return;
+    }
+
+    const fetchSimilar = async () => {
+      setIsSimilarLoading(true);
+      try {
+        const similar = await getSimilarAccommodations(accommodationId, 6);
+        setSimilarAccommodations(similar);
+      } catch (error) {
+        console.error('[AccommodationPreviewModal] Failed to fetch similar:', error);
+        setSimilarAccommodations([]);
+      } finally {
+        setIsSimilarLoading(false);
+      }
+    };
+
+    fetchSimilar();
+  }, [isOpen, accommodationId]);
+
+  const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
+    mapRef.current = mapInstance;
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -170,7 +267,7 @@ export function AccommodationPreviewModal({
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-bold text-[#161616]">
-                  {data.address || 'Cheongdam-dong, Gangnam-gu'}
+                  {data.address || <span className="text-[#a8a8a8]">주소 미입력</span>}
                 </h2>
                 <HeartIcon className="w-[18px] h-[18px] text-[#161616]" />
               </div>
@@ -179,15 +276,15 @@ export function AccommodationPreviewModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-[#6f6f6f]">
                   <HotelIcon className="w-3.5 h-3.5" />
-                  <span>{data.space.rooms.room} Rooms</span>
+                  <span>{data.space.rooms.room || 0} Rooms</span>
                   <span>·</span>
-                  <span>{data.space.rooms.bathroom} Bathroom</span>
+                  <span>{data.space.rooms.bathroom || 0} Bathroom</span>
                   <span>·</span>
-                  <span>{getTotalBeds()} Bed</span>
+                  <span>{getTotalBeds() || 0} Bed</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-[#6f6f6f]">
                   <UserIcon className="w-3.5 h-3.5" />
-                  <span>{data.space.capacity} Guests</span>
+                  <span>{data.space.capacity || 0} Guests</span>
                 </div>
               </div>
             </div>
@@ -199,11 +296,12 @@ export function AccommodationPreviewModal({
               onToggle={() => toggleSection('description')}
             >
               <p className="text-xs font-medium text-[#161616] mb-1">
-                {data.roomName || 'Comfort & Convenience in Gangnam - Snug Stay'}
+                {data.roomName || <span className="text-[#a8a8a8]">방 이름 미입력</span>}
               </p>
               <p className="text-xs text-[#6f6f6f] leading-relaxed">
-                {data.space.introduction ||
-                  'Enjoy a peaceful stay in a cozy, sunlit room made for your comfort. Soft bedding and warm, thoughtful decor help you relax and recharge.'}
+                {data.space.introduction || (
+                  <span className="text-[#a8a8a8]">숙소 소개를 입력해주세요</span>
+                )}
               </p>
             </Section>
 
@@ -214,11 +312,9 @@ export function AccommodationPreviewModal({
               onToggle={() => toggleSection('guidelines')}
             >
               <p className="text-xs text-[#6f6f6f] leading-relaxed whitespace-pre-line">
-                {data.space.houseRules ||
-                  `Check-in: Self check-in (Password will be provided)
-Check-out: By 12:30 PM
-Cooking: Allowed — please clean up after use
-Laundry: Long-term stays welcome`}
+                {data.space.houseRules || (
+                  <span className="text-[#a8a8a8]">이용 규칙을 입력해주세요</span>
+                )}
               </p>
             </Section>
 
@@ -228,29 +324,49 @@ Laundry: Long-term stays welcome`}
               expanded={expandedSections.details}
               onToggle={() => toggleSection('details')}
             >
-              {/* Row 1 - Area, Elevator, Parking */}
+              {/* Row 1 - Area */}
               <div className="grid grid-cols-3 gap-4 mb-4">
-                <DetailIconItem icon="area" label="Area" value={`${data.space.sizeM2 || 30}m²`} />
-                <DetailIconItem icon="elevator" label="Elevator" value="Available" />
-                <DetailIconItem icon="parking" label="Parking" value="Available" />
+                <DetailIconItem
+                  icon="area"
+                  label="면적"
+                  value={data.space.sizeM2 ? `${data.space.sizeM2}m²` : '-'}
+                />
+                <DetailIconItem
+                  icon="area"
+                  label="평수"
+                  value={data.space.sizePyeong ? `${data.space.sizePyeong}평` : '-'}
+                />
+                <div />
               </div>
 
               <div className="border-t border-[#e0e0e0] my-4" />
 
               {/* Row 2 - Rooms */}
               <div className="grid grid-cols-3 gap-3 mb-3">
-                <DetailIconItem icon="room" label="Room" value={String(data.space.rooms.room)} />
+                <DetailIconItem icon="room" label="방" value={String(data.space.rooms.room || 0)} />
                 <DetailIconItem
                   icon="living"
-                  label="Living room"
-                  value={String(data.space.rooms.livingRoom)}
+                  label="거실"
+                  value={String(data.space.rooms.livingRoom || 0)}
                 />
-                <DetailIconItem icon="bathroom" label="Bathroom" value={String(data.space.rooms.bathroom)} />
+                <DetailIconItem
+                  icon="bathroom"
+                  label="화장실"
+                  value={String(data.space.rooms.bathroom || 0)}
+                />
               </div>
               <div className="grid grid-cols-3 gap-3">
-                <DetailIconItem icon="kitchen" label="Kitchen" value={String(data.space.rooms.kitchen)} />
-                <DetailIconItem icon="floor" label="2nd Floor" value="1" />
-                <DetailIconItem icon="balcony" label="Balcony" value={String(data.space.rooms.terrace)} />
+                <DetailIconItem
+                  icon="kitchen"
+                  label="주방"
+                  value={String(data.space.rooms.kitchen || 0)}
+                />
+                <DetailIconItem
+                  icon="balcony"
+                  label="테라스"
+                  value={String(data.space.rooms.terrace || 0)}
+                />
+                <div />
               </div>
             </Section>
 
@@ -260,32 +376,30 @@ Laundry: Long-term stays welcome`}
               expanded={expandedSections.facilities}
               onToggle={() => toggleSection('facilities')}
             >
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-                {(getFacilityLabels().length > 0
-                  ? getFacilityLabels()
-                  : [
-                      'Digital door lock',
-                      'Refrigerator',
-                      'Conditioner',
-                      'Coffee maker',
-                      'Washer',
-                      'Hangers',
-                      'TV',
-                      'Wifi',
-                    ]
-                ).slice(0, 9).map((facility, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs text-[#161616]">
-                    <span className="w-1.5 h-1.5 bg-[#161616] rounded-full flex-shrink-0" />
-                    <span>{facility}</span>
+              {getFacilityLabels().length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                    {getFacilityLabels()
+                      .slice(0, 9)
+                      .map((facility, index) => (
+                        <div key={index} className="flex items-center gap-2 text-xs text-[#161616]">
+                          <span className="w-1.5 h-1.5 bg-[#161616] rounded-full flex-shrink-0" />
+                          <span>{facility}</span>
+                        </div>
+                      ))}
                   </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                className="w-full py-3 border border-[#e0e0e0] rounded-xl text-xs font-medium text-[#161616] hover:bg-[#f4f4f4] transition-colors"
-              >
-                Facilities More
-              </button>
+                  {getFacilityLabels().length > 9 && (
+                    <button
+                      type="button"
+                      className="w-full py-3 border border-[#e0e0e0] rounded-xl text-xs font-medium text-[#161616] hover:bg-[#f4f4f4] transition-colors"
+                    >
+                      +{getFacilityLabels().length - 9}개 더 보기
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-[#a8a8a8]">시설을 선택해주세요</p>
+              )}
             </Section>
 
             {/* House Amenities */}
@@ -294,17 +408,18 @@ Laundry: Long-term stays welcome`}
               expanded={expandedSections.amenities}
               onToggle={() => toggleSection('amenities')}
             >
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {(getAmenityLabels().length > 0
-                  ? getAmenityLabels()
-                  : ['Hair dryer', 'Shampoo', 'Conditioner', 'Body soap', 'Hot water']
-                ).map((amenity, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs text-[#161616]">
-                    <span className="w-1.5 h-1.5 bg-[#161616] rounded-full flex-shrink-0" />
-                    <span>{amenity}</span>
-                  </div>
-                ))}
-              </div>
+              {getAmenityLabels().length > 0 ? (
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {getAmenityLabels().map((amenity, index) => (
+                    <div key={index} className="flex items-center gap-2 text-xs text-[#161616]">
+                      <span className="w-1.5 h-1.5 bg-[#161616] rounded-full flex-shrink-0" />
+                      <span>{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-[#a8a8a8]">어메니티를 선택해주세요</p>
+              )}
             </Section>
 
             {/* Location */}
@@ -314,64 +429,208 @@ Laundry: Long-term stays welcome`}
               onToggle={() => toggleSection('location')}
             >
               <p className="text-xs text-[#161616] mb-3">
-                {data.address || '123, Cheongdam-ro, Gangnam-gu, Seoul-si'}
+                {data.address || <span className="text-[#a8a8a8]">주소 미입력</span>}
               </p>
 
-              {/* Location Tabs */}
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                <LocationTab label="Subway Station" active />
-                <LocationTab label="Bus Stop" />
-                <LocationTab label="Convenience store" />
-              </div>
-
-              {/* Map Placeholder */}
-              <div className="w-full h-[250px] bg-[#f4f4f4] rounded-[20px] flex flex-col items-center justify-center gap-2 border border-[#e0e0e0]">
-                <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
-                <span className="text-xs text-[#6f6f6f]">Map View</span>
+              {/* Map */}
+              <div className="w-full h-[250px] rounded-[20px] overflow-hidden border border-[#e0e0e0]">
+                {!isMapLoaded || isGeocodingLoading ? (
+                  <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
+                    <div className="w-6 h-6 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs text-[#6f6f6f]">지도 로딩 중...</span>
+                  </div>
+                ) : !data.address ? (
+                  <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
+                    <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
+                    <span className="text-xs text-[#6f6f6f]">
+                      주소를 입력하면 지도가 표시됩니다
+                    </span>
+                  </div>
+                ) : mapCenter ? (
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={mapCenter}
+                    zoom={16}
+                    options={mapOptions}
+                    onLoad={onMapLoad}
+                  >
+                    <MarkerF position={mapCenter} />
+                  </GoogleMap>
+                ) : (
+                  <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
+                    <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
+                    <span className="text-xs text-[#6f6f6f]">지도를 불러올 수 없습니다</span>
+                  </div>
+                )}
               </div>
             </Section>
 
-            {/* Other Stays You Might Love */}
+            {/* Pricing Information */}
+            <Section title="요금 정보" expanded={true} onToggle={() => {}} showToggle={false}>
+              <div className="space-y-3">
+                {/* Base Price */}
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-[#6f6f6f]">기본가 (1박)</span>
+                  <span className="text-xs font-semibold text-[#161616]">
+                    {data.pricing.basePrice > 0 ? (
+                      `₩${data.pricing.basePrice.toLocaleString()}`
+                    ) : (
+                      <span className="text-[#a8a8a8]">미입력</span>
+                    )}
+                  </span>
+                </div>
+
+                {/* Weekend Price */}
+                {data.pricing.weekendPrice && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#6f6f6f]">주말가</span>
+                    <span className="text-xs font-semibold text-[#161616]">
+                      ₩{data.pricing.weekendPrice.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Management Fee */}
+                {data.pricing.managementFee && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#6f6f6f]">관리비</span>
+                    <span className="text-xs font-semibold text-[#161616]">
+                      ₩{data.pricing.managementFee.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Cleaning Fee */}
+                {data.pricing.cleaningFee && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#6f6f6f]">청소비</span>
+                    <span className="text-xs font-semibold text-[#161616]">
+                      ₩{data.pricing.cleaningFee.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Extra Person Fee */}
+                {data.pricing.extraPersonFee && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#6f6f6f]">추가 인원 요금</span>
+                    <span className="text-xs font-semibold text-[#161616]">
+                      ₩{data.pricing.extraPersonFee.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Pet Fee */}
+                {data.pricing.petFee && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#6f6f6f]">반려동물 요금</span>
+                    <span className="text-xs font-semibold text-[#161616]">
+                      ₩{data.pricing.petFee.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Additional Fees */}
+                {data.pricing.additionalFees?.length > 0 &&
+                  data.pricing.additionalFees.map((fee) => (
+                    <div key={fee.id} className="flex justify-between items-center">
+                      <span className="text-xs text-[#6f6f6f]">{fee.name}</span>
+                      <span className="text-xs font-semibold text-[#161616]">
+                        ₩{fee.amount.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+
+                {/* Utilities Included */}
+                <div className="pt-2 border-t border-[#e0e0e0]">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${data.pricing.includesUtilities ? 'bg-green-500' : 'bg-[#a8a8a8]'}`}
+                    />
+                    <span className="text-xs text-[#6f6f6f]">
+                      {data.pricing.includesUtilities ? '공과금 포함' : '공과금 별도'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* Manager Info */}
+            {data.managers.length > 0 && (
+              <Section title="담당자 정보" expanded={true} onToggle={() => {}} showToggle={false}>
+                <div className="space-y-3">
+                  {data.managers.map((manager) => (
+                    <div key={manager.id} className="flex justify-between items-center">
+                      <span className="text-xs text-[#161616] font-medium">{manager.name}</span>
+                      <span className="text-xs text-[#6f6f6f]">{manager.phone}</span>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {/* Other Stays You May Like */}
             <Section
               title="Other Stays You May Like"
               expanded={true}
               onToggle={() => {}}
               showToggle={false}
             >
-              <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-[180px] flex-shrink-0 cursor-pointer group">
-                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-2">
-                      <div className="w-full h-full bg-gradient-to-br from-[#f4f4f4] to-[#e0e0e0] flex items-center justify-center" />
+              {isSimilarLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : !accommodationId ? (
+                <p className="text-xs text-[#a8a8a8] text-center py-4">
+                  저장 후 유사 숙소가 표시됩니다
+                </p>
+              ) : similarAccommodations.length === 0 ? (
+                <p className="text-xs text-[#a8a8a8] text-center py-4">유사한 숙소가 없습니다</p>
+              ) : (
+                <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5">
+                  {similarAccommodations.map((item) => (
+                    <div key={item.id} className="w-[180px] flex-shrink-0 cursor-pointer group">
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-2">
+                        {item.thumbnailUrl ? (
+                          <Image
+                            src={item.thumbnailUrl}
+                            alt={item.roomName}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#f4f4f4] to-[#e0e0e0] flex items-center justify-center">
+                            <HotelIcon className="w-8 h-8 text-[#a8a8a8]" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-[#161616] mb-0.5 truncate">
+                        {item.sigunguEn || item.sidoEn || item.roomName}
+                      </p>
+                      <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-0.5">
+                        <HotelIcon className="w-3 h-3" />
+                        <span>
+                          {item.roomCount} Rooms · {item.bathroomCount} Bathroom
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-1">
+                        <UserIcon className="w-3 h-3" />
+                        <span>{item.capacity} Guests</span>
+                      </div>
+                      <p className="text-xs">
+                        <span className="font-bold text-[hsl(var(--snug-orange))]">
+                          ₩{item.basePrice.toLocaleString()}
+                        </span>
+                        <span className="text-[10px] text-[#6f6f6f]"> / night</span>
+                      </p>
                     </div>
-                    <p className="text-xs font-semibold text-[#161616] mb-0.5 truncate">
-                      Nonhyeon-dong, Gangnam-gu
-                    </p>
-                    <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-0.5">
-                      <HotelIcon className="w-3 h-3" />
-                      <span>1 Rooms · 1 Bathroom · 2 Bed</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] text-[#6f6f6f] mb-1">
-                      <UserIcon className="w-3 h-3" />
-                      <span>2 Guests</span>
-                    </div>
-                    <p className="text-xs">
-                      <span className="line-through text-[#a8a8a8] mr-1">$200</span>
-                      <span className="font-bold text-[hsl(var(--snug-orange))]">$160</span>
-                      <span className="text-[10px] text-[#6f6f6f]"> for 2 nights</span>
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </Section>
 
-            {/* Information */}
-            <Section
-              title="Information"
-              expanded={true}
-              onToggle={() => {}}
-              showToggle={false}
-            >
+            {/* Information - TODO: 추후 실제 데이터 연결 */}
+            <Section title="Information" expanded={true} onToggle={() => {}} showToggle={false}>
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <h4 className="text-xs font-semibold text-[#161616]">
@@ -382,12 +641,13 @@ Laundry: Long-term stays welcome`}
                   </span>
                 </div>
                 <p className="text-xs text-[#6f6f6f] leading-relaxed">
-                  All utility charges and internet fees are included in the maintenance fee. If any of the included services are used excessively, additional charges may apply.
+                  All utility charges and internet fees are included in the maintenance fee. If any
+                  of the included services are used excessively, additional charges may apply.
                 </p>
               </div>
             </Section>
 
-            {/* Refund Policy */}
+            {/* Refund Policy - TODO: 추후 실제 데이터 연결 */}
             <Section
               title="Refund Policy"
               expanded={expandedSections.refundPolicy}
@@ -400,10 +660,7 @@ Laundry: Long-term stays welcome`}
                   '7–1 days before check-in: 50% refund of rent and contract fee',
                   'On the check-in date: No refund',
                 ].map((policy, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-2 text-xs text-[#6f6f6f]"
-                  >
+                  <li key={index} className="flex items-start gap-2 text-xs text-[#6f6f6f]">
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[#161616] rounded-full flex-shrink-0" />
                     <span>{policy}</span>
                   </li>
@@ -411,7 +668,7 @@ Laundry: Long-term stays welcome`}
               </ul>
             </Section>
 
-            {/* Long-Term Stay Discount */}
+            {/* Long-Term Stay Discount - TODO: 추후 실제 데이터 연결 */}
             <Section
               title="Long-Term Stay Discount"
               expanded={expandedSections.longTermDiscount}
@@ -423,10 +680,7 @@ Laundry: Long-term stays welcome`}
                   { period: 'Contract for 4+ weeks', discount: '10% off' },
                   { period: 'Contract for 12+ weeks', discount: '20% off' },
                 ].map((item, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-2 text-xs text-[#6f6f6f]"
-                  >
+                  <li key={index} className="flex items-start gap-2 text-xs text-[#6f6f6f]">
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[#6f6f6f] rounded-full flex-shrink-0" />
                     <span>
                       {item.period}: {item.discount}
@@ -436,7 +690,7 @@ Laundry: Long-term stays welcome`}
               </ul>
             </Section>
 
-            {/* Notes */}
+            {/* Notes - TODO: 추후 실제 데이터 연결 */}
             <Section
               title="Notes"
               expanded={expandedSections.notes}
@@ -448,10 +702,7 @@ Laundry: Long-term stays welcome`}
                   'Maintenance fees, cleaning fees, and deposits are fully refundable.',
                   "The refund policy may vary depending on the host's terms.",
                 ].map((note, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-2 text-xs text-[#6f6f6f]"
-                  >
+                  <li key={index} className="flex items-start gap-2 text-xs text-[#6f6f6f]">
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[#6f6f6f] rounded-full flex-shrink-0" />
                     <span className="leading-relaxed">{note}</span>
                   </li>
@@ -474,13 +725,7 @@ interface SectionProps {
   children: React.ReactNode;
 }
 
-function Section({
-  title,
-  expanded = true,
-  onToggle,
-  showToggle = true,
-  children,
-}: SectionProps) {
+function Section({ title, expanded = true, onToggle, showToggle = true, children }: SectionProps) {
   return (
     <div className="py-4 border-t border-[#e0e0e0] first:border-t-0">
       <button
@@ -512,19 +757,3 @@ function DetailIconItem({ icon, label, value }: { icon: string; label: string; v
     </div>
   );
 }
-
-function LocationTab({ label, active = false }: { label: string; active?: boolean }) {
-  return (
-    <button
-      type="button"
-      className={`px-3 py-1.5 text-xs rounded transition-colors ${
-        active
-          ? 'bg-[hsl(var(--snug-orange))] text-white'
-          : 'bg-[#f4f4f4] text-[#6f6f6f] hover:bg-[#e8e8e8]'
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
