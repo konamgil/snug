@@ -166,17 +166,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signInWithGoogle: async () => {
     const supabase = getSupabaseClient();
-    const appUrl = getAppUrl();
-
-    // Debug: 실제 사용되는 URL 확인
-    console.log('[DEBUG] config.app.url:', config.app.url);
-    console.log('[DEBUG] getAppUrl():', appUrl);
-    console.log('[DEBUG] redirectTo:', `${appUrl}/auth/callback`);
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${appUrl}/auth/callback`,
+        redirectTo: `${getAppUrl()}/auth/callback`,
         scopes: 'openid email profile',
         queryParams: {
           access_type: 'offline',
