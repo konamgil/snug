@@ -6,11 +6,11 @@ import { upsertUserFromAuth, getUserBySupabaseId } from '@/shared/api/user';
 import { config } from '@/shared/config';
 
 function getAppUrl(): string {
+  // Client-side: always use current origin (most reliable)
   if (typeof window !== 'undefined') {
-    // Client-side: if localhost or not set, use window.location.origin
-    const isLocalhost = config.app.url.includes('localhost');
-    return isLocalhost ? window.location.origin : config.app.url;
+    return window.location.origin;
   }
+  // Server-side fallback
   return config.app.url;
 }
 
