@@ -71,7 +71,10 @@ async function bootstrap() {
     .map((origin) => origin.trim());
 
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       // origin이 없는 경우 (같은 origin 요청, Postman 등) 허용
       if (!origin) {
         callback(null, true);
