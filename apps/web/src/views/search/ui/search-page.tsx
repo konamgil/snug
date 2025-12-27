@@ -17,7 +17,13 @@ import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
-import type { AccommodationListItem, AccommodationSearchParams } from '@snug/types';
+import type {
+  AccommodationListItem,
+  AccommodationSearchParams,
+  AccommodationType,
+  BuildingType,
+  GenderRule,
+} from '@snug/types';
 
 // 숙소 타입 → 태그 라벨 변환
 const accommodationTypeLabels: Record<string, string> = {
@@ -32,6 +38,26 @@ const buildingTypeLabels: Record<string, string> = {
   VILLA: 'Villa',
   HOUSE: 'House',
   OFFICETEL: 'Officetel',
+};
+
+// UI 필터 값 → API 파라미터 매핑
+const roomTypeToAccommodationType: Record<string, AccommodationType> = {
+  House: 'HOUSE',
+  'Shared House': 'SHARE_HOUSE',
+  'Shared Room': 'SHARE_ROOM',
+};
+
+const propertyTypeToBuildingType: Record<string, BuildingType> = {
+  Apartment: 'APARTMENT',
+  Villa: 'VILLA',
+  House: 'HOUSE',
+  Officetel: 'OFFICETEL',
+};
+
+const houseRuleToGenderRule: Record<string, GenderRule> = {
+  'Women Only': 'FEMALE_ONLY',
+  'Men Only': 'MALE_ONLY',
+  'Pets allowed': 'PET_ALLOWED',
 };
 
 // API 응답 → Room 타입 변환
@@ -151,6 +177,38 @@ function SearchPageContent() {
         sortBy: mapSortOption(sortOption),
       };
 
+      // 필터 적용
+      if (activeFilters) {
+        // 숙소 타입 필터
+        if (activeFilters.roomTypes.length > 0) {
+          params.accommodationType = activeFilters.roomTypes
+            .map((type) => roomTypeToAccommodationType[type])
+            .filter(Boolean) as AccommodationType[];
+        }
+
+        // 건물 타입 필터
+        if (activeFilters.propertyTypes.length > 0) {
+          params.buildingType = activeFilters.propertyTypes
+            .map((type) => propertyTypeToBuildingType[type])
+            .filter(Boolean) as BuildingType[];
+        }
+
+        // 가격 필터
+        if (activeFilters.budgetMin > 0) {
+          params.minPrice = activeFilters.budgetMin;
+        }
+        if (activeFilters.budgetMax < 1000) {
+          params.maxPrice = activeFilters.budgetMax;
+        }
+
+        // 성별/반려동물 규칙 필터
+        if (activeFilters.houseRules.length > 0) {
+          params.genderRules = activeFilters.houseRules
+            .map((rule) => houseRuleToGenderRule[rule])
+            .filter(Boolean) as GenderRule[];
+        }
+      }
+
       const result = await getPublicAccommodations(params);
       const nights = calculateNights();
       const mappedRooms = result.data.map((item: AccommodationListItem) =>
@@ -166,7 +224,7 @@ function SearchPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [locationValue, guests, sortOption, calculateNights, mapSortOption]);
+  }, [locationValue, guests, sortOption, activeFilters, calculateNights, mapSortOption]);
 
   // 초기 로딩 및 검색 조건 변경 시 데이터 fetch
   useEffect(() => {

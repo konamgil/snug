@@ -21,16 +21,9 @@ export interface FilterState {
 }
 
 const ROOM_TYPES = ['House', 'Shared House', 'Shared Room'];
-const PROPERTY_TYPES = [
-  'Apartment',
-  'Small Apartment',
-  'Attached House',
-  'Hotel',
-  'Motel',
-  'Dormitory',
-];
+const PROPERTY_TYPES = ['Apartment', 'Villa', 'House', 'Officetel'];
 const APARTMENT_SIZES = ['≥58㎡', '≥82㎡', '≥92㎡'];
-const HOUSE_RULES = ['Pets allowed', 'Women Only', 'Men Only'];
+const HOUSE_RULES = ['Women Only', 'Men Only', 'Pets allowed'];
 const FACILITIES = [
   'All',
   'Parking lot',
