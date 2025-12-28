@@ -23,12 +23,6 @@ import {
 } from '@/shared/ui/icons';
 import { getSimilarAccommodations } from '@/shared/api/accommodation';
 import type { AccommodationFormData } from './types';
-import {
-  FACILITY_OPTIONS,
-  AMENITY_OPTIONS,
-  ACCOMMODATION_TYPE_OPTIONS,
-  USAGE_TYPE_OPTIONS,
-} from './types';
 
 // Detail icons mapping
 const detailIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -79,6 +73,10 @@ export function AccommodationPreviewModal({
 }: AccommodationPreviewModalProps) {
   const t = useTranslations('host.accommodation.preview');
   const tDetails = useTranslations('host.accommodation.details');
+  const tUsageTypes = useTranslations('host.accommodation.usageTypes');
+  const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
+  const tFacilities = useTranslations('host.facilities');
+  const tAmenities = useTranslations('host.amenities');
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
@@ -191,27 +189,23 @@ export function AccommodationPreviewModal({
 
   const getUsageTypeBadges = () => {
     return data.usageTypes.map((type) => {
-      const option = USAGE_TYPE_OPTIONS.find((o) => o.id === type);
-      return option?.label || type;
+      return tUsageTypes(type);
     });
   };
 
   const getAccommodationTypeBadge = () => {
-    const option = ACCOMMODATION_TYPE_OPTIONS.find((o) => o.id === data.accommodationType);
-    return option?.label || data.accommodationType;
+    return tAccommodationTypes(data.accommodationType);
   };
 
   const getFacilityLabels = () => {
     return data.facilities.map((id) => {
-      const option = FACILITY_OPTIONS.find((o) => o.id === id);
-      return option?.label || id;
+      return tFacilities(id);
     });
   };
 
   const getAmenityLabels = () => {
     return data.amenities.map((id) => {
-      const option = AMENITY_OPTIONS.find((o) => o.id === id);
-      return option?.label || id;
+      return tAmenities(id);
     });
   };
 

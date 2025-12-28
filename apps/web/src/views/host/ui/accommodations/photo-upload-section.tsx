@@ -22,6 +22,7 @@ export function PhotoUploadSection({
   onViewGallery,
 }: PhotoUploadSectionProps) {
   const t = useTranslations('host.accommodation.photoUpload');
+  const tPhotoGroups = useTranslations('host.accommodation.photoGroups');
   const [hoveredButton, setHoveredButton] = useState<HoveredButton>(null);
   const hasPhotos = categories.some((cat) => cat.photos.length > 0);
 
@@ -31,7 +32,7 @@ export function PhotoUploadSection({
       ? categories
       : DEFAULT_PHOTO_GROUPS.map((g) => ({
           id: g.id,
-          name: g.name,
+          name: tPhotoGroups(g.id),
           photos: [],
           order: g.order,
         }));

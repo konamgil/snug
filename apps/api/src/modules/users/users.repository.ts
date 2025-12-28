@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../common/repositories';
 import { PrismaService } from '../../prisma/prisma.service';
-import { User, UserRole } from '@prisma/client';
+import { User, UserRole } from '@snug/database';
 
 const USER_SELECT = {
   id: true,

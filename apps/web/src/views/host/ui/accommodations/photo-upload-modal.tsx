@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { ImagePlus, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory, PhotoItem } from './types';
@@ -31,12 +32,14 @@ export function PhotoUploadModal({
   onViewGallery,
   accommodationId = null,
 }: PhotoUploadModalProps) {
+  const tPhotoGroups = useTranslations('host.accommodation.photoGroups');
+
   const [localCategories, setLocalCategories] = useState<PhotoCategory[]>(() => {
     // Initialize with default groups if empty
     if (categories.length === 0) {
       return DEFAULT_PHOTO_GROUPS.map((g) => ({
         id: g.id,
-        name: g.name,
+        name: tPhotoGroups(g.id),
         photos: [],
         order: g.order,
       }));
@@ -131,7 +134,7 @@ export function PhotoUploadModal({
     try {
       // Compress images before upload
       const compressedFiles = await Promise.all(
-        fileArray.map((file) => compressImage(file, 1920, 0.85))
+        fileArray.map((file) => compressImage(file, 1920, 0.85)),
       );
 
       // Upload to Supabase Storage
@@ -139,7 +142,7 @@ export function PhotoUploadModal({
         compressedFiles,
         accommodationId,
         targetGroupId,
-        (progress) => setUploadProgress(progress)
+        (progress) => setUploadProgress(progress),
       );
 
       // Filter successful uploads and create photo items
@@ -159,8 +162,8 @@ export function PhotoUploadModal({
 
       setLocalCategories(
         localCategories.map((g) =>
-          g.id === targetGroupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g
-        )
+          g.id === targetGroupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g,
+        ),
       );
 
       // Show partial success message if some failed
@@ -237,15 +240,12 @@ export function PhotoUploadModal({
     try {
       // Compress images before upload
       const compressedFiles = await Promise.all(
-        imageFiles.map((file) => compressImage(file, 1920, 0.85))
+        imageFiles.map((file) => compressImage(file, 1920, 0.85)),
       );
 
       // Upload to Supabase Storage
-      const results = await uploadFiles(
-        compressedFiles,
-        accommodationId,
-        groupId,
-        (progress) => setUploadProgress(progress)
+      const results = await uploadFiles(compressedFiles, accommodationId, groupId, (progress) =>
+        setUploadProgress(progress),
       );
 
       // Filter successful uploads and create photo items
@@ -265,8 +265,8 @@ export function PhotoUploadModal({
 
       setLocalCategories(
         localCategories.map((g) =>
-          g.id === groupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g
-        )
+          g.id === groupId ? { ...g, photos: [...g.photos, ...newPhotos] } : g,
+        ),
       );
 
       // Show partial success message if some failed

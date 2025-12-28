@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -118,12 +119,14 @@ export function PhotoGalleryModal({
   onSave,
   onAddPhotos,
 }: PhotoGalleryModalProps) {
+  const tPhotoGroups = useTranslations('host.accommodation.photoGroups');
+
   // Initialize with categories prop (evaluated on mount)
   const [localCategories, setLocalCategories] = useState<PhotoCategory[]>(() => {
     if (categories.length === 0) {
       return DEFAULT_PHOTO_GROUPS.map((g) => ({
         id: g.id,
-        name: g.name,
+        name: tPhotoGroups(g.id),
         photos: [],
         order: g.order,
       }));
