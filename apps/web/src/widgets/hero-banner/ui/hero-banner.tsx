@@ -607,6 +607,8 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
         {showVideo ? (
           <video
             src="/images/banner/live-banner.mp4"
+            poster="/images/banner/banner-illustration.webp"
+            preload="auto"
             autoPlay
             loop
             muted

@@ -11,5 +11,11 @@ export default async function Page({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale as Locale);
 
-  return <HomePage />;
+  return (
+    <>
+      {/* Preload hero banner video for faster loading */}
+      <link rel="preload" href="/images/banner/live-banner.mp4" as="video" type="video/mp4" />
+      <HomePage />
+    </>
+  );
 }
