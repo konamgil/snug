@@ -256,7 +256,21 @@
       "continue": "Continue",
       "signupSuccess": "Account created successfully!",
       "checkEmail": "Please check your email to verify your account.",
-      "goToLogin": "Go to Login"
+      "goToLogin": "Go to Login",
+      "verify": "Verify",
+      "verified": "Verified"
+    },
+    "phoneVerification": {
+      "title": "Phone Verification",
+      "sentTo": "Verification code sent to {phone}",
+      "enterFullCode": "Please enter the full 6-digit code",
+      "verified": "Verified!",
+      "verify": "Verify",
+      "resend": "Resend Code",
+      "resendIn": "Resend in {seconds}s",
+      "sending": "Sending...",
+      "sendError": "Failed to send verification code",
+      "verifyError": "Failed to verify code"
     }
   },
   "profile": {

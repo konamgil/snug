@@ -253,7 +253,24 @@
       "showMore": "显示更多",
       "showLess": "收起",
       "agreeMarketing": "我希望收到营销邮件。（可选）",
-      "continue": "继续"
+      "continue": "继续",
+      "signupSuccess": "账户创建成功！",
+      "checkEmail": "请检查您的邮箱以验证您的账户。",
+      "goToLogin": "去登录",
+      "verify": "验证",
+      "verified": "已验证"
+    },
+    "phoneVerification": {
+      "title": "手机号验证",
+      "sentTo": "验证码已发送至 {phone}",
+      "enterFullCode": "请输入6位验证码",
+      "verified": "验证成功！",
+      "verify": "验证",
+      "resend": "重新发送验证码",
+      "resendIn": "{seconds}秒后可重新发送",
+      "sending": "发送中...",
+      "sendError": "验证码发送失败",
+      "verifyError": "验证失败"
     }
   },
   "profile": {

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -8,6 +8,10 @@ import { Providers } from '../providers';
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
+
+export const viewport: Viewport = {
+  themeColor: '#FFFFFF',
+};
 
 type Props = {
   children: React.ReactNode;
@@ -29,7 +33,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       icon: '/images/logo/favicon.svg',
       apple: '/apple-touch-icon.png',
     },
-    themeColor: '#FFFFFF',
     openGraph: {
       title: metadata.title,
       description: metadata.description,

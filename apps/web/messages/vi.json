@@ -253,7 +253,24 @@
       "showMore": "Xem thêm",
       "showLess": "Thu gọn",
       "agreeMarketing": "Tôi muốn nhận email tiếp thị. (tùy chọn)",
-      "continue": "Tiếp tục"
+      "continue": "Tiếp tục",
+      "signupSuccess": "Tạo tài khoản thành công!",
+      "checkEmail": "Vui lòng kiểm tra email để xác minh tài khoản của bạn.",
+      "goToLogin": "Đăng nhập",
+      "verify": "Xác minh",
+      "verified": "Đã xác minh"
+    },
+    "phoneVerification": {
+      "title": "Xác minh số điện thoại",
+      "sentTo": "Mã xác minh đã được gửi đến {phone}",
+      "enterFullCode": "Vui lòng nhập mã 6 chữ số",
+      "verified": "Xác minh thành công!",
+      "verify": "Xác minh",
+      "resend": "Gửi lại mã",
+      "resendIn": "Gửi lại sau {seconds}s",
+      "sending": "Đang gửi...",
+      "sendError": "Gửi mã xác minh thất bại",
+      "verifyError": "Xác minh thất bại"
     }
   },
   "profile": {

@@ -256,7 +256,21 @@
       "continue": "계속하기",
       "signupSuccess": "계정이 생성되었습니다!",
       "checkEmail": "이메일을 확인하여 계정을 인증해주세요.",
-      "goToLogin": "로그인하기"
+      "goToLogin": "로그인하기",
+      "verify": "인증하기",
+      "verified": "인증완료"
+    },
+    "phoneVerification": {
+      "title": "전화번호 인증",
+      "sentTo": "{phone}(으)로 인증번호가 전송되었습니다",
+      "enterFullCode": "6자리 인증번호를 모두 입력해주세요",
+      "verified": "인증 완료!",
+      "verify": "인증하기",
+      "resend": "인증번호 재전송",
+      "resendIn": "{seconds}초 후 재전송 가능",
+      "sending": "전송 중...",
+      "sendError": "인증번호 전송에 실패했습니다",
+      "verifyError": "인증에 실패했습니다"
     }
   },
   "profile": {

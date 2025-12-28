@@ -253,7 +253,24 @@
       "showMore": "もっと見る",
       "showLess": "閉じる",
       "agreeMarketing": "マーケティングメールを受け取ることを希望します。（任意）",
-      "continue": "続ける"
+      "continue": "続ける",
+      "signupSuccess": "アカウントが作成されました！",
+      "checkEmail": "メールを確認してアカウントを認証してください。",
+      "goToLogin": "ログインする",
+      "verify": "認証する",
+      "verified": "認証済み"
+    },
+    "phoneVerification": {
+      "title": "電話番号認証",
+      "sentTo": "{phone}に認証コードを送信しました",
+      "enterFullCode": "6桁の認証コードを入力してください",
+      "verified": "認証完了！",
+      "verify": "認証する",
+      "resend": "コードを再送信",
+      "resendIn": "{seconds}秒後に再送信可能",
+      "sending": "送信中...",
+      "sendError": "認証コードの送信に失敗しました",
+      "verifyError": "認証に失敗しました"
     }
   },
   "profile": {

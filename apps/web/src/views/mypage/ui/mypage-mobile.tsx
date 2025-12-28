@@ -17,9 +17,11 @@ import {
   ClipboardList,
   Building2,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { useAuthStore } from '@/shared/stores';
+import { LoginPage } from '@/views/login';
 
 interface NavItem {
   label: string;
@@ -38,6 +40,7 @@ export function MypageMobile() {
   const t = useTranslations('mypage');
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isInitialized } = useAuthStore();
   const signOut = useAuthStore((state) => state.signOut);
 
   const handleLogout = async () => {
@@ -136,6 +139,26 @@ export function MypageMobile() {
   const isActive = (href: string) => {
     return pathname.includes(href);
   };
+
+  // Loading state
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-white pb-20 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+        <MobileNav />
+      </div>
+    );
+  }
+
+  // Unauthenticated state - show login page
+  if (!user) {
+    return (
+      <div className="pb-20">
+        <LoginPage />
+        <MobileNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white pb-20">
