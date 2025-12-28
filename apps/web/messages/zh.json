@@ -313,6 +313,8 @@
       "purposeTourism": "旅游",
       "purposeMedical": "医疗",
       "purposeOther": "其他",
+      "loginRequired": "请登录以继续。",
+      "goToLogin": "去登录",
       "emailAddress": "邮箱地址",
       "phoneNumber": "电话号码",
       "phonePlaceholder": "电话号码",

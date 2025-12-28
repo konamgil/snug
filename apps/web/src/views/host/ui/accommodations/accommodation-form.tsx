@@ -8,6 +8,7 @@ import { PhotoUploadModal } from './photo-upload-modal';
 import { PhotoGalleryModal } from './photo-gallery-modal';
 import { FacilityModal, AmenityModal, ManagerModal } from './selection-modal';
 import { AddressSearchModal } from './address-search-modal';
+import { AdditionalFeeModal } from './additional-fee-modal';
 import type {
   AccommodationFormData,
   AccommodationType,
@@ -42,8 +43,8 @@ export function AccommodationForm({
   const tCommon = useTranslations('common');
   const tSpaceTypes = useTranslations('host.accommodation.spaceTypes');
   const tBedTypes = useTranslations('host.accommodation.bedTypes');
-  const tFacilities = useTranslations('host.accommodation.facilities');
-  const tAmenities = useTranslations('host.accommodation.amenities');
+  const tFacilities = useTranslations('host.facilities');
+  const tAmenities = useTranslations('host.amenities');
   const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
   const tBuildingTypes = useTranslations('host.accommodation.buildingTypes');
   const tWeekdays = useTranslations('host.accommodation.weekdays');
@@ -63,6 +64,7 @@ export function AccommodationForm({
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isPhotoUploadModalOpen, setIsPhotoUploadModalOpen] = useState(false);
   const [isPhotoGalleryModalOpen, setIsPhotoGalleryModalOpen] = useState(false);
+  const [isAdditionalFeeModalOpen, setIsAdditionalFeeModalOpen] = useState(false);
   const [galleryInitialCategoryId, setGalleryInitialCategoryId] = useState<string>('main');
   const [galleryCategories, setGalleryCategories] = useState<PhotoCategory[]>([]);
   const [galleryOpenedFrom, setGalleryOpenedFrom] = useState<'main' | 'uploadModal'>('main');
@@ -113,14 +115,20 @@ export function AccommodationForm({
     updateSpace({ genderRules: newRules });
   };
 
+  // Convert snake_case to camelCase (DB stores snake_case, translations use camelCase)
+  const snakeToCamel = (str: string) =>
+    str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
   const getFacilityLabel = (id: string) => {
+    const camelId = snakeToCamel(id);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return tFacilities(id as any);
+    return tFacilities(camelId as any);
   };
 
   const getAmenityLabel = (id: string) => {
+    const camelId = snakeToCamel(id);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return tAmenities(id as any);
+    return tAmenities(camelId as any);
   };
 
   const addManager = (manager: Omit<ManagerInfo, 'id'>) => {
@@ -131,11 +139,11 @@ export function AccommodationForm({
     updateData({ managers: [...data.managers, newManager] });
   };
 
-  const addAdditionalFee = () => {
+  const addAdditionalFee = (name: string, amount: number) => {
     const newFee: AdditionalFeeItem = {
       id: Date.now().toString(),
-      name: '',
-      amount: 0,
+      name,
+      amount,
     };
     updatePricing({
       additionalFees: [...data.pricing.additionalFees, newFee],
@@ -145,14 +153,6 @@ export function AccommodationForm({
   const removeAdditionalFee = (id: string) => {
     updatePricing({
       additionalFees: data.pricing.additionalFees.filter((fee) => fee.id !== id),
-    });
-  };
-
-  const updateAdditionalFee = (id: string, updates: Partial<Omit<AdditionalFeeItem, 'id'>>) => {
-    updatePricing({
-      additionalFees: data.pricing.additionalFees.map((fee) =>
-        fee.id === id ? { ...fee, ...updates } : fee,
-      ),
     });
   };
 
@@ -628,7 +628,7 @@ export function AccommodationForm({
               </label>
               <button
                 type="button"
-                onClick={addAdditionalFee}
+                onClick={() => setIsAdditionalFeeModalOpen(true)}
                 className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
               >
                 {t('addFeeItemButton')}
@@ -701,41 +701,23 @@ export function AccommodationForm({
               </div>
               {/* 동적 추가 요금 항목 */}
               {data.pricing.additionalFees.map((fee) => (
-                <div key={fee.id} className="col-span-2 flex items-end gap-3">
-                  <div className="flex-1">
-                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
-                      {t('itemName')}
-                    </label>
-                    <input
-                      type="text"
-                      value={fee.name}
-                      onChange={(e) => updateAdditionalFee(fee.id, { name: e.target.value })}
-                      placeholder={t('itemNamePlaceholder')}
-                      className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                    />
+                <div key={fee.id}>
+                  <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
+                    {fee.name}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))] bg-white">
+                      {fee.amount.toLocaleString()}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeAdditionalFee(fee.id)}
+                      className="p-2 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                      aria-label={tCommon('delete')}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-[hsl(var(--snug-gray))] mb-1">
-                      {t('amount')}
-                    </label>
-                    <input
-                      type="number"
-                      value={fee.amount || ''}
-                      onChange={(e) =>
-                        updateAdditionalFee(fee.id, { amount: parseInt(e.target.value) || 0 })
-                      }
-                      placeholder={t('amountPlaceholder')}
-                      className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeAdditionalFee(fee.id)}
-                    className="p-3 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-orange))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                    aria-label={tCommon('delete')}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
                 </div>
               ))}
             </div>
@@ -1180,6 +1162,12 @@ export function AccommodationForm({
           }}
         />
       )}
+
+      <AdditionalFeeModal
+        isOpen={isAdditionalFeeModalOpen}
+        onClose={() => setIsAdditionalFeeModalOpen(false)}
+        onSave={addAdditionalFee}
+      />
     </div>
   );
 }

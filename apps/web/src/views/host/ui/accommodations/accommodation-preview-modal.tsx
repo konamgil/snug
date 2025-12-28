@@ -197,15 +197,19 @@ export function AccommodationPreviewModal({
     return tAccommodationTypes(data.accommodationType);
   };
 
+  // Convert snake_case to camelCase (DB stores snake_case, translations use camelCase)
+  const snakeToCamel = (str: string) =>
+    str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
   const getFacilityLabels = () => {
     return data.facilities.map((id) => {
-      return tFacilities(id);
+      return tFacilities(snakeToCamel(id));
     });
   };
 
   const getAmenityLabels = () => {
     return data.amenities.map((id) => {
-      return tAmenities(id);
+      return tAmenities(snakeToCamel(id));
     });
   };
 

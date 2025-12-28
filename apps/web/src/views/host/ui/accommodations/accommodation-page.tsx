@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
 import {
@@ -19,89 +19,7 @@ import { AccommodationPreviewPanel } from './accommodation-preview-panel';
 import type { AccommodationFormData, AccommodationType, BuildingType, GenderRule } from './types';
 import { DEFAULT_FORM_DATA } from './types';
 import type { GroupItem } from './group-management-modal';
-
-interface AccommodationPageHeaderProps {
-  breadcrumb: string[];
-  openDate?: string;
-  lastModifiedBy?: string;
-  isOperating: boolean;
-  onToggleOperating: (value: boolean) => void;
-}
-
-function AccommodationPageHeader({
-  breadcrumb,
-  openDate,
-  lastModifiedBy,
-  isOperating,
-  onToggleOperating,
-}: AccommodationPageHeaderProps) {
-  const t = useTranslations('host.accommodation.list');
-
-  return (
-    <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[hsl(var(--snug-border))]">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
-        </button>
-        <nav className="flex items-center gap-2 text-sm">
-          {breadcrumb.map((item, index) => (
-            <span key={item} className="flex items-center gap-2">
-              {index > 0 && <ChevronRight className="w-4 h-4 text-[hsl(var(--snug-gray))]" />}
-              <span
-                className={
-                  index === breadcrumb.length - 1
-                    ? 'font-bold text-[hsl(var(--snug-text-primary))]'
-                    : 'text-[hsl(var(--snug-gray))]'
-                }
-              >
-                {item}
-              </span>
-            </span>
-          ))}
-        </nav>
-      </div>
-
-      <div className="flex items-center gap-4 text-sm">
-        {/* Meta Info */}
-        {openDate && (
-          <>
-            <span className="text-[hsl(var(--snug-gray))]">{openDate}</span>
-            <span className="text-[hsl(var(--snug-border))]">|</span>
-          </>
-        )}
-        {lastModifiedBy && (
-          <>
-            <span className="text-[hsl(var(--snug-gray))]">{lastModifiedBy}</span>
-            <span className="text-[hsl(var(--snug-border))]">|</span>
-          </>
-        )}
-
-        {/* Operating Toggle */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onToggleOperating(!isOperating)}
-            className={`relative w-12 h-6 rounded-full transition-colors ${
-              isOperating ? 'bg-[hsl(var(--snug-orange))]' : 'bg-[hsl(var(--snug-gray))]'
-            }`}
-          >
-            <span
-              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                isOperating ? 'left-7' : 'left-1'
-              }`}
-            />
-          </button>
-          <span className="text-[hsl(var(--snug-text-primary))]">
-            {isOperating ? t('operating') : t('notOperating')}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { useBreadcrumb } from '../host-breadcrumb-context';
 
 interface AccommodationPageFooterProps {
   onDelete?: () => void;
@@ -422,6 +340,7 @@ export function AccommodationNewPage() {
   const router = useRouter();
   const t = useTranslations('host.accommodation.page');
   const { user, refreshUser } = useAuthStore();
+  const { setBreadcrumb, setHeaderActions } = useBreadcrumb();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -438,6 +357,22 @@ export function AccommodationNewPage() {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }, []);
+
+  // Set breadcrumb
+  useEffect(() => {
+    setBreadcrumb([t('breadcrumbManagement'), t('breadcrumbNew')]);
+    return () => setBreadcrumb([]);
+  }, [setBreadcrumb, t]);
+
+  // Set header actions
+  useEffect(() => {
+    setHeaderActions({
+      isOperating: formData.isOperating,
+      onToggleOperating: (value: boolean) =>
+        setFormData((prev) => ({ ...prev, isOperating: value })),
+    });
+    return () => setHeaderActions({});
+  }, [setHeaderActions, formData.isOperating]);
 
   // Fetch groups on mount
   useEffect(() => {
@@ -648,13 +583,6 @@ export function AccommodationNewPage() {
 
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
-      {/* Header */}
-      <AccommodationPageHeader
-        breadcrumb={[t('breadcrumbManagement'), t('breadcrumbNew')]}
-        isOperating={formData.isOperating}
-        onToggleOperating={(value) => setFormData((prev) => ({ ...prev, isOperating: value }))}
-      />
-
       {/* Content */}
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
@@ -711,6 +639,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
   const t = useTranslations('host.accommodation.page');
   const tCommon = useTranslations('common');
   const { user } = useAuthStore();
+  const { setBreadcrumb, setHeaderActions } = useBreadcrumb();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -730,6 +659,27 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }, []);
+
+  // Set breadcrumb (only after data is loaded)
+  useEffect(() => {
+    if (!isLoading && formData.roomName) {
+      setBreadcrumb([t('breadcrumbManagement'), formData.roomName]);
+    }
+    return () => setBreadcrumb([]);
+  }, [setBreadcrumb, t, isLoading, formData.roomName]);
+
+  // Set header actions (only after data is loaded)
+  useEffect(() => {
+    if (!isLoading) {
+      setHeaderActions({
+        lastModifiedBy: formData.lastModifiedAt,
+        isOperating: formData.isOperating,
+        onToggleOperating: (value: boolean) =>
+          setFormData((prev) => ({ ...prev, isOperating: value })),
+      });
+    }
+    return () => setHeaderActions({});
+  }, [setHeaderActions, isLoading, formData.lastModifiedAt, formData.isOperating]);
 
   // Fetch groups and accommodation data on mount
   useEffect(() => {
@@ -982,15 +932,6 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
 
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
-      {/* Header */}
-      <AccommodationPageHeader
-        breadcrumb={[t('breadcrumbManagement'), formData.roomName || tCommon('edit')]}
-        openDate={formData.openDate}
-        lastModifiedBy={formData.lastModifiedAt}
-        isOperating={formData.isOperating}
-        onToggleOperating={(value) => setFormData((prev) => ({ ...prev, isOperating: value }))}
-      />
-
       {/* Content */}
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}

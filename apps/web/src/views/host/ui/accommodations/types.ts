@@ -128,6 +128,7 @@ export const FACILITY_OPTIONS = [
   'digitalLock',
   'refrigerator',
   'airConditioner',
+  'conditioner',
   'coffeeMaker',
   'washer',
   'closet',
@@ -139,16 +140,7 @@ export const FACILITY_OPTIONS = [
 export type FacilityId = (typeof FACILITY_OPTIONS)[number];
 
 // Amenity options (labels come from translations: host.amenities.*)
-export const AMENITY_OPTIONS = [
-  'hairDryer',
-  'shampoo',
-  'conditioner',
-  'bodyWash',
-  'soap',
-  'towel',
-  'toothbrush',
-  'toothpaste',
-] as const;
+export const AMENITY_OPTIONS = ['hairDryer', 'shampoo', 'conditioner', 'bodyWash', 'soap'] as const;
 
 export type AmenityId = (typeof AMENITY_OPTIONS)[number];
 

@@ -48,122 +48,125 @@ interface IllustrationSlide {
 type Slide = RoomSlide | TourSlide | IllustrationSlide;
 
 // Mock data
+// TODO: 오픈 후 다른 슬라이드 복원 필요
 const mockSlides: Slide[] = [
   {
     type: 'illustration',
     image: '/images/banner/banner-illustration.webp',
     captionKey: 'slide1',
   },
-  {
-    type: 'rooms',
-    rooms: [
-      {
-        id: '1',
-        image: '/images/rooms/room-1.jpg',
-        tags: [
-          { label: 'Shared Room', color: 'orange' },
-          { label: 'Hotel', color: 'purple' },
-        ],
-        location: 'Gangnam-gu',
-        originalPrice: 200,
-        price: 160,
-        nights: 1,
-        imageCount: 10,
-        currentImageIndex: 0,
-      },
-      {
-        id: '2',
-        image: '/images/rooms/room-2.jpg',
-        tags: [
-          { label: 'Shared House', color: 'orange' },
-          { label: 'Hotel', color: 'purple' },
-        ],
-        location: 'Seocho-gu',
-        price: 130,
-        nights: 1,
-        imageCount: 10,
-        currentImageIndex: 0,
-      },
-    ],
-  },
-  {
-    type: 'rooms',
-    rooms: [
-      {
-        id: '3',
-        image: '/images/rooms/room-3.jpg',
-        tags: [
-          { label: 'Shared Room', color: 'orange' },
-          { label: 'Hotel', color: 'purple' },
-        ],
-        location: 'Mapo-gu',
-        price: 120,
-        nights: 1,
-        imageCount: 8,
-        currentImageIndex: 0,
-      },
-      {
-        id: '4',
-        image: '/images/rooms/room-4.jpg',
-        tags: [{ label: 'Shared House', color: 'orange' }],
-        location: 'Yongsan-gu',
-        originalPrice: 180,
-        price: 150,
-        nights: 1,
-        imageCount: 12,
-        currentImageIndex: 0,
-      },
-    ],
-  },
-  {
-    type: 'tour',
-    tour: {
-      id: 'tour-1',
-      image: '/images/tours/bukchon.jpg',
-      location: 'Seoul · Tour',
-      title: 'Welcome to Bukchon Hanok Village',
-      pricePerPerson: 15,
-    },
-  },
-  {
-    type: 'rooms',
-    rooms: [
-      {
-        id: '5',
-        image: '/images/rooms/room-5.jpg',
-        tags: [{ label: 'Shared Room', color: 'orange' }],
-        location: 'Jongno-gu',
-        price: 140,
-        nights: 1,
-        imageCount: 6,
-        currentImageIndex: 0,
-      },
-      {
-        id: '6',
-        image: '/images/rooms/room-6.jpg',
-        tags: [
-          { label: 'Shared House', color: 'orange' },
-          { label: 'Hotel', color: 'purple' },
-        ],
-        location: 'Songpa-gu',
-        originalPrice: 220,
-        price: 180,
-        nights: 1,
-        imageCount: 15,
-        currentImageIndex: 0,
-      },
-    ],
-  },
-  {
-    type: 'tour',
-    tour: {
-      id: 'tour-2',
-      image: '/images/tours/namsan.jpg',
-      location: 'Seoul · Tour',
-      title: 'Namsan Tower Night View Experience',
-      pricePerPerson: 25,
-    },
-  },
+  // 오픈 전까지 임시로 비활성화
+  // {
+  //   type: 'rooms',
+  //   rooms: [
+  //     {
+  //       id: '1',
+  //       image: '/images/rooms/room-1.jpg',
+  //       tags: [
+  //         { label: 'Shared Room', color: 'orange' },
+  //         { label: 'Hotel', color: 'purple' },
+  //       ],
+  //       location: 'Gangnam-gu',
+  //       originalPrice: 200,
+  //       price: 160,
+  //       nights: 1,
+  //       imageCount: 10,
+  //       currentImageIndex: 0,
+  //     },
+  //     {
+  //       id: '2',
+  //       image: '/images/rooms/room-2.jpg',
+  //       tags: [
+  //         { label: 'Shared House', color: 'orange' },
+  //         { label: 'Hotel', color: 'purple' },
+  //       ],
+  //       location: 'Seocho-gu',
+  //       price: 130,
+  //       nights: 1,
+  //       imageCount: 10,
+  //       currentImageIndex: 0,
+  //     },
+  //   ],
+  // },
+  // {
+  //   type: 'rooms',
+  //   rooms: [
+  //     {
+  //       id: '3',
+  //       image: '/images/rooms/room-3.jpg',
+  //       tags: [
+  //         { label: 'Shared Room', color: 'orange' },
+  //         { label: 'Hotel', color: 'purple' },
+  //       ],
+  //       location: 'Mapo-gu',
+  //       price: 120,
+  //       nights: 1,
+  //       imageCount: 8,
+  //       currentImageIndex: 0,
+  //     },
+  //     {
+  //       id: '4',
+  //       image: '/images/rooms/room-4.jpg',
+  //       tags: [{ label: 'Shared House', color: 'orange' }],
+  //       location: 'Yongsan-gu',
+  //       originalPrice: 180,
+  //       price: 150,
+  //       nights: 1,
+  //       imageCount: 12,
+  //       currentImageIndex: 0,
+  //     },
+  //   ],
+  // },
+  // {
+  //   type: 'tour',
+  //   tour: {
+  //     id: 'tour-1',
+  //     image: '/images/tours/bukchon.jpg',
+  //     location: 'Seoul · Tour',
+  //     title: 'Welcome to Bukchon Hanok Village',
+  //     pricePerPerson: 15,
+  //   },
+  // },
+  // {
+  //   type: 'rooms',
+  //   rooms: [
+  //     {
+  //       id: '5',
+  //       image: '/images/rooms/room-5.jpg',
+  //       tags: [{ label: 'Shared Room', color: 'orange' }],
+  //       location: 'Jongno-gu',
+  //       price: 140,
+  //       nights: 1,
+  //       imageCount: 6,
+  //       currentImageIndex: 0,
+  //     },
+  //     {
+  //       id: '6',
+  //       image: '/images/rooms/room-6.jpg',
+  //       tags: [
+  //         { label: 'Shared House', color: 'orange' },
+  //         { label: 'Hotel', color: 'purple' },
+  //       ],
+  //       location: 'Songpa-gu',
+  //       originalPrice: 220,
+  //       price: 180,
+  //       nights: 1,
+  //       imageCount: 15,
+  //       currentImageIndex: 0,
+  //       },
+  //     },
+  //   ],
+  // },
+  // {
+  //   type: 'tour',
+  //   tour: {
+  //     id: 'tour-2',
+  //     image: '/images/tours/namsan.jpg',
+  //     location: 'Seoul · Tour',
+  //     title: 'Namsan Tower Night View Experience',
+  //     pricePerPerson: 25,
+  //   },
+  // },
 ];
 
 interface HeroBannerProps {
@@ -590,14 +593,18 @@ interface IllustrationSlideComponentProps {
 const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
   image,
   caption,
-  isEasterEggActive,
+  isEasterEggActive: _isEasterEggActive,
 }: IllustrationSlideComponentProps) {
+  // TODO: 오픈 후 isEasterEggActive 조건 복원 필요
+  // 오픈 전까지는 항상 비디오 표시
+  const showVideo = true; // _isEasterEggActive
+
   return (
     <div>
       {/* Banner Card */}
       <div className="relative border-[1.5px] border-[hsl(var(--snug-border))] rounded-[20px] overflow-hidden aspect-[8/3] bg-white">
         {/* Illustration Image or Video */}
-        {isEasterEggActive ? (
+        {showVideo ? (
           <video
             src="/images/banner/live-banner.mp4"
             autoPlay
@@ -634,12 +641,12 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
       {/* Caption Bar */}
       <div className="mt-2">
         <div
-          className={`rounded-full py-2 px-4 ${isEasterEggActive ? 'bg-[hsl(var(--snug-orange))]/10' : 'bg-[hsl(var(--snug-light-gray))]'}`}
+          className={`rounded-full py-2 px-4 ${showVideo ? 'bg-[hsl(var(--snug-orange))]/10' : 'bg-[hsl(var(--snug-light-gray))]'}`}
         >
           <p
-            className={`text-[11px] font-bold text-center tracking-tight ${isEasterEggActive ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-text-primary))]'}`}
+            className={`text-[11px] font-bold text-center tracking-tight ${showVideo ? 'text-[hsl(var(--snug-orange))]' : 'text-[hsl(var(--snug-text-primary))]'}`}
           >
-            {isEasterEggActive ? 'Snug Living in Korea, Made Easy.' : caption}
+            {showVideo ? 'Snug Living in Korea, Made Easy.' : caption}
           </p>
         </div>
       </div>

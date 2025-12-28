@@ -31,7 +31,7 @@ export interface UploadProgress {
 function generateFilePath(
   accommodationId: string | null,
   category: string,
-  fileName: string
+  fileName: string,
 ): string {
   const timestamp = Date.now();
   const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -50,7 +50,7 @@ export async function uploadFile(
   file: File,
   accommodationId: string | null,
   category: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
 ): Promise<UploadResult> {
   try {
     const supabase = getSupabaseClient();
@@ -73,9 +73,7 @@ export async function uploadFile(
     }
 
     // 공개 URL 가져오기
-    const { data: publicUrlData } = supabase.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(filePath);
+    const { data: publicUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
 
     if (onProgress) {
       onProgress(100);
@@ -101,7 +99,7 @@ export async function uploadFiles(
   files: File[],
   accommodationId: string | null,
   category: string,
-  onProgress?: (progress: UploadProgress[]) => void
+  onProgress?: (progress: UploadProgress[]) => void,
 ): Promise<UploadResult[]> {
   const progressState: UploadProgress[] = files.map((file) => ({
     fileName: file.name,
@@ -125,11 +123,8 @@ export async function uploadFiles(
     files.map(async (file, index) => {
       updateProgress(index, { status: 'uploading', progress: 10 });
 
-      const result = await uploadFile(
-        file,
-        accommodationId,
-        category,
-        (progress) => updateProgress(index, { progress })
+      const result = await uploadFile(file, accommodationId, category, (progress) =>
+        updateProgress(index, { progress }),
       );
 
       updateProgress(index, {
@@ -139,7 +134,7 @@ export async function uploadFiles(
       });
 
       return result;
-    })
+    }),
   );
 
   return results;
@@ -202,12 +197,64 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
 }
 
 /**
+ * 프로필 아바타 업로드
+ * 형식: avatars/{userId}/{timestamp}_{filename}
+ */
+export async function uploadAvatar(
+  file: File,
+  userId: string,
+  onProgress?: (progress: number) => void,
+): Promise<UploadResult> {
+  try {
+    const supabase = getSupabaseClient();
+    const timestamp = Date.now();
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const uniqueId = Math.random().toString(36).substring(2, 8);
+    const filePath = `avatars/${userId}/${timestamp}_${uniqueId}_${sanitizedFileName}`;
+
+    // 파일 업로드
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('[Storage] Avatar upload error:', uploadError);
+      return {
+        success: false,
+        error: uploadError.message,
+      };
+    }
+
+    // 공개 URL 가져오기
+    const { data: publicUrlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+
+    if (onProgress) {
+      onProgress(100);
+    }
+
+    return {
+      success: true,
+      url: publicUrlData.publicUrl,
+    };
+  } catch (error) {
+    console.error('[Storage] Avatar upload unexpected error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Upload failed',
+    };
+  }
+}
+
+/**
  * 이미지 압축 (필요 시)
  */
 export async function compressImage(
   file: File,
   maxWidth: number = 1920,
-  quality: number = 0.8
+  quality: number = 0.8,
 ): Promise<File> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -249,7 +296,7 @@ export async function compressImage(
             resolve(compressedFile.size < file.size ? compressedFile : file);
           },
           'image/jpeg',
-          quality
+          quality,
         );
       };
       img.onerror = () => resolve(file);

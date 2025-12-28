@@ -20,6 +20,7 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
   showChevron?: boolean;
+  disabled?: boolean;
 }
 
 interface NavSection {
@@ -59,6 +60,7 @@ export function MypageSidebar() {
           href: '/mypage/payment',
           icon: <CreditCard className="w-5 h-5" strokeWidth={1.5} />,
           showChevron: true,
+          disabled: true,
         },
       ],
     },
@@ -70,6 +72,7 @@ export function MypageSidebar() {
           href: '/mypage/reservations',
           icon: <Calendar className="w-5 h-5" strokeWidth={1.5} />,
           showChevron: true,
+          disabled: true,
         },
         {
           label: t('sidebar.favorites'),
@@ -118,7 +121,17 @@ export function MypageSidebar() {
             <ul className="space-y-0.5">
               {section.items.map((item) => (
                 <li key={item.href}>
-                  {item.href === '/logout' ? (
+                  {item.disabled ? (
+                    <div className="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-not-allowed opacity-50">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[hsl(var(--snug-gray))]">{item.icon}</span>
+                        <span className="text-sm text-[hsl(var(--snug-gray))]">{item.label}</span>
+                      </div>
+                      {item.showChevron && (
+                        <ChevronRight className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                      )}
+                    </div>
+                  ) : item.href === '/logout' ? (
                     <button
                       type="button"
                       onClick={handleLogout}

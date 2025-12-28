@@ -12,8 +12,8 @@ import {
   MessageSquare,
   Settings,
   Users,
-  ChevronLeft,
 } from 'lucide-react';
+import { CollapseIcon } from '@/shared/ui/icons';
 
 interface NavItem {
   labelKey: string;
@@ -136,8 +136,8 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
             className="w-full flex items-center justify-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <ChevronLeft
-              className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
+            <CollapseIcon
+              className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
             />
           </button>
         </div>

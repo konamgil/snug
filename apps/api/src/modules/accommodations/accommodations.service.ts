@@ -133,7 +133,7 @@ export class AccommodationsService {
    */
   async findPublic(id: string) {
     const accommodation = await this.prisma.accommodation.findUnique({
-      where: { id, status: 'ACTIVE' },
+      where: { id, status: 'ACTIVE', isOperating: true },
       include: {
         photos: {
           orderBy: { order: 'asc' },
@@ -144,7 +144,7 @@ export class AccommodationsService {
     });
 
     if (!accommodation) {
-      throw new NotFoundException('Accommodation not found');
+      throw new NotFoundException('Accommodation not found or not operating');
     }
 
     // 공개 정보만 반환 (상세 주소 등 제외)
@@ -222,6 +222,7 @@ export class AccommodationsService {
     // 2. 유사 숙소 검색 조건
     const where: Prisma.AccommodationWhereInput = {
       status: 'ACTIVE',
+      isOperating: true, // 운영중인 숙소만
       id: { not: accommodationId }, // 현재 숙소 제외
     };
 
@@ -256,6 +257,7 @@ export class AccommodationsService {
     if (similarAccommodations.length < limit) {
       const additionalWhere: Prisma.AccommodationWhereInput = {
         status: 'ACTIVE',
+        isOperating: true, // 운영중인 숙소만
         id: {
           notIn: [accommodationId, ...similarAccommodations.map((a) => a.id)],
         },
@@ -322,6 +324,7 @@ export class AccommodationsService {
     // WHERE 조건 구성
     const where: Prisma.AccommodationWhereInput = {
       status: 'ACTIVE', // ACTIVE 상태만
+      isOperating: true, // 운영중인 숙소만
     };
 
     // 인원 필터

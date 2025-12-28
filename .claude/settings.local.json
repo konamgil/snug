@@ -73,7 +73,10 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma db push:*)",
       "mcp__supabase__apply_migration",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(pnpm db:generate:*)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(pnpm build)"
     ]
   }
 }

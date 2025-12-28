@@ -316,6 +316,8 @@
       "purposeTourism": "관광",
       "purposeMedical": "의료",
       "purposeOther": "기타",
+      "loginRequired": "로그인이 필요합니다.",
+      "goToLogin": "로그인하기",
       "emailAddress": "이메일 주소",
       "phoneNumber": "전화번호",
       "phonePlaceholder": "전화번호",
@@ -857,6 +859,10 @@
         "weekendPriceOptional": "주말 요금 (1박) (선택)",
         "additionalFeeOptional": "추가 요금 (선택)",
         "addFeeItemButton": "+ 추가 요금 항목 추가",
+        "additionalFeeModalTitle": "추가 요금 정보를 입력해주세요.",
+        "additionalFeeName": "추가 요금명",
+        "additionalFeeNamePlaceholder": "요금명 입력",
+        "additionalFeeAmount": "추가 요금",
         "itemName": "항목명",
         "amount": "금액",
         "capacity": "수용 인원",
@@ -968,9 +974,8 @@
         "contactPlaceholder": "010 - 0000 - 0000",
         "additionalInfo": "추가 정보",
         "additionalInfoPlaceholder": "추가 정보가 있는 경우 입력해주세요."
-      }
-    },
-    "photoGroups": {
+      },
+      "photoGroups": {
       "main": "대표사진",
       "room": "방",
       "living_room": "거실",
@@ -1060,15 +1065,13 @@
       "edit": "수정",
       "viewAllPhotos": "사진 전체보기",
       "noPhotos": "등록된 사진이 없습니다."
-    },
-    "preview": {
-      "livingRoom": "거실",
-      "kitchen": "부엌"
-    },
+    }
+  },
     "facilities": {
       "digitalLock": "디지털 도어락",
       "refrigerator": "냉장고",
       "airConditioner": "에어컨",
+      "conditioner": "컨디셔너",
       "coffeeMaker": "커피 메이커",
       "washer": "세탁기",
       "closet": "옷장",
@@ -1310,6 +1313,7 @@
     "digitalLock": "디지털 도어락",
     "refrigerator": "냉장고",
     "airConditioner": "에어컨",
+    "conditioner": "컨디셔너",
     "coffeeMaker": "커피 메이커",
     "washer": "세탁기",
     "washingMachine": "세탁기",

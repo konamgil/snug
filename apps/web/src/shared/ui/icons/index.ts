@@ -30,3 +30,4 @@ export { WeChatPayIcon } from './wechat-pay-icon';
 export { SpeechBubbleIcon } from './speech-bubble-icon';
 export { BubbleTailIcon } from './bubble-tail-icon';
 export { PainPointsBuildingIcon } from './pain-points-building-icon';
+export { CollapseIcon } from './collapse-icon';

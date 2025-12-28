@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Camera, ChevronDown, User, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { CustomSelect, type SelectOption } from '@/shared/ui';
@@ -13,6 +14,7 @@ import {
   updateProfile,
   type ProfileData as ApiProfileData,
 } from '@/shared/api/profile';
+import { uploadAvatar, validateImageFile, compressImage } from '@/shared/lib/storage';
 
 type VerificationState = 'idle' | 'code_sent' | 'success' | 'error';
 
@@ -26,6 +28,7 @@ interface ProfileFormData {
   phone: string;
   phoneVerified: boolean;
   passportNumber: string;
+  avatarUrl: string;
 }
 
 // PurposeOfStay enum 매핑 (DB 값 <-> UI 값)
@@ -66,6 +69,7 @@ function apiToFormData(data: ApiProfileData): ProfileFormData {
     phone: data.phone || '',
     phoneVerified: data.phoneVerified,
     passportNumber: data.passportNumber || '',
+    avatarUrl: data.avatarUrl || '',
   };
 }
 
@@ -107,10 +111,13 @@ export function ProfilePage() {
     phone: '',
     phoneVerified: false,
     passportNumber: '',
+    avatarUrl: '',
   });
 
   const [editedProfile, setEditedProfile] = useState<ProfileFormData>(profile);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 프로필 데이터 로드
   useEffect(() => {
@@ -190,6 +197,7 @@ export function ProfilePage() {
         aboutMe: editedProfile.aboutMe || undefined,
         purposeOfStay,
         passportNumber: editedProfile.passportNumber || undefined,
+        avatarUrl: editedProfile.avatarUrl || undefined,
       });
 
       if (result) {
@@ -239,6 +247,48 @@ export function ProfilePage() {
   const handleInputChange = useCallback((field: keyof ProfileFormData, value: string) => {
     setEditedProfile((prev) => ({ ...prev, [field]: value }));
   }, []);
+
+  const handleAvatarClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // 파일 검증
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      alert(validation.error);
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      // 이미지 압축 (아바타는 작은 사이즈로)
+      const compressedFile = await compressImage(file, 400, 0.85);
+
+      // 업로드
+      const result = await uploadAvatar(compressedFile, user.id);
+
+      if (result.success && result.url) {
+        setEditedProfile((prev) => ({ ...prev, avatarUrl: result.url! }));
+      } else {
+        alert(result.error || '업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      alert('업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const getCountryLabel = (code: string) => {
     const country = COUNTRY_CODES.find((c) => c.code === code);
@@ -343,17 +393,46 @@ export function ProfilePage() {
             {/* Profile Photo */}
             <div className="mb-6 md:mb-8">
               <div className="relative inline-block">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center border border-[hsl(var(--snug-border))]">
-                  <User className="w-8 h-8 text-[hsl(var(--snug-gray))]" strokeWidth={1} />
-                </div>
+                <button
+                  type="button"
+                  onClick={handleAvatarClick}
+                  disabled={!isEditing || isUploadingAvatar}
+                  className={`w-16 h-16 rounded-full overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center border border-[hsl(var(--snug-border))] ${
+                    isEditing ? 'cursor-pointer hover:opacity-80' : 'cursor-default'
+                  }`}
+                >
+                  {isUploadingAvatar ? (
+                    <Loader2 className="w-6 h-6 animate-spin text-[hsl(var(--snug-orange))]" />
+                  ) : (isEditing ? editedProfile.avatarUrl : profile.avatarUrl) ? (
+                    <Image
+                      src={isEditing ? editedProfile.avatarUrl : profile.avatarUrl}
+                      alt="Profile"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-[hsl(var(--snug-gray))]" strokeWidth={1} />
+                  )}
+                </button>
                 {isEditing && (
                   <button
                     type="button"
-                    className="absolute -top-1 -right-1 w-6 h-6 bg-white border border-[hsl(var(--snug-border))] rounded-full flex items-center justify-center text-[hsl(var(--snug-gray))]"
+                    onClick={handleAvatarClick}
+                    disabled={isUploadingAvatar}
+                    className="absolute -top-1 -right-1 w-6 h-6 bg-white border border-[hsl(var(--snug-border))] rounded-full flex items-center justify-center text-[hsl(var(--snug-gray))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
                   >
                     <Camera className="w-3 h-3" />
                   </button>
                 )}
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
             </div>
 

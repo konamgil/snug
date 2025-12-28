@@ -1,6 +1,7 @@
 export {
   uploadFile,
   uploadFiles,
+  uploadAvatar,
   deleteFile,
   validateImageFile,
   compressImage,

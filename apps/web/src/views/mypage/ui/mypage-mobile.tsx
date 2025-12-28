@@ -66,6 +66,7 @@ export function MypageMobile() {
           href: '/mypage/payment',
           icon: <CreditCard className="w-5 h-5" strokeWidth={1.5} />,
           showChevron: true,
+          disabled: true,
         },
       ],
     },
@@ -77,6 +78,7 @@ export function MypageMobile() {
           href: '/mypage/reservations',
           icon: <Calendar className="w-5 h-5" strokeWidth={1.5} />,
           showChevron: true,
+          disabled: true,
         },
         {
           label: t('sidebar.favorites'),

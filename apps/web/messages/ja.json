@@ -313,6 +313,8 @@
       "purposeTourism": "観光",
       "purposeMedical": "医療",
       "purposeOther": "その他",
+      "loginRequired": "ログインが必要です。",
+      "goToLogin": "ログインする",
       "emailAddress": "メールアドレス",
       "phoneNumber": "電話番号",
       "phonePlaceholder": "電話番号",

@@ -49,8 +49,8 @@ export function HomePage() {
         {/* Hero Banner Carousel - hidden when search is focused (desktop only) */}
         {!isSearchFocused && <HeroBanner className="mb-6 md:mb-8" />}
 
-        {/* View on Map Button */}
-        <ViewOnMapButton />
+        {/* View on Map Button - 빈 검색과 동일하게 동작 */}
+        <ViewOnMapButton onClick={() => router.push('/search')} />
       </main>
 
       {/* Mobile Navigation - visible on mobile only */}

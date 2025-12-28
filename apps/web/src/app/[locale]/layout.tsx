@@ -19,9 +19,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const messages = await getMessages({ locale });
   const metadata = messages.metadata as { title: string; description: string };
 
+  const siteUrl = 'https://findsnug.com';
+  const ogImageUrl = `${siteUrl}/images/og_1200x630.png`;
+
   return {
     title: metadata.title,
     description: metadata.description,
+    openGraph: {
+      title: metadata.title,
+      description: metadata.description,
+      url: siteUrl,
+      siteName: 'hello, snug.',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'hello, snug.',
+        },
+      ],
+      locale: locale === 'ko' ? 'ko_KR' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: metadata.title,
+      description: metadata.description,
+      images: [ogImageUrl],
+    },
   };
 }
 

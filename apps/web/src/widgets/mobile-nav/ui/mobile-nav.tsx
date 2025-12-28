@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Search, Map, MessageCircle, User } from 'lucide-react';
+// TODO: 오픈 후 MessageCircle 복원 필요
+import { Search, Map, /* MessageCircle, */ User } from 'lucide-react';
 import { usePathname } from '@/i18n/navigation';
 import { Link } from 'next-view-transitions';
 import { useLocale } from 'next-intl';
@@ -17,10 +18,11 @@ interface NavItem {
   badge?: number;
 }
 
+// TODO: 오픈 후 채팅 복원 필요
 const navItems: NavItem[] = [
   { href: '/', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
   { href: '/map', icon: Map, labelKey: 'map' },
-  { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
+  // { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
   { href: '/mypage', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
 ];
 

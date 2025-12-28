@@ -153,9 +153,10 @@ export function FacilityModal({ isOpen, onClose, onConfirm, initialSelected }: F
     { id: 'digital_lock', label: tFacilities('digitalLock') },
     { id: 'refrigerator', label: tFacilities('refrigerator') },
     { id: 'air_conditioner', label: tFacilities('airConditioner') },
+    { id: 'conditioner', label: tFacilities('conditioner') },
     { id: 'coffee_maker', label: tFacilities('coffeeMaker') },
-    { id: 'washer', label: tFacilities('washingMachine') },
-    { id: 'closet', label: tFacilities('clothRack') },
+    { id: 'washer', label: tFacilities('washer') },
+    { id: 'closet', label: tFacilities('closet') },
     { id: 'tv', label: 'TV' },
     { id: 'wifi', label: tFacilities('wifi') },
     { id: 'cctv', label: 'CCTV' },
@@ -193,9 +194,6 @@ export function AmenityModal({ isOpen, onClose, onConfirm, initialSelected }: Am
     { id: 'conditioner', label: tAmenities('conditioner') },
     { id: 'body_wash', label: tAmenities('bodyWash') },
     { id: 'soap', label: tAmenities('soap') },
-    { id: 'towel', label: tAmenities('towel') },
-    { id: 'toothbrush', label: tAmenities('toothbrush') },
-    { id: 'toothpaste', label: tAmenities('toothpaste') },
   ];
 
   return (

@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { User, Globe, X } from 'lucide-react';
-import { ChatIcon } from '@/shared/ui/icons';
+// import { ChatIcon } from '@/shared/ui/icons'; // TODO: 채팅 기능 오픈 시 활성화
 import { Link } from '@/i18n/navigation';
-import { ChatModal } from '@/features/chat';
+// import { ChatModal } from '@/features/chat'; // TODO: 채팅 기능 오픈 시 활성화
 import { LanguageDropdown } from './language-dropdown';
 
 interface HeaderActionsProps {
@@ -14,7 +14,7 @@ interface HeaderActionsProps {
 
 export function HeaderActions({ className }: HeaderActionsProps) {
   const t = useTranslations('home');
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  // const [isChatOpen, setIsChatOpen] = useState(false); // TODO: 채팅 기능 오픈 시 활성화
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   return (
@@ -56,7 +56,7 @@ export function HeaderActions({ className }: HeaderActionsProps) {
           <LanguageDropdown isOpen={isLangOpen} onClose={() => setIsLangOpen(false)} />
         </div>
 
-        {/* Chat Button / Close Button */}
+        {/* TODO: 채팅 기능 오픈 시 활성화
         <button
           type="button"
           onClick={() => setIsChatOpen(!isChatOpen)}
@@ -71,10 +71,12 @@ export function HeaderActions({ className }: HeaderActionsProps) {
             <ChatIcon className="w-3.5 h-3.5 text-white" />
           )}
         </button>
+        */}
       </div>
 
-      {/* Chat Modal */}
+      {/* TODO: 채팅 기능 오픈 시 활성화
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      */}
     </>
   );
 }

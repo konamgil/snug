@@ -313,6 +313,8 @@
       "purposeTourism": "Du lịch",
       "purposeMedical": "Điều trị y tế",
       "purposeOther": "Khác",
+      "loginRequired": "Vui lòng đăng nhập để tiếp tục.",
+      "goToLogin": "Đăng nhập",
       "emailAddress": "Địa chỉ Email",
       "phoneNumber": "Số điện thoại",
       "phonePlaceholder": "Số điện thoại",

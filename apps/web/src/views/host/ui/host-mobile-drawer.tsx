@@ -14,6 +14,7 @@ import {
   Settings,
   Users,
 } from 'lucide-react';
+import { useAuthStore } from '@/shared/stores';
 
 interface NavItem {
   labelKey: string;
@@ -67,6 +68,13 @@ interface HostMobileDrawerProps {
 export function HostMobileDrawer({ isOpen, onClose }: HostMobileDrawerProps) {
   const pathname = usePathname();
   const t = useTranslations('host.sidebar');
+  const user = useAuthStore((state) => state.user);
+
+  const displayName = user?.firstName
+    ? user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.firstName
+    : (user?.email?.split('@')[0] ?? 'Guest');
 
   const isActive = (href: string) => {
     if (href === '/host') {
@@ -140,7 +148,7 @@ export function HostMobileDrawer({ isOpen, onClose }: HostMobileDrawerProps) {
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
               <User className="w-5 h-5 text-white/70" />
             </div>
-            <span className="text-sm font-medium text-white">SNUG님</span>
+            <span className="text-sm font-medium text-white">{displayName}님</span>
           </div>
         </div>
       </aside>
