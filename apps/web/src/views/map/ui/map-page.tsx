@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { MobileSearchBar } from '@/views/search/ui/mobile-search-bar';
@@ -9,94 +10,87 @@ import { SearchMap } from '@/views/search/ui/search-map';
 import { SearchModal, type SearchParams } from '@/features/search';
 import { FilterModal, type FilterState } from '@/views/search/ui/filter-modal';
 import type { Room } from '@/views/search/ui/room-card';
+import { getPublicAccommodations } from '@/shared/api/accommodation';
+import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
+import type { AccommodationListItem } from '@snug/types';
 
-// Mock data with Gangnam area coordinates
-const MOCK_ROOMS: Room[] = [
-  {
-    id: '1',
-    title: 'Cozy Studio',
-    location: 'Nonhyeon-dong',
-    district: 'Gangnam-gu',
-    rooms: 1,
-    bathrooms: 1,
-    beds: 2,
-    guests: 2,
-    originalPrice: 200,
-    price: 150,
-    nights: 2,
-    tags: [
-      { label: 'Shared Room', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-1.jpg',
-    lat: 37.5145,
-    lng: 127.0352,
-  },
-  {
-    id: '2',
-    title: 'Spacious Apartment',
-    location: 'Cheongdam-dong',
-    district: 'Gangnam-gu',
-    rooms: 2,
-    bathrooms: 1,
-    beds: 3,
-    guests: 4,
-    price: 160,
-    nights: 10,
-    tags: [
-      { label: 'House', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-2.jpg',
-    lat: 37.5205,
-    lng: 127.0535,
-  },
-  {
-    id: '3',
-    title: 'Modern Share House',
-    location: 'Nonhyeon-dong',
-    district: 'Gangnam-gu',
-    rooms: 1,
-    bathrooms: 1,
-    beds: 2,
-    guests: 2,
-    price: 210,
-    nights: 2,
-    tags: [
-      { label: 'Shared Room', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-3.jpg',
-    lat: 37.5172,
-    lng: 127.0405,
-  },
-  {
-    id: '4',
-    title: 'Luxury Suite',
-    location: 'Cheongdam-dong',
-    district: 'Gangnam-gu',
-    rooms: 2,
-    bathrooms: 1,
-    beds: 3,
-    guests: 4,
-    price: 350,
-    nights: 10,
-    tags: [
-      { label: 'Shared House', color: 'orange' },
-      { label: 'Apartment', color: 'purple' },
-    ],
-    imageUrl: '/images/rooms/room-4.jpg',
-    lat: 37.5158,
-    lng: 127.0475,
-  },
-];
+// API 응답 → Room 타입 변환
+function mapAccommodationToRoom(
+  item: AccommodationListItem,
+  nights: number = 1,
+  locale: string = 'en',
+): Room {
+  const tags: Room['tags'] = [];
+
+  if (item.accommodationType) {
+    tags.push({
+      label: getAccommodationTypeLabel(item.accommodationType, locale),
+      color: 'orange',
+    });
+  }
+
+  if (item.buildingType) {
+    tags.push({
+      label: getBuildingTypeLabel(item.buildingType, locale),
+      color: 'purple',
+    });
+  }
+
+  return {
+    id: item.id,
+    title: item.roomName,
+    location: item.sigunguEn || item.nearestStation || 'Seoul',
+    district: item.sidoEn || 'Seoul',
+    rooms: item.roomCount,
+    bathrooms: item.bathroomCount,
+    beds: 1,
+    guests: item.capacity,
+    price: item.basePrice,
+    nights,
+    tags,
+    imageUrl: item.thumbnailUrl || '/images/rooms/placeholder.jpg',
+    lat: item.latitude || 37.5665,
+    lng: item.longitude || 126.978,
+  };
+}
 
 function MapPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const locale = useLocale();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const locationValue = searchParams.get('location') || '';
+  const guestsParam = searchParams.get('guests');
+  const totalGuests = guestsParam ? parseInt(guestsParam, 10) : 0;
+
+  // 숙소 목록 가져오기
+  const fetchAccommodations = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const result = await getPublicAccommodations({
+        location: locationValue || undefined,
+        guests: totalGuests > 0 ? totalGuests : undefined,
+      });
+      const mappedRooms = result.data.map((item: AccommodationListItem) =>
+        mapAccommodationToRoom(item, 1, locale),
+      );
+      setRooms(mappedRooms);
+    } catch (error) {
+      console.error('Failed to fetch accommodations:', error);
+      setRooms([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [locationValue, totalGuests, locale]);
+
+  useEffect(() => {
+    fetchAccommodations();
+  }, [fetchAccommodations]);
 
   const hasActiveFilters =
     activeFilters !== null &&
@@ -107,14 +101,11 @@ function MapPageContent() {
       activeFilters.facilities.length > 0 ||
       activeFilters.amenities.length > 0);
 
-  const locationValue = searchParams.get('location') || '';
   const checkInParam = searchParams.get('checkIn');
   const checkOutParam = searchParams.get('checkOut');
-  const guestsParam = searchParams.get('guests');
 
   const checkIn = checkInParam ? new Date(checkInParam) : null;
   const checkOut = checkOutParam ? new Date(checkOutParam) : null;
-  const totalGuests = guestsParam ? parseInt(guestsParam, 10) : 0;
 
   const displayLocation = locationValue || 'Gangnam-gu, Seoul-si';
 
@@ -165,7 +156,13 @@ function MapPageContent() {
 
       {/* Map - Full Screen */}
       <div className="flex-1 relative pb-16">
-        <SearchMap rooms={MOCK_ROOMS} />
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center bg-[hsl(var(--snug-light-gray))]">
+            <p className="text-[hsl(var(--snug-gray))]">Loading...</p>
+          </div>
+        ) : (
+          <SearchMap rooms={rooms} />
+        )}
       </div>
 
       {/* Mobile Navigation */}
