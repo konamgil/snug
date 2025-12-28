@@ -25,6 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: metadata.title,
     description: metadata.description,
+    icons: {
+      icon: '/images/logo/favicon.svg',
+      apple: '/apple-touch-icon.png',
+    },
+    themeColor: '#FF7900',
     openGraph: {
       title: metadata.title,
       description: metadata.description,
