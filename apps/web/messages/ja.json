@@ -346,7 +346,9 @@
       "continueWithGoogle": "Continue with Google",
       "continueWithApple": "Continue with Apple",
       "continueWithKakao": "Continue with KakaoTalk",
-      "continueWithFacebook": "Continue with Facebook"
+      "continueWithFacebook": "Continue with Facebook",
+      "cannotUnlinkLastIdentity": "最後のログイン方法は解除できません。",
+      "comingSoon": "準備中"
     },
     "payment": {
       "title": "お支払い情報",
@@ -427,7 +429,9 @@
       "noFavoritesDesc": "保存した宿泊先がここに表示されます。",
       "noRecent": "最近閲覧した宿泊先はありません！",
       "noRecentDesc": "最近閲覧した宿泊先がここに表示されます。",
-      "browseStays": "宿泊先を探す"
+      "browseStays": "宿泊先を探す",
+      "guests": "ゲスト",
+      "month": "月"
     },
     "settings": {
       "title": "設定",
@@ -470,7 +474,156 @@
     "perNight": "/ 泊",
     "notFound": "宿泊先が見つかりません",
     "noHouseRules": "ハウスルールは登録されていません",
-    "noSimilarStays": "類似の宿泊先はありません"
+    "noSimilarStays": "類似の宿泊先はありません",
+    "selectDates": "日程を選択",
+    "guest": "{count}名",
+    "mapView": "地図を見る",
+    "walkingMinutes": "徒歩{minutes}分",
+    "guidelinesItems": {
+      "checkIn": "チェックイン",
+      "checkOut": "チェックアウト",
+      "cooking": "調理",
+      "laundry": "洗濯",
+      "selfCheckIn": "セルフチェックイン（パスワード提供）",
+      "checkOutTime": "12:30までに",
+      "cookingAllowed": "可能 — 使用後は片付けてください",
+      "laundryAllowed": "長期滞在歓迎"
+    },
+    "detailItems": {
+      "area": "面積",
+      "elevator": "エレベーター",
+      "parking": "駐車場",
+      "room": "部屋",
+      "livingRoom": "リビング",
+      "bathroom": "バスルーム",
+      "kitchen": "キッチン",
+      "floor": "階",
+      "balcony": "バルコニー",
+      "available": "あり",
+      "notAvailable": "なし"
+    },
+    "informationSection": {
+      "title": "管理費に含まれるもの",
+      "subtitle": "（ガス、水道、インターネット、電気）",
+      "content": "すべての光熱費とインターネット料金は管理費に含まれています。含まれるサービスの過度な使用には追加料金が発生する場合があります。"
+    },
+    "refundPolicyItems": {
+      "moreThan15Days": "チェックイン15日以上前：賃料と契約手数料の90%返金",
+      "days14to8": "チェックイン14-8日前：賃料と契約手数料の70%返金",
+      "days7to1": "チェックイン7-1日前：賃料と契約手数料の50%返金",
+      "checkInDay": "チェックイン当日：返金不可"
+    },
+    "longTermDiscountItems": {
+      "weeks2": "2週間以上の契約：5%オフ",
+      "weeks4": "4週間以上の契約：10%オフ",
+      "weeks12": "12週間以上の契約：20%オフ"
+    },
+    "notesItems": {
+      "sameDayCancellation": "当日キャンセルの場合、返金ポリシーに従い賃料と契約手数料の10%がペナルティとして課されます。ただし、無料キャンセル期間内のキャンセルは全額返金されます。",
+      "refundableFees": "管理費、清掃費、保証金は全額返金されます。",
+      "hostTerms": "返金ポリシーはホストの条件により異なる場合があります。"
+    },
+    "booking": {
+      "rentPerNight": "1泊の料金",
+      "includingMaintenance": "（管理費込み）",
+      "nightsCalculation": "{nights}泊 × {price}",
+      "cleaningFee": "清掃費（チェックアウト後）",
+      "deposit": "保証金（返金可能）",
+      "longStayDiscount": "長期滞在割引（{days}日以上）",
+      "serviceFee": "Snugサービス料（{percent}%）",
+      "total": "合計",
+      "chatWithHost": "ホストとチャット",
+      "book": "予約する"
+    },
+    "checkout": {
+      "title": "追加情報",
+      "subtitle": "ホストにお知らせいただきたい事項をご入力ください。",
+      "reasonTitle": "宿泊予約の理由",
+      "reasonHint": "ルームメイトの割り当て時に生活パターンを参考にします。",
+      "reasons": {
+        "travel": "旅行",
+        "study": "留学",
+        "business": "出張",
+        "specify": "その他"
+      },
+      "guestInfo": {
+        "title": "宿泊者情報",
+        "sameAsAccount": "アカウント情報と同じ",
+        "yourInfo": "ご本人情報",
+        "name": "氏名",
+        "firstName": "名",
+        "lastName": "姓",
+        "nameHint": "政府発行の身分証明書と一致することをご確認ください。",
+        "email": "メールアドレス",
+        "emailPlaceholder": "メールアドレスをご入力ください。",
+        "phone": "電話番号",
+        "phonePlaceholder": "電話番号をご入力ください",
+        "verified": "認証済み",
+        "identityVerification": "本人確認",
+        "passport": "パスポート番号",
+        "passportPlaceholder": "パスポート番号をご入力ください。"
+      },
+      "paymentMethod": {
+        "title": "お支払い方法",
+        "creditDebit": "クレジットカードまたはデビットカード",
+        "creditCard": "クレジットカード",
+        "debitCard": "デビットカード",
+        "default": "デフォルト",
+        "easyPayment": "簡単決済"
+      },
+      "payerName": {
+        "title": "お支払い者名",
+        "sameAsAccount": "アカウント情報と同じ",
+        "name": "氏名"
+      },
+      "information": {
+        "title": "ご案内",
+        "maintenanceIncluded": "管理費に含まれる項目",
+        "utilities": "（ガス、水道、インターネット、電気）",
+        "description": "すべての光熱費とインターネット料金は管理費に含まれています。含まれるサービスを過度に使用した場合、追加料金が発生する場合があります。"
+      },
+      "refundPolicy": {
+        "title": "返金ポリシー",
+        "over15days": "チェックイン15日前以上：賃料と契約手数料の90%返金",
+        "days14to8": "チェックイン14〜8日前：賃料と契約手数料の70%返金",
+        "days7to1": "チェックイン7〜1日前：賃料と契約手数料の50%返金",
+        "checkInDay": "チェックイン当日：返金不可"
+      },
+      "notes": {
+        "title": "注意事項",
+        "sameDayCancellation": "当日キャンセルの場合、返金ポリシーに従い賃料と契約手数料の10%がペナルティとして課されます。ただし、無料キャンセル期間内のキャンセルは全額返金されます。",
+        "feesRefundable": "管理費、清掃費、保証金は全額返金されます。",
+        "policyVaries": "返金ポリシーはホストの条件により異なる場合があります。"
+      },
+      "discountItems": {
+        "title": "長期滞在割引",
+        "weeks2": "2週間以上の契約：5%オフ",
+        "weeks4": "4週間以上の契約：10%オフ",
+        "weeks12": "12週間以上の契約：20%オフ"
+      },
+      "summary": {
+        "paymentAmount": "お支払い金額",
+        "guest": "ゲスト",
+        "rentPerNight": "1泊の賃料",
+        "includingMaintenance": "（管理費込み）",
+        "nightsCalculation": "{nights}泊 × {price}",
+        "cleaning": "清掃費（チェックアウト後）",
+        "deposit": "保証金（返金可能）",
+        "serviceFee": "Snugサービス料（{percent}%）",
+        "longStayDiscount": "長期滞在割引（{days}日以上）",
+        "total": "合計",
+        "chatWithHost": "ホストとチャット",
+        "book": "予約する",
+        "payment": "お支払い",
+        "roomTypeDescription": "共同生活を楽しみ、つながりを築くシェアハウスです。"
+      },
+      "countryCodes": {
+        "southKorea": "(+82) 韓国",
+        "usa": "(+1) アメリカ",
+        "china": "(+86) 中国",
+        "japan": "(+81) 日本"
+      }
+    }
   },
   "facilities": {
     "digitalLock": "デジタルロック",

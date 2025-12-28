@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { MapIcon } from '@/shared/ui/icons';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
@@ -17,6 +17,7 @@ import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
+import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
 import type {
   AccommodationListItem,
   AccommodationSearchParams,
@@ -24,21 +25,6 @@ import type {
   BuildingType,
   GenderRule,
 } from '@snug/types';
-
-// 숙소 타입 → 태그 라벨 변환
-const accommodationTypeLabels: Record<string, string> = {
-  HOUSE: 'House',
-  SHARE_ROOM: 'Shared Room',
-  SHARE_HOUSE: 'Share House',
-  APARTMENT: 'Apartment',
-};
-
-const buildingTypeLabels: Record<string, string> = {
-  APARTMENT: 'Apartment',
-  VILLA: 'Villa',
-  HOUSE: 'House',
-  OFFICETEL: 'Officetel',
-};
 
 // UI 필터 값 → API 파라미터 매핑
 const roomTypeToAccommodationType: Record<string, AccommodationType> = {
@@ -61,21 +47,25 @@ const houseRuleToGenderRule: Record<string, GenderRule> = {
 };
 
 // API 응답 → Room 타입 변환
-function mapAccommodationToRoom(item: AccommodationListItem, nights: number = 1): Room {
+function mapAccommodationToRoom(
+  item: AccommodationListItem,
+  nights: number = 1,
+  locale: string = 'en',
+): Room {
   const tags: Room['tags'] = [];
 
-  // 숙소 타입 태그
+  // 숙소 타입 태그 (다국어 지원)
   if (item.accommodationType) {
     tags.push({
-      label: accommodationTypeLabels[item.accommodationType] || item.accommodationType,
+      label: getAccommodationTypeLabel(item.accommodationType, locale),
       color: 'orange',
     });
   }
 
-  // 건물 타입 태그
+  // 건물 타입 태그 (다국어 지원)
   if (item.buildingType) {
     tags.push({
-      label: buildingTypeLabels[item.buildingType] || item.buildingType,
+      label: getBuildingTypeLabel(item.buildingType, locale),
       color: 'purple',
     });
   }
@@ -102,6 +92,7 @@ function mapAccommodationToRoom(item: AccommodationListItem, nights: number = 1)
 function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('search');
   const tHome = useTranslations('home');
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -212,7 +203,7 @@ function SearchPageContent() {
       const result = await getPublicAccommodations(params);
       const nights = calculateNights();
       const mappedRooms = result.data.map((item: AccommodationListItem) =>
-        mapAccommodationToRoom(item, nights),
+        mapAccommodationToRoom(item, nights, locale),
       );
 
       setRooms(mappedRooms);
@@ -224,7 +215,7 @@ function SearchPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [locationValue, guests, sortOption, activeFilters, calculateNights, mapSortOption]);
+  }, [locationValue, guests, sortOption, activeFilters, calculateNights, mapSortOption, locale]);
 
   // 초기 로딩 및 검색 조건 변경 시 데이터 fetch
   useEffect(() => {

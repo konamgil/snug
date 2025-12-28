@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
 import { useCurrencySafe } from '@/shared/providers';
+import { useAuthStore } from '@/shared/stores';
+import { useRouter } from '@/i18n/navigation';
+import { toggleFavorite } from '@/shared/api/favorites';
 
 export interface Room {
   id: string;
@@ -52,16 +56,59 @@ const tagSecondColors = {
 export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCardProps) {
   const locale = useLocale();
   const t = useTranslations('rooms');
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { format } = useCurrencySafe();
+  const user = useAuthStore((state) => state.user);
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [_isPending, startTransition] = useTransition();
   const totalImages = 10; // Mock total images
-  const roomDetailUrl = `/${locale}/room/${room.id}`;
+
+  // Build room detail URL with search params (checkIn, checkOut, guests)
+  const buildRoomDetailUrl = () => {
+    const params = new URLSearchParams();
+    const checkIn = searchParams.get('checkIn');
+    const checkOut = searchParams.get('checkOut');
+    const guests = searchParams.get('guests');
+
+    if (checkIn) params.set('checkIn', checkIn);
+    if (checkOut) params.set('checkOut', checkOut);
+    if (guests) params.set('guests', guests);
+
+    const queryString = params.toString();
+    return `/${locale}/room/${room.id}${queryString ? `?${queryString}` : ''}`;
+  };
+
+  const roomDetailUrl = buildRoomDetailUrl();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    e.preventDefault();
+
+    // 로그인 안 된 경우 로그인 페이지로 이동
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    // Optimistic update
+    const newFavoriteState = !isFavorite;
+    setIsFavorite(newFavoriteState);
     onFavoriteToggle?.(room.id);
+
+    // API 호출
+    startTransition(async () => {
+      try {
+        const result = await toggleFavorite(room.id);
+        // API 결과와 로컬 상태 동기화
+        setIsFavorite(result.isFavorite);
+      } catch (error) {
+        // 실패 시 원래 상태로 롤백
+        console.error('Failed to toggle favorite:', error);
+        setIsFavorite(!newFavoriteState);
+      }
+    });
   };
 
   const handlePrevImage = (e: React.MouseEvent) => {

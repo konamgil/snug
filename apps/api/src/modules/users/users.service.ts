@@ -40,6 +40,10 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
+  async findBySupabaseId(supabaseId: string) {
+    return this.usersRepository.findBySupabaseId(supabaseId);
+  }
+
   async update(
     id: string,
     data: {

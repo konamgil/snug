@@ -6,6 +6,7 @@ import { User, Globe, X } from 'lucide-react';
 import { ChatIcon } from '@/shared/ui/icons';
 import { Link } from '@/i18n/navigation';
 import { ChatModal } from '@/features/chat';
+import { LanguageDropdown } from './language-dropdown';
 
 interface HeaderActionsProps {
   className?: string;
@@ -14,6 +15,7 @@ interface HeaderActionsProps {
 export function HeaderActions({ className }: HeaderActionsProps) {
   const t = useTranslations('home');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
 
   return (
     <>
@@ -36,13 +38,23 @@ export function HeaderActions({ className }: HeaderActionsProps) {
         </Link>
 
         {/* Language Switcher */}
-        <button
-          type="button"
-          className="w-8 h-8 rounded-full bg-[hsl(var(--snug-orange))] flex items-center justify-center hover:opacity-90 transition-opacity"
-          aria-label="Change Language"
-        >
-          <Globe className="w-3.5 h-3.5 text-white" />
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className={`w-8 h-8 rounded-full flex items-center justify-center hover:opacity-90 transition-all ${
+              isLangOpen ? 'bg-[hsl(var(--snug-light-gray))]' : 'bg-[hsl(var(--snug-orange))]'
+            }`}
+            aria-label={isLangOpen ? 'Close language menu' : 'Change Language'}
+          >
+            {isLangOpen ? (
+              <X className="w-3.5 h-3.5 text-[hsl(var(--snug-text-primary))]" />
+            ) : (
+              <Globe className="w-3.5 h-3.5 text-white" />
+            )}
+          </button>
+          <LanguageDropdown isOpen={isLangOpen} onClose={() => setIsLangOpen(false)} />
+        </div>
 
         {/* Chat Button / Close Button */}
         <button

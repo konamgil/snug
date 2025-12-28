@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
   LocationIcon,
@@ -30,7 +30,9 @@ import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
+import { useAuthStore } from '@/shared/stores';
 import { getAccommodationPublic, getSimilarAccommodations } from '@/shared/api/accommodation';
+import { recordView } from '@/shared/api/favorites';
 import {
   getFacilityI18nKey,
   getAmenityI18nKey,
@@ -70,21 +72,21 @@ const roomData = {
   description:
     "Enjoy a peaceful stay in a cozy, sunlit room made for your comfort. Soft bedding and warm, thoughtful decor help you relax and recharge. Located in Seoul's Gangnam district, the stay offers easy transit access and nearby amenities. Perfect for solo travelers or couples looking for a quiet, comfortable retreat.",
   guidelines: [
-    { label: 'Check-in', value: 'Self check-in (Password will be provided)' },
-    { label: 'Check-out', value: 'By 12:30 PM' },
-    { label: 'Cooking', value: 'Allowed — please clean-up after use' },
-    { label: 'Laundry', value: 'Long-term stays welcome' },
+    { labelKey: 'checkIn', valueKey: 'selfCheckIn' },
+    { labelKey: 'checkOut', valueKey: 'checkOutTime' },
+    { labelKey: 'cooking', valueKey: 'cookingAllowed' },
+    { labelKey: 'laundry', valueKey: 'laundryAllowed' },
   ],
   details: [
-    { icon: 'area', label: 'Area', value: '30㎡' },
-    { icon: 'elevator', label: 'Elevator', value: 'Available' },
-    { icon: 'parking', label: 'Parking', value: 'Available' },
-    { icon: 'room', label: 'Room', value: '1' },
-    { icon: 'living', label: 'Living room', value: '1' },
-    { icon: 'bathroom', label: 'Bathroom', value: '1' },
-    { icon: 'kitchen', label: 'Kitchen', value: '1' },
-    { icon: 'floor', label: '2nd Floor', value: '1' },
-    { icon: 'balcony', label: 'Balcony', value: '1' },
+    { icon: 'area', labelKey: 'area', value: '30㎡' },
+    { icon: 'elevator', labelKey: 'elevator', valueKey: 'available' },
+    { icon: 'parking', labelKey: 'parking', valueKey: 'available' },
+    { icon: 'room', labelKey: 'room', value: '1' },
+    { icon: 'living', labelKey: 'livingRoom', value: '1' },
+    { icon: 'bathroom', labelKey: 'bathroom', value: '1' },
+    { icon: 'kitchen', labelKey: 'kitchen', value: '1' },
+    { icon: 'floor', labelKey: 'floor', value: '2' },
+    { icon: 'balcony', labelKey: 'balcony', value: '1' },
   ],
   facilities: [
     'Digital door lock',
@@ -102,27 +104,13 @@ const roomData = {
     { icon: 'music', text: 'Quiet hours: 10PM - 8AM', allowed: true },
   ],
   information: {
-    title: 'Included in Maintenance Fee',
-    subtitle: '(Gas, Water, Internet, Electricity)',
-    content:
-      'All utility charges and internet fees are included in the maintenance fee. If any of the included services are used excessively, additional charges may apply.',
+    titleKey: 'title',
+    subtitleKey: 'subtitle',
+    contentKey: 'content',
   },
-  refundPolicy: [
-    'More than 15 days before check-in: 90% refund of rent and contract fee',
-    '14-8 days before check-in: 70% refund of rent and contract fee',
-    '7-1 days before check-in: 50% refund of rent and contract fee',
-    'On the check-in date: No refund',
-  ],
-  notes: [
-    'For same-day cancellations, 10% of the rent and contract fee will be charged as a penalty according to the refund policy. However, if the cancellation falls within the free cancellation period, a full refund will be issued.',
-    'Maintenance fees, cleaning fees, and deposits are fully refundable.',
-    "The refund policy may vary depending on the host's terms.",
-  ],
-  longTermDiscount: [
-    { period: 'Contract for 2+ weeks', discount: '5% off' },
-    { period: 'Contract for 4+ weeks', discount: '10% off' },
-    { period: 'Contract for 12+ weeks', discount: '20% off' },
-  ],
+  refundPolicy: ['moreThan15Days', 'days14to8', 'days7to1', 'checkInDay'],
+  notes: ['sameDayCancellation', 'refundableFees', 'hostTerms'],
+  longTermDiscount: ['weeks2', 'weeks4', 'weeks12'],
   host: {
     name: 'Kim',
     responseRate: 98,
@@ -147,11 +135,19 @@ const detailIcons: Record<string, React.ComponentType<{ className?: string }>> =
   balcony: BalconyIcon,
 };
 
-const tagColors = {
-  orange: 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))] bg-white',
-  purple: 'bg-purple-500 text-white',
-  blue: 'bg-blue-500 text-white',
-  green: 'bg-green-500 text-white',
+// Badge styles matching room-card.tsx
+const tagFirstColors = {
+  orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
+  purple: 'bg-[#F9A8D4] text-white font-bold',
+  blue: 'bg-blue-100 text-blue-500 font-bold',
+  green: 'bg-green-100 text-green-500 font-bold',
+};
+
+const tagSecondColors = {
+  orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
+  purple: 'bg-[#F9A8D4] text-white font-bold',
+  blue: 'bg-blue-400 text-white font-bold',
+  green: 'bg-green-400 text-white font-bold',
 };
 
 // Calculate nights between two dates
@@ -165,10 +161,23 @@ export function RoomDetailPage() {
   const locale = useLocale();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const i18nRouter = useI18nRouter();
   const { format } = useCurrencySafe();
   const t = useTranslations();
   const roomId = (params.id as string) || '1';
+  const user = useAuthStore((state) => state.user);
+
+  // Parse dates from URL search params
+  const parseDate = (dateStr: string | null): Date | null => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  const initialCheckIn = parseDate(searchParams.get('checkIn'));
+  const initialCheckOut = parseDate(searchParams.get('checkOut'));
+  const initialGuestCount = parseInt(searchParams.get('guests') || '1', 10);
 
   // API data state
   const [accommodation, setAccommodation] = useState<AccommodationPublic | null>(null);
@@ -178,9 +187,9 @@ export function RoomDetailPage() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [checkIn] = useState<Date | null>(null);
-  const [checkOut] = useState<Date | null>(null);
-  const [guests] = useState<GuestCount>({ adults: 1, children: 0, infants: 0 });
+  const [checkIn] = useState<Date | null>(initialCheckIn);
+  const [checkOut] = useState<Date | null>(initialCheckOut);
+  const [guests] = useState<GuestCount>({ adults: initialGuestCount, children: 0, infants: 0 });
   const [, setIsDateOpen] = useState(false);
   const [, setIsGuestOpen] = useState(false);
   const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
@@ -220,6 +229,13 @@ export function RoomDetailPage() {
     }
     fetchData();
   }, [roomId]);
+
+  // Record recently viewed (only for logged-in users)
+  useEffect(() => {
+    if (user && roomId && accommodation) {
+      recordView(roomId);
+    }
+  }, [user, roomId, accommodation]);
 
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);
@@ -399,20 +415,28 @@ export function RoomDetailPage() {
 
           {/* Mobile Tags */}
           <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-white border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]">
+            <span
+              className={`px-3 py-1.5 text-xs font-semibold rounded-full ${tagFirstColors.orange}`}
+            >
               {displayRoomType}
             </span>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-500 text-white">
-              {displayBuildingType}
-            </span>
+            {displayBuildingType && (
+              <span
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full ${tagSecondColors.purple}`}
+              >
+                {displayBuildingType}
+              </span>
+            )}
           </div>
 
           {/* Mobile Image Counter + More */}
-          <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-xs z-10">
-            <span>
-              {currentImageIndex + 1}/{totalImages} · {t('common.seeMore')}
-            </span>
-          </div>
+          {totalImages > 0 && (
+            <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-xs z-10">
+              <span>
+                {currentImageIndex + 1}/{totalImages} · {t('common.seeMore')}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -443,16 +467,18 @@ export function RoomDetailPage() {
 
               {/* Tags */}
               <div className="absolute top-4 left-4 flex gap-2 z-10">
-                {roomData.tags.map((tag, index) => (
+                <span
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full ${tagFirstColors.orange}`}
+                >
+                  {displayRoomType}
+                </span>
+                {displayBuildingType && (
                   <span
-                    key={tag.label}
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      index === 0 ? tagColors[tag.color] + ' border' : tagColors[tag.color]
-                    }`}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full ${tagSecondColors.purple}`}
                   >
-                    {tag.label}
+                    {displayBuildingType}
                   </span>
-                ))}
+                )}
               </div>
 
               {/* Navigation Arrows */}
@@ -478,9 +504,11 @@ export function RoomDetailPage() {
               </button>
 
               {/* Image Counter */}
-              <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm z-10">
-                {currentImageIndex + 1} / {totalImages}
-              </div>
+              {totalImages > 0 && (
+                <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm z-10">
+                  {currentImageIndex + 1} / {totalImages}
+                </div>
+              )}
             </div>
 
             {/* Room Type Badge - Desktop */}
@@ -574,11 +602,13 @@ export function RoomDetailPage() {
             >
               <div className="space-y-2">
                 {roomData.guidelines.map((guideline) => (
-                  <div key={guideline.label} className="text-sm">
+                  <div key={guideline.labelKey} className="text-sm">
                     <span className="text-[hsl(var(--snug-text-primary))]">
-                      {guideline.label}:{' '}
+                      {t(`roomDetail.guidelinesItems.${guideline.labelKey}`)}:{' '}
                     </span>
-                    <span className="text-[hsl(var(--snug-gray))]">{guideline.value}</span>
+                    <span className="text-[hsl(var(--snug-gray))]">
+                      {t(`roomDetail.guidelinesItems.${guideline.valueKey}`)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -593,14 +623,17 @@ export function RoomDetailPage() {
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {roomData.details.map((detail) => {
                   const Icon = detailIcons[detail.icon] || RoomIcon;
+                  const displayValue = detail.valueKey
+                    ? t(`roomDetail.detailItems.${detail.valueKey}`)
+                    : detail.value;
                   return (
                     <div
-                      key={detail.label}
+                      key={detail.labelKey}
                       className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
                     >
                       <Icon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                      <span>{detail.label}</span>
-                      <span className="text-[hsl(var(--snug-gray))]">· {detail.value}</span>
+                      <span>{t(`roomDetail.detailItems.${detail.labelKey}`)}</span>
+                      <span className="text-[hsl(var(--snug-gray))]">· {displayValue}</span>
                     </div>
                   );
                 })}
@@ -685,14 +718,14 @@ export function RoomDetailPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-                    {roomData.information.title}
+                    {t(`roomDetail.informationSection.${roomData.information.titleKey}`)}
                   </h4>
                   <span className="text-sm text-[hsl(var(--snug-gray))]">
-                    {roomData.information.subtitle}
+                    {t(`roomDetail.informationSection.${roomData.information.subtitleKey}`)}
                   </span>
                 </div>
                 <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
-                  {roomData.information.content}
+                  {t(`roomDetail.informationSection.${roomData.information.contentKey}`)}
                 </p>
               </div>
             </Section>
@@ -882,13 +915,13 @@ export function RoomDetailPage() {
               onToggle={() => toggleSection('refundPolicy')}
             >
               <ul className="space-y-2">
-                {roomData.refundPolicy.map((policy, index) => (
+                {roomData.refundPolicy.map((policyKey) => (
                   <li
-                    key={index}
+                    key={policyKey}
                     className="flex items-start gap-2 text-sm text-[hsl(var(--snug-gray))]"
                   >
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                    <span>{policy}</span>
+                    <span>{t(`roomDetail.refundPolicyItems.${policyKey}`)}</span>
                   </li>
                 ))}
               </ul>
@@ -901,15 +934,13 @@ export function RoomDetailPage() {
               onToggle={() => toggleSection('longTermDiscount')}
             >
               <ul className="space-y-2">
-                {roomData.longTermDiscount.map((item, index) => (
+                {roomData.longTermDiscount.map((discountKey) => (
                   <li
-                    key={index}
+                    key={discountKey}
                     className="flex items-start gap-2 text-sm text-[hsl(var(--snug-gray))]"
                   >
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[hsl(var(--snug-gray))] rounded-full flex-shrink-0" />
-                    <span>
-                      {item.period}: {item.discount}
-                    </span>
+                    <span>{t(`roomDetail.longTermDiscountItems.${discountKey}`)}</span>
                   </li>
                 ))}
               </ul>
@@ -923,13 +954,13 @@ export function RoomDetailPage() {
               showToggle={false}
             >
               <ul className="space-y-2">
-                {roomData.notes.map((note, index) => (
+                {roomData.notes.map((noteKey) => (
                   <li
-                    key={index}
+                    key={noteKey}
                     className="flex items-start gap-2 text-sm text-[hsl(var(--snug-gray))]"
                   >
                     <span className="w-1.5 h-1.5 mt-1.5 bg-[hsl(var(--snug-gray))] rounded-full flex-shrink-0" />
-                    <span className="leading-relaxed">{note}</span>
+                    <span className="leading-relaxed">{t(`roomDetail.notesItems.${noteKey}`)}</span>
                   </li>
                 ))}
               </ul>
@@ -954,7 +985,14 @@ export function RoomDetailPage() {
                 initialCheckIn={checkIn}
                 initialCheckOut={checkOut}
                 initialGuests={guests}
-                onBook={() => router.push(`/${locale}/room/${roomId}/payment`)}
+                onBook={() => {
+                  const totalGuests = guests.adults + guests.children;
+                  const params = new URLSearchParams();
+                  if (checkIn) params.set('checkIn', checkIn.toISOString());
+                  if (checkOut) params.set('checkOut', checkOut.toISOString());
+                  params.set('guests', String(totalGuests));
+                  router.push(`/${locale}/room/${roomId}/payment?${params.toString()}`);
+                }}
                 onChatWithHost={() => {}}
               />
             </div>
@@ -986,7 +1024,14 @@ export function RoomDetailPage() {
           {/* Book Button */}
           <button
             type="button"
-            onClick={() => router.push(`/${locale}/room/${roomId}/payment`)}
+            onClick={() => {
+              const totalGuests = guests.adults + guests.children;
+              const params = new URLSearchParams();
+              if (checkIn) params.set('checkIn', checkIn.toISOString());
+              if (checkOut) params.set('checkOut', checkOut.toISOString());
+              params.set('guests', String(totalGuests));
+              router.push(`/${locale}/room/${roomId}/payment?${params.toString()}`);
+            }}
             className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
           >
             {t('roomDetail.reserveNow')}

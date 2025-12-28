@@ -34,10 +34,10 @@ const CACHE_KEY = 'snug_exchange_rates_v2';
 const CACHE_TTL = 5 * 60 * 1000; // 5분 (서버 데이터 캐싱)
 
 /**
- * 폴백 환율 (API 실패 시 사용)
- * 2024년 기준 대략적인 환율
+ * 초기 폴백 환율 (캐시도 없고 API도 실패할 때만 사용)
+ * 최초 접속 시에만 사용되는 최후의 수단
  */
-const FALLBACK_RATES: Record<CurrencyCode, number> = {
+const INITIAL_FALLBACK_RATES: Record<CurrencyCode, number> = {
   KRW: 1,
   USD: 0.00074, // 1 KRW = 0.00074 USD (약 1350원)
   JPY: 0.11, // 1 KRW = 0.11 JPY
@@ -46,9 +46,10 @@ const FALLBACK_RATES: Record<CurrencyCode, number> = {
 };
 
 /**
- * localStorage에서 캐시된 환율 조회
+ * localStorage에서 캐시된 환율 조회 (TTL 무시 옵션)
+ * @param ignoreTTL - true면 만료된 캐시도 반환 (폴백용)
  */
-function getCachedRates(): ExchangeRates | null {
+function getCachedRates(ignoreTTL = false): ExchangeRates | null {
   if (typeof window === 'undefined') return null;
 
   try {
@@ -57,9 +58,8 @@ function getCachedRates(): ExchangeRates | null {
 
     const data = JSON.parse(cached) as ExchangeRates & { updatedAt: string; cachedAt: number };
 
-    // TTL 확인
-    if (Date.now() - data.cachedAt > CACHE_TTL) {
-      localStorage.removeItem(CACHE_KEY);
+    // TTL 확인 (ignoreTTL이면 만료되어도 반환)
+    if (!ignoreTTL && Date.now() - data.cachedAt > CACHE_TTL) {
       return null;
     }
 
@@ -108,8 +108,8 @@ async function fetchExchangeRatesFromAPI(): Promise<ExchangeRates> {
     const data = await response.json();
 
     // API 응답을 ExchangeRates 형식으로 변환
-    // 폴백 환율로 초기화 후 API 데이터로 덮어쓰기
-    const rates: Record<CurrencyCode, number> = { ...FALLBACK_RATES };
+    // 초기 폴백 환율로 초기화 후 API 데이터로 덮어쓰기
+    const rates: Record<CurrencyCode, number> = { ...INITIAL_FALLBACK_RATES };
 
     for (const rateData of data.rates || []) {
       const currency = rateData.currency as CurrencyCode;
@@ -132,10 +132,18 @@ async function fetchExchangeRatesFromAPI(): Promise<ExchangeRates> {
   } catch (error) {
     console.error('Failed to fetch exchange rates from API:', error);
 
-    // 폴백 환율 반환
+    // 1순위: 만료된 캐시라도 사용 (이전에 수집된 환율)
+    const expiredCache = getCachedRates(true);
+    if (expiredCache) {
+      console.warn('Using expired cached exchange rates as fallback');
+      return expiredCache;
+    }
+
+    // 2순위: 초기 폴백 환율 (캐시도 없을 때만)
+    console.warn('No cached rates available, using initial fallback rates');
     return {
       base: BASE_CURRENCY,
-      rates: FALLBACK_RATES,
+      rates: INITIAL_FALLBACK_RATES,
       updatedAt: new Date(),
     };
   }
@@ -181,7 +189,7 @@ export function convertCurrency(
 ): number {
   if (from === to) return amount;
 
-  const exchangeRates = rates?.rates ?? FALLBACK_RATES;
+  const exchangeRates = rates?.rates ?? getCachedRates(true)?.rates ?? INITIAL_FALLBACK_RATES;
 
   // KRW 기준으로 변환
   // 1. from → KRW
@@ -212,7 +220,11 @@ export function convertCurrencySync(amount: number, from: CurrencyCode, to: Curr
  */
 export function getRate(currency: CurrencyCode, rates?: ExchangeRates): number {
   if (currency === 'KRW') return 1;
-  return rates?.rates[currency] ?? FALLBACK_RATES[currency];
+  return (
+    rates?.rates[currency] ??
+    getCachedRates(true)?.rates[currency] ??
+    INITIAL_FALLBACK_RATES[currency]
+  );
 }
 
 /**

@@ -352,7 +352,9 @@
       "continueWithKakao": "Continue with KakaoTalk",
       "continueWithFacebook": "Continue with Facebook",
       "loginRequired": "로그인이 필요합니다.",
-      "goToLogin": "로그인하러 가기"
+      "goToLogin": "로그인하러 가기",
+      "cannotUnlinkLastIdentity": "마지막 로그인 방법은 해제할 수 없습니다.",
+      "comingSoon": "준비 중"
     },
     "payment": {
       "title": "결제 정보",
@@ -433,7 +435,9 @@
       "noFavoritesDesc": "저장한 숙소가 여기에 표시됩니다.",
       "noRecent": "최근 본 숙소가 없습니다!",
       "noRecentDesc": "최근 본 숙소가 여기에 표시됩니다.",
-      "browseStays": "숙소 둘러보기"
+      "browseStays": "숙소 둘러보기",
+      "guests": "게스트",
+      "month": "월"
     },
     "settings": {
       "title": "설정",
@@ -476,7 +480,156 @@
     "perNight": "/ 박",
     "notFound": "숙소를 찾을 수 없습니다",
     "noHouseRules": "등록된 숙소 규칙이 없습니다",
-    "noSimilarStays": "유사한 숙소가 없습니다"
+    "noSimilarStays": "유사한 숙소가 없습니다",
+    "selectDates": "날짜 선택",
+    "guest": "{count}명",
+    "mapView": "지도 보기",
+    "walkingMinutes": "도보 {minutes}분",
+    "guidelinesItems": {
+      "checkIn": "체크인",
+      "checkOut": "체크아웃",
+      "cooking": "취사",
+      "laundry": "세탁",
+      "selfCheckIn": "셀프 체크인 (비밀번호 제공)",
+      "checkOutTime": "오후 12:30까지",
+      "cookingAllowed": "가능 — 사용 후 정리해주세요",
+      "laundryAllowed": "장기 투숙 환영"
+    },
+    "detailItems": {
+      "area": "면적",
+      "elevator": "엘리베이터",
+      "parking": "주차",
+      "room": "방",
+      "livingRoom": "거실",
+      "bathroom": "화장실",
+      "kitchen": "주방",
+      "floor": "층",
+      "balcony": "발코니",
+      "available": "있음",
+      "notAvailable": "없음"
+    },
+    "informationSection": {
+      "title": "관리비 포함 항목",
+      "subtitle": "(가스, 수도, 인터넷, 전기)",
+      "content": "모든 공과금과 인터넷 비용이 관리비에 포함되어 있습니다. 포함된 서비스가 과도하게 사용될 경우 추가 요금이 부과될 수 있습니다."
+    },
+    "refundPolicyItems": {
+      "moreThan15Days": "체크인 15일 전 이상: 임대료 및 계약 수수료의 90% 환불",
+      "days14to8": "체크인 14-8일 전: 임대료 및 계약 수수료의 70% 환불",
+      "days7to1": "체크인 7-1일 전: 임대료 및 계약 수수료의 50% 환불",
+      "checkInDay": "체크인 당일: 환불 불가"
+    },
+    "longTermDiscountItems": {
+      "weeks2": "2주 이상 계약: 5% 할인",
+      "weeks4": "4주 이상 계약: 10% 할인",
+      "weeks12": "12주 이상 계약: 20% 할인"
+    },
+    "notesItems": {
+      "sameDayCancellation": "당일 취소 시, 환불 정책에 따라 임대료 및 계약 수수료의 10%가 위약금으로 부과됩니다. 단, 무료 취소 기간 내 취소 시 전액 환불됩니다.",
+      "refundableFees": "관리비, 청소비, 보증금은 전액 환불됩니다.",
+      "hostTerms": "환불 정책은 호스트의 조건에 따라 다를 수 있습니다."
+    },
+    "booking": {
+      "rentPerNight": "1박 요금",
+      "includingMaintenance": "(관리비 포함)",
+      "nightsCalculation": "{nights}박 × {price}",
+      "cleaningFee": "청소비 (퇴실 후)",
+      "deposit": "보증금 (환불 가능)",
+      "longStayDiscount": "장기 투숙 할인 ({days}일 이상)",
+      "serviceFee": "스너그 서비스 수수료 ({percent}%)",
+      "total": "총액",
+      "chatWithHost": "호스트와 채팅",
+      "book": "예약하기"
+    },
+    "checkout": {
+      "title": "추가 정보",
+      "subtitle": "호스트에게 알려주실 사항을 입력해 주세요.",
+      "reasonTitle": "숙소 예약 사유",
+      "reasonHint": "룸메이트 배정 시 생활 패턴을 참고합니다.",
+      "reasons": {
+        "travel": "여행",
+        "study": "유학",
+        "business": "출장",
+        "specify": "직접 입력"
+      },
+      "guestInfo": {
+        "title": "투숙객 정보",
+        "sameAsAccount": "계정 정보와 동일",
+        "yourInfo": "본인 정보",
+        "name": "이름",
+        "firstName": "이름",
+        "lastName": "성",
+        "nameHint": "정부 발급 신분증의 이름과 일치하는지 확인해 주세요.",
+        "email": "이메일 주소",
+        "emailPlaceholder": "이메일 주소를 입력해 주세요.",
+        "phone": "전화번호",
+        "phonePlaceholder": "전화번호를 입력해 주세요",
+        "verified": "인증됨",
+        "identityVerification": "본인 인증",
+        "passport": "여권 번호",
+        "passportPlaceholder": "여권 번호를 입력해 주세요."
+      },
+      "paymentMethod": {
+        "title": "결제 수단",
+        "creditDebit": "신용카드 또는 체크카드",
+        "creditCard": "신용카드",
+        "debitCard": "체크카드",
+        "default": "기본",
+        "easyPayment": "간편 결제"
+      },
+      "payerName": {
+        "title": "결제자 이름",
+        "sameAsAccount": "계정 정보와 동일",
+        "name": "이름"
+      },
+      "information": {
+        "title": "안내 사항",
+        "maintenanceIncluded": "관리비에 포함된 항목",
+        "utilities": "(가스, 수도, 인터넷, 전기)",
+        "description": "모든 공과금과 인터넷 요금은 관리비에 포함되어 있습니다. 포함된 서비스를 과도하게 사용할 경우 추가 요금이 부과될 수 있습니다."
+      },
+      "refundPolicy": {
+        "title": "환불 정책",
+        "over15days": "체크인 15일 전 이상: 임대료 및 계약 수수료의 90% 환불",
+        "days14to8": "체크인 14~8일 전: 임대료 및 계약 수수료의 70% 환불",
+        "days7to1": "체크인 7~1일 전: 임대료 및 계약 수수료의 50% 환불",
+        "checkInDay": "체크인 당일: 환불 불가"
+      },
+      "notes": {
+        "title": "참고 사항",
+        "sameDayCancellation": "당일 취소 시, 환불 정책에 따라 임대료 및 계약 수수료의 10%가 위약금으로 부과됩니다. 단, 무료 취소 기간 내 취소 시 전액 환불됩니다.",
+        "feesRefundable": "관리비, 청소비, 보증금은 전액 환불됩니다.",
+        "policyVaries": "환불 정책은 호스트의 조건에 따라 다를 수 있습니다."
+      },
+      "discountItems": {
+        "title": "장기 투숙 할인",
+        "weeks2": "2주 이상 계약: 5% 할인",
+        "weeks4": "4주 이상 계약: 10% 할인",
+        "weeks12": "12주 이상 계약: 20% 할인"
+      },
+      "summary": {
+        "paymentAmount": "결제 금액",
+        "guest": "게스트",
+        "rentPerNight": "1박 임대료",
+        "includingMaintenance": "(관리비 포함)",
+        "nightsCalculation": "{nights}박 × {price}",
+        "cleaning": "청소비 (퇴실 후)",
+        "deposit": "보증금 (환불 가능)",
+        "serviceFee": "스너그 서비스 수수료 ({percent}%)",
+        "longStayDiscount": "장기 투숙 할인 ({days}일 이상)",
+        "total": "총액",
+        "chatWithHost": "호스트와 채팅",
+        "book": "예약하기",
+        "payment": "결제하기",
+        "roomTypeDescription": "함께 생활하고 소통하는 공유 주택입니다."
+      },
+      "countryCodes": {
+        "southKorea": "(+82) 대한민국",
+        "usa": "(+1) 미국",
+        "china": "(+86) 중국",
+        "japan": "(+81) 일본"
+      }
+    }
   },
   "hostIntro": {
     "hero": {

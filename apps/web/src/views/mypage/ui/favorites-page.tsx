@@ -1,91 +1,102 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Home, Users, ImageIcon } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Heart, Users, ImageIcon, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { MypageSidebar } from './mypage-sidebar';
+import { useCurrencySafe } from '@/shared/providers';
+import {
+  getFavorites,
+  getRecentlyViewed,
+  removeFavorite,
+  removeFromRecentlyViewed,
+  type FavoriteItem as ApiFavoriteItem,
+} from '@/shared/api/favorites';
 
 type TabType = 'favorite' | 'recent';
 
 interface FavoriteItem {
   id: string;
+  roomName: string;
   location: string;
-  rooms: number;
-  bathrooms: number;
-  beds: number;
-  guests: number;
-  originalPrice?: number;
-  price: number;
-  nights: number;
-  roomTypes: string[];
+  address: string;
+  capacity: number;
+  basePrice: number;
+  accommodationType: string;
+  thumbnailUrl: string | null;
   isFavorite: boolean;
 }
 
 export function FavoritesPage() {
   const t = useTranslations('mypage.favorites');
   const router = useRouter();
+  const { format } = useCurrencySafe();
   const [activeTab, setActiveTab] = useState<TabType>('favorite');
+  const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
+  const [recentItems, setRecentItems] = useState<FavoriteItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
-  // Mock data
-  const favoriteItems: FavoriteItem[] = [
-    {
-      id: '1',
-      location: 'Nonhyeon-dong, Gangnam-gu',
-      rooms: 1,
-      bathrooms: 1,
-      beds: 2,
-      guests: 2,
-      originalPrice: 200,
-      price: 160,
-      nights: 2,
-      roomTypes: ['Shared Room', 'Apartment'],
-      isFavorite: true,
-    },
-    {
-      id: '2',
-      location: 'Cheongdam-dong, Gangnam-gu',
-      rooms: 1,
-      bathrooms: 1,
-      beds: 2,
-      guests: 2,
-      originalPrice: 200,
-      price: 160,
-      nights: 2,
-      roomTypes: ['House', 'Dormitory'],
-      isFavorite: true,
-    },
-  ];
+  // API 데이터를 FavoriteItem 형식으로 변환
+  const mapApiToItem = (item: ApiFavoriteItem, isFavorite: boolean): FavoriteItem => ({
+    id: item.id,
+    roomName: item.roomName,
+    location: item.sigungu
+      ? `${item.bname || ''}, ${item.sigungu}`.replace(/^, /, '')
+      : item.address,
+    address: item.address,
+    capacity: item.capacity,
+    basePrice: item.basePrice,
+    accommodationType: item.accommodationType,
+    thumbnailUrl: item.thumbnailUrl,
+    isFavorite,
+  });
 
-  const recentItems: FavoriteItem[] = [
-    {
-      id: '3',
-      location: 'Nonhyeon-dong, Gangnam-gu',
-      rooms: 1,
-      bathrooms: 1,
-      beds: 2,
-      guests: 2,
-      originalPrice: 200,
-      price: 160,
-      nights: 2,
-      roomTypes: ['Shared Room', 'Apartment'],
-      isFavorite: false,
-    },
-    {
-      id: '4',
-      location: 'Cheongdam-dong, Gangnam-gu',
-      rooms: 1,
-      bathrooms: 1,
-      beds: 2,
-      guests: 2,
-      originalPrice: 200,
-      price: 160,
-      nights: 2,
-      roomTypes: ['House', 'Dormitory'],
-      isFavorite: false,
-    },
-  ];
+  // 데이터 로드
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const [favorites, recent] = await Promise.all([getFavorites(), getRecentlyViewed()]);
+
+        setFavoriteItems(favorites.map((item) => mapApiToItem(item, true)));
+        setRecentItems(recent.map((item) => mapApiToItem(item, false)));
+      } catch (error) {
+        console.error('Failed to load favorites:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // 찜 삭제 핸들러
+  const handleRemoveFavorite = (id: string) => {
+    startTransition(async () => {
+      try {
+        await removeFavorite(id);
+        setFavoriteItems((prev) => prev.filter((item) => item.id !== id));
+      } catch (error) {
+        console.error('Failed to remove favorite:', error);
+      }
+    });
+  };
+
+  // 최근 본 숙소 삭제 핸들러
+  const handleRemoveRecent = (id: string) => {
+    startTransition(async () => {
+      try {
+        await removeFromRecentlyViewed(id);
+        setRecentItems((prev) => prev.filter((item) => item.id !== id));
+      } catch (error) {
+        console.error('Failed to remove recent:', error);
+      }
+    });
+  };
 
   const getItems = () => {
     switch (activeTab) {
@@ -99,30 +110,22 @@ export function FavoritesPage() {
   };
 
   const items = getItems();
-
-  // For demo, set to false to show items
-  const showEmptyState = false;
-  const displayItems = showEmptyState ? [] : items;
+  const displayItems = items;
 
   const FavoriteCard = ({
     item,
     showFilledHeart,
+    onRemove,
   }: {
     item: FavoriteItem;
     showFilledHeart: boolean;
+    onRemove: (id: string) => void;
   }) => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isHovered, setIsHovered] = useState(false);
-    const totalImages = 20;
+    const [_isHovered, setIsHovered] = useState(false);
 
-    const nextImage = (e: React.MouseEvent) => {
+    const handleHeartClick = (e: React.MouseEvent) => {
       e.stopPropagation();
-      setCurrentImageIndex((prev) => (prev + 1) % totalImages);
-    };
-
-    const prevImage = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setCurrentImageIndex((prev) => (prev - 1 + totalImages) % totalImages);
+      onRemove(item.id);
     };
 
     return (
@@ -134,63 +137,40 @@ export function FavoritesPage() {
       >
         {/* Image Container */}
         <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
-          {/* Placeholder Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-            <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
-          </div>
+          {/* Image or Placeholder */}
+          {item.thumbnailUrl ? (
+            <Image
+              src={item.thumbnailUrl}
+              alt={item.roomName}
+              fill
+              sizes="(max-width: 768px) 100vw, 560px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+              <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+            </div>
+          )}
 
-          {/* Room Type Badges */}
+          {/* Room Type Badge */}
           <div className="absolute top-3 left-3 flex gap-1.5">
-            {item.roomTypes.map((type, index) => (
-              <span
-                key={type}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
-                  index === 0
-                    ? 'bg-[#FDEEE5] text-[hsl(var(--snug-orange))]'
-                    : 'bg-[#EF8BAC] text-white'
-                }`}
-              >
-                {type}
-              </span>
-            ))}
+            <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-[#FDEEE5] text-[hsl(var(--snug-orange))]">
+              {item.accommodationType}
+            </span>
           </div>
 
           {/* Heart Icon */}
           <button
             type="button"
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center"
+            onClick={handleHeartClick}
+            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"
+            disabled={isPending}
           >
             <Heart
-              className={`w-6 h-6 ${showFilledHeart ? 'fill-red-500 text-red-500' : 'text-white'}`}
+              className={`w-6 h-6 ${showFilledHeart ? 'fill-red-500 text-red-500' : 'text-white drop-shadow-md'}`}
               strokeWidth={2}
             />
           </button>
-
-          {/* Navigation Arrows - Desktop only on hover */}
-          {isHovered && (
-            <>
-              <button
-                type="button"
-                onClick={prevImage}
-                className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full items-center justify-center hover:bg-white transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
-              </button>
-              <button
-                type="button"
-                onClick={nextImage}
-                className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full items-center justify-center hover:bg-white transition-colors"
-              >
-                <ChevronRight className="w-4 h-4 text-gray-600" />
-              </button>
-            </>
-          )}
-
-          {/* Image Counter */}
-          <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/60 text-white text-xs rounded-full">
-            {currentImageIndex + 1} / {totalImages}
-          </div>
         </div>
 
         {/* Info */}
@@ -198,26 +178,18 @@ export function FavoritesPage() {
           <h3 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] truncate">
             {item.location}
           </h3>
+          <p className="text-xs text-[hsl(var(--snug-gray))] truncate mt-0.5">{item.roomName}</p>
           <div className="flex items-center gap-1.5 mt-1 text-xs text-[hsl(var(--snug-gray))]">
-            <Home className="w-4 h-4" />
-            <span>
-              {item.rooms} Rooms · {item.bathrooms} Bathroom · {item.beds} Bed
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-[hsl(var(--snug-gray))]">
             <Users className="w-4 h-4" />
-            <span>{item.guests} Guests</span>
+            <span>
+              {item.capacity} {t('guests')}
+            </span>
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
-            {item.originalPrice && (
-              <span className="text-sm text-[hsl(var(--snug-gray))] line-through">
-                ${item.originalPrice}
-              </span>
-            )}
             <span className="text-base font-bold text-[hsl(var(--snug-orange))]">
-              ${item.price}
+              {format(item.basePrice)}
             </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">for {item.nights} nights</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">/ {t('month')}</span>
           </div>
         </div>
       </div>
@@ -324,7 +296,11 @@ export function FavoritesPage() {
             </div>
 
             {/* Content */}
-            {displayItems.length === 0 ? (
+            {isLoading ? (
+              <div className="py-16 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+              </div>
+            ) : displayItems.length === 0 ? (
               <EmptyState />
             ) : (
               <div className="space-y-6">
@@ -333,6 +309,7 @@ export function FavoritesPage() {
                     key={item.id}
                     item={item}
                     showFilledHeart={activeTab === 'favorite'}
+                    onRemove={activeTab === 'favorite' ? handleRemoveFavorite : handleRemoveRecent}
                   />
                 ))}
               </div>

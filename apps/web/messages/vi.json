@@ -346,7 +346,9 @@
       "continueWithGoogle": "Continue with Google",
       "continueWithApple": "Continue with Apple",
       "continueWithKakao": "Continue with KakaoTalk",
-      "continueWithFacebook": "Continue with Facebook"
+      "continueWithFacebook": "Continue with Facebook",
+      "cannotUnlinkLastIdentity": "Không thể hủy liên kết phương thức đăng nhập cuối cùng.",
+      "comingSoon": "Sắp ra mắt"
     },
     "payment": {
       "title": "Thông tin thanh toán",
@@ -427,7 +429,9 @@
       "noFavoritesDesc": "Các chỗ ở đã lưu sẽ xuất hiện tại đây.",
       "noRecent": "Chưa có chỗ ở xem gần đây!",
       "noRecentDesc": "Các chỗ ở bạn đã xem gần đây sẽ xuất hiện tại đây.",
-      "browseStays": "Duyệt chỗ ở"
+      "browseStays": "Duyệt chỗ ở",
+      "guests": "Khách",
+      "month": "tháng"
     },
     "settings": {
       "title": "Cài đặt",
@@ -470,7 +474,156 @@
     "perNight": "/ đêm",
     "notFound": "Không tìm thấy chỗ ở",
     "noHouseRules": "Chưa có nội quy nhà",
-    "noSimilarStays": "Không có chỗ ở tương tự"
+    "noSimilarStays": "Không có chỗ ở tương tự",
+    "selectDates": "Chọn ngày",
+    "guest": "{count} khách",
+    "mapView": "Xem bản đồ",
+    "walkingMinutes": "Đi bộ {minutes} phút",
+    "guidelinesItems": {
+      "checkIn": "Nhận phòng",
+      "checkOut": "Trả phòng",
+      "cooking": "Nấu ăn",
+      "laundry": "Giặt đồ",
+      "selfCheckIn": "Tự nhận phòng (Sẽ cung cấp mật khẩu)",
+      "checkOutTime": "Trước 12:30",
+      "cookingAllowed": "Được phép — vui lòng dọn dẹp sau khi sử dụng",
+      "laundryAllowed": "Chào đón lưu trú dài hạn"
+    },
+    "detailItems": {
+      "area": "Diện tích",
+      "elevator": "Thang máy",
+      "parking": "Đỗ xe",
+      "room": "Phòng",
+      "livingRoom": "Phòng khách",
+      "bathroom": "Phòng tắm",
+      "kitchen": "Nhà bếp",
+      "floor": "Tầng",
+      "balcony": "Ban công",
+      "available": "Có",
+      "notAvailable": "Không có"
+    },
+    "informationSection": {
+      "title": "Bao gồm trong phí quản lý",
+      "subtitle": "(Gas, Nước, Internet, Điện)",
+      "content": "Tất cả phí tiện ích và phí internet đều được bao gồm trong phí quản lý. Nếu bất kỳ dịch vụ nào được sử dụng quá mức, có thể phát sinh phí bổ sung."
+    },
+    "refundPolicyItems": {
+      "moreThan15Days": "Hơn 15 ngày trước khi nhận phòng: Hoàn 90% tiền thuê và phí hợp đồng",
+      "days14to8": "14-8 ngày trước khi nhận phòng: Hoàn 70% tiền thuê và phí hợp đồng",
+      "days7to1": "7-1 ngày trước khi nhận phòng: Hoàn 50% tiền thuê và phí hợp đồng",
+      "checkInDay": "Vào ngày nhận phòng: Không hoàn tiền"
+    },
+    "longTermDiscountItems": {
+      "weeks2": "Hợp đồng từ 2 tuần trở lên: Giảm 5%",
+      "weeks4": "Hợp đồng từ 4 tuần trở lên: Giảm 10%",
+      "weeks12": "Hợp đồng từ 12 tuần trở lên: Giảm 20%"
+    },
+    "notesItems": {
+      "sameDayCancellation": "Đối với hủy trong ngày, 10% tiền thuê và phí hợp đồng sẽ bị tính như phí phạt theo chính sách hoàn tiền. Tuy nhiên, nếu việc hủy nằm trong thời gian hủy miễn phí, sẽ được hoàn toàn bộ.",
+      "refundableFees": "Phí quản lý, phí dọn dẹp và tiền đặt cọc được hoàn lại đầy đủ.",
+      "hostTerms": "Chính sách hoàn tiền có thể thay đổi tùy theo điều khoản của chủ nhà."
+    },
+    "booking": {
+      "rentPerNight": "Giá thuê 1 đêm",
+      "includingMaintenance": "(Bao gồm phí quản lý)",
+      "nightsCalculation": "{nights} đêm × {price}",
+      "cleaningFee": "Phí dọn dẹp (Sau khi trả phòng)",
+      "deposit": "Tiền đặt cọc (Có thể hoàn lại)",
+      "longStayDiscount": "Giảm giá lưu trú dài hạn (Trên {days} ngày)",
+      "serviceFee": "Phí dịch vụ Snug ({percent}%)",
+      "total": "Tổng cộng",
+      "chatWithHost": "Trò chuyện với chủ nhà",
+      "book": "Đặt phòng"
+    },
+    "checkout": {
+      "title": "Thông tin bổ sung",
+      "subtitle": "Vui lòng cho chủ nhà biết những điều cần lưu ý.",
+      "reasonTitle": "Lý do đặt phòng",
+      "reasonHint": "Chúng tôi sử dụng mẫu lối sống làm tham khảo khi phân bổ bạn cùng phòng.",
+      "reasons": {
+        "travel": "Du lịch",
+        "study": "Du học",
+        "business": "Công tác",
+        "specify": "Khác"
+      },
+      "guestInfo": {
+        "title": "Thông tin khách",
+        "sameAsAccount": "Giống với thông tin tài khoản",
+        "yourInfo": "Thông tin của bạn",
+        "name": "Họ tên",
+        "firstName": "Tên",
+        "lastName": "Họ",
+        "nameHint": "Đảm bảo thông tin này khớp với tên trên giấy tờ tùy thân của bạn.",
+        "email": "Địa chỉ email",
+        "emailPlaceholder": "Vui lòng nhập địa chỉ email của bạn.",
+        "phone": "Số điện thoại",
+        "phonePlaceholder": "Nhập số điện thoại của bạn",
+        "verified": "Đã xác minh",
+        "identityVerification": "Xác minh danh tính",
+        "passport": "Số hộ chiếu",
+        "passportPlaceholder": "Vui lòng nhập số hộ chiếu của bạn."
+      },
+      "paymentMethod": {
+        "title": "Phương thức thanh toán",
+        "creditDebit": "Thẻ tín dụng hoặc thẻ ghi nợ",
+        "creditCard": "Thẻ tín dụng",
+        "debitCard": "Thẻ ghi nợ",
+        "default": "Mặc định",
+        "easyPayment": "Thanh toán nhanh"
+      },
+      "payerName": {
+        "title": "Tên người thanh toán",
+        "sameAsAccount": "Giống với thông tin tài khoản",
+        "name": "Họ tên"
+      },
+      "information": {
+        "title": "Thông tin",
+        "maintenanceIncluded": "Bao gồm trong phí quản lý",
+        "utilities": "(Gas, Nước, Internet, Điện)",
+        "description": "Tất cả các khoản phí tiện ích và phí internet đều được bao gồm trong phí quản lý. Nếu sử dụng quá mức các dịch vụ đã bao gồm, có thể phát sinh phí bổ sung."
+      },
+      "refundPolicy": {
+        "title": "Chính sách hoàn tiền",
+        "over15days": "Trước ngày nhận phòng hơn 15 ngày: Hoàn 90% tiền thuê và phí hợp đồng",
+        "days14to8": "14~8 ngày trước ngày nhận phòng: Hoàn 70% tiền thuê và phí hợp đồng",
+        "days7to1": "7~1 ngày trước ngày nhận phòng: Hoàn 50% tiền thuê và phí hợp đồng",
+        "checkInDay": "Vào ngày nhận phòng: Không hoàn tiền"
+      },
+      "notes": {
+        "title": "Lưu ý",
+        "sameDayCancellation": "Đối với việc hủy trong ngày, 10% tiền thuê và phí hợp đồng sẽ được tính như phí phạt theo chính sách hoàn tiền. Tuy nhiên, nếu việc hủy nằm trong thời gian hủy miễn phí, sẽ được hoàn tiền đầy đủ.",
+        "feesRefundable": "Phí quản lý, phí dọn dẹp và tiền đặt cọc có thể hoàn lại đầy đủ.",
+        "policyVaries": "Chính sách hoàn tiền có thể thay đổi tùy theo điều khoản của chủ nhà."
+      },
+      "discountItems": {
+        "title": "Giảm giá lưu trú dài hạn",
+        "weeks2": "Hợp đồng từ 2 tuần trở lên: Giảm 5%",
+        "weeks4": "Hợp đồng từ 4 tuần trở lên: Giảm 10%",
+        "weeks12": "Hợp đồng từ 12 tuần trở lên: Giảm 20%"
+      },
+      "summary": {
+        "paymentAmount": "Số tiền thanh toán",
+        "guest": "Khách",
+        "rentPerNight": "Tiền thuê 1 đêm",
+        "includingMaintenance": "(Bao gồm phí quản lý)",
+        "nightsCalculation": "{nights} đêm × {price}",
+        "cleaning": "Phí dọn dẹp (Sau khi trả phòng)",
+        "deposit": "Tiền đặt cọc (Có thể hoàn lại)",
+        "serviceFee": "Phí dịch vụ Snug ({percent}%)",
+        "longStayDiscount": "Giảm giá lưu trú dài hạn (Trên {days} ngày)",
+        "total": "Tổng cộng",
+        "chatWithHost": "Trò chuyện với chủ nhà",
+        "book": "Đặt phòng",
+        "payment": "Thanh toán",
+        "roomTypeDescription": "Nhà ở chung để sống cùng nhau và kết nối với người khác."
+      },
+      "countryCodes": {
+        "southKorea": "(+82) Hàn Quốc",
+        "usa": "(+1) Mỹ",
+        "china": "(+86) Trung Quốc",
+        "japan": "(+81) Nhật Bản"
+      }
+    }
   },
   "facilities": {
     "digitalLock": "Khóa số",

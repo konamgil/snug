@@ -52,6 +52,12 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
+  async findBySupabaseId(supabaseId: string) {
+    return this.prisma.user.findUnique({
+      where: { supabaseId },
+    });
+  }
+
   async update(id: string, data: { firstName?: string; lastName?: string; avatarUrl?: string }) {
     return this.prisma.user.update({
       where: { id },

@@ -346,7 +346,9 @@
       "continueWithGoogle": "Continue with Google",
       "continueWithApple": "Continue with Apple",
       "continueWithKakao": "Continue with KakaoTalk",
-      "continueWithFacebook": "Continue with Facebook"
+      "continueWithFacebook": "Continue with Facebook",
+      "cannotUnlinkLastIdentity": "无法取消最后一个登录方式。",
+      "comingSoon": "即将推出"
     },
     "payment": {
       "title": "支付信息",
@@ -427,7 +429,9 @@
       "noFavoritesDesc": "您保存的住所将显示在这里。",
       "noRecent": "暂无最近浏览！",
       "noRecentDesc": "您最近浏览的住所将显示在这里。",
-      "browseStays": "浏览住所"
+      "browseStays": "浏览住所",
+      "guests": "客人",
+      "month": "月"
     },
     "settings": {
       "title": "设置",
@@ -470,7 +474,156 @@
     "perNight": "/ 晚",
     "notFound": "找不到住所",
     "noHouseRules": "暂无房屋规则",
-    "noSimilarStays": "没有类似的住所"
+    "noSimilarStays": "没有类似的住所",
+    "selectDates": "选择日期",
+    "guest": "{count}位",
+    "mapView": "查看地图",
+    "walkingMinutes": "步行{minutes}分钟",
+    "guidelinesItems": {
+      "checkIn": "入住",
+      "checkOut": "退房",
+      "cooking": "烹饪",
+      "laundry": "洗衣",
+      "selfCheckIn": "自助入住（将提供密码）",
+      "checkOutTime": "12:30前",
+      "cookingAllowed": "允许 — 使用后请清理",
+      "laundryAllowed": "欢迎长期住宿"
+    },
+    "detailItems": {
+      "area": "面积",
+      "elevator": "电梯",
+      "parking": "停车位",
+      "room": "房间",
+      "livingRoom": "客厅",
+      "bathroom": "卫生间",
+      "kitchen": "厨房",
+      "floor": "楼层",
+      "balcony": "阳台",
+      "available": "有",
+      "notAvailable": "无"
+    },
+    "informationSection": {
+      "title": "管理费包含项目",
+      "subtitle": "（燃气、水、网络、电费）",
+      "content": "所有公用事业费和网络费用均包含在管理费中。如果包含的服务使用过度，可能会收取额外费用。"
+    },
+    "refundPolicyItems": {
+      "moreThan15Days": "入住前15天以上：退还90%的租金和合同费",
+      "days14to8": "入住前14-8天：退还70%的租金和合同费",
+      "days7to1": "入住前7-1天：退还50%的租金和合同费",
+      "checkInDay": "入住当天：不予退款"
+    },
+    "longTermDiscountItems": {
+      "weeks2": "2周以上合同：5%折扣",
+      "weeks4": "4周以上合同：10%折扣",
+      "weeks12": "12周以上合同：20%折扣"
+    },
+    "notesItems": {
+      "sameDayCancellation": "当天取消的情况下，根据退款政策将收取租金和合同费的10%作为违约金。但如果取消在免费取消期限内，将全额退款。",
+      "refundableFees": "管理费、清洁费和押金可全额退还。",
+      "hostTerms": "退款政策可能因房东的条款而异。"
+    },
+    "booking": {
+      "rentPerNight": "1晚租金",
+      "includingMaintenance": "（含管理费）",
+      "nightsCalculation": "{nights}晚 × {price}",
+      "cleaningFee": "清洁费（退房后）",
+      "deposit": "押金（可退还）",
+      "longStayDiscount": "长期住宿折扣（{days}天以上）",
+      "serviceFee": "Snug服务费（{percent}%）",
+      "total": "总计",
+      "chatWithHost": "与房东聊天",
+      "book": "预订"
+    },
+    "checkout": {
+      "title": "补充信息",
+      "subtitle": "请告知房东需要注意的事项。",
+      "reasonTitle": "预订住宿的原因",
+      "reasonHint": "我们会参考生活模式来分配室友。",
+      "reasons": {
+        "travel": "旅行",
+        "study": "留学",
+        "business": "出差",
+        "specify": "其他"
+      },
+      "guestInfo": {
+        "title": "入住者信息",
+        "sameAsAccount": "与账户信息相同",
+        "yourInfo": "您的信息",
+        "name": "姓名",
+        "firstName": "名",
+        "lastName": "姓",
+        "nameHint": "请确保与政府颁发的身份证件上的姓名一致。",
+        "email": "电子邮箱",
+        "emailPlaceholder": "请输入您的电子邮箱地址。",
+        "phone": "电话号码",
+        "phonePlaceholder": "请输入您的电话号码",
+        "verified": "已验证",
+        "identityVerification": "身份验证",
+        "passport": "护照号码",
+        "passportPlaceholder": "请输入您的护照号码。"
+      },
+      "paymentMethod": {
+        "title": "支付方式",
+        "creditDebit": "信用卡或借记卡",
+        "creditCard": "信用卡",
+        "debitCard": "借记卡",
+        "default": "默认",
+        "easyPayment": "快捷支付"
+      },
+      "payerName": {
+        "title": "付款人姓名",
+        "sameAsAccount": "与账户信息相同",
+        "name": "姓名"
+      },
+      "information": {
+        "title": "须知",
+        "maintenanceIncluded": "物业费包含项目",
+        "utilities": "（燃气、水费、网络、电费）",
+        "description": "所有公共事业费和网络费用均包含在物业费中。如果过度使用包含的服务，可能会产生额外费用。"
+      },
+      "refundPolicy": {
+        "title": "退款政策",
+        "over15days": "入住前15天以上：退还90%的租金和合同费用",
+        "days14to8": "入住前14~8天：退还70%的租金和合同费用",
+        "days7to1": "入住前7~1天：退还50%的租金和合同费用",
+        "checkInDay": "入住当天：不予退款"
+      },
+      "notes": {
+        "title": "注意事项",
+        "sameDayCancellation": "当天取消时，将按照退款政策收取租金和合同费用的10%作为违约金。但如果取消在免费取消期限内，将全额退款。",
+        "feesRefundable": "物业费、清洁费、押金可全额退还。",
+        "policyVaries": "退款政策可能因房东条款而异。"
+      },
+      "discountItems": {
+        "title": "长期住宿折扣",
+        "weeks2": "2周以上合同：5%折扣",
+        "weeks4": "4周以上合同：10%折扣",
+        "weeks12": "12周以上合同：20%折扣"
+      },
+      "summary": {
+        "paymentAmount": "支付金额",
+        "guest": "位客人",
+        "rentPerNight": "每晚租金",
+        "includingMaintenance": "（含管理费）",
+        "nightsCalculation": "{nights}晚 × {price}",
+        "cleaning": "清洁费（退房后）",
+        "deposit": "押金（可退还）",
+        "serviceFee": "Snug服务费（{percent}%）",
+        "longStayDiscount": "长期住宿折扣（{days}天以上）",
+        "total": "总计",
+        "chatWithHost": "与房东聊天",
+        "book": "预订",
+        "payment": "支付",
+        "roomTypeDescription": "共同生活、相互连接的共享住宅。"
+      },
+      "countryCodes": {
+        "southKorea": "(+82) 韩国",
+        "usa": "(+1) 美国",
+        "china": "(+86) 中国",
+        "japan": "(+81) 日本"
+      }
+    }
   },
   "facilities": {
     "digitalLock": "数字门锁",

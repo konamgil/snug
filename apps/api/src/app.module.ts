@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AccommodationsModule } from './modules/accommodations/accommodations.module';
 import { ExchangeRatesModule } from './modules/exchange-rates/exchange-rates.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ExchangeRatesModule } from './modules/exchange-rates/exchange-rates.mod
     UsersModule,
     AccommodationsModule,
     ExchangeRatesModule,
+    FavoritesModule,
   ],
 })
 export class AppModule {}

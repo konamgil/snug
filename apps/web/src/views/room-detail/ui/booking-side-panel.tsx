@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { CalendarIcon, UserIcon, ChatIcon, SearchIcon } from '@/shared/ui/icons';
 import { DatePicker } from '@/features/search/ui/date-picker';
 import {
@@ -41,14 +42,18 @@ function formatDate(date: Date): string {
   return `${month} ${day}, ${year}`;
 }
 
-function formatDateRange(checkIn: Date | null, checkOut: Date | null): string {
+function formatDateRange(
+  checkIn: Date | null,
+  checkOut: Date | null,
+  selectDatesText: string,
+): string {
   if (checkIn && checkOut) {
     return `${formatDate(checkIn)} - ${formatDate(checkOut)}`;
   }
   if (checkIn) {
     return formatDate(checkIn);
   }
-  return 'Select dates';
+  return selectDatesText;
 }
 
 const roomTypeColors: Record<RoomTypeVariant, string> = {
@@ -68,6 +73,7 @@ export function BookingSidePanel({
   onBook,
   onChatWithHost,
 }: BookingSidePanelProps) {
+  const t = useTranslations();
   const { format } = useCurrencySafe();
   const [activeDropdown, setActiveDropdown] = useState<'dates' | 'guests' | null>(null);
   const [lastDropdown, setLastDropdown] = useState<'dates' | 'guests' | null>(null);
@@ -141,8 +147,8 @@ export function BookingSidePanel({
     setActiveDropdown(null);
   };
 
-  const guestSummary = formatGuestSummary(guests) || '1 Guest';
-  const dateDisplay = formatDateRange(checkIn, checkOut);
+  const guestSummary = formatGuestSummary(guests) || t('roomDetail.guest', { count: 1 });
+  const dateDisplay = formatDateRange(checkIn, checkOut, t('roomDetail.selectDates'));
 
   return (
     <div ref={panelRef} className="w-full">
@@ -251,8 +257,12 @@ export function BookingSidePanel({
           {/* Rent for 1 Night */}
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">Rent for 1 Night</p>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">(Including Maintenance Fee)</p>
+              <p className="text-xs text-[hsl(var(--snug-gray))]">
+                {t('roomDetail.booking.rentPerNight')}
+              </p>
+              <p className="text-xs text-[hsl(var(--snug-gray))]">
+                {t('roomDetail.booking.includingMaintenance')}
+              </p>
             </div>
             <span className="text-sm font-extrabold text-[hsl(var(--snug-orange))]">
               {format(priceBreakdown.pricePerNight)}
@@ -264,7 +274,10 @@ export function BookingSidePanel({
           {/* Nights calculation */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {nights}nights X {format(priceBreakdown.pricePerNight)}
+              {t('roomDetail.booking.nightsCalculation', {
+                nights,
+                price: format(priceBreakdown.pricePerNight),
+              })}
             </span>
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
               {format(subtotal)}
@@ -273,7 +286,9 @@ export function BookingSidePanel({
 
           {/* Cleaning fee */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))]">Cleaning(After check-out)</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">
+              {t('roomDetail.booking.cleaningFee')}
+            </span>
             <span className="text-xs text-[hsl(var(--snug-gray))]">
               {format(priceBreakdown.cleaningFee)}
             </span>
@@ -281,7 +296,9 @@ export function BookingSidePanel({
 
           {/* Deposit */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))]">Deposit(Refundable)</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">
+              {t('roomDetail.booking.deposit')}
+            </span>
             <span className="text-xs text-[hsl(var(--snug-gray))]">
               {format(priceBreakdown.deposit)}
             </span>
@@ -291,7 +308,9 @@ export function BookingSidePanel({
           {longStayDiscount > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-                Long-stay Discount(Over {priceBreakdown.longStayThreshold} days)
+                {t('roomDetail.booking.longStayDiscount', {
+                  days: priceBreakdown.longStayThreshold,
+                })}
               </span>
               <span className="text-xs text-[hsl(var(--snug-orange))]">
                 -{format(longStayDiscount)}
@@ -302,7 +321,7 @@ export function BookingSidePanel({
           {/* Service fee */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              Snug service fee({priceBreakdown.serviceFeePercent}%)
+              {t('roomDetail.booking.serviceFee', { percent: priceBreakdown.serviceFeePercent })}
             </span>
             <span className="text-xs text-[hsl(var(--snug-orange))]">-{format(serviceFee)}</span>
           </div>
@@ -312,7 +331,7 @@ export function BookingSidePanel({
           {/* Total */}
           <div className="flex items-center justify-between">
             <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
-              Total
+              {t('roomDetail.booking.total')}
             </span>
             <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
               {format(total)}
@@ -328,14 +347,14 @@ export function BookingSidePanel({
             className="flex items-center justify-center gap-1 h-8 px-2.5 bg-white rounded text-xs font-extrabold text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors tracking-tight"
           >
             <ChatIcon className="w-3.5 h-3.5" />
-            <span>Chat with Host</span>
+            <span>{t('roomDetail.booking.chatWithHost')}</span>
           </button>
           <button
             type="button"
             onClick={onBook}
             className="flex-1 h-8 bg-[hsl(var(--snug-orange))] text-white text-xs font-extrabold rounded-full hover:opacity-90 transition-opacity tracking-tight"
           >
-            Book
+            {t('roomDetail.booking.book')}
           </button>
         </div>
       </div>

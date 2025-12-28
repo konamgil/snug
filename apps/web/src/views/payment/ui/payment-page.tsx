@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import Image from 'next/image';
 import {
   ImageIcon,
   Calendar,
@@ -10,6 +12,7 @@ import {
   Plus,
   ChevronRight,
   ArrowLeft,
+  Loader2,
 } from 'lucide-react';
 import { Header } from '@/widgets/header';
 import {
@@ -19,24 +22,20 @@ import {
   AliPayIcon,
   WeChatPayIcon,
 } from '@/shared/ui/icons';
+import { useCurrencySafe } from '@/shared/providers';
+import { getAccommodationPublic } from '@/shared/api/accommodation';
+import { getAccommodationTypeLabel } from '@/shared/lib';
+import type { AccommodationPublic } from '@snug/types';
 
-// Mock room data for payment
-const roomData = {
-  id: '1',
-  title: 'Gangnam Stay',
-  location: 'Gangnam-gu, Seoul',
-  image: '/images/rooms/room-1.jpg',
-  pricePerNight: 40,
-  cleaningFee: 20,
-  deposit: 100,
-  serviceFeePercent: 10,
-  longStayDiscount: 10,
-  longStayThreshold: 12,
-};
+// Booking reasons keys
+const bookingReasonKeys = ['travel', 'study', 'business', 'specify'] as const;
+type BookingReasonKey = (typeof bookingReasonKeys)[number];
 
-// Booking reasons
-const bookingReasons = ['Travel', 'Study', 'Business', 'Specify'] as const;
-type BookingReason = (typeof bookingReasons)[number];
+// Default values for pricing
+const DEFAULT_SERVICE_FEE_PERCENT = 10;
+const DEFAULT_LONG_STAY_THRESHOLD = 12;
+const DEFAULT_LONG_STAY_DISCOUNT = 10;
+const DEFAULT_DEPOSIT = 100;
 
 // Payment methods
 interface PaymentCard {
@@ -73,38 +72,121 @@ const easyPayments = [
 
 export function PaymentPage() {
   const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
+  const t = useTranslations('roomDetail.checkout');
+  const tBooking = useTranslations('roomDetail.booking');
+  const { format } = useCurrencySafe();
+
+  const roomId = (params.id as string) || '';
+
+  // Parse dates from URL search params
+  const parseDate = (dateStr: string | null): Date | null => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  const checkInDate = parseDate(searchParams.get('checkIn'));
+  const checkOutDate = parseDate(searchParams.get('checkOut'));
+  const guestCount = parseInt(searchParams.get('guests') || '1', 10);
+
+  // Calculate nights from dates
+  const calculateNights = (checkIn: Date | null, checkOut: Date | null): number => {
+    if (!checkIn || !checkOut) return 1;
+    const diffTime = checkOut.getTime() - checkIn.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+  };
+
+  const nights = calculateNights(checkInDate, checkOutDate);
+
+  // Format date for display
+  const formatDateDisplay = (date: Date | null): string => {
+    if (!date) return '-';
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const day = date.getDate();
+    const year = date.getFullYear().toString().slice(-2);
+    return `${month} ${day}, ${year}`;
+  };
+
+  const checkInDisplay = formatDateDisplay(checkInDate);
+  const checkOutDisplay = formatDateDisplay(checkOutDate);
+
+  // API data state
+  const [accommodation, setAccommodation] = useState<AccommodationPublic | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Form state
-  const [selectedReason, setSelectedReason] = useState<BookingReason>('Travel');
+  const [selectedReason, setSelectedReason] = useState<BookingReasonKey>('travel');
   const [sameAsAccount, setSameAsAccount] = useState(true);
-  const [firstName, setFirstName] = useState('Gildong');
-  const [lastName, setLastName] = useState('Hong');
-  const [email, setEmail] = useState('gildong@gmail.com');
-  const [countryCode, setCountryCode] = useState('+82 (South Korea)');
-  const [phone, setPhone] = useState('010-1234-5678');
-  const [passport, setPassport] = useState('M 123456');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('southKorea');
+  const [phone, setPhone] = useState('');
+  const [passport, setPassport] = useState('');
 
   // Payment state
   const [selectedCard, setSelectedCard] = useState<string>(savedCards[0]?.id || '');
   const [selectedEasyPay, setSelectedEasyPay] = useState<EasyPayment | null>(null);
   const [payerSameAsAccount, setPayerSameAsAccount] = useState(true);
-  const [payerFirstName, setPayerFirstName] = useState('Gildong');
-  const [payerLastName, setPayerLastName] = useState('Hong');
+  const [payerFirstName, setPayerFirstName] = useState('');
+  const [payerLastName, setPayerLastName] = useState('');
 
   // Mobile UI state
   const [isPriceSheetOpen, setIsPriceSheetOpen] = useState(false);
 
-  // Mock booking data
-  const checkIn = 'Jun 30, 25';
-  const checkOut = 'Jun 30, 25';
-  const guests = 1;
-  const nights = 8;
+  // Fetch accommodation data
+  useEffect(() => {
+    async function fetchData() {
+      if (!roomId) {
+        setError('Room ID not found');
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getAccommodationPublic(roomId);
+        if (!data) {
+          setError('Accommodation not found');
+        } else {
+          setAccommodation(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch accommodation:', err);
+        setError('Failed to load accommodation');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, [roomId]);
 
-  // Calculate prices
-  const rentTotal = roomData.pricePerNight * nights;
-  const serviceFee = Math.round(rentTotal * (roomData.serviceFeePercent / 100));
-  const discount = nights >= roomData.longStayThreshold ? roomData.longStayDiscount : 0;
-  const total = rentTotal + roomData.cleaningFee + roomData.deposit + serviceFee - discount;
+  // Calculate prices from API data
+  const pricePerNight = accommodation?.basePrice ?? 0;
+  const cleaningFee = accommodation?.cleaningFee ?? 0;
+  const deposit = DEFAULT_DEPOSIT;
+  const serviceFeePercent = DEFAULT_SERVICE_FEE_PERCENT;
+  const longStayThreshold = DEFAULT_LONG_STAY_THRESHOLD;
+  const longStayDiscount = DEFAULT_LONG_STAY_DISCOUNT;
+
+  const rentTotal = pricePerNight * nights;
+  const serviceFee = Math.round(rentTotal * (serviceFeePercent / 100));
+  const discount = nights >= longStayThreshold ? longStayDiscount : 0;
+  const total = rentTotal + cleaningFee + deposit + serviceFee - discount;
+
+  // Display values
+  const displayLocation = accommodation
+    ? `${accommodation.sigunguEn || ''}, ${accommodation.sidoEn || ''}`
+    : '';
+  const displayTitle = accommodation?.roomName || '';
+  const displayRoomType = accommodation
+    ? getAccommodationTypeLabel(accommodation.accommodationType, locale)
+    : '';
+  const thumbnailUrl = accommodation?.photos?.[0]?.url || '';
 
   const handleBack = () => {
     router.back();
@@ -119,6 +201,36 @@ export function PaymentPage() {
     setSelectedEasyPay(payId);
     setSelectedCard('');
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" showSearch={false} onBack={handleBack} />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !accommodation) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" showSearch={false} onBack={handleBack} />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <p className="text-lg text-[hsl(var(--snug-gray))]">{error || tBooking('notFound')}</p>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2 bg-[hsl(var(--snug-orange))] text-white rounded-full hover:opacity-90"
+          >
+            {tBooking('back')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -139,11 +251,9 @@ export function PaymentPage() {
               </button>
               <div className="flex-1 lg:flex-none">
                 <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Additional information
+                  {t('title')}
                 </h1>
-                <p className="text-sm text-[hsl(var(--snug-gray))]">
-                  Please let the host know what to keep in mind.
-                </p>
+                <p className="text-sm text-[hsl(var(--snug-gray))]">{t('subtitle')}</p>
               </div>
             </div>
 
@@ -152,34 +262,32 @@ export function PaymentPage() {
               {/* Reason for booking */}
               <div className="mb-8">
                 <h2 className="text-sm lg:text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                  Reason for booking accommodation
+                  {t('reasonTitle')}
                 </h2>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {bookingReasons.map((reason) => (
+                  {bookingReasonKeys.map((reasonKey) => (
                     <button
-                      key={reason}
+                      key={reasonKey}
                       type="button"
-                      onClick={() => setSelectedReason(reason)}
+                      onClick={() => setSelectedReason(reasonKey)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        selectedReason === reason
+                        selectedReason === reasonKey
                           ? 'border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))] bg-white'
                           : 'bg-white border border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))]'
                       }`}
                     >
-                      {reason}
+                      {t(`reasons.${reasonKey}`)}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-[hsl(var(--snug-gray))]">
-                  We use lifestyle patterns as a reference when assigning roommates.
-                </p>
+                <p className="text-xs text-[hsl(var(--snug-gray))]">{t('reasonHint')}</p>
               </div>
 
               {/* Final information */}
               <div className="mb-8">
                 <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
                   <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                    Final information
+                    {t('guestInfo.title')}
                   </h2>
                   <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
                     <div
@@ -207,51 +315,51 @@ export function PaymentPage() {
                       )}
                     </div>
                     <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
-                      Same as Account Info
+                      {t('guestInfo.sameAsAccount')}
                     </span>
                   </label>
                 </div>
 
                 <h3 className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-3">
-                  Your information
+                  {t('guestInfo.yourInfo')}
                 </h3>
 
                 {/* Name */}
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                    Name
+                    {t('guestInfo.name')}
                   </label>
                   <div className="flex gap-2 sm:gap-3">
                     <input
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="First Name"
+                      placeholder={t('guestInfo.firstName')}
                       className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                     />
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Last Name"
+                      placeholder={t('guestInfo.lastName')}
                       className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                     />
                   </div>
                   <p className="text-xs text-[hsl(var(--snug-gray))] mt-1.5">
-                    Make sure this matches the name on your government ID.
+                    {t('guestInfo.nameHint')}
                   </p>
                 </div>
 
                 {/* Email */}
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                    Email address
+                    {t('guestInfo.email')}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Please enter your Email address."
+                    placeholder={t('guestInfo.emailPlaceholder')}
                     className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                 </div>
@@ -259,7 +367,7 @@ export function PaymentPage() {
                 {/* Phone */}
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                    Phone number
+                    {t('guestInfo.phone')}
                   </label>
                   <div className="flex gap-2 sm:gap-3">
                     <select
@@ -267,26 +375,28 @@ export function PaymentPage() {
                       onChange={(e) => setCountryCode(e.target.value)}
                       className="w-[130px] sm:w-[160px] lg:w-[180px] px-3 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-xs sm:text-sm bg-white focus:outline-none focus:border-[hsl(var(--snug-orange))] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3d%22http%3a%2f%2fwww.w3.org%2f2000%2fsvg%22%20width%3d%2224%22%20height%3d%2224%22%20viewBox%3d%220%200%2024%2024%22%20fill%3d%22none%22%20stroke%3d%22%23999%22%20stroke-width%3d%222%22%20stroke-linecap%3d%22round%22%20stroke-linejoin%3d%22round%22%3e%3cpolyline%20points%3d%226%209%2012%2015%2018%209%22%3e%3c%2fpolyline%3e%3c%2fsvg%3e')] bg-no-repeat bg-[right_0.75rem_center] sm:bg-[right_1rem_center] bg-[length:14px] sm:bg-[length:16px]"
                     >
-                      <option value="+82 (South Korea)">(+82) South Korea</option>
-                      <option value="+1 (USA)">(+1) USA</option>
-                      <option value="+86 (China)">(+86) China</option>
-                      <option value="+81 (Japan)">(+81) Japan</option>
+                      <option value="+82">{t('countryCodes.southKorea')}</option>
+                      <option value="+1">{t('countryCodes.usa')}</option>
+                      <option value="+86">{t('countryCodes.china')}</option>
+                      <option value="+81">{t('countryCodes.japan')}</option>
                     </select>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter your phone number"
+                      placeholder={t('guestInfo.phonePlaceholder')}
                       className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                     />
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-1.5 flex-wrap">
-                    <span className="text-xs text-[hsl(var(--snug-gray))]">Verified</span>
+                    <span className="text-xs text-[hsl(var(--snug-gray))]">
+                      {t('guestInfo.verified')}
+                    </span>
                     <button
                       type="button"
                       className="flex items-center gap-1 text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] hover:text-[hsl(var(--snug-orange))]"
                     >
-                      Identity Verification
+                      {t('guestInfo.identityVerification')}
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -295,13 +405,13 @@ export function PaymentPage() {
                 {/* Passport */}
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                    Passport number
+                    {t('guestInfo.passport')}
                   </label>
                   <input
                     type="text"
                     value={passport}
                     onChange={(e) => setPassport(e.target.value)}
-                    placeholder="Please enter your passport number."
+                    placeholder={t('guestInfo.passportPlaceholder')}
                     className="w-full px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                 </div>
@@ -310,11 +420,13 @@ export function PaymentPage() {
               {/* Payment method */}
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-4">
-                  Payment method
+                  {t('paymentMethod.title')}
                 </h2>
 
                 {/* Credit or debit card */}
-                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Credit or debit card</p>
+                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">
+                  {t('paymentMethod.creditDebit')}
+                </p>
 
                 <div className="space-y-3 mb-4">
                   {savedCards.map((card) => (
@@ -337,7 +449,9 @@ export function PaymentPage() {
                           {card.lastFour})
                         </span>
                         {card.isDefault && (
-                          <span className="text-xs text-[hsl(var(--snug-orange))]">Default</span>
+                          <span className="text-xs text-[hsl(var(--snug-orange))]">
+                            {t('paymentMethod.default')}
+                          </span>
                         )}
                       </div>
                       <input
@@ -360,7 +474,9 @@ export function PaymentPage() {
                 </div>
 
                 {/* Easy Payment */}
-                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">Easy Payment</p>
+                <p className="text-xs text-[hsl(var(--snug-gray))] mb-3">
+                  {t('paymentMethod.easyPayment')}
+                </p>
 
                 <div className="space-y-3">
                   {easyPayments.map((payment) => (
@@ -400,7 +516,7 @@ export function PaymentPage() {
               <div className="mb-8">
                 <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
                   <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                    Payer name
+                    {t('payerName.title')}
                   </h2>
                   <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
                     <div
@@ -428,27 +544,27 @@ export function PaymentPage() {
                       )}
                     </div>
                     <span className="text-xs sm:text-sm text-[hsl(var(--snug-text-primary))] whitespace-nowrap">
-                      Same as Account Info
+                      {t('payerName.sameAsAccount')}
                     </span>
                   </label>
                 </div>
 
                 <label className="block text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Name
+                  {t('payerName.name')}
                 </label>
                 <div className="flex gap-2 sm:gap-3">
                   <input
                     type="text"
                     value={payerFirstName}
                     onChange={(e) => setPayerFirstName(e.target.value)}
-                    placeholder="First Name"
+                    placeholder={t('guestInfo.firstName')}
                     className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                   <input
                     type="text"
                     value={payerLastName}
                     onChange={(e) => setPayerLastName(e.target.value)}
-                    placeholder="Last Name"
+                    placeholder={t('guestInfo.lastName')}
                     className="flex-1 min-w-0 px-4 sm:px-5 py-3.5 border border-[hsl(var(--snug-border))] rounded-full text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                   />
                 </div>
@@ -457,43 +573,40 @@ export function PaymentPage() {
               {/* Information */}
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                  Information
+                  {t('information.title')}
                 </h2>
                 <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-1">
-                  Included in Maintenance Fee
+                  {t('information.maintenanceIncluded')}
                 </p>
                 <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">
-                  (Gas, Water, Internet, Electricity)
+                  {t('information.utilities')}
                 </p>
                 <p className="text-xs text-[hsl(var(--snug-gray))] leading-relaxed">
-                  All utility charges and internet fees are included in the maintenance fee. If any
-                  of the included services are used excessively, additional charges may apply.
+                  {t('information.description')}
                 </p>
               </div>
 
               {/* Refund Policy */}
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                  Refund Policy
+                  {t('refundPolicy.title')}
                 </h2>
                 <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>
-                      More than 15 days before check-in: 90% refund of rent and contract fee
-                    </span>
+                    <span>{t('refundPolicy.over15days')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>14~8 days before check-in: 70% refund of rent and contract fee</span>
+                    <span>{t('refundPolicy.days14to8')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>7~1 days before check-in: 50% refund of rent and contract fee</span>
+                    <span>{t('refundPolicy.days7to1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>On the check-in date: No refund</span>
+                    <span>{t('refundPolicy.checkInDay')}</span>
                   </li>
                 </ul>
               </div>
@@ -501,24 +614,20 @@ export function PaymentPage() {
               {/* Notes */}
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                  Notes
+                  {t('notes.title')}
                 </h2>
                 <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>
-                      For same-day cancellations, 10% of the rent and contract fee will be charged
-                      as a penalty according to the refund policy. However, if the cancellation
-                      falls within the free cancellation period, a full refund will be issued.
-                    </span>
+                    <span>{t('notes.sameDayCancellation')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>Maintenance fees, cleaning fees, and deposits are fully refundable.</span>
+                    <span>{t('notes.feesRefundable')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>The refund policy may vary depending on the host&apos;s terms.</span>
+                    <span>{t('notes.policyVaries')}</span>
                   </li>
                 </ul>
               </div>
@@ -526,20 +635,20 @@ export function PaymentPage() {
               {/* Long-Term Stay Discount */}
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-3">
-                  Long-Term Stay Discount
+                  {t('discountItems.title')}
                 </h2>
                 <ul className="space-y-1.5 text-xs text-[hsl(var(--snug-gray))]">
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>Contract for 2+ weeks: 5% off</span>
+                    <span>{t('discountItems.weeks2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>Contract for 4+ weeks: 10% off</span>
+                    <span>{t('discountItems.weeks4')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1 h-1 bg-[hsl(var(--snug-gray))] rounded-full mt-1.5 flex-shrink-0" />
-                    <span>Contract for 12+ weeks: 20% off</span>
+                    <span>{t('discountItems.weeks12')}</span>
                   </li>
                 </ul>
               </div>
@@ -550,19 +659,31 @@ export function PaymentPage() {
           <div className="hidden lg:block w-[340px] flex-shrink-0">
             <div className="sticky top-20">
               <h2 className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-4">
-                Payment amount
+                {t('summary.paymentAmount')}
               </h2>
 
               {/* Room Info Card */}
               <div className="border border-[hsl(var(--snug-border))] rounded-xl p-4 mb-4">
                 <div className="flex gap-3 mb-4">
-                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center flex-shrink-0">
-                    <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
-                  </div>
+                  {thumbnailUrl ? (
+                    <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+                      <Image
+                        src={thumbnailUrl}
+                        alt={displayTitle}
+                        width={56}
+                        height={56}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center flex-shrink-0">
+                      <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+                    </div>
+                  )}
                   <div>
-                    <p className="text-xs text-[hsl(var(--snug-gray))]">{roomData.location}</p>
+                    <p className="text-xs text-[hsl(var(--snug-gray))]">{displayLocation}</p>
                     <p className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-                      {roomData.title}
+                      {displayTitle}
                     </p>
                   </div>
                 </div>
@@ -571,12 +692,14 @@ export function PaymentPage() {
                   <div className="flex items-center gap-1.5">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      {checkIn} - {checkOut}
+                      {checkInDisplay} - {checkOutDisplay}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Users className="w-4 h-4" />
-                    <span>{guests} Guest</span>
+                    <span>
+                      {guestCount} {t('summary.guest')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -587,68 +710,70 @@ export function PaymentPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        Rent for 1 Night
+                        {t('summary.rentPerNight')}
                       </p>
                       <p className="text-xs text-[hsl(var(--snug-gray))]">
-                        (Including Maintenance Fee)
+                        {t('summary.includingMaintenance')}
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-[hsl(var(--snug-orange))]">
-                      ${roomData.pricePerNight}
+                      {format(pricePerNight)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      {nights}nights X ${roomData.pricePerNight}
+                      {t('summary.nightsCalculation', { nights, price: format(pricePerNight) })}
                     </span>
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${rentTotal}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Cleaning(After check-out)
-                    </span>
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${roomData.cleaningFee}
+                      {format(rentTotal)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Deposit(Refundable)
+                      {t('summary.cleaning')}
                     </span>
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${roomData.deposit}
+                      {format(cleaningFee)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      Snug service fee({roomData.serviceFeePercent}%)
+                      {t('summary.deposit')}
                     </span>
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      ${serviceFee}
+                      {format(deposit)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {t('summary.serviceFee', { percent: serviceFeePercent })}
+                    </span>
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {format(serviceFee)}
                     </span>
                   </div>
 
                   {discount > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                        Long-stay Discount(Over {roomData.longStayThreshold} days)
+                        {t('summary.longStayDiscount', { days: longStayThreshold })}
                       </span>
-                      <span className="text-sm text-[hsl(var(--snug-orange))]">-${discount}</span>
+                      <span className="text-sm text-[hsl(var(--snug-orange))]">
+                        -{format(discount)}
+                      </span>
                     </div>
                   )}
 
                   <div className="pt-3 border-t border-[hsl(var(--snug-border))] flex items-center justify-between">
                     <span className="text-base font-semibold text-[hsl(var(--snug-text-primary))]">
-                      Total
+                      {t('summary.total')}
                     </span>
                     <span className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
-                      ${total}
+                      {format(total)}
                     </span>
                   </div>
                 </div>
@@ -660,26 +785,24 @@ export function PaymentPage() {
                     className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[hsl(var(--snug-border))] rounded-lg text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Chat with Host
+                    {t('summary.chatWithHost')}
                   </button>
                   <button
                     type="button"
                     className="flex-1 py-2.5 bg-[hsl(var(--snug-orange))] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    Book
+                    {t('summary.book')}
                   </button>
                 </div>
               </div>
 
-              {/* Shared Room Info */}
+              {/* Room Type Info */}
               <div className="border border-[hsl(var(--snug-border))] rounded-xl p-4 text-center">
                 <p className="text-sm font-semibold text-[hsl(var(--snug-orange))] mb-1">
-                  Shared Room
+                  {displayRoomType}
                 </p>
                 <p className="text-xs text-[hsl(var(--snug-gray))]">
-                  A shared rouse for living together
-                  <br />
-                  and connecting with others.
+                  {t('summary.roomTypeDescription')}
                 </p>
               </div>
             </div>
@@ -705,9 +828,11 @@ export function PaymentPage() {
             onClick={() => setIsPriceSheetOpen(true)}
             className="w-full flex items-center justify-between mb-3"
           >
-            <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">Total</span>
             <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-              ${total}
+              {t('summary.total')}
+            </span>
+            <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
+              {format(total)}
             </span>
           </button>
           {/* Bottom Row: Actions */}
@@ -718,14 +843,14 @@ export function PaymentPage() {
               className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
             >
               <MessageSquare className="w-5 h-5" />
-              <span>Chat with Host</span>
+              <span>{t('summary.chatWithHost')}</span>
             </button>
             {/* Payment Button */}
             <button
               type="button"
               className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
             >
-              Payment
+              {t('summary.payment')}
             </button>
           </div>
         </div>
@@ -758,13 +883,25 @@ export function PaymentPage() {
           <div className="px-5 pb-4 max-h-[60vh] overflow-y-auto">
             {/* Room Info Card */}
             <div className="flex gap-3 mb-5">
-              <div className="w-20 h-16 rounded-2xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center flex-shrink-0">
-                <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
-              </div>
+              {thumbnailUrl ? (
+                <div className="w-20 h-16 rounded-2xl overflow-hidden flex-shrink-0">
+                  <Image
+                    src={thumbnailUrl}
+                    alt={displayTitle}
+                    width={80}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-20 h-16 rounded-2xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex items-center justify-center flex-shrink-0">
+                  <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+                </div>
+              )}
               <div className="flex flex-col justify-center">
-                <p className="text-xs text-[hsl(var(--snug-gray))]">{roomData.location}</p>
+                <p className="text-xs text-[hsl(var(--snug-gray))]">{displayLocation}</p>
                 <p className="text-sm font-bold text-[hsl(var(--snug-text-primary))]">
-                  {roomData.title}
+                  {displayTitle}
                 </p>
               </div>
             </div>
@@ -774,12 +911,14 @@ export function PaymentPage() {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
                 <span>
-                  {checkIn} - {checkOut}
+                  {checkInDisplay} - {checkOutDisplay}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                <span>{guests} Guest</span>
+                <span>
+                  {guestCount} {t('summary.guest')}
+                </span>
               </div>
             </div>
 
@@ -787,56 +926,62 @@ export function PaymentPage() {
             <div className="space-y-4">
               <div className="flex items-start justify-between pb-4 border-b border-[hsl(var(--snug-border))]">
                 <div>
-                  <p className="text-sm text-[hsl(var(--snug-text-primary))]">Rent for 1 Night</p>
+                  <p className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {t('summary.rentPerNight')}
+                  </p>
                   <p className="text-sm text-[hsl(var(--snug-gray))]">
-                    (Including Maintenance Fee)
+                    {t('summary.includingMaintenance')}
                   </p>
                 </div>
                 <span className="text-sm font-semibold text-[hsl(var(--snug-orange))]">
-                  ${roomData.pricePerNight}
+                  {format(pricePerNight)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                  {nights}nights X ${roomData.pricePerNight}
-                </span>
-                <span className="text-sm text-[hsl(var(--snug-text-primary))]">${rentTotal}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                  Cleaning(After check-out)
+                  {t('summary.nightsCalculation', { nights, price: format(pricePerNight) })}
                 </span>
                 <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                  ${roomData.cleaningFee}
+                  {format(rentTotal)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                  Deposit(Refundable)
+                  {t('summary.cleaning')}
                 </span>
                 <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                  ${roomData.deposit}
+                  {format(cleaningFee)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                  {t('summary.deposit')}
+                </span>
+                <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                  {format(deposit)}
                 </span>
               </div>
 
               {discount > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                    Long-stay Discount(Over {roomData.longStayThreshold} days)
+                    {t('summary.longStayDiscount', { days: longStayThreshold })}
                   </span>
-                  <span className="text-sm text-[hsl(var(--snug-orange))]">-${discount}</span>
+                  <span className="text-sm text-[hsl(var(--snug-orange))]">
+                    -{format(discount)}
+                  </span>
                 </div>
               )}
 
               <div className="flex items-center justify-between pt-4 border-t border-[hsl(var(--snug-border))]">
                 <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-                  Total
+                  {t('summary.total')}
                 </span>
                 <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-                  ${total}
+                  {format(total)}
                 </span>
               </div>
             </div>
@@ -851,14 +996,14 @@ export function PaymentPage() {
                 className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
               >
                 <MessageSquare className="w-5 h-5" />
-                <span>Chat with Host</span>
+                <span>{t('summary.chatWithHost')}</span>
               </button>
               {/* Payment Button */}
               <button
                 type="button"
                 className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
               >
-                Payment
+                {t('summary.payment')}
               </button>
             </div>
           </div>

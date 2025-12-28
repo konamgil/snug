@@ -352,7 +352,9 @@
       "continueWithKakao": "Continue with KakaoTalk",
       "continueWithFacebook": "Continue with Facebook",
       "loginRequired": "Login required.",
-      "goToLogin": "Go to Login"
+      "goToLogin": "Go to Login",
+      "cannotUnlinkLastIdentity": "Cannot unlink your last login method.",
+      "comingSoon": "Coming soon"
     },
     "payment": {
       "title": "Payment Information",
@@ -433,7 +435,9 @@
       "noFavoritesDesc": "Your saved stays will appear here once added.",
       "noRecent": "No recent stays viewed!",
       "noRecentDesc": "Your recently viewed stays will appear here.",
-      "browseStays": "Browse Stays"
+      "browseStays": "Browse Stays",
+      "guests": "Guests",
+      "month": "month"
     },
     "settings": {
       "title": "Settings",
@@ -589,7 +593,156 @@
     "perNight": "/ night",
     "notFound": "Accommodation not found",
     "noHouseRules": "No house rules specified",
-    "noSimilarStays": "No similar stays available"
+    "noSimilarStays": "No similar stays available",
+    "selectDates": "Select dates",
+    "guest": "{count} Guest",
+    "mapView": "Map View",
+    "walkingMinutes": "{minutes} min walk",
+    "guidelinesItems": {
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "cooking": "Cooking",
+      "laundry": "Laundry",
+      "selfCheckIn": "Self check-in (Password will be provided)",
+      "checkOutTime": "By 12:30 PM",
+      "cookingAllowed": "Allowed — please clean-up after use",
+      "laundryAllowed": "Long-term stays welcome"
+    },
+    "detailItems": {
+      "area": "Area",
+      "elevator": "Elevator",
+      "parking": "Parking",
+      "room": "Room",
+      "livingRoom": "Living Room",
+      "bathroom": "Bathroom",
+      "kitchen": "Kitchen",
+      "floor": "Floor",
+      "balcony": "Balcony",
+      "available": "Available",
+      "notAvailable": "Not Available"
+    },
+    "informationSection": {
+      "title": "Included in Maintenance Fee",
+      "subtitle": "(Gas, Water, Internet, Electricity)",
+      "content": "All utility charges and internet fees are included in the maintenance fee. If any of the included services are used excessively, additional charges may apply."
+    },
+    "refundPolicyItems": {
+      "moreThan15Days": "More than 15 days before check-in: 90% refund of rent and contract fee",
+      "days14to8": "14-8 days before check-in: 70% refund of rent and contract fee",
+      "days7to1": "7-1 days before check-in: 50% refund of rent and contract fee",
+      "checkInDay": "On the check-in date: No refund"
+    },
+    "longTermDiscountItems": {
+      "weeks2": "Contract for 2+ weeks: 5% off",
+      "weeks4": "Contract for 4+ weeks: 10% off",
+      "weeks12": "Contract for 12+ weeks: 20% off"
+    },
+    "notesItems": {
+      "sameDayCancellation": "For same-day cancellations, 10% of the rent and contract fee will be charged as a penalty according to the refund policy. However, if the cancellation falls within the free cancellation period, a full refund will be issued.",
+      "refundableFees": "Maintenance fees, cleaning fees, and deposits are fully refundable.",
+      "hostTerms": "The refund policy may vary depending on the host's terms."
+    },
+    "booking": {
+      "rentPerNight": "Rent for 1 Night",
+      "includingMaintenance": "(Including Maintenance Fee)",
+      "nightsCalculation": "{nights} nights × {price}",
+      "cleaningFee": "Cleaning (After check-out)",
+      "deposit": "Deposit (Refundable)",
+      "longStayDiscount": "Long-stay Discount (Over {days} days)",
+      "serviceFee": "Snug service fee ({percent}%)",
+      "total": "Total",
+      "chatWithHost": "Chat with Host",
+      "book": "Book"
+    },
+    "checkout": {
+      "title": "Additional information",
+      "subtitle": "Please let the host know what to keep in mind.",
+      "reasonTitle": "Reason for booking accommodation",
+      "reasonHint": "We use lifestyle patterns as a reference when assigning roommates.",
+      "reasons": {
+        "travel": "Travel",
+        "study": "Study",
+        "business": "Business",
+        "specify": "Specify"
+      },
+      "guestInfo": {
+        "title": "Final information",
+        "sameAsAccount": "Same as Account Info",
+        "yourInfo": "Your information",
+        "name": "Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "nameHint": "Make sure this matches the name on your government ID.",
+        "email": "Email address",
+        "emailPlaceholder": "Please enter your Email address.",
+        "phone": "Phone number",
+        "phonePlaceholder": "Enter your phone number",
+        "verified": "Verified",
+        "identityVerification": "Identity Verification",
+        "passport": "Passport number",
+        "passportPlaceholder": "Please enter your passport number."
+      },
+      "paymentMethod": {
+        "title": "Payment method",
+        "creditDebit": "Credit or debit card",
+        "creditCard": "Credit card",
+        "debitCard": "Debit card",
+        "default": "Default",
+        "easyPayment": "Easy Payment"
+      },
+      "payerName": {
+        "title": "Payer name",
+        "sameAsAccount": "Same as Account Info",
+        "name": "Name"
+      },
+      "information": {
+        "title": "Information",
+        "maintenanceIncluded": "Included in Maintenance Fee",
+        "utilities": "(Gas, Water, Internet, Electricity)",
+        "description": "All utility charges and internet fees are included in the maintenance fee. If any of the included services are used excessively, additional charges may apply."
+      },
+      "refundPolicy": {
+        "title": "Refund Policy",
+        "over15days": "More than 15 days before check-in: 90% refund of rent and contract fee",
+        "days14to8": "14~8 days before check-in: 70% refund of rent and contract fee",
+        "days7to1": "7~1 days before check-in: 50% refund of rent and contract fee",
+        "checkInDay": "On the check-in date: No refund"
+      },
+      "notes": {
+        "title": "Notes",
+        "sameDayCancellation": "For same-day cancellations, 10% of the rent and contract fee will be charged as a penalty according to the refund policy. However, if the cancellation falls within the free cancellation period, a full refund will be issued.",
+        "feesRefundable": "Maintenance fees, cleaning fees, and deposits are fully refundable.",
+        "policyVaries": "The refund policy may vary depending on the host's terms."
+      },
+      "discountItems": {
+        "title": "Long-Term Stay Discount",
+        "weeks2": "Contract for 2+ weeks: 5% off",
+        "weeks4": "Contract for 4+ weeks: 10% off",
+        "weeks12": "Contract for 12+ weeks: 20% off"
+      },
+      "summary": {
+        "paymentAmount": "Payment amount",
+        "guest": "Guest",
+        "rentPerNight": "Rent for 1 Night",
+        "includingMaintenance": "(Including Maintenance Fee)",
+        "nightsCalculation": "{nights} nights × {price}",
+        "cleaning": "Cleaning (After check-out)",
+        "deposit": "Deposit (Refundable)",
+        "serviceFee": "Snug service fee ({percent}%)",
+        "longStayDiscount": "Long-stay Discount (Over {days} days)",
+        "total": "Total",
+        "chatWithHost": "Chat with Host",
+        "book": "Book",
+        "payment": "Payment",
+        "roomTypeDescription": "A shared house for living together and connecting with others."
+      },
+      "countryCodes": {
+        "southKorea": "(+82) South Korea",
+        "usa": "(+1) USA",
+        "china": "(+86) China",
+        "japan": "(+81) Japan"
+      }
+    }
   },
   "host": {
     "sidebar": {

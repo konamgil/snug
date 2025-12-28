@@ -15,6 +15,14 @@ type TabType = 'login' | 'social';
 
 type SocialProvider = 'google' | 'apple' | 'kakao' | 'facebook';
 
+// Supabase에서 활성화된 provider 목록 (Supabase Dashboard에서 설정 후 여기에 추가)
+const ENABLED_PROVIDERS: SocialProvider[] = [
+  'google', // Google OAuth 활성화됨
+  // 'apple',   // Apple OAuth 설정 후 주석 해제
+  // 'kakao',   // Kakao OAuth 설정 후 주석 해제
+  // 'facebook', // Facebook OAuth 설정 후 주석 해제
+];
+
 interface SocialLoginState {
   google: boolean;
   apple: boolean;
@@ -479,28 +487,34 @@ export function SecurityPage() {
                       <span className="flex-1 text-center text-sm text-[hsl(var(--snug-text-primary))]">
                         {t('continueWithGoogle')}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => toggleSocialLogin('google')}
-                        disabled={linkingProvider !== null}
-                        className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
-                          socialLogins.google
-                            ? 'bg-[hsl(var(--snug-orange))]'
-                            : 'bg-[hsl(var(--snug-light-gray))]'
-                        }`}
-                      >
-                        {linkingProvider === 'google' ? (
-                          <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
-                            <Loader2 className="w-5 h-5 animate-spin text-white" />
-                          </span>
-                        ) : (
-                          <span
-                            className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                              socialLogins.google ? 'translate-x-[22px]' : 'translate-x-0'
-                            }`}
-                          />
-                        )}
-                      </button>
+                      {ENABLED_PROVIDERS.includes('google') ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSocialLogin('google')}
+                          disabled={linkingProvider !== null}
+                          className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
+                            socialLogins.google
+                              ? 'bg-[hsl(var(--snug-orange))]'
+                              : 'bg-[hsl(var(--snug-light-gray))]'
+                          }`}
+                        >
+                          {linkingProvider === 'google' ? (
+                            <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
+                              <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            </span>
+                          ) : (
+                            <span
+                              className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                                socialLogins.google ? 'translate-x-[22px]' : 'translate-x-0'
+                              }`}
+                            />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[hsl(var(--snug-gray))] bg-[hsl(var(--snug-light-gray))] px-2 py-1 rounded-full">
+                          {t('comingSoon')}
+                        </span>
+                      )}
                     </div>
 
                     {/* Apple */}
@@ -513,28 +527,34 @@ export function SecurityPage() {
                       <span className="flex-1 text-center text-sm text-[hsl(var(--snug-text-primary))]">
                         {t('continueWithApple')}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => toggleSocialLogin('apple')}
-                        disabled={linkingProvider !== null}
-                        className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
-                          socialLogins.apple
-                            ? 'bg-[hsl(var(--snug-orange))]'
-                            : 'bg-[hsl(var(--snug-light-gray))]'
-                        }`}
-                      >
-                        {linkingProvider === 'apple' ? (
-                          <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
-                            <Loader2 className="w-5 h-5 animate-spin text-white" />
-                          </span>
-                        ) : (
-                          <span
-                            className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                              socialLogins.apple ? 'translate-x-[22px]' : 'translate-x-0'
-                            }`}
-                          />
-                        )}
-                      </button>
+                      {ENABLED_PROVIDERS.includes('apple') ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSocialLogin('apple')}
+                          disabled={linkingProvider !== null}
+                          className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
+                            socialLogins.apple
+                              ? 'bg-[hsl(var(--snug-orange))]'
+                              : 'bg-[hsl(var(--snug-light-gray))]'
+                          }`}
+                        >
+                          {linkingProvider === 'apple' ? (
+                            <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
+                              <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            </span>
+                          ) : (
+                            <span
+                              className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                                socialLogins.apple ? 'translate-x-[22px]' : 'translate-x-0'
+                              }`}
+                            />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[hsl(var(--snug-gray))] bg-[hsl(var(--snug-light-gray))] px-2 py-1 rounded-full">
+                          {t('comingSoon')}
+                        </span>
+                      )}
                     </div>
 
                     {/* KakaoTalk */}
@@ -550,28 +570,34 @@ export function SecurityPage() {
                       <span className="flex-1 text-center text-sm text-[hsl(var(--snug-text-primary))]">
                         {t('continueWithKakao')}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => toggleSocialLogin('kakao')}
-                        disabled={linkingProvider !== null}
-                        className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
-                          socialLogins.kakao
-                            ? 'bg-[hsl(var(--snug-orange))]'
-                            : 'bg-[hsl(var(--snug-light-gray))]'
-                        }`}
-                      >
-                        {linkingProvider === 'kakao' ? (
-                          <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
-                            <Loader2 className="w-5 h-5 animate-spin text-white" />
-                          </span>
-                        ) : (
-                          <span
-                            className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                              socialLogins.kakao ? 'translate-x-[22px]' : 'translate-x-0'
-                            }`}
-                          />
-                        )}
-                      </button>
+                      {ENABLED_PROVIDERS.includes('kakao') ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSocialLogin('kakao')}
+                          disabled={linkingProvider !== null}
+                          className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
+                            socialLogins.kakao
+                              ? 'bg-[hsl(var(--snug-orange))]'
+                              : 'bg-[hsl(var(--snug-light-gray))]'
+                          }`}
+                        >
+                          {linkingProvider === 'kakao' ? (
+                            <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
+                              <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            </span>
+                          ) : (
+                            <span
+                              className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                                socialLogins.kakao ? 'translate-x-[22px]' : 'translate-x-0'
+                              }`}
+                            />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[hsl(var(--snug-gray))] bg-[hsl(var(--snug-light-gray))] px-2 py-1 rounded-full">
+                          {t('comingSoon')}
+                        </span>
+                      )}
                     </div>
 
                     {/* Facebook */}
@@ -587,28 +613,34 @@ export function SecurityPage() {
                       <span className="flex-1 text-center text-sm text-[hsl(var(--snug-text-primary))]">
                         {t('continueWithFacebook')}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => toggleSocialLogin('facebook')}
-                        disabled={linkingProvider !== null}
-                        className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
-                          socialLogins.facebook
-                            ? 'bg-[hsl(var(--snug-orange))]'
-                            : 'bg-[hsl(var(--snug-light-gray))]'
-                        }`}
-                      >
-                        {linkingProvider === 'facebook' ? (
-                          <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
-                            <Loader2 className="w-5 h-5 animate-spin text-white" />
-                          </span>
-                        ) : (
-                          <span
-                            className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                              socialLogins.facebook ? 'translate-x-[22px]' : 'translate-x-0'
-                            }`}
-                          />
-                        )}
-                      </button>
+                      {ENABLED_PROVIDERS.includes('facebook') ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSocialLogin('facebook')}
+                          disabled={linkingProvider !== null}
+                          className={`relative w-[48px] h-[26px] rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${
+                            socialLogins.facebook
+                              ? 'bg-[hsl(var(--snug-orange))]'
+                              : 'bg-[hsl(var(--snug-light-gray))]'
+                          }`}
+                        >
+                          {linkingProvider === 'facebook' ? (
+                            <span className="absolute top-[3px] left-1/2 -translate-x-1/2">
+                              <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            </span>
+                          ) : (
+                            <span
+                              className={`absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                                socialLogins.facebook ? 'translate-x-[22px]' : 'translate-x-0'
+                              }`}
+                            />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[hsl(var(--snug-gray))] bg-[hsl(var(--snug-light-gray))] px-2 py-1 rounded-full">
+                          {t('comingSoon')}
+                        </span>
+                      )}
                     </div>
                   </>
                 )}
