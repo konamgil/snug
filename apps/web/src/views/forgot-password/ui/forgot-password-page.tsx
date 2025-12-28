@@ -94,14 +94,14 @@ export function ForgotPasswordPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder={t('firstName')}
-                  className={['flex-1', inputClass].join(' ')}
+                  className={['flex-1 min-w-0', inputClass].join(' ')}
                 />
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder={t('lastName')}
-                  className={['flex-1', inputClass].join(' ')}
+                  className={['flex-1 min-w-0', inputClass].join(' ')}
                 />
               </div>
 
