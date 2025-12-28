@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       icon: '/images/logo/favicon.svg',
       apple: '/apple-touch-icon.png',
     },
-    themeColor: '#FF7900',
+    themeColor: '#FFFFFF',
     openGraph: {
       title: metadata.title,
       description: metadata.description,
