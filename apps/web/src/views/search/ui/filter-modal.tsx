@@ -264,14 +264,17 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         </h3>
         <div className="flex items-center gap-6">
           {APARTMENT_SIZES.map((size) => (
-            <label key={size} className="flex items-center gap-2 cursor-pointer">
+            <label
+              key={size}
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => setFilters((prev) => ({ ...prev, apartmentSize: size }))}
+            >
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
                   filters.apartmentSize === size
                     ? 'border-[hsl(var(--snug-text-primary))]'
                     : 'border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => setFilters((prev) => ({ ...prev, apartmentSize: size }))}
               >
                 {filters.apartmentSize === size && (
                   <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--snug-text-primary))]" />
@@ -290,14 +293,17 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         </h3>
         <div className="space-y-3">
           {HOUSE_RULES.map((rule) => (
-            <label key={rule.key} className="flex items-center gap-3 cursor-pointer">
+            <label
+              key={rule.key}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => handleHouseRuleToggle(rule.key)}
+            >
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
                   filters.houseRules.includes(rule.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleHouseRuleToggle(rule.key)}
               >
                 {filters.houseRules.includes(rule.key) && (
                   <svg
@@ -328,14 +334,17 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {FACILITIES.map((facility) => (
-            <label key={facility.key} className="flex items-center gap-3 cursor-pointer">
+            <label
+              key={facility.key}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => handleFacilityToggle(facility.key)}
+            >
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
                   filters.facilities.includes(facility.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleFacilityToggle(facility.key)}
               >
                 {filters.facilities.includes(facility.key) && (
                   <svg
@@ -366,14 +375,17 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {AMENITIES.map((amenity) => (
-            <label key={amenity.key} className="flex items-center gap-3 cursor-pointer">
+            <label
+              key={amenity.key}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => handleAmenityToggle(amenity.key)}
+            >
               <div
                 className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
                   filters.amenities.includes(amenity.key)
                     ? 'bg-[hsl(var(--snug-orange))]'
                     : 'border-2 border-[hsl(var(--snug-border))]'
                 }`}
-                onClick={() => handleAmenityToggle(amenity.key)}
               >
                 {filters.amenities.includes(amenity.key) && (
                   <svg
