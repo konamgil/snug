@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ImagePlus, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory } from './types';
@@ -12,16 +13,15 @@ interface PhotoUploadSectionProps {
   categories: PhotoCategory[];
   onChange?: (categories: PhotoCategory[]) => void;
   onAddPhotos?: () => void;
-  onViewAll?: () => void;
   onViewGallery?: () => void;
 }
 
 export function PhotoUploadSection({
   categories,
   onAddPhotos,
-  onViewAll: _onViewAll,
   onViewGallery,
 }: PhotoUploadSectionProps) {
+  const t = useTranslations('host.accommodation.photoUpload');
   const [hoveredButton, setHoveredButton] = useState<HoveredButton>(null);
   const hasPhotos = categories.some((cat) => cat.photos.length > 0);
 
@@ -57,7 +57,7 @@ export function PhotoUploadSection({
         className="w-full border border-dashed border-[hsl(var(--snug-border))] rounded-lg py-16 px-8 hover:bg-[hsl(var(--snug-light-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors cursor-pointer"
       >
         <div className="flex flex-col items-center justify-center text-center">
-          <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">사진 등록을 해주세요.</p>
+          <p className="text-sm text-[hsl(var(--snug-gray))] mb-2">{t('registerPhotos')}</p>
           <ImagePlus className="w-8 h-8 text-[hsl(var(--snug-gray))]" />
         </div>
       </button>
@@ -121,7 +121,7 @@ export function PhotoUploadSection({
               onClick={hoveredButton === 'edit' ? onAddPhotos : onViewGallery}
               className="absolute top-full mt-1 px-3 py-1.5 bg-[hsl(var(--snug-text-primary))]/80 rounded-full text-xs text-white hover:bg-[hsl(var(--snug-text-primary))] transition-colors whitespace-nowrap"
             >
-              {hoveredButton === 'edit' ? '수정' : '사진 전체보기'}
+              {hoveredButton === 'edit' ? t('edit') : t('viewAllPhotos')}
             </button>
           )}
         </div>
@@ -136,13 +136,14 @@ interface PhotoPreviewProps {
 }
 
 export function PhotoPreview({ photos }: PhotoPreviewProps) {
+  const t = useTranslations('host.accommodation.photoUpload');
   const allPhotos = photos.flatMap((cat) => cat.photos);
   const mainPhoto = allPhotos[0];
 
   if (!mainPhoto) {
     return (
       <div className="aspect-video bg-[hsl(var(--snug-light-gray))] rounded-lg flex flex-col items-center justify-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">등록된 사진이 없습니다.</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noPhotos')}</p>
         <ImagePlus className="w-8 h-8 text-[hsl(var(--snug-gray))] mt-2" />
       </div>
     );

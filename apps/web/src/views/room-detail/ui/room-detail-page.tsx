@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useLocale } from 'next-intl';
+import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
   LocationIcon,
-  CalendarIcon as _CalendarIcon,
   UserIcon,
   HeartIcon,
   ChatIcon,
@@ -27,9 +27,17 @@ import {
 import { useRouter as useI18nRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import { formatGuestSummary, type GuestCount } from '@/features/search/ui/guest-picker';
+import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
+import { getAccommodationPublic, getSimilarAccommodations } from '@/shared/api/accommodation';
+import {
+  getFacilityI18nKey,
+  getAmenityI18nKey,
+  getAccommodationTypeLabel,
+  getBuildingTypeLabel,
+} from '@/shared/lib';
+import type { AccommodationPublic, AccommodationListItem } from '@snug/types';
 
 // Mock room data
 const roomData = {
@@ -146,15 +154,6 @@ const tagColors = {
   green: 'bg-green-500 text-white',
 };
 
-// Format date for display
-function _formatDate(date: Date | null): string {
-  if (!date) return 'Select';
-  const month = date.toLocaleString('en', { month: 'short' });
-  const day = date.getDate();
-  const year = date.getFullYear().toString().slice(-2);
-  return `${month} ${day}, ${year}`;
-}
-
 // Calculate nights between two dates
 function calculateNights(checkIn: Date | null, checkOut: Date | null): number {
   if (!checkIn || !checkOut) return 0;
@@ -168,7 +167,14 @@ export function RoomDetailPage() {
   const router = useRouter();
   const i18nRouter = useI18nRouter();
   const { format } = useCurrencySafe();
+  const t = useTranslations();
   const roomId = (params.id as string) || '1';
+
+  // API data state
+  const [accommodation, setAccommodation] = useState<AccommodationPublic | null>(null);
+  const [similarRooms, setSimilarRooms] = useState<AccommodationListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -189,9 +195,34 @@ export function RoomDetailPage() {
     longTermDiscount: false,
   });
 
+  // Fetch accommodation data
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const [data, similar] = await Promise.all([
+          getAccommodationPublic(roomId),
+          getSimilarAccommodations(roomId, 6),
+        ]);
+        if (!data) {
+          setError('Accommodation not found');
+        } else {
+          setAccommodation(data);
+          setSimilarRooms(similar);
+        }
+      } catch (err) {
+        console.error('Failed to fetch accommodation:', err);
+        setError('Failed to load accommodation');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, [roomId]);
+
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);
-  const totalImages = 20;
 
   // Click outside handler
   useEffect(() => {
@@ -234,12 +265,37 @@ export function RoomDetailPage() {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const nights = calculateNights(checkIn, checkOut) || roomData.nights; // Default from mock data
-  const subtotal = roomData.pricePerNight * nights;
-  const serviceFee = Math.round(subtotal * (roomData.serviceFeePercent / 100));
-  const discount = nights >= roomData.longStayThreshold ? roomData.longStayDiscount : 0;
-  const _total = subtotal + roomData.cleaningFee + roomData.deposit - discount - serviceFee;
-  const _guestSummary = formatGuestSummary(guests) || '1 Guest';
+  // Calculate derived values from accommodation data
+  const pricePerNight = accommodation?.basePrice ?? roomData.pricePerNight;
+  const cleaningFee = accommodation?.cleaningFee ?? roomData.cleaningFee;
+  const nights = calculateNights(checkIn, checkOut) || roomData.nights;
+  const subtotal = pricePerNight * nights;
+  const serviceFeePercent = roomData.serviceFeePercent; // Keep from mock for now
+  const serviceFee = Math.round(subtotal * (serviceFeePercent / 100));
+  const longStayThreshold = roomData.longStayThreshold;
+  const longStayDiscount = roomData.longStayDiscount;
+  const discount = nights >= longStayThreshold ? longStayDiscount : 0;
+  const deposit = roomData.deposit;
+  const total = subtotal + cleaningFee + deposit - discount - serviceFee;
+
+  // Get display values from accommodation or fallback to mock
+  const displayLocation = accommodation?.sigunguEn ?? roomData.location;
+  const displayDistrict = accommodation?.sidoEn ?? roomData.district;
+  const displayRoomType = accommodation
+    ? getAccommodationTypeLabel(accommodation.accommodationType, locale)
+    : roomData.roomType;
+  const displayBuildingType = accommodation?.buildingType
+    ? getBuildingTypeLabel(accommodation.buildingType, locale)
+    : roomData.buildingType;
+  const displayRoomCount = accommodation?.roomCount ?? roomData.rooms;
+  const displayBathroomCount = accommodation?.bathroomCount ?? roomData.bathrooms;
+  const displayCapacity = accommodation?.capacity ?? roomData.guests;
+  const displayIntroduction = accommodation?.introduction ?? roomData.description;
+  const displayHouseRules = accommodation?.houseRules ?? null;
+  const displayLat = accommodation?.latitude ?? roomData.lat;
+  const displayLng = accommodation?.longitude ?? roomData.lng;
+  const photos = accommodation?.photos ?? [];
+  const totalImages = photos.length;
 
   // Handle search from header - navigate to search page
   const handleHeaderSearch = (values: SearchBarValues) => {
@@ -253,6 +309,38 @@ export function RoomDetailPage() {
     i18nRouter.push(`/search?${searchParams.toString()}`);
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" onSearch={handleHeaderSearch} />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !accommodation) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" onSearch={handleHeaderSearch} />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <p className="text-lg text-[hsl(var(--snug-gray))]">
+            {error || t('roomDetail.notFound')}
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2 bg-[hsl(var(--snug-orange))] text-white rounded-full hover:opacity-90"
+          >
+            {t('common.back')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Desktop Header - Hidden on Mobile */}
@@ -264,10 +352,21 @@ export function RoomDetailPage() {
           className="relative aspect-[4/3] overflow-hidden cursor-pointer"
           onClick={handleOpenGallery}
         >
-          {/* Placeholder Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-            <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
-          </div>
+          {/* Photo or Placeholder */}
+          {photos.length > 0 && photos[currentImageIndex] ? (
+            <Image
+              src={photos[currentImageIndex].url}
+              alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+              <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
+            </div>
+          )}
 
           {/* Mobile Overlay Buttons */}
           <div className="absolute top-4 left-4 z-10">
@@ -301,17 +400,17 @@ export function RoomDetailPage() {
           {/* Mobile Tags */}
           <div className="absolute bottom-4 left-4 flex gap-2 z-10">
             <span className="px-3 py-1 text-xs font-medium rounded-full bg-white border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]">
-              {roomData.roomType}
+              {displayRoomType}
             </span>
             <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-500 text-white">
-              {roomData.buildingType}
+              {displayBuildingType}
             </span>
           </div>
 
           {/* Mobile Image Counter + More */}
           <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-xs z-10">
             <span>
-              {currentImageIndex + 1}/{totalImages} · More
+              {currentImageIndex + 1}/{totalImages} · {t('common.seeMore')}
             </span>
           </div>
         </div>
@@ -326,10 +425,21 @@ export function RoomDetailPage() {
               className="hidden lg:block relative aspect-[16/10] rounded-2xl overflow-hidden mb-6 cursor-pointer group"
               onClick={handleOpenGallery}
             >
-              {/* Placeholder Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
-                <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
-              </div>
+              {/* Photo or Placeholder */}
+              {photos.length > 0 && photos[currentImageIndex] ? (
+                <Image
+                  src={photos[currentImageIndex].url}
+                  alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 896px"
+                  className="object-cover group-hover:brightness-95 transition-all"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
+                  <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
+                </div>
+              )}
 
               {/* Tags */}
               <div className="absolute top-4 left-4 flex gap-2 z-10">
@@ -384,12 +494,12 @@ export function RoomDetailPage() {
             {/* Title & Location */}
             {/* Mobile: Location as title */}
             <h1 className="lg:hidden text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-              {roomData.location}, {roomData.district}
+              {displayLocation}, {displayDistrict}
             </h1>
             {/* Desktop: Title with heart icon */}
             <div className="hidden lg:flex items-center justify-between mb-2">
               <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))]">
-                {roomData.location}, {roomData.district}
+                {displayLocation}, {displayDistrict}
               </h1>
               <button
                 type="button"
@@ -408,12 +518,13 @@ export function RoomDetailPage() {
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))]">
                 <HotelIcon className="w-3.5 h-3.5" />
                 <span>
-                  {roomData.rooms} Rooms · {roomData.bathrooms} Bathroom · {roomData.beds} Bed
+                  {t('rooms.roomCount', { count: displayRoomCount })} ·{' '}
+                  {t('rooms.bathroomCount', { count: displayBathroomCount })}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))]">
                 <UserIcon className="w-3.5 h-3.5" />
-                <span>{roomData.guests} Guests</span>
+                <span>{t('rooms.guestCount', { count: displayCapacity })}</span>
               </div>
             </div>
             {/* Desktop Room Info */}
@@ -421,12 +532,13 @@ export function RoomDetailPage() {
               <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--snug-gray))] mb-1">
                 <HotelIcon className="w-4 h-4" />
                 <span>
-                  {roomData.rooms} Rooms · {roomData.bathrooms} Bathroom · {roomData.beds} Bed
+                  {t('rooms.roomCount', { count: displayRoomCount })} ·{' '}
+                  {t('rooms.bathroomCount', { count: displayBathroomCount })}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--snug-gray))]">
                 <UserIcon className="w-4 h-4" />
-                <span>{roomData.guests} Guests</span>
+                <span>{t('rooms.guestCount', { count: displayCapacity })}</span>
               </div>
             </div>
 
@@ -434,31 +546,29 @@ export function RoomDetailPage() {
             <div className="lg:hidden py-6">
               <div className="flex flex-col items-center text-center p-5 border-2 border-[hsl(var(--snug-orange))] rounded-2xl">
                 <p className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-1">
-                  {roomData.roomType}
+                  {displayRoomType}
                 </p>
-                <p className="text-[13px] text-[hsl(var(--snug-gray))]">
-                  {roomData.roomTypeDescription}
-                </p>
+                <p className="text-[13px] text-[hsl(var(--snug-gray))]">{accommodation.roomName}</p>
               </div>
             </div>
 
             {/* Stay Description */}
             <Section
-              title="Stay Description"
+              title={t('roomDetail.aboutThisPlace')}
               expanded={expandedSections.description ?? false}
               onToggle={() => toggleSection('description')}
             >
               <p className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-2">
-                {roomData.title}
+                {accommodation.roomName}
               </p>
               <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
-                {roomData.description}
+                {displayIntroduction}
               </p>
             </Section>
 
             {/* Guidelines */}
             <Section
-              title="Guidelines"
+              title={t('roomDetail.guidelines')}
               expanded={expandedSections.guidelines ?? false}
               onToggle={() => toggleSection('guidelines')}
             >
@@ -476,7 +586,7 @@ export function RoomDetailPage() {
 
             {/* Details */}
             <Section
-              title="Details"
+              title={t('roomDetail.details')}
               expanded={expandedSections.details ?? false}
               onToggle={() => toggleSection('details')}
             >
@@ -498,74 +608,80 @@ export function RoomDetailPage() {
             </Section>
 
             {/* Facilities */}
-            <Section
-              title="Facilities"
-              expanded={expandedSections.facilities ?? false}
-              onToggle={() => toggleSection('facilities')}
-            >
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-                {roomData.facilities.slice(0, 9).map((facility) => (
-                  <div
-                    key={facility}
-                    className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
-                  >
-                    <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                    <span>{facility}</span>
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsFacilitiesModalOpen(true)}
-                className="w-full py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+            {(accommodation.facilities?.length ?? 0) > 0 && (
+              <Section
+                title={t('roomDetail.facilities')}
+                expanded={expandedSections.facilities ?? false}
+                onToggle={() => toggleSection('facilities')}
               >
-                Facilities More
-              </button>
-            </Section>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                  {(accommodation.facilities ?? []).slice(0, 9).map((facilityCode) => (
+                    <div
+                      key={facilityCode}
+                      className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+                    >
+                      <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
+                      <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                    </div>
+                  ))}
+                </div>
+                {(accommodation.facilities?.length ?? 0) > 9 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsFacilitiesModalOpen(true)}
+                    className="w-full py-3 border border-[hsl(var(--snug-border))] rounded-xl text-sm font-medium text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
+                  >
+                    {t('roomDetail.facilities')} {t('common.seeMore')}
+                  </button>
+                )}
+              </Section>
+            )}
 
             {/* House Amenities */}
-            <Section
-              title="House Amenities"
-              expanded={expandedSections.amenities ?? false}
-              onToggle={() => toggleSection('amenities')}
-            >
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {roomData.houseAmenities.map((amenity) => (
-                  <div
-                    key={amenity}
-                    className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
-                  >
-                    <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                    <span>{amenity}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
+            {(accommodation.amenities?.length ?? 0) > 0 && (
+              <Section
+                title={t('roomDetail.houseAmenities')}
+                expanded={expandedSections.amenities ?? false}
+                onToggle={() => toggleSection('amenities')}
+              >
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {(accommodation.amenities ?? []).map((amenityCode) => (
+                    <div
+                      key={amenityCode}
+                      className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+                    >
+                      <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
+                      <span>{t(`amenities.${getAmenityI18nKey(amenityCode)}`)}</span>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
 
             {/* House Rules */}
             <Section
-              title="House Rules"
+              title={t('roomDetail.houseRules')}
               expanded={expandedSections.houseRules ?? false}
               onToggle={() => toggleSection('houseRules')}
             >
-              <div className="space-y-3">
-                {roomData.houseRules.map((rule) => (
-                  <div key={rule.text} className="flex items-center gap-2 text-sm">
-                    <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                        rule.allowed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      {rule.allowed ? '✓' : '✗'}
-                    </div>
-                    <span className="text-[hsl(var(--snug-text-primary))]">{rule.text}</span>
-                  </div>
-                ))}
-              </div>
+              {displayHouseRules ? (
+                <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed whitespace-pre-wrap">
+                  {displayHouseRules}
+                </p>
+              ) : (
+                <p className="text-sm text-[hsl(var(--snug-gray))]">
+                  {t('roomDetail.noHouseRules')}
+                </p>
+              )}
             </Section>
 
             {/* Information */}
-            <Section title="Information" expanded={true} onToggle={() => {}} showToggle={false}>
+            <Section
+              title={t('roomDetail.information')}
+              expanded={true}
+              onToggle={() => {}}
+              showToggle={false}
+            >
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
@@ -582,44 +698,30 @@ export function RoomDetailPage() {
             </Section>
 
             {/* Location */}
-            <Section title="Location" expanded={true} onToggle={() => {}} showToggle={false}>
+            <Section
+              title={t('roomDetail.location')}
+              expanded={true}
+              onToggle={() => {}}
+              showToggle={false}
+            >
               <p className="text-xs text-[hsl(var(--snug-text-primary))] mb-3">
-                {roomData.address}
+                {displayLocation}, {displayDistrict}
+                {accommodation.nearestStation && ` · ${accommodation.nearestStation}`}
+                {accommodation.walkingMinutes && ` (${accommodation.walkingMinutes}min walk)`}
               </p>
-              {/* Location Filter Buttons */}
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-[hsl(var(--snug-orange))] text-white text-xs font-extrabold rounded-full"
-                >
-                  Subway Station
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-[#999] text-white text-xs font-extrabold rounded-full"
-                >
-                  Bus Stop
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 bg-[#999] text-white text-xs font-extrabold rounded-full"
-                >
-                  Convenience store
-                </button>
-              </div>
               {/* Map Container */}
               <div className="relative h-[250px] lg:h-[350px] rounded-[20px] overflow-hidden bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))]">
-                {shouldShowMap ? (
+                {shouldShowMap && displayLat && displayLng ? (
                   <GoogleMap
                     mapContainerStyle={{ width: '100%', height: '100%' }}
-                    center={{ lat: roomData.lat, lng: roomData.lng }}
+                    center={{ lat: displayLat, lng: displayLng }}
                     zoom={15}
                     options={{
                       disableDefaultUI: true,
                       zoomControl: false,
                     }}
                   >
-                    <Marker position={{ lat: roomData.lat, lng: roomData.lng }} />
+                    <Marker position={{ lat: displayLat, lng: displayLng }} />
                   </GoogleMap>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#f5f5f5]">
@@ -651,85 +753,131 @@ export function RoomDetailPage() {
 
             {/* Other Stays */}
             <Section
-              title="Other Stays You May Like"
+              title={t('roomDetail.otherStays')}
               expanded={true}
               onToggle={() => {}}
               showToggle={false}
             >
-              {/* Mobile: Horizontal Scroll */}
-              <div className="lg:hidden -mx-4 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                <div className="flex gap-3" style={{ width: 'max-content' }}>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="cursor-pointer group w-[140px] flex-shrink-0">
-                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-2">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                          <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+              {similarRooms.length > 0 ? (
+                <>
+                  {/* Mobile: Horizontal Scroll */}
+                  <div className="lg:hidden -mx-4 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <div className="flex gap-3" style={{ width: 'max-content' }}>
+                      {similarRooms.map((room) => (
+                        <div
+                          key={room.id}
+                          className="cursor-pointer group w-[140px] flex-shrink-0"
+                          onClick={() => router.push(`/${locale}/room/${room.id}`)}
+                        >
+                          <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-2">
+                            {room.thumbnailUrl ? (
+                              <Image
+                                src={room.thumbnailUrl}
+                                alt={room.roomName}
+                                fill
+                                sizes="140px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                                <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+                              </div>
+                            )}
+                          </div>
+                          <h4 className="text-xs font-medium text-[hsl(var(--snug-text-primary))] mb-0.5 truncate">
+                            {room.roomName}
+                          </h4>
+                          <p className="text-[10px] text-[hsl(var(--snug-gray))] mb-1">
+                            {room.sigunguEn || room.sidoEn}
+                          </p>
+                          <p className="text-xs font-bold text-[hsl(var(--snug-orange))]">
+                            {format(room.basePrice)}{' '}
+                            <span className="text-[10px] font-normal text-[hsl(var(--snug-gray))]">
+                              {t('roomDetail.perNight')}
+                            </span>
+                          </p>
                         </div>
-                      </div>
-                      <h4 className="text-xs font-medium text-[hsl(var(--snug-text-primary))] mb-0.5 truncate">
-                        Modern Studio {i}
-                      </h4>
-                      <p className="text-[10px] text-[hsl(var(--snug-gray))] mb-1">Gangnam-gu</p>
-                      <p className="text-xs font-bold text-[hsl(var(--snug-orange))]">
-                        $150{' '}
-                        <span className="text-[10px] font-normal text-[hsl(var(--snug-gray))]">
-                          / night
-                        </span>
-                      </p>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-              {/* Desktop: Grid */}
-              <div className="hidden lg:grid grid-cols-3 gap-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="cursor-pointer group">
-                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
-                      </div>
-                      {/* Tags */}
-                      <div className="absolute top-3 left-3 flex gap-1.5 z-10">
-                        <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-white border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]">
-                          Shared Room
-                        </span>
-                        <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-purple-500 text-white">
-                          Apartment
-                        </span>
-                      </div>
-                      {/* Heart */}
-                      <button className="absolute top-3 right-3 p-1.5 bg-white/90 rounded-full z-10">
-                        <HeartIcon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                      </button>
-                      {/* Counter */}
-                      <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/60 rounded-full text-white text-[10px] z-10">
-                        1/10
-                      </div>
-                    </div>
-                    <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-1">
-                      Nonhyeon-dong, Gangnam-gu
-                    </h4>
-                    <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-0.5">
-                      <HotelIcon className="w-3 h-3" />
-                      <span>1 Rooms · 1 Bathroom · 2 Bed</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-1">
-                      <UserIcon className="w-3 h-3" />
-                      <span>2 Guests</span>
-                    </div>
-                    <p className="text-sm">
-                      <span className="text-[hsl(var(--snug-gray))] line-through mr-1">$200</span>
-                      <span className="font-bold text-[hsl(var(--snug-orange))]">$160</span>
-                      <span className="text-xs text-[hsl(var(--snug-gray))]"> for 2 nights</span>
-                    </p>
                   </div>
-                ))}
-              </div>
+                  {/* Desktop: Grid */}
+                  <div className="hidden lg:grid grid-cols-3 gap-4">
+                    {similarRooms.slice(0, 3).map((room) => (
+                      <div
+                        key={room.id}
+                        className="cursor-pointer group"
+                        onClick={() => router.push(`/${locale}/room/${room.id}`)}
+                      >
+                        <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
+                          {room.thumbnailUrl ? (
+                            <Image
+                              src={room.thumbnailUrl}
+                              alt={room.roomName}
+                              fill
+                              sizes="(max-width: 1024px) 33vw, 280px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
+                            </div>
+                          )}
+                          {/* Tags */}
+                          <div className="absolute top-3 left-3 flex gap-1.5 z-10">
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-white border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]">
+                              {getAccommodationTypeLabel(room.accommodationType, locale)}
+                            </span>
+                            {room.buildingType && (
+                              <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-purple-500 text-white">
+                                {getBuildingTypeLabel(room.buildingType, locale)}
+                              </span>
+                            )}
+                          </div>
+                          {/* Heart */}
+                          <button
+                            className="absolute top-3 right-3 p-1.5 bg-white/90 rounded-full z-10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <HeartIcon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                          </button>
+                        </div>
+                        <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))] mb-1">
+                          {room.roomName}
+                        </h4>
+                        <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-0.5">
+                          <HotelIcon className="w-3 h-3" />
+                          <span>
+                            {t('rooms.roomCount', { count: room.roomCount })} ·{' '}
+                            {t('rooms.bathroomCount', { count: room.bathroomCount })}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-[hsl(var(--snug-gray))] mb-1">
+                          <UserIcon className="w-3 h-3" />
+                          <span>{t('rooms.guestCount', { count: room.capacity })}</span>
+                        </div>
+                        <p className="text-sm">
+                          <span className="font-bold text-[hsl(var(--snug-orange))]">
+                            {format(room.basePrice)}
+                          </span>
+                          <span className="text-xs text-[hsl(var(--snug-gray))]">
+                            {' '}
+                            {t('roomDetail.perNight')}
+                          </span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-[hsl(var(--snug-gray))]">
+                  {t('roomDetail.noSimilarStays')}
+                </p>
+              )}
             </Section>
 
             {/* Refund Policy */}
             <Section
-              title="Refund Policy"
+              title={t('roomDetail.refundPolicy')}
               expanded={expandedSections.refundPolicy ?? false}
               onToggle={() => toggleSection('refundPolicy')}
             >
@@ -748,7 +896,7 @@ export function RoomDetailPage() {
 
             {/* Long-Term Stay Discount */}
             <Section
-              title="Long-Term Stay Discount"
+              title={t('roomDetail.longTermDiscount')}
               expanded={expandedSections.longTermDiscount ?? false}
               onToggle={() => toggleSection('longTermDiscount')}
             >
@@ -768,7 +916,12 @@ export function RoomDetailPage() {
             </Section>
 
             {/* Notes */}
-            <Section title="Notes" expanded={true} onToggle={() => {}} showToggle={false}>
+            <Section
+              title={t('roomDetail.importantNotes')}
+              expanded={true}
+              onToggle={() => {}}
+              showToggle={false}
+            >
               <ul className="space-y-2">
                 {roomData.notes.map((note, index) => (
                   <li
@@ -787,16 +940,16 @@ export function RoomDetailPage() {
           <div className="hidden lg:block w-[350px] flex-shrink-0">
             <div className="sticky top-24">
               <BookingSidePanel
-                roomType={roomData.roomType}
-                roomTypeDescription="A shared house for living together and connecting with others."
+                roomType={displayRoomType}
+                roomTypeDescription={accommodation.roomName}
                 priceBreakdown={{
-                  pricePerNight: roomData.pricePerNight,
+                  pricePerNight: pricePerNight,
                   nights: nights,
-                  cleaningFee: roomData.cleaningFee,
-                  deposit: roomData.deposit,
-                  longStayDiscount: roomData.longStayDiscount,
-                  longStayThreshold: roomData.longStayThreshold,
-                  serviceFeePercent: roomData.serviceFeePercent,
+                  cleaningFee: cleaningFee,
+                  deposit: deposit,
+                  longStayDiscount: longStayDiscount,
+                  longStayThreshold: longStayThreshold,
+                  serviceFeePercent: serviceFeePercent,
                 }}
                 initialCheckIn={checkIn}
                 initialCheckOut={checkOut}
@@ -813,9 +966,11 @@ export function RoomDetailPage() {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[hsl(var(--snug-border))] px-5 py-4 z-50">
         {/* Top Row: Total */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">Total</span>
           <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-            {format(roomData.total)}
+            {t('roomDetail.total')}
+          </span>
+          <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
+            {format(total)}
           </span>
         </div>
         {/* Bottom Row: Actions */}
@@ -826,7 +981,7 @@ export function RoomDetailPage() {
             className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
           >
             <ChatIcon className="w-5 h-5" />
-            <span>Chat with Host</span>
+            <span>{t('roomDetail.contactHost')}</span>
           </button>
           {/* Book Button */}
           <button
@@ -834,7 +989,7 @@ export function RoomDetailPage() {
             onClick={() => router.push(`/${locale}/room/${roomId}/payment`)}
             className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
           >
-            Book
+            {t('roomDetail.reserveNow')}
           </button>
         </div>
       </div>
@@ -843,7 +998,8 @@ export function RoomDetailPage() {
       <FacilitiesModal
         isOpen={isFacilitiesModalOpen}
         onClose={() => setIsFacilitiesModalOpen(false)}
-        facilities={roomData.facilities}
+        facilities={accommodation.facilities ?? []}
+        t={t}
       />
     </div>
   );
@@ -884,9 +1040,10 @@ interface FacilitiesModalProps {
   isOpen: boolean;
   onClose: () => void;
   facilities: string[];
+  t: (key: string) => string;
 }
 
-function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) {
+function FacilitiesModal({ isOpen, onClose, facilities, t }: FacilitiesModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -918,7 +1075,9 @@ function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) 
       <div className="lg:hidden fixed inset-0 z-[100] bg-white flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--snug-border))]">
-          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">Facilities</h2>
+          <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+            {t('roomDetail.facilities')}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -931,13 +1090,13 @@ function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) 
         {/* Body */}
         <div className="flex-1 px-5 py-6 overflow-y-auto">
           <ul className="space-y-4">
-            {facilities.map((facility) => (
+            {facilities.map((facilityCode) => (
               <li
-                key={facility}
+                key={facilityCode}
                 className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
               >
                 <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                <span>{facility}</span>
+                <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
               </li>
             ))}
           </ul>
@@ -953,7 +1112,9 @@ function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) 
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--snug-border))]">
-            <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">Facilities</h2>
+            <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">
+              {t('roomDetail.facilities')}
+            </h2>
             <button
               type="button"
               onClick={onClose}
@@ -966,13 +1127,13 @@ function FacilitiesModal({ isOpen, onClose, facilities }: FacilitiesModalProps) 
           {/* Body */}
           <div className="px-6 py-6 max-h-[60vh] overflow-y-auto">
             <ul className="space-y-4">
-              {facilities.map((facility) => (
+              {facilities.map((facilityCode) => (
                 <li
-                  key={facility}
+                  key={facilityCode}
                   className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
                 >
                   <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                  <span>{facility}</span>
+                  <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
                 </li>
               ))}
             </ul>

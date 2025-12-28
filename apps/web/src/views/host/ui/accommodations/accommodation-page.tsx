@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
+import { ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
 import {
@@ -34,6 +35,8 @@ function AccommodationPageHeader({
   isOperating,
   onToggleOperating,
 }: AccommodationPageHeaderProps) {
+  const t = useTranslations('host.accommodation.list');
+
   return (
     <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[hsl(var(--snug-border))]">
       <div className="flex items-center gap-3">
@@ -65,7 +68,7 @@ function AccommodationPageHeader({
         {/* Meta Info */}
         {openDate && (
           <>
-            <span className="text-[hsl(var(--snug-gray))]">{openDate} 오픈</span>
+            <span className="text-[hsl(var(--snug-gray))]">{openDate}</span>
             <span className="text-[hsl(var(--snug-border))]">|</span>
           </>
         )}
@@ -92,7 +95,7 @@ function AccommodationPageHeader({
             />
           </button>
           <span className="text-[hsl(var(--snug-text-primary))]">
-            {isOperating ? '운영 중' : '미운영 중'}
+            {isOperating ? t('operating') : t('notOperating')}
           </span>
         </div>
       </div>
@@ -117,6 +120,9 @@ function AccommodationPageFooter({
   showDelete = false,
   isSaving = false,
 }: AccommodationPageFooterProps) {
+  const t = useTranslations('host.accommodation.page');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-[hsl(var(--snug-border))]">
       <div>
@@ -127,7 +133,7 @@ function AccommodationPageFooter({
             disabled={isSaving}
             className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
           >
-            삭제
+            {t('delete')}
           </button>
         )}
       </div>
@@ -139,7 +145,7 @@ function AccommodationPageFooter({
           disabled={isSaving}
           className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
         >
-          취소
+          {tCommon('cancel')}
         </button>
         <button
           type="button"
@@ -147,7 +153,7 @@ function AccommodationPageFooter({
           disabled={isSaving}
           className="px-6 py-3 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
         >
-          {isSaving ? '저장 중...' : '임시저장'}
+          {isSaving ? t('saving') : t('draftSave')}
         </button>
         <button
           type="button"
@@ -155,7 +161,7 @@ function AccommodationPageFooter({
           disabled={isSaving}
           className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {isSaving ? '저장 중...' : '저장'}
+          {isSaving ? t('saving') : t('save')}
         </button>
       </div>
     </div>
@@ -414,10 +420,24 @@ function accommodationToFormData(acc: Accommodation, groupName?: string): Accomm
 // New Accommodation Page
 export function AccommodationNewPage() {
   const router = useRouter();
+  const t = useTranslations('host.accommodation.page');
   const { user, refreshUser } = useAuthStore();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Toast 상태
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+  // Toast 표시 함수
+  const showToastMessage = useCallback((message: string, type: 'success' | 'error') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  }, []);
 
   // Fetch groups on mount
   useEffect(() => {
@@ -437,10 +457,11 @@ export function AccommodationNewPage() {
         );
       } catch (error) {
         console.error('Failed to load groups:', error);
+        showToastMessage('그룹 목록을 불러오는데 실패했습니다.', 'error');
       }
     }
     loadGroups();
-  }, [user?.id]);
+  }, [user?.id, showToastMessage]);
 
   const handleSave = async () => {
     if (!user?.id) return;
@@ -469,7 +490,7 @@ export function AccommodationNewPage() {
 
       // Create accommodation
       // hostId is derived from JWT token on server side
-      const { accommodation: _accommodation, roleUpgraded } = await createAccommodation({
+      const { roleUpgraded } = await createAccommodation({
         groupId,
         roomName: formData.roomName,
         accommodationType: toApiAccommodationType(formData.accommodationType),
@@ -519,7 +540,7 @@ export function AccommodationNewPage() {
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save accommodation:', error);
-      // TODO: Show error toast
+      showToastMessage('숙소 저장에 실패했습니다.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -592,6 +613,7 @@ export function AccommodationNewPage() {
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save draft:', error);
+      showToastMessage('임시 저장에 실패했습니다.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -620,6 +642,7 @@ export function AccommodationNewPage() {
       ]);
     } catch (error) {
       console.error('Failed to create group:', error);
+      showToastMessage('그룹 생성에 실패했습니다.', 'error');
     }
   };
 
@@ -627,7 +650,7 @@ export function AccommodationNewPage() {
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
       {/* Header */}
       <AccommodationPageHeader
-        breadcrumb={['숙소 관리', '신규등록']}
+        breadcrumb={[t('breadcrumbManagement'), t('breadcrumbNew')]}
         isOperating={formData.isOperating}
         onToggleOperating={(value) => setFormData((prev) => ({ ...prev, isOperating: value }))}
       />
@@ -658,6 +681,22 @@ export function AccommodationNewPage() {
         showDelete={false}
         isSaving={isSaving}
       />
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div
+          className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+            toastType === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {toastType === 'success' ? (
+            <Check className="w-4 h-4" />
+          ) : (
+            <AlertCircle className="w-4 h-4" />
+          )}
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
@@ -669,6 +708,8 @@ interface AccommodationEditPageProps {
 
 export function AccommodationEditPage({ accommodationId }: AccommodationEditPageProps) {
   const router = useRouter();
+  const t = useTranslations('host.accommodation.page');
+  const tCommon = useTranslations('common');
   const { user } = useAuthStore();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
@@ -676,6 +717,19 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Toast 상태
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+  // Toast 표시 함수
+  const showToastMessage = useCallback((message: string, type: 'success' | 'error') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  }, []);
 
   // Fetch groups and accommodation data on mount
   useEffect(() => {
@@ -712,13 +766,14 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         }
       } catch (error) {
         console.error('Failed to load accommodation:', error);
+        showToastMessage('숙소 정보를 불러오는데 실패했습니다.', 'error');
         router.push('/host/properties');
       } finally {
         setIsLoading(false);
       }
     }
     loadData();
-  }, [accommodationId, router]);
+  }, [accommodationId, router, showToastMessage]);
 
   const handleSave = async () => {
     if (!user?.id) return;
@@ -786,11 +841,10 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
       });
 
-      console.log('Accommodation updated successfully');
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save accommodation:', error);
-      // TODO: Show error toast
+      showToastMessage('숙소 저장에 실패했습니다.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -863,6 +917,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save draft:', error);
+      showToastMessage('임시 저장에 실패했습니다.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -880,11 +935,10 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     setIsDeleting(true);
     try {
       await deleteAccommodation(accommodationId);
-      console.log('Accommodation deleted successfully');
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to delete accommodation:', error);
-      // TODO: Show error toast
+      showToastMessage('숙소 삭제에 실패했습니다.', 'error');
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -910,6 +964,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       ]);
     } catch (error) {
       console.error('Failed to create group:', error);
+      showToastMessage('그룹 생성에 실패했습니다.', 'error');
     }
   };
 
@@ -919,22 +974,17 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       <div className="h-full flex items-center justify-center bg-[hsl(var(--snug-light-gray))]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-[hsl(var(--snug-orange))] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-[hsl(var(--snug-gray))]">숙소 정보를 불러오는 중...</p>
+          <p className="text-sm text-[hsl(var(--snug-gray))]">{tCommon('loading')}</p>
         </div>
       </div>
     );
   }
 
-  // Debug: log formData before render
-  console.log('[EditPage] Rendering with formData:', formData);
-  console.log('[EditPage] formData.roomName:', formData.roomName);
-  console.log('[EditPage] formData.address:', formData.address);
-
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
       {/* Header */}
       <AccommodationPageHeader
-        breadcrumb={['숙소 관리', formData.roomName || '수정']}
+        breadcrumb={[t('breadcrumbManagement'), formData.roomName || tCommon('edit')]}
         openDate={formData.openDate}
         lastModifiedBy={formData.lastModifiedAt}
         isOperating={formData.isOperating}
@@ -974,13 +1024,9 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
             <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-              숙소 삭제
+              {t('deleteConfirmTitle')}
             </h3>
-            <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">
-              정말로 이 숙소를 삭제하시겠습니까?
-              <br />
-              삭제된 숙소는 복구할 수 없습니다.
-            </p>
+            <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">{t('deleteConfirmMessage')}</p>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -988,7 +1034,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
                 disabled={isDeleting}
                 className="flex-1 px-4 py-2 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors disabled:opacity-50"
               >
-                취소
+                {tCommon('cancel')}
               </button>
               <button
                 type="button"
@@ -996,10 +1042,26 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
                 disabled={isDeleting}
                 className="flex-1 px-4 py-2 text-sm font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
               >
-                {isDeleting ? '삭제 중...' : '삭제'}
+                {isDeleting ? t('deleting') : t('delete')}
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div
+          className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+            toastType === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {toastType === 'success' ? (
+            <Check className="w-4 h-4" />
+          ) : (
+            <AlertCircle className="w-4 h-4" />
+          )}
+          {toastMessage}
         </div>
       )}
     </div>
@@ -1008,16 +1070,18 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
 
 // Empty State Page (for list view when no accommodations)
 export function AccommodationsEmptyPage() {
+  const t = useTranslations('host.accommodation.page');
+
   return (
     <div className="h-full flex items-center justify-center bg-white">
       <div className="text-center">
-        <p className="text-sm text-[hsl(var(--snug-gray))]">아직 등록된 숙소가 없습니다.</p>
-        <p className="text-sm text-[hsl(var(--snug-gray))]">숙소를 등록하여 관리를 시작해보세요.</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('emptyTitle')}</p>
+        <p className="text-sm text-[hsl(var(--snug-gray))]">{t('emptyDescription')}</p>
         <button
           type="button"
           className="mt-4 px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
         >
-          숙소 등록하기
+          {t('registerAccommodation')}
         </button>
       </div>
     </div>

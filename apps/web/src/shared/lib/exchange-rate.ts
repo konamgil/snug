@@ -87,7 +87,8 @@ function setCachedRates(rates: ExchangeRates): void {
       }),
     );
   } catch {
-    // localStorage 오류 무시
+    // Intentionally ignore localStorage errors (SSR, incognito mode, quota exceeded)
+    void 0;
   }
 }
 

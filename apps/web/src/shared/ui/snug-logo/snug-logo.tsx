@@ -13,8 +13,9 @@ export function SnugLogo({ className }: SnugLogoProps) {
   const handleClick = () => {
     if (!isEasterEggActive) {
       incrementClick();
-      // Show hint after 5 clicks
-      if (clickCount === 4) {
+      // Show hint after 5 clicks - intentional easter egg hint
+      if (clickCount === 4 && process.env.NODE_ENV === 'development') {
+        // nosemgrep: no-console-log
         console.log('%c Almost there... keep clicking! 👀', 'color: #ff7900;');
       }
     }

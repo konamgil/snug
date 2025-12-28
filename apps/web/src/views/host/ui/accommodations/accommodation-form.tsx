@@ -22,8 +22,6 @@ import {
   ACCOMMODATION_TYPE_OPTIONS,
   BUILDING_TYPE_OPTIONS,
   WEEKDAY_OPTIONS,
-  FACILITY_OPTIONS,
-  AMENITY_OPTIONS,
   DEFAULT_FORM_DATA,
 } from './types';
 
@@ -44,6 +42,11 @@ export function AccommodationForm({
   const tCommon = useTranslations('common');
   const tSpaceTypes = useTranslations('host.accommodation.spaceTypes');
   const tBedTypes = useTranslations('host.accommodation.bedTypes');
+  const tFacilities = useTranslations('host.accommodation.facilities');
+  const tAmenities = useTranslations('host.accommodation.amenities');
+  const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
+  const tBuildingTypes = useTranslations('host.accommodation.buildingTypes');
+  const tWeekdays = useTranslations('host.accommodation.weekdays');
   const [data, setData] = useState<AccommodationFormData>(initialData);
 
   // Sync internal state when initialData changes (for edit mode)
@@ -111,11 +114,13 @@ export function AccommodationForm({
   };
 
   const getFacilityLabel = (id: string) => {
-    return FACILITY_OPTIONS.find((f) => f.id === id)?.label ?? id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return tFacilities(id as any);
   };
 
   const getAmenityLabel = (id: string) => {
-    return AMENITY_OPTIONS.find((a) => a.id === id)?.label ?? id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return tAmenities(id as any);
   };
 
   const addManager = (manager: Omit<ManagerInfo, 'id'>) => {
@@ -466,8 +471,9 @@ export function AccommodationForm({
                   onClick={() => setIsAccommodationTypeOpen(!isAccommodationTypeOpen)}
                   className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
                 >
-                  {ACCOMMODATION_TYPE_OPTIONS.find((opt) => opt.id === data.accommodationType)
-                    ?.label ?? tCommon('select')}
+                  {data.accommodationType
+                    ? tAccommodationTypes(data.accommodationType as any)
+                    : tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 {isAccommodationTypeOpen && (
@@ -479,21 +485,21 @@ export function AccommodationForm({
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20">
                       {ACCOMMODATION_TYPE_OPTIONS.map((option) => (
                         <button
-                          key={option.id}
+                          key={option}
                           type="button"
                           onClick={() => {
                             updateData({
-                              accommodationType: option.id as AccommodationType,
+                              accommodationType: option as AccommodationType,
                             });
                             setIsAccommodationTypeOpen(false);
                           }}
                           className={`block w-full px-4 py-2 text-sm text-left hover:bg-[hsl(var(--snug-light-gray))] ${
-                            data.accommodationType === option.id
+                            data.accommodationType === option
                               ? 'text-[hsl(var(--snug-orange))]'
                               : 'text-[hsl(var(--snug-text-primary))]'
                           }`}
                         >
-                          {option.label}
+                          {tAccommodationTypes(option as any)}
                         </button>
                       ))}
                     </div>
@@ -513,9 +519,7 @@ export function AccommodationForm({
                   onClick={() => setIsBuildingTypeOpen(!isBuildingTypeOpen)}
                   className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
                 >
-                  {data.buildingType
-                    ? BUILDING_TYPE_OPTIONS.find((opt) => opt.id === data.buildingType)?.label
-                    : tCommon('select')}
+                  {data.buildingType ? tBuildingTypes(data.buildingType as any) : tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 {isBuildingTypeOpen && (
@@ -527,19 +531,19 @@ export function AccommodationForm({
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20">
                       {BUILDING_TYPE_OPTIONS.map((option) => (
                         <button
-                          key={option.id}
+                          key={option}
                           type="button"
                           onClick={() => {
-                            updateData({ buildingType: option.id as BuildingType });
+                            updateData({ buildingType: option as BuildingType });
                             setIsBuildingTypeOpen(false);
                           }}
                           className={`block w-full px-4 py-2 text-sm text-left hover:bg-[hsl(var(--snug-light-gray))] ${
-                            data.buildingType === option.id
+                            data.buildingType === option
                               ? 'text-[hsl(var(--snug-orange))]'
                               : 'text-[hsl(var(--snug-text-primary))]'
                           }`}
                         >
-                          {option.label}
+                          {tBuildingTypes(option as any)}
                         </button>
                       ))}
                     </div>
@@ -601,14 +605,16 @@ export function AccommodationForm({
             />
             <div className="flex flex-wrap gap-3 mt-3">
               {WEEKDAY_OPTIONS.map((day) => (
-                <label key={day.id} className="flex items-center gap-2 cursor-pointer">
+                <label key={day} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={data.pricing.weekendDays.includes(day.id)}
-                    onChange={() => toggleWeekendDay(day.id)}
+                    checked={data.pricing.weekendDays.includes(day)}
+                    onChange={() => toggleWeekendDay(day)}
                     className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
                   />
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">{day.label}</span>
+                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {tWeekdays(day as any)}
+                  </span>
                 </label>
               ))}
             </div>

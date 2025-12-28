@@ -104,7 +104,9 @@ export function ChatList({ onChatSelect }: ChatListProps) {
       <ChatHeader
         filter={filter}
         onFilterChange={setFilter}
-        onSearchClick={() => console.log('Search clicked')}
+        onSearchClick={() => {
+          /* TODO: Implement search */
+        }}
       />
 
       {/* Chat List */}

@@ -18,14 +18,16 @@ export interface PhotoItem {
   order: number;
 }
 
-// Default photo group options
+// Default photo group options (labels come from translations: host.accommodation.photoGroups.*)
 export const DEFAULT_PHOTO_GROUPS = [
-  { id: 'main', name: '대표사진', order: 0 },
-  { id: 'room', name: '방', order: 1 },
-  { id: 'living_room', name: '거실', order: 2 },
-  { id: 'kitchen', name: '부엌', order: 3 },
-  { id: 'bathroom', name: '화장실', order: 4 },
+  { id: 'main', order: 0 },
+  { id: 'room', order: 1 },
+  { id: 'living_room', order: 2 },
+  { id: 'kitchen', order: 3 },
+  { id: 'bathroom', order: 4 },
 ] as const;
+
+export type PhotoGroupId = (typeof DEFAULT_PHOTO_GROUPS)[number]['id'];
 
 export interface RoomCount {
   room: number;
@@ -121,57 +123,50 @@ export interface AccommodationFormData {
   lastModifiedAt?: string;
 }
 
-// Facility options
+// Facility options (labels come from translations: host.facilities.*)
 export const FACILITY_OPTIONS = [
-  { id: 'digital_lock', label: '디지털 도어락' },
-  { id: 'refrigerator', label: '냉장고' },
-  { id: 'air_conditioner', label: '컨디셔너' },
-  { id: 'coffee_maker', label: '커피 메이커' },
-  { id: 'washer', label: '세탁기' },
-  { id: 'closet', label: '옷걸이' },
-  { id: 'tv', label: 'TV' },
-  { id: 'wifi', label: '와이파이' },
-  { id: 'cctv', label: 'CCTV' },
+  'digitalLock',
+  'refrigerator',
+  'airConditioner',
+  'coffeeMaker',
+  'washer',
+  'closet',
+  'tv',
+  'wifi',
+  'cctv',
 ] as const;
 
-// Amenity options
+export type FacilityId = (typeof FACILITY_OPTIONS)[number];
+
+// Amenity options (labels come from translations: host.amenities.*)
 export const AMENITY_OPTIONS = [
-  { id: 'hair_dryer', label: '헤어 드라이어' },
-  { id: 'shampoo', label: '샴푸' },
-  { id: 'conditioner', label: '컨디셔너' },
-  { id: 'body_wash', label: '바디워셔' },
-  { id: 'soap', label: '비누' },
-  { id: 'towel', label: '수건' },
-  { id: 'toothbrush', label: '칫솔' },
-  { id: 'toothpaste', label: '치약' },
+  'hairDryer',
+  'shampoo',
+  'conditioner',
+  'bodyWash',
+  'soap',
+  'towel',
+  'toothbrush',
+  'toothpaste',
 ] as const;
 
-// Accommodation type options
+export type AmenityId = (typeof AMENITY_OPTIONS)[number];
+
+// Accommodation type options (labels come from translations: host.accommodation.accommodationTypes.*)
 export const ACCOMMODATION_TYPE_OPTIONS = [
-  { id: 'house', label: '하우스' },
-  { id: 'share_room', label: '쉐어 룸' },
-  { id: 'share_house', label: '쉐어 하우스' },
-  { id: 'apartment', label: '아파트/빌라' },
+  'house',
+  'share_room',
+  'share_house',
+  'apartment',
 ] as const;
 
-// Building type options
-export const BUILDING_TYPE_OPTIONS = [
-  { id: 'apartment', label: '아파트' },
-  { id: 'villa', label: '빌라' },
-  { id: 'house', label: '단독주택' },
-  { id: 'officetel', label: '오피스텔' },
-] as const;
+// Building type options (labels come from translations: host.accommodation.buildingTypes.*)
+export const BUILDING_TYPE_OPTIONS = ['apartment', 'villa', 'house', 'officetel'] as const;
 
-// Weekday options
-export const WEEKDAY_OPTIONS = [
-  { id: 'sun', label: '일요일' },
-  { id: 'mon', label: '월요일' },
-  { id: 'tue', label: '화요일' },
-  { id: 'wed', label: '수요일' },
-  { id: 'thu', label: '목요일' },
-  { id: 'fri', label: '금요일' },
-  { id: 'sat', label: '토요일' },
-] as const;
+// Weekday options (labels come from translations: host.accommodation.weekdays.*)
+export const WEEKDAY_OPTIONS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+
+export type WeekdayId = (typeof WEEKDAY_OPTIONS)[number];
 
 // List Item for accommodation list page
 export interface AccommodationListItem {
@@ -203,11 +198,8 @@ export interface AccommodationListItem {
 // Filter type for list
 export type AccommodationListFilter = 'all' | 'operating' | 'not_operating';
 
-// Usage type options for display
-export const USAGE_TYPE_OPTIONS = [
-  { id: 'stay', label: '숙박' },
-  { id: 'short_term', label: '단기임대' },
-] as const;
+// Usage type options for display (labels come from translations: host.accommodation.usageTypes.*)
+export const USAGE_TYPE_OPTIONS = ['stay', 'short_term'] as const;
 
 // Default form values
 export const DEFAULT_FORM_DATA: AccommodationFormData = {

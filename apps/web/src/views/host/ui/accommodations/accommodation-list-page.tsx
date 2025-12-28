@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Check, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AccommodationList } from './accommodation-list';
 import { AccommodationListDetail } from './accommodation-list-detail';
@@ -27,7 +27,7 @@ function toListItem(acc: Accommodation): AccommodationListItem {
   const thumbnailUrl = acc.photos?.[0]?.url || '';
 
   // usageType 변환 (API: 'STAY' | 'SHORT_TERM' → UI: 'stay' | 'short_term')
-  const usageType = acc.usageTypes[0]?.toLowerCase() as 'stay' | 'short_term' || 'stay';
+  const usageType = (acc.usageTypes[0]?.toLowerCase() as 'stay' | 'short_term') || 'stay';
 
   return {
     id: acc.id,
@@ -84,7 +84,20 @@ export function AccommodationListPage() {
   const [error, setError] = useState<string | null>(null);
 
   // 원본 Accommodation 데이터 (상태 업데이트에 필요)
-  const [_rawAccommodations, setRawAccommodations] = useState<Accommodation[]>([]);
+  const [, setRawAccommodations] = useState<Accommodation[]>([]);
+
+  // Toast 상태
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+  // Toast 표시 함수
+  const showToastMessage = useCallback((message: string, type: 'success' | 'error') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  }, []);
 
   /**
    * 데이터 로드
@@ -103,11 +116,6 @@ export function AccommodationListPage() {
       // 방어적 코딩: 배열 확인
       const accommodations = Array.isArray(accommodationsData) ? accommodationsData : [];
       const groups = Array.isArray(groupsData) ? groupsData : [];
-
-      console.log('[AccommodationListPage] Loaded data:', {
-        accommodationsCount: accommodations.length,
-        groupsCount: groups.length,
-      });
 
       // 원본 데이터 저장
       setRawAccommodations(accommodations);
@@ -166,15 +174,11 @@ export function AccommodationListPage() {
   const handleBulkStatusChange = async (ids: string[], status: boolean) => {
     try {
       // 모든 선택된 숙소의 운영상태를 병렬로 업데이트
-      await Promise.all(
-        ids.map((id) => updateAccommodation(id, { isOperating: status }))
-      );
+      await Promise.all(ids.map((id) => updateAccommodation(id, { isOperating: status })));
 
       // 로컬 상태 업데이트
       setItems((prev) =>
-        prev.map((item) =>
-          ids.includes(item.id) ? { ...item, isOperating: status } : item
-        )
+        prev.map((item) => (ids.includes(item.id) ? { ...item, isOperating: status } : item)),
       );
 
       // 선택된 아이템도 업데이트
@@ -183,7 +187,7 @@ export function AccommodationListPage() {
       }
     } catch (err) {
       console.error('Failed to update status:', err);
-      alert('운영상태 변경에 실패했습니다.');
+      showToastMessage('운영상태 변경에 실패했습니다.', 'error');
     }
   };
 
@@ -208,7 +212,7 @@ export function AccommodationListPage() {
       }
     } catch (err) {
       console.error('Failed to delete accommodations:', err);
-      alert('숙소 삭제에 실패했습니다.');
+      showToastMessage('숙소 삭제에 실패했습니다.', 'error');
     }
   };
 
@@ -216,8 +220,7 @@ export function AccommodationListPage() {
     router.push(`/host/properties/${id}/edit`);
   };
 
-  const handleManagePricing = (id: string) => {
-    console.log('Manage pricing:', id);
+  const handleManagePricing = (_id: string) => {
     // TODO: 가격 관리 페이지 구현 후 라우팅
   };
 
@@ -310,6 +313,22 @@ export function AccommodationListPage() {
         accommodations={accommodationSimples}
         onSave={handleGroupSave}
       />
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div
+          className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+            toastType === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {toastType === 'success' ? (
+            <Check className="w-4 h-4" />
+          ) : (
+            <AlertCircle className="w-4 h-4" />
+          )}
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

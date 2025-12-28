@@ -462,6 +462,7 @@
     "refundPolicy": "환불 정책",
     "longTermDiscount": "장기 할인",
     "importantNotes": "중요 안내",
+    "information": "안내사항",
     "reserveNow": "예약하기",
     "contactHost": "호스트에게 연락",
     "notChargedYet": "아직 결제되지 않습니다",
@@ -472,7 +473,10 @@
     "children": "어린이",
     "serviceFee": "서비스 수수료",
     "total": "총액",
-    "perNight": "/ 박"
+    "perNight": "/ 박",
+    "notFound": "숙소를 찾을 수 없습니다",
+    "noHouseRules": "등록된 숙소 규칙이 없습니다",
+    "noSimilarStays": "유사한 숙소가 없습니다"
   },
   "hostIntro": {
     "hero": {
@@ -813,26 +817,139 @@
         "additionalInfoPlaceholder": "추가 정보가 있는 경우 입력해주세요."
       }
     },
+    "photoGroups": {
+      "main": "대표사진",
+      "room": "방",
+      "living_room": "거실",
+      "kitchen": "부엌",
+      "bathroom": "화장실"
+    },
+    "accommodationTypes": {
+      "house": "하우스",
+      "share_room": "쉐어 룸",
+      "share_house": "쉐어 하우스",
+      "apartment": "아파트/빌라"
+    },
+    "buildingTypes": {
+      "apartment": "아파트",
+      "villa": "빌라",
+      "house": "단독주택",
+      "officetel": "오피스텔"
+    },
+    "weekdays": {
+      "sun": "일요일",
+      "mon": "월요일",
+      "tue": "화요일",
+      "wed": "수요일",
+      "thu": "목요일",
+      "fri": "금요일",
+      "sat": "토요일"
+    },
+    "usageTypes": {
+      "stay": "숙박",
+      "short_term": "단기임대"
+    },
+    "genderRules": {
+      "male_only": "남성전용",
+      "female_only": "여성전용",
+      "pet_allowed": "반려동물"
+    },
+    "list": {
+      "title": "숙소 목록",
+      "all": "전체",
+      "operating": "운영 중",
+      "notOperating": "미운영 중",
+      "operatingShort": "운영",
+      "notOperatingShort": "미운영",
+      "newRegistration": "신규 등록",
+      "groupManage": "그룹 관리",
+      "changeStatus": "운영상태 변경",
+      "delete": "삭제",
+      "table": {
+        "accommodationInfo": "숙소정보",
+        "accommodationType": "숙소유형",
+        "operatingStatus": "운영상태"
+      }
+    },
+    "page": {
+      "saving": "저장 중...",
+      "save": "저장",
+      "draftSave": "임시저장",
+      "deleting": "삭제 중...",
+      "delete": "삭제",
+      "breadcrumbManagement": "숙소 관리",
+      "breadcrumbNew": "신규등록",
+      "accommodationName": "숙소명",
+      "editPhoto": "수정",
+      "viewAllPhotos": "사진 전체보기",
+      "deleteConfirmTitle": "숙소 삭제",
+      "deleteConfirmMessage": "정말로 이 숙소를 삭제하시겠습니까? 삭제된 숙소는 복구할 수 없습니다.",
+      "emptyTitle": "아직 등록된 숙소가 없습니다.",
+      "emptyDescription": "숙소를 등록하여 관리를 시작해보세요.",
+      "registerAccommodation": "숙소 등록하기"
+    },
+    "previewPanel": {
+      "title": "숙소 간략 보기",
+      "description": "왼쪽에 등록된 정보가 다음과 같이 노출됩니다.",
+      "noPhotos": "등록된 사진이 없습니다.",
+      "contractorName": "계약자명",
+      "accommodationName": "숙소명",
+      "basePrice": "기본 요금(1박)",
+      "managementFee": "관리비",
+      "address": "주소",
+      "sharedSpace": "공용공간",
+      "privateSpace": "개인공간",
+      "houseRules": "하우스 룰",
+      "previewDetail": "숙소 상세 미리 보기"
+    },
+    "photoUpload": {
+      "registerPhotos": "사진 등록을 해주세요.",
+      "edit": "수정",
+      "viewAllPhotos": "사진 전체보기",
+      "noPhotos": "등록된 사진이 없습니다."
+    },
+    "preview": {
+      "livingRoom": "거실",
+      "kitchen": "부엌"
+    },
     "facilities": {
       "digitalLock": "디지털 도어락",
       "refrigerator": "냉장고",
       "airConditioner": "에어컨",
       "coffeeMaker": "커피 메이커",
-      "washingMachine": "세탁기",
-      "clothRack": "옷걸이",
+      "washer": "세탁기",
+      "closet": "옷장",
+      "tv": "TV",
       "wifi": "와이파이",
+      "cctv": "CCTV",
+      "elevator": "엘리베이터",
       "parking": "주차장",
-      "elevator": "엘리베이터"
+      "microwave": "전자레인지",
+      "induction": "인덕션",
+      "gasStove": "가스레인지",
+      "oven": "오븐",
+      "dishwasher": "식기세척기",
+      "dryer": "건조기",
+      "iron": "다리미",
+      "desk": "책상",
+      "chair": "의자"
     },
     "amenities": {
       "hairDryer": "헤어 드라이어",
       "shampoo": "샴푸",
       "conditioner": "컨디셔너",
-      "bodyWash": "바디워셔",
+      "bodyWash": "바디워시",
       "soap": "비누",
       "towel": "수건",
       "toothbrush": "칫솔",
-      "toothpaste": "치약"
+      "toothpaste": "치약",
+      "slippers": "슬리퍼",
+      "bathrobe": "목욕 가운",
+      "tissue": "티슈",
+      "toiletPaper": "화장지",
+      "firstAidKit": "구급상자",
+      "fireExtinguisher": "소화기",
+      "hotWater": "온수"
     },
     "contracts": {
       "title": "계약 목록",
@@ -1035,5 +1152,47 @@
     "termsOfService": "이용약관",
     "privacyPolicy": "개인정보취급방침",
     "copyright": "© {year} Snug. All rights reserved."
+  },
+  "facilities": {
+    "digitalLock": "디지털 도어락",
+    "refrigerator": "냉장고",
+    "airConditioner": "에어컨",
+    "coffeeMaker": "커피 메이커",
+    "washer": "세탁기",
+    "washingMachine": "세탁기",
+    "closet": "옷장",
+    "tv": "TV",
+    "wifi": "와이파이",
+    "cctv": "CCTV",
+    "elevator": "엘리베이터",
+    "parking": "주차장",
+    "microwave": "전자레인지",
+    "induction": "인덕션",
+    "gasStove": "가스레인지",
+    "oven": "오븐",
+    "dishwasher": "식기세척기",
+    "dryer": "건조기",
+    "iron": "다리미",
+    "desk": "책상",
+    "chair": "의자"
+  },
+  "amenities": {
+    "bedding": "침구류",
+    "toiletries": "세면도구",
+    "hairDryer": "헤어 드라이어",
+    "shampoo": "샴푸",
+    "conditioner": "컨디셔너",
+    "bodyWash": "바디워시",
+    "soap": "비누",
+    "towel": "수건",
+    "toothbrush": "칫솔",
+    "toothpaste": "치약",
+    "slippers": "슬리퍼",
+    "bathrobe": "목욕 가운",
+    "tissue": "휴지",
+    "toiletPaper": "화장지",
+    "firstAidKit": "구급함",
+    "fireExtinguisher": "소화기",
+    "hotWater": "온수"
   }
 }

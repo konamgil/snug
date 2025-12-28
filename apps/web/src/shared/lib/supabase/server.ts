@@ -12,11 +12,10 @@ export async function createServerSupabaseClient() {
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
-          // Server Component에서는 쿠키 설정 불가 - 무시
+          // Server Component cannot set cookies - intentionally ignored
+          void 0;
         }
       },
     },

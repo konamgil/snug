@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import type { AccommodationListItem, AccommodationListFilter } from './types';
-import { USAGE_TYPE_OPTIONS } from './types';
 
 interface FilterTab {
   id: AccommodationListFilter;
@@ -31,6 +31,9 @@ export function AccommodationList({
   onBulkStatusChange,
   onBulkDelete,
 }: AccommodationListProps) {
+  const t = useTranslations('host.accommodation.list');
+  const tUsageTypes = useTranslations('host.accommodation.usageTypes');
+
   const [activeFilter, setActiveFilter] = useState<AccommodationListFilter>('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
@@ -40,9 +43,9 @@ export function AccommodationList({
   const notOperatingCount = items.filter((item) => !item.isOperating).length;
 
   const FILTERS: FilterTab[] = [
-    { id: 'all', label: '전체', count: items.length },
-    { id: 'operating', label: '운영 중', count: operatingCount },
-    { id: 'not_operating', label: '미운영 중', count: notOperatingCount },
+    { id: 'all', label: t('all'), count: items.length },
+    { id: 'operating', label: t('operating'), count: operatingCount },
+    { id: 'not_operating', label: t('notOperating'), count: notOperatingCount },
   ];
 
   const filteredItems = items.filter((item) => {
@@ -64,7 +67,11 @@ export function AccommodationList({
   };
 
   const getUsageTypeLabel = (type: string) => {
-    return USAGE_TYPE_OPTIONS.find((opt) => opt.id === type)?.label ?? type;
+    try {
+      return tUsageTypes(type);
+    } catch {
+      return type;
+    }
   };
 
   const getDisplayName = (item: AccommodationListItem) => {
@@ -95,7 +102,7 @@ export function AccommodationList({
       <div className="px-4 md:px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-[hsl(var(--snug-text-primary))]">
-            숙소 목록 <span className="text-[hsl(var(--snug-orange))]">{items.length}</span>
+            {t('title')} <span className="text-[hsl(var(--snug-orange))]">{items.length}</span>
           </h2>
           <div className="flex items-center gap-2 md:gap-3">
             <button
@@ -111,14 +118,14 @@ export function AccommodationList({
               onClick={onGroupManage}
               className="hidden md:block px-4 py-2 text-sm font-medium text-[hsl(var(--snug-text-primary))] border border-[hsl(var(--snug-border))] rounded-lg hover:bg-[hsl(var(--snug-light-gray))] transition-colors"
             >
-              그룹 관리
+              {t('groupManage')}
             </button>
             <button
               type="button"
               onClick={onNewAccommodation}
               className="hidden md:block px-4 py-2 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity"
             >
-              신규 등록
+              {t('newRegistration')}
             </button>
             {/* Mobile: More menu */}
             <div className="relative md:hidden">
@@ -142,7 +149,7 @@ export function AccommodationList({
                       }}
                       className="block w-full px-4 py-3 text-sm text-right hover:bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]"
                     >
-                      신규 등록
+                      {t('newRegistration')}
                     </button>
                     <button
                       type="button"
@@ -152,7 +159,7 @@ export function AccommodationList({
                       }}
                       className="block w-full px-4 py-3 text-sm text-right hover:bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]"
                     >
-                      그룹 관리
+                      {t('groupManage')}
                     </button>
                   </div>
                 </>
@@ -188,7 +195,7 @@ export function AccommodationList({
                 onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 text-sm text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
               >
-                운영상태 변경
+                {t('changeStatus')}
                 {isStatusDropdownOpen ? (
                   <ChevronUp className="w-4 h-4" />
                 ) : (
@@ -207,14 +214,14 @@ export function AccommodationList({
                       onClick={() => handleBulkStatusChange(true)}
                       className="block w-full px-4 py-3 text-sm text-left hover:bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]"
                     >
-                      운영
+                      {t('operatingShort')}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleBulkStatusChange(false)}
                       className="block w-full px-4 py-3 text-sm text-left hover:bg-[hsl(var(--snug-light-gray))] text-[hsl(var(--snug-text-primary))]"
                     >
-                      미운영
+                      {t('notOperatingShort')}
                     </button>
                   </div>
                 </>
@@ -247,44 +254,44 @@ export function AccommodationList({
                         onClick={() => handleBulkStatusChange(true)}
                         className="px-3 py-1.5 text-sm font-medium text-[hsl(var(--snug-text-primary))] bg-[hsl(var(--snug-light-gray))] rounded-lg"
                       >
-                        운영
+                        {t('operatingShort')}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleBulkStatusChange(false)}
                         className="px-3 py-1.5 text-sm font-medium text-[hsl(var(--snug-text-primary))] bg-[hsl(var(--snug-light-gray))] rounded-lg"
                       >
-                        미운영
+                        {t('notOperatingShort')}
                       </button>
                     </div>
                   </th>
                   <th className="hidden md:table-cell px-2 md:px-4 py-3 text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    숙소정보
+                    {t('table.accommodationInfo')}
                   </th>
                   <th className="hidden md:table-cell px-2 md:px-4 py-3 text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    숙소유형
+                    {t('table.accommodationType')}
                   </th>
                   <th className="px-2 md:px-4 py-3 text-right md:text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    <span className="hidden md:inline">운영상태</span>
+                    <span className="hidden md:inline">{t('table.operatingStatus')}</span>
                     <button
                       type="button"
                       onClick={handleBulkDelete}
                       className="md:hidden text-[hsl(var(--snug-gray))]"
                     >
-                      삭제
+                      {t('delete')}
                     </button>
                   </th>
                 </>
               ) : (
                 <>
                   <th className="px-2 md:px-4 py-3 text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    숙소정보
+                    {t('table.accommodationInfo')}
                   </th>
                   <th className="px-2 md:px-4 py-3 text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    숙소유형
+                    {t('table.accommodationType')}
                   </th>
                   <th className="px-2 md:px-4 py-3 text-left text-sm font-medium text-[hsl(var(--snug-gray))]">
-                    운영상태
+                    {t('table.operatingStatus')}
                   </th>
                 </>
               )}
@@ -356,9 +363,11 @@ export function AccommodationList({
                           : 'text-[hsl(var(--snug-gray))]'
                       }`}
                     >
-                      <span className="md:hidden">{item.isOperating ? '운영' : '미운영'}</span>
+                      <span className="md:hidden">
+                        {item.isOperating ? t('operatingShort') : t('notOperatingShort')}
+                      </span>
                       <span className="hidden md:inline">
-                        {item.isOperating ? '운영 중' : '미운영 중'}
+                        {item.isOperating ? t('operating') : t('notOperating')}
                       </span>
                     </span>
                   </div>

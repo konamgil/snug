@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
@@ -79,10 +80,20 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
       <Link href={roomDetailUrl} className="group cursor-pointer block">
         {/* Image Container - Larger aspect ratio for mobile */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
-          {/* Placeholder Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-            <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
-          </div>
+          {/* Image or Placeholder */}
+          {room.imageUrl && !room.imageUrl.includes('placeholder') ? (
+            <Image
+              src={room.imageUrl}
+              alt={room.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+              <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+            </div>
+          )}
 
           {/* Tags - Top Left */}
           <div className="absolute top-3 left-3 flex gap-2">
@@ -164,10 +175,20 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
       <Link href={roomDetailUrl} className="group cursor-pointer block">
         {/* Image Container */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
-          {/* Placeholder Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-            <ImageIcon className="w-10 h-10 text-[hsl(var(--snug-gray))]/30" />
-          </div>
+          {/* Image or Placeholder */}
+          {room.imageUrl && !room.imageUrl.includes('placeholder') ? (
+            <Image
+              src={room.imageUrl}
+              alt={room.title}
+              fill
+              sizes="(max-width: 1024px) 50vw, 33vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+              <ImageIcon className="w-10 h-10 text-[hsl(var(--snug-gray))]/30" />
+            </div>
+          )}
 
           {/* Tags - Top Left */}
           <div className="absolute top-2.5 left-2.5 flex gap-1.5">
@@ -267,10 +288,14 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
     >
       {/* Image */}
       <div className="relative w-[120px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden">
-        {/* Placeholder Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-          <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
-        </div>
+        {/* Image or Placeholder */}
+        {room.imageUrl && !room.imageUrl.includes('placeholder') ? (
+          <Image src={room.imageUrl} alt={room.title} fill sizes="120px" className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+            <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+          </div>
+        )}
         <button
           type="button"
           onClick={handleFavoriteClick}

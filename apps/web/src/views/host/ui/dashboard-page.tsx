@@ -84,18 +84,15 @@ export function DashboardPage() {
   };
 
   const handlePaymentRequest = () => {
-    // Handle payment request
-    console.log('Payment request');
+    // TODO: Handle payment request
   };
 
   const handleOtherProposal = () => {
-    // Handle other proposal
-    console.log('Other proposal');
+    // TODO: Handle other proposal
   };
 
   const handleContractChat = () => {
-    // Handle chat
-    console.log('Chat');
+    // TODO: Handle chat
   };
 
   return (

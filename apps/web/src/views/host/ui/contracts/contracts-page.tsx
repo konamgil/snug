@@ -53,25 +53,25 @@ export function ContractsPage() {
     setPanelData(null);
   };
 
-  // Action handlers
+  // Action handlers - TODO: Implement actual API calls
   const handleConfirmReservation = () => {
-    console.log('Confirm reservation');
+    // TODO: Implement reservation confirmation
   };
 
   const handlePaymentRequest = () => {
-    console.log('Payment request');
+    // TODO: Implement payment request
   };
 
   const handleOtherProposal = () => {
-    console.log('Other proposal');
+    // TODO: Implement proposal flow
   };
 
   const handleChat = () => {
-    console.log('Open chat');
+    // TODO: Navigate to chat
   };
 
   const handleViewContract = () => {
-    console.log('View contract');
+    // TODO: Navigate to contract detail
   };
 
   return (

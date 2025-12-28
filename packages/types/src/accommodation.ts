@@ -340,6 +340,12 @@ export interface AccommodationPublic {
   usageTypes: UsageType[];
 
   // 공개 위치 정보 (상세 주소 제외)
+  sido: string | null;
+  sigungu: string | null;
+  bname: string | null;
+  sidoEn: string | null;
+  sigunguEn: string | null;
+  bnameEn: string | null;
   latitude: number | null;
   longitude: number | null;
   nearestStation: string | null;
@@ -349,8 +355,14 @@ export interface AccommodationPublic {
   basePrice: number;
   includesUtilities: boolean;
   weekendPrice: number | null;
+  weekendDays: string[];
   managementFee: number | null;
   cleaningFee: number | null;
+  extraPersonFee: number | null;
+  petFee: number | null;
+
+  // 예약 조건
+  minReservationDays: number;
 
   // 공간 정보
   capacity: number;
@@ -358,13 +370,17 @@ export interface AccommodationPublic {
   sizeM2: number | null;
   sizePyeong: number | null;
   roomCount: number;
+  livingRoomCount: number;
+  kitchenCount: number;
   bathroomCount: number;
+  terraceCount: number;
 
   // 침대 개수
   bedCounts: BedCounts | null;
 
   // 텍스트 정보
   introduction: string | null;
+  houseRules: string | null;
 
   // 사진
   photos: AccommodationPhoto[];

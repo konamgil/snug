@@ -107,7 +107,7 @@ export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
 
   const handleSend = () => {
     if (!message.trim()) return;
-    console.log('Send message:', message);
+    // TODO: Implement actual message sending
     setMessage('');
   };
 

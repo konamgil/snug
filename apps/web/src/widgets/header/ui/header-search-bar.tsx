@@ -64,7 +64,6 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
 
   // Autocomplete hook
   const {
-    query: _autocompleteQuery,
     setQuery: setAutocompleteQuery,
     results: autocompleteResults,
     isLoading: isLoadingAutocomplete,
@@ -78,10 +77,13 @@ export function HeaderSearchBar({ initialValues, onSearch, className }: HeaderSe
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);
 
-  // 최근 검색어 로드
+  // 최근 검색어 로드 (setTimeout으로 마이크로태스크로 지연하여 연쇄 렌더링 방지)
   useEffect(() => {
     if (isSearchFocused) {
-      setRecentSearches(getRecentSearches());
+      const timer = setTimeout(() => {
+        setRecentSearches(getRecentSearches());
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isSearchFocused]);
 

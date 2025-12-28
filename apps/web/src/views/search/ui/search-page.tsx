@@ -231,8 +231,10 @@ function SearchPageContent() {
     fetchAccommodations();
   }, [fetchAccommodations]);
 
-  const displayLocation = locationValue || 'Seoul';
-  const searchLocation = locationValue ? locationValue.split(',')[0]?.trim() || 'Seoul' : 'Seoul';
+  const displayLocation = locationValue || t('anywhere');
+  const searchLocation = locationValue
+    ? locationValue.split(',')[0]?.trim() || t('anywhere')
+    : t('anywhere');
 
   // Handle search from Header's search bar
   const handleHeaderSearch = (values: SearchBarValues) => {

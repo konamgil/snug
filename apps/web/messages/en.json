@@ -575,6 +575,7 @@
     "refundPolicy": "Refund Policy",
     "longTermDiscount": "Long-Term Discount",
     "importantNotes": "Important Notes",
+    "information": "Information",
     "reserveNow": "Reserve Now",
     "contactHost": "Contact Host",
     "notChargedYet": "You won't be charged yet",
@@ -585,7 +586,10 @@
     "children": "Children",
     "serviceFee": "Service fee",
     "total": "Total",
-    "perNight": "/ night"
+    "perNight": "/ night",
+    "notFound": "Accommodation not found",
+    "noHouseRules": "No house rules specified",
+    "noSimilarStays": "No similar stays available"
   },
   "host": {
     "sidebar": {
@@ -806,6 +810,97 @@
         "contactPlaceholder": "010 - 0000 - 0000",
         "additionalInfo": "Additional Info",
         "additionalInfoPlaceholder": "Enter additional info if available."
+      },
+      "photoGroups": {
+        "main": "Main Photo",
+        "room": "Room",
+        "living_room": "Living Room",
+        "kitchen": "Kitchen",
+        "bathroom": "Bathroom"
+      },
+      "accommodationTypes": {
+        "house": "House",
+        "share_room": "Share Room",
+        "share_house": "Share House",
+        "apartment": "Apartment/Villa"
+      },
+      "buildingTypes": {
+        "apartment": "Apartment",
+        "villa": "Villa",
+        "house": "House",
+        "officetel": "Officetel"
+      },
+      "weekdays": {
+        "sun": "Sunday",
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday"
+      },
+      "usageTypes": {
+        "stay": "Stay",
+        "short_term": "Short-term Rental"
+      },
+      "genderRules": {
+        "male_only": "Men Only",
+        "female_only": "Women Only",
+        "pet_allowed": "Pets Allowed"
+      },
+      "list": {
+        "title": "Accommodation List",
+        "all": "All",
+        "operating": "Operating",
+        "notOperating": "Not Operating",
+        "operatingShort": "Active",
+        "notOperatingShort": "Inactive",
+        "newRegistration": "New Registration",
+        "groupManage": "Manage Groups",
+        "changeStatus": "Change Status",
+        "delete": "Delete",
+        "table": {
+          "accommodationInfo": "Accommodation Info",
+          "accommodationType": "Type",
+          "operatingStatus": "Status"
+        }
+      },
+      "page": {
+        "saving": "Saving...",
+        "save": "Save",
+        "draftSave": "Save Draft",
+        "deleting": "Deleting...",
+        "delete": "Delete",
+        "breadcrumbManagement": "Accommodations",
+        "breadcrumbNew": "New Registration",
+        "accommodationName": "Accommodation Name",
+        "editPhoto": "Edit",
+        "viewAllPhotos": "View All Photos",
+        "deleteConfirmTitle": "Delete Accommodation",
+        "deleteConfirmMessage": "Are you sure you want to delete this accommodation? This action cannot be undone.",
+        "emptyTitle": "No accommodations registered yet.",
+        "emptyDescription": "Register an accommodation to start managing.",
+        "registerAccommodation": "Register Accommodation"
+      },
+      "previewPanel": {
+        "title": "Quick Preview",
+        "description": "The information entered on the left will be displayed as follows.",
+        "noPhotos": "No photos registered.",
+        "contractorName": "Contractor Name",
+        "accommodationName": "Accommodation Name",
+        "basePrice": "Base Price (1 Night)",
+        "managementFee": "Management Fee",
+        "address": "Address",
+        "sharedSpace": "Shared Space",
+        "privateSpace": "Private Space",
+        "houseRules": "House Rules",
+        "previewDetail": "View Accommodation Details"
+      },
+      "photoUpload": {
+        "registerPhotos": "Please register photos.",
+        "edit": "Edit",
+        "viewAllPhotos": "View All Photos",
+        "noPhotos": "No photos registered."
       }
     },
     "facilities": {
@@ -813,11 +908,22 @@
       "refrigerator": "Refrigerator",
       "airConditioner": "Air Conditioner",
       "coffeeMaker": "Coffee Maker",
-      "washingMachine": "Washing Machine",
-      "clothRack": "Cloth Rack",
+      "washer": "Washer",
+      "closet": "Closet",
+      "tv": "TV",
       "wifi": "Wi-Fi",
+      "cctv": "CCTV",
+      "elevator": "Elevator",
       "parking": "Parking",
-      "elevator": "Elevator"
+      "microwave": "Microwave",
+      "induction": "Induction",
+      "gasStove": "Gas Stove",
+      "oven": "Oven",
+      "dishwasher": "Dishwasher",
+      "dryer": "Dryer",
+      "iron": "Iron",
+      "desk": "Desk",
+      "chair": "Chair"
     },
     "amenities": {
       "hairDryer": "Hair Dryer",
@@ -827,7 +933,14 @@
       "soap": "Soap",
       "towel": "Towel",
       "toothbrush": "Toothbrush",
-      "toothpaste": "Toothpaste"
+      "toothpaste": "Toothpaste",
+      "slippers": "Slippers",
+      "bathrobe": "Bathrobe",
+      "tissue": "Tissue",
+      "toiletPaper": "Toilet Paper",
+      "firstAidKit": "First Aid Kit",
+      "fireExtinguisher": "Fire Extinguisher",
+      "hotWater": "Hot Water"
     },
     "contracts": {
       "title": "Contract List",
@@ -1030,5 +1143,47 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "copyright": "© {year} Snug. All rights reserved."
+  },
+  "facilities": {
+    "digitalLock": "Digital Lock",
+    "refrigerator": "Refrigerator",
+    "airConditioner": "Air Conditioner",
+    "coffeeMaker": "Coffee Maker",
+    "washer": "Washer",
+    "washingMachine": "Washing Machine",
+    "closet": "Closet",
+    "tv": "TV",
+    "wifi": "WiFi",
+    "cctv": "CCTV",
+    "elevator": "Elevator",
+    "parking": "Parking",
+    "microwave": "Microwave",
+    "induction": "Induction",
+    "gasStove": "Gas Stove",
+    "oven": "Oven",
+    "dishwasher": "Dishwasher",
+    "dryer": "Dryer",
+    "iron": "Iron",
+    "desk": "Desk",
+    "chair": "Chair"
+  },
+  "amenities": {
+    "bedding": "Bedding",
+    "toiletries": "Toiletries",
+    "hairDryer": "Hair Dryer",
+    "shampoo": "Shampoo",
+    "conditioner": "Conditioner",
+    "bodyWash": "Body Wash",
+    "soap": "Soap",
+    "towel": "Towel",
+    "toothbrush": "Toothbrush",
+    "toothpaste": "Toothpaste",
+    "slippers": "Slippers",
+    "bathrobe": "Bathrobe",
+    "tissue": "Tissue",
+    "toiletPaper": "Toilet Paper",
+    "firstAidKit": "First Aid Kit",
+    "fireExtinguisher": "Fire Extinguisher",
+    "hotWater": "Hot Water"
   }
 }

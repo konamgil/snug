@@ -30,10 +30,11 @@ export function ForgotPasswordPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // TODO: Implement find ID/password API calls
     if (activeTab === 'findId') {
-      console.log('Find ID:', { firstName, lastName, countryCode, phoneNumber });
+      // Submit find ID request
     } else {
-      console.log('Find Password:', { email });
+      // Submit find password request
     }
   };
 

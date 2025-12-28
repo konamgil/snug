@@ -57,8 +57,6 @@ export async function getAccommodation(id: string): Promise<Accommodation | null
     const result = await apiClient.get<{ success: boolean; data: Accommodation }>(
       `/accommodations/${id}`,
     );
-    console.log('[getAccommodation] Raw API response:', result);
-    console.log('[getAccommodation] Extracted data:', result.data);
     return result.data;
   } catch (error) {
     console.error('[getAccommodation] Error:', error);
@@ -78,7 +76,11 @@ export async function getAccommodation(id: string): Promise<Accommodation | null
  */
 export async function getAccommodationPublic(id: string): Promise<AccommodationPublic | null> {
   try {
-    return await apiClient.get<AccommodationPublic>(`/accommodations/public/${id}`);
+    // NestJS returns { success: true, data: AccommodationPublic }
+    const result = await apiClient.get<{ success: boolean; data: AccommodationPublic }>(
+      `/accommodations/public/${id}`,
+    );
+    return result.data;
   } catch (error) {
     if (error instanceof ApiClientError && error.statusCode === 404) {
       return null;

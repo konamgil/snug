@@ -137,7 +137,7 @@ export class CreateAccommodationDto {
   @IsNumber()
   weekendPrice?: number;
 
-  @ApiPropertyOptional({ description: '주말 요일', example: ['fri', 'sat'] })
+  @ApiPropertyOptional({ description: '주말 요일', example: ['fri', 'sat'], isArray: true })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -254,6 +254,7 @@ export class CreateAccommodationDto {
   @ApiPropertyOptional({
     description: '숙소 사진 목록',
     type: [AddPhotoDto],
+    isArray: true,
   })
   @IsOptional()
   @IsArray()

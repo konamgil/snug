@@ -47,7 +47,8 @@ export function saveRecentSearch(location: string): void {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newSearches));
   } catch {
-    // localStorage 에러 무시
+    // Intentionally ignore localStorage errors (SSR, incognito mode, quota exceeded)
+    void 0;
   }
 }
 
@@ -62,7 +63,8 @@ export function removeRecentSearch(location: string): void {
     const filtered = searches.filter((s) => s.location.toLowerCase() !== location.toLowerCase());
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   } catch {
-    // localStorage 에러 무시
+    // Intentionally ignore localStorage errors (SSR, incognito mode, quota exceeded)
+    void 0;
   }
 }
 
@@ -75,6 +77,7 @@ export function clearRecentSearches(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {
-    // localStorage 에러 무시
+    // Intentionally ignore localStorage errors (SSR, incognito mode, quota exceeded)
+    void 0;
   }
 }

@@ -22,12 +22,15 @@ export function EasterEggProvider({ children }: { children: ReactNode }) {
       const newCount = prev + 1;
       if (newCount >= CLICK_THRESHOLD && !isEasterEggActive) {
         setIsEasterEggActive(true);
-        // Fun console message!
-        console.log(
-          '%c🎉 Easter Egg Activated! %c The illustration is now alive!',
-          'background: #ff7900; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;',
-          'color: #ff7900; font-weight: bold;',
-        );
+        // Fun console message for easter egg discovery - intentional
+        if (process.env.NODE_ENV === 'development') {
+          // nosemgrep: no-console-log
+          console.log(
+            '%c🎉 Easter Egg Activated! %c The illustration is now alive!',
+            'background: #ff7900; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;',
+            'color: #ff7900; font-weight: bold;',
+          );
+        }
       }
       return newCount;
     });

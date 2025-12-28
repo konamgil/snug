@@ -344,8 +344,8 @@ export function UsersPage() {
     setDetailData(null);
   };
 
-  const handleSaveUser = (data: UserDetailData) => {
-    console.log('Save user:', data);
+  const handleSaveUser = (_data: UserDetailData) => {
+    // TODO: Implement user save API call
     handleClosePanel();
   };
 

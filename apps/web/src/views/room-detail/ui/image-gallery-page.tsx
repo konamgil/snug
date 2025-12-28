@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, ImageIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { ArrowLeft, ImageIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { Header } from '@/widgets/header';
+import { getAccommodationPublic } from '@/shared/api/accommodation';
+import type { AccommodationPhoto } from '@snug/types';
 
 interface ImageCategory {
   id: string;
@@ -13,47 +17,109 @@ interface ImageCategory {
 }
 
 interface ImageGalleryPageProps {
-  roomId?: string;
-  categories?: ImageCategory[];
+  roomId: string;
 }
 
-// Mock categories data
-const defaultCategories: ImageCategory[] = [
-  {
-    id: 'main',
-    name: 'Main Photo',
-    count: 6,
-    images: Array.from({ length: 6 }, (_, i) => `/images/rooms/main-${i + 1}.jpg`),
-  },
-  {
-    id: 'bedroom',
-    name: 'Bedroom',
-    count: 10,
-    images: Array.from({ length: 10 }, (_, i) => `/images/rooms/bedroom-${i + 1}.jpg`),
-  },
-  {
-    id: 'living',
-    name: 'Living Room',
-    count: 8,
-    images: Array.from({ length: 8 }, (_, i) => `/images/rooms/living-${i + 1}.jpg`),
-  },
-  {
-    id: 'kitchen',
-    name: 'Kitchen',
-    count: 3,
-    images: Array.from({ length: 3 }, (_, i) => `/images/rooms/kitchen-${i + 1}.jpg`),
-  },
-  {
-    id: 'bathroom',
-    name: 'Bathroom',
-    count: 6,
-    images: Array.from({ length: 6 }, (_, i) => `/images/rooms/bathroom-${i + 1}.jpg`),
-  },
-];
+// Category labels (Korean names matching DEFAULT_PHOTO_GROUPS)
+const categoryLabels: Record<string, { ko: string; en: string }> = {
+  all: { ko: '전체', en: 'All Photos' },
+  main: { ko: '대표사진', en: 'Main Photo' },
+  room: { ko: '방', en: 'Bedroom' },
+  living_room: { ko: '거실', en: 'Living Room' },
+  kitchen: { ko: '부엌', en: 'Kitchen' },
+  bathroom: { ko: '화장실', en: 'Bathroom' },
+  exterior: { ko: '외관', en: 'Exterior' },
+  other: { ko: '기타', en: 'Other' },
+};
 
-export function ImageGalleryPage({ categories = defaultCategories }: ImageGalleryPageProps) {
+// Get label based on locale
+function getCategoryLabel(categoryId: string, locale: string): string {
+  const labels = categoryLabels[categoryId];
+  if (!labels) return categoryId;
+  return locale === 'ko' ? labels.ko : labels.en;
+}
+
+// Category order for consistent display
+const CATEGORY_ORDER = ['main', 'room', 'living_room', 'kitchen', 'bathroom', 'exterior', 'other'];
+
+// Transform API photos to categories
+function photosToCategories(photos: AccommodationPhoto[], locale: string): ImageCategory[] {
+  const categoryMap = new Map<string, string[]>();
+
+  // Group photos by category
+  photos.forEach((photo) => {
+    const category = photo.category || 'other';
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, []);
+    }
+    categoryMap.get(category)!.push(photo.url);
+  });
+
+  // Convert to ImageCategory array
+  const categories: ImageCategory[] = [];
+
+  // Add 'all' category first
+  if (photos.length > 0) {
+    categories.push({
+      id: 'all',
+      name: getCategoryLabel('all', locale),
+      count: photos.length,
+      images: photos.map((p) => p.url),
+    });
+  }
+
+  // Add individual categories in order
+  CATEGORY_ORDER.forEach((categoryId) => {
+    const images = categoryMap.get(categoryId);
+    if (images && images.length > 0) {
+      categories.push({
+        id: categoryId,
+        name: getCategoryLabel(categoryId, locale),
+        count: images.length,
+        images,
+      });
+      categoryMap.delete(categoryId);
+    }
+  });
+
+  // Add any remaining categories not in CATEGORY_ORDER
+  categoryMap.forEach((images, categoryId) => {
+    categories.push({
+      id: categoryId,
+      name: getCategoryLabel(categoryId, locale),
+      count: images.length,
+      images,
+    });
+  });
+
+  return categories;
+}
+
+export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]?.id || 'main');
+  const locale = useLocale();
+  const [categories, setCategories] = useState<ImageCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPhotos() {
+      setIsLoading(true);
+      try {
+        const data = await getAccommodationPublic(roomId);
+        if (data?.photos && data.photos.length > 0) {
+          const cats = photosToCategories(data.photos, locale);
+          setCategories(cats);
+          setSelectedCategory(cats[0]?.id || 'all');
+        }
+      } catch (error) {
+        console.error('Failed to fetch photos:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchPhotos();
+  }, [roomId, locale]);
 
   const currentCategory = categories.find((c) => c.id === selectedCategory) || categories[0];
   const currentImages = currentCategory?.images || [];
@@ -61,6 +127,31 @@ export function ImageGalleryPage({ categories = defaultCategories }: ImageGaller
   const handleBack = () => {
     router.back();
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" onBack={handleBack} />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
+        </div>
+      </div>
+    );
+  }
+
+  // No photos state
+  if (categories.length === 0) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header variant="with-search" onBack={handleBack} />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
+          <p className="text-[hsl(var(--snug-gray))]">No photos available</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -99,9 +190,19 @@ export function ImageGalleryPage({ categories = defaultCategories }: ImageGaller
                       : 'border-transparent'
                   }`}
                 >
-                  <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
-                  </div>
+                  {category.images[0] ? (
+                    <Image
+                      src={category.images[0]}
+                      alt={category.name}
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
+                    </div>
+                  )}
                 </div>
                 {/* Label */}
                 <div className="text-center">
@@ -121,7 +222,7 @@ export function ImageGalleryPage({ categories = defaultCategories }: ImageGaller
       {/* Masonry Grid */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="columns-2 gap-4 space-y-4">
-          {currentImages.map((image, index) => {
+          {currentImages.map((imageUrl, index) => {
             // Vary heights for masonry effect
             const heightClass =
               index % 3 === 0 ? 'h-[400px]' : index % 3 === 1 ? 'h-[300px]' : 'h-[250px]';
@@ -131,17 +232,13 @@ export function ImageGalleryPage({ categories = defaultCategories }: ImageGaller
                 key={`${selectedCategory}-${index}`}
                 className={`relative ${heightClass} rounded-xl overflow-hidden break-inside-avoid mb-4`}
               >
-                {/* Placeholder */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                  <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
-                </div>
-                {/* Uncomment when actual images are available */}
-                {/* <Image
-                  src={image}
+                <Image
+                  src={imageUrl}
                   alt={`${currentCategory?.name} ${index + 1}`}
                   fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-cover"
-                /> */}
+                />
               </div>
             );
           })}

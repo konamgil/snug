@@ -218,8 +218,8 @@ export function InquiryChatView({ guestName, onClose }: InquiryChatViewProps) {
   };
 
   const handleComplete = () => {
-    // Handle completion with selected messages
-    console.log('Selected messages:', Array.from(selectedMessages));
+    // TODO: Handle completion with selected messages
+    // Process selectedMessages array for contract creation
     onClose();
   };
 

@@ -90,7 +90,7 @@ export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
 
   const handleSend = () => {
     if (!message.trim()) return;
-    console.log('Send message:', message);
+    // TODO: Implement actual message sending
     setMessage('');
   };
 

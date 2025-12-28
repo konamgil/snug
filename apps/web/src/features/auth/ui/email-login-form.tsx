@@ -10,7 +10,6 @@ export function EmailLoginForm() {
   const t = useTranslations('auth.login');
   const router = useRouter();
   const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
-  const _isLoading = useAuthStore((state) => state.isLoading);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

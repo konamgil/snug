@@ -43,7 +43,7 @@ export function SettingsPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
-  const [_isSaving, setIsSaving] = useState(false);
+  const [, setIsSaving] = useState(false);
 
   // 사용자 설정 초기화
   useEffect(() => {

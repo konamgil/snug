@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import type { AccommodationFormData } from './types';
@@ -17,6 +18,10 @@ export function AccommodationPreviewPanel({
   contractorName = '',
   accommodationId,
 }: AccommodationPreviewPanelProps) {
+  const t = useTranslations('host.accommodation.previewPanel');
+  const tSpaceTypes = useTranslations('host.accommodation.spaceTypes');
+  const tGenderRules = useTranslations('host.accommodation.genderRules');
+
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const formatPrice = (price: number | undefined) => {
     if (!price) return '-';
@@ -25,22 +30,23 @@ export function AccommodationPreviewPanel({
 
   const getSharedSpaces = () => {
     const spaces: string[] = [];
-    if (data.space.rooms.livingRoom > 0) spaces.push('거실');
-    if (data.space.rooms.kitchen > 0) spaces.push('부엌');
-    if (data.space.rooms.bathroom > 0) spaces.push(`화장실 ${data.space.rooms.bathroom}`);
+    if (data.space.rooms.livingRoom > 0) spaces.push(tSpaceTypes('livingRoom'));
+    if (data.space.rooms.kitchen > 0) spaces.push(tSpaceTypes('kitchen'));
+    if (data.space.rooms.bathroom > 0)
+      spaces.push(`${tSpaceTypes('bathroom')} ${data.space.rooms.bathroom}`);
     return spaces.length > 0 ? spaces.join(', ') : '-';
   };
 
   const getPrivateSpaces = () => {
-    if (data.space.rooms.room > 0) return `방 ${data.space.rooms.room}`;
+    if (data.space.rooms.room > 0) return `${tSpaceTypes('room')} ${data.space.rooms.room}`;
     return '-';
   };
 
   const getHouseRules = () => {
     const rules: string[] = [];
-    if (data.space.genderRules.includes('male_only')) rules.push('남성전용');
-    if (data.space.genderRules.includes('female_only')) rules.push('여성전용');
-    if (data.space.genderRules.includes('pet_allowed')) rules.push('반려동물');
+    if (data.space.genderRules.includes('male_only')) rules.push(tGenderRules('male_only'));
+    if (data.space.genderRules.includes('female_only')) rules.push(tGenderRules('female_only'));
+    if (data.space.genderRules.includes('pet_allowed')) rules.push(tGenderRules('pet_allowed'));
     return rules.length > 0 ? rules.join(', ') : '-';
   };
 
@@ -62,12 +68,8 @@ export function AccommodationPreviewPanel({
   return (
     <div className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-5">
       {/* Header */}
-      <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-        숙소 간략 보기
-      </h3>
-      <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">
-        왼쪽에 등록된 정보가 다음과 같이 노출됩니다.
-      </p>
+      <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">{t('title')}</h3>
+      <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">{t('description')}</p>
 
       {/* Photo Preview */}
       <div className="mb-4">
@@ -106,7 +108,7 @@ export function AccommodationPreviewPanel({
           </div>
         ) : (
           <div className="aspect-video bg-[hsl(var(--snug-light-gray))] rounded-lg flex flex-col items-center justify-center">
-            <p className="text-sm text-[hsl(var(--snug-gray))]">등록된 사진이 없습니다.</p>
+            <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noPhotos')}</p>
             <ImagePlus className="w-8 h-8 text-[hsl(var(--snug-gray))] mt-2" />
           </div>
         )}
@@ -116,9 +118,9 @@ export function AccommodationPreviewPanel({
       <div className="space-y-3">
         {/* Contractor Name */}
         <div>
-          <p className="text-xs text-[hsl(var(--snug-gray))]">계약자명</p>
+          <p className="text-xs text-[hsl(var(--snug-gray))]">{t('contractorName')}</p>
           <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-            {contractorName || '숙소명'}
+            {contractorName || t('accommodationName')}
           </p>
         </div>
 
@@ -132,42 +134,42 @@ export function AccommodationPreviewPanel({
         {/* Info Table */}
         <div className="space-y-2 pt-2 border-t border-[hsl(var(--snug-border))]">
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">기본 요금(1박)</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('basePrice')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">
               {formatPrice(data.pricing.basePrice)}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">관리비</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('managementFee')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">
               {formatPrice(data.pricing.managementFee)}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">주소</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('address')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))] text-right max-w-[60%]">
               {data.address || '-'}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">공용공간</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('sharedSpace')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">
               {getSharedSpaces()}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">개인공간</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('privateSpace')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">
               {getPrivateSpaces()}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-sm text-[hsl(var(--snug-gray))]">하우스 룰</span>
+            <span className="text-sm text-[hsl(var(--snug-gray))]">{t('houseRules')}</span>
             <span className="text-sm text-[hsl(var(--snug-text-primary))]">{getHouseRules()}</span>
           </div>
         </div>
@@ -179,7 +181,7 @@ export function AccommodationPreviewPanel({
         onClick={() => setIsPreviewModalOpen(true)}
         className="w-full mt-6 py-3 text-sm font-medium rounded-lg transition-colors bg-[hsl(var(--snug-orange))] text-white hover:opacity-90"
       >
-        숙소 상세 미리 보기
+        {t('previewDetail')}
       </button>
 
       {/* Preview Modal */}

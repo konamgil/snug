@@ -105,10 +105,13 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
   const guestsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
 
-  // 최근 검색어 로드
+  // 최근 검색어 로드 (setTimeout으로 마이크로태스크로 지연하여 연쇄 렌더링 방지)
   useEffect(() => {
     if (isOpen) {
-      setRecentSearches(getRecentSearches());
+      const timer = setTimeout(() => {
+        setRecentSearches(getRecentSearches());
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 

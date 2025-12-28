@@ -27,7 +27,7 @@ export function AddressAutocompleteDropdown({
 
   const hasNoResults = results.length === 0 && !isLoading;
 
-  const createSelectHandler = (result: AutocompleteResult, _index: number) => {
+  const createSelectHandler = (result: AutocompleteResult) => {
     return (e: React.MouseEvent | React.TouchEvent) => {
       // 이미 처리된 이벤트면 무시
       if (handledRef.current) {
@@ -87,7 +87,7 @@ export function AddressAutocompleteDropdown({
         </p>
         <div className="space-y-0.5">
           {results.map((result, index) => {
-            const handleSelect = createSelectHandler(result, index);
+            const handleSelect = createSelectHandler(result);
             return (
               <button
                 key={`autocomplete-${index}-${result.label}`}
@@ -145,7 +145,7 @@ export function AddressAutocompleteDropdown({
         </div>
       )}
       {results.map((result, index) => {
-        const handleSelect = createSelectHandler(result, index);
+        const handleSelect = createSelectHandler(result);
         return (
           <button
             key={`autocomplete-${index}-${result.label}`}

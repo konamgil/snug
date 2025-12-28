@@ -27,3 +27,19 @@ export {
   refreshExchangeRates,
   formatExchangeRate,
 } from './exchange-rate';
+
+// Accommodation code utilities
+export {
+  type FacilityCode,
+  type AmenityCode,
+  FACILITY_CODES,
+  AMENITY_CODES,
+  ACCOMMODATION_TYPE_LABELS,
+  BUILDING_TYPE_LABELS,
+  getAccommodationTypeLabel,
+  getBuildingTypeLabel,
+  isValidFacilityCode,
+  isValidAmenityCode,
+  getFacilityI18nKey,
+  getAmenityI18nKey,
+} from './accommodation-codes';
