@@ -257,63 +257,67 @@ export function SignupPage() {
               <h2 className="text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-3">
                 {t('personalInfo')}
               </h2>
-              <div className="flex gap-3 mb-2">
+              <div className="flex flex-col sm:flex-row gap-3 mb-2">
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder={t('firstName')}
-                  className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                  className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
                 />
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder={t('lastName')}
-                  className="flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                  className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
                 />
               </div>
               <p className="text-xs text-[hsl(var(--snug-gray))] mb-4 px-1">{t('nameHint')}</p>
 
-              <div className="flex gap-3">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+              <div className="space-y-3">
+                {/* Phone number inputs row */}
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                      disabled={isPhoneVerified}
+                      className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[100px] sm:min-w-[120px] bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
+                    >
+                      <span>{selectedCountry ? selectedCountry.code : t('countryCode')}</span>
+                      <ChevronDown className="w-4 h-4 ml-auto" />
+                    </button>
+                    {showCountryDropdown && (
+                      <div className="absolute top-full left-0 mt-2 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
+                        {COUNTRY_CODES.map((country) => (
+                          <button
+                            key={country.code}
+                            type="button"
+                            onClick={() => {
+                              handleCountryCodeChange(country.code);
+                              setShowCountryDropdown(false);
+                            }}
+                            className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                          >
+                            {country.code} {country.country}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder={t('phoneNumber')}
                     disabled={isPhoneVerified}
-                    className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[120px] bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
-                  >
-                    <span>{selectedCountry ? selectedCountry.code : t('countryCode')}</span>
-                    <ChevronDown className="w-4 h-4 ml-auto" />
-                  </button>
-                  {showCountryDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
-                      {COUNTRY_CODES.map((country) => (
-                        <button
-                          key={country.code}
-                          type="button"
-                          onClick={() => {
-                            handleCountryCodeChange(country.code);
-                            setShowCountryDropdown(false);
-                          }}
-                          className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                        >
-                          {country.code} {country.country}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
+                  />
                 </div>
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  placeholder={t('phoneNumber')}
-                  disabled={isPhoneVerified}
-                  className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
-                />
+                {/* Verify button / Verified status row */}
                 {isPhoneVerified ? (
-                  <div className="flex items-center gap-1 px-4 py-3 text-green-600 whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-1 py-2 text-green-600">
                     <CheckCircle className="w-5 h-5" />
                     <span className="text-sm font-medium">{t('verified')}</span>
                   </div>
@@ -322,7 +326,7 @@ export function SignupPage() {
                     type="button"
                     onClick={handleStartVerification}
                     disabled={!canStartVerification}
-                    className="px-4 py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-3xl hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="w-full px-4 py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-3xl hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {t('verify')}
                   </button>
