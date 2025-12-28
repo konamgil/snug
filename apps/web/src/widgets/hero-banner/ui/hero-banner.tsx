@@ -606,7 +606,6 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
         {/* Illustration Image or Video */}
         {showVideo ? (
           <video
-            src="/images/banner/live-banner.mp4"
             poster="/images/banner/banner-illustration.webp"
             preload="auto"
             autoPlay
@@ -614,7 +613,10 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
             muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover scale-[1.15]"
-          />
+          >
+            <source src="/images/banner/live-banner.webm" type="video/webm" />
+            <source src="/images/banner/live-banner.mp4" type="video/mp4" />
+          </video>
         ) : (
           <Image
             src={image}

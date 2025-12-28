@@ -14,7 +14,7 @@ export default async function Page({ params }: Props) {
   return (
     <>
       {/* Preload hero banner video for faster loading */}
-      <link rel="preload" href="/images/banner/live-banner.mp4" as="video" type="video/mp4" />
+      <link rel="preload" href="/images/banner/live-banner.webm" as="video" type="video/webm" />
       <HomePage />
     </>
   );
