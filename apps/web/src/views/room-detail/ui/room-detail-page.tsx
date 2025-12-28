@@ -26,7 +26,7 @@ import {
 } from '@/shared/ui/icons';
 import { useRouter as useI18nRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
@@ -754,7 +754,14 @@ export function RoomDetailPage() {
                       zoomControl: false,
                     }}
                   >
-                    <Marker position={{ lat: displayLat, lng: displayLng }} />
+                    <OverlayView
+                      position={{ lat: displayLat, lng: displayLng }}
+                      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                    >
+                      <div className="relative" style={{ transform: 'translate(-50%, -100%)' }}>
+                        <SnugMarkerIcon className="w-[62px] h-[50px]" />
+                      </div>
+                    </OverlayView>
                   </GoogleMap>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#f5f5f5]">
@@ -776,10 +783,6 @@ export function RoomDetailPage() {
                   >
                     <MinusIcon className="w-3.5 h-3.5 text-[#161616]" />
                   </button>
-                </div>
-                {/* Snug Marker */}
-                <div className="absolute top-[100px] left-[calc(50%-30px)] pointer-events-none">
-                  <SnugMarkerIcon className="w-[62px] h-[50px]" />
                 </div>
               </div>
             </Section>
