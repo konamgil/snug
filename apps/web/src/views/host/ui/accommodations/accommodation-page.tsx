@@ -362,8 +362,12 @@ export function AccommodationNewPage() {
 
   // 필수값 유효성 검사
   const isFormValid = useMemo(() => {
-    return !!(formData.roomName?.trim() && formData.address?.trim());
-  }, [formData.roomName, formData.address]);
+    return !!(
+      formData.roomName?.trim() &&
+      formData.address?.trim() &&
+      formData.usageTypes.length > 0
+    );
+  }, [formData.roomName, formData.address, formData.usageTypes]);
 
   // Set breadcrumb
   useEffect(() => {
@@ -670,8 +674,12 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
 
   // 필수값 유효성 검사
   const isFormValid = useMemo(() => {
-    return !!(formData.roomName?.trim() && formData.address?.trim());
-  }, [formData.roomName, formData.address]);
+    return !!(
+      formData.roomName?.trim() &&
+      formData.address?.trim() &&
+      formData.usageTypes.length > 0
+    );
+  }, [formData.roomName, formData.address, formData.usageTypes]);
 
   // Set breadcrumb (only after data is loaded)
   useEffect(() => {
