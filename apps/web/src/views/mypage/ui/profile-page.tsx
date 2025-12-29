@@ -119,6 +119,16 @@ export function ProfilePage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // PC에서 로그인 안 된 경우 바로 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (isInitialized && !user) {
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+      if (isDesktop) {
+        router.push('/login');
+      }
+    }
+  }, [isInitialized, user, router]);
+
   // 프로필 데이터 로드
   useEffect(() => {
     async function loadProfile() {

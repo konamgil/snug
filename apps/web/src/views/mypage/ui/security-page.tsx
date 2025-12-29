@@ -107,6 +107,16 @@ export function SecurityPage() {
     }
   }, [isInitialized, supabaseUser, loadIdentities]);
 
+  // PC에서 로그인 안 된 경우 바로 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (isInitialized && !user) {
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+      if (isDesktop) {
+        router.push('/login');
+      }
+    }
+  }, [isInitialized, user, router]);
+
   // 소셜 계정 연결/해제
   const toggleSocialLogin = async (provider: SocialProvider) => {
     const isLinked = socialLogins[provider];
