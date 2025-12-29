@@ -496,6 +496,12 @@ export class AccommodationsService {
     const tokenCount = tokens.length;
     const isEnglish = /[a-zA-Z]/.test(query);
 
+    // 토큰 정규화: 하이픈과 공백 제거 (gangnamgu, gangnam-gu, gangnam gu 모두 매칭되도록)
+    const normalizedTokens = tokens.map((token) => token.replace(/[-\s]/g, '').toLowerCase());
+
+    // SQL에서 컬럼 정규화 함수 (하이픈, 공백 제거 후 소문자)
+    const normalizeCol = (col: string) => `LOWER(REPLACE(REPLACE(${col}, '-', ''), ' ', ''))`;
+
     // 결과 타입 정의
     type RawAddressResult = {
       label: string;
@@ -510,36 +516,38 @@ export class AccommodationsService {
       match_count: bigint;
     };
 
-    // 별칭 검색 조건
-    const aliasConditions = tokens
+    // 별칭 검색 조건 (정규화된 비교)
+    const aliasConditions = normalizedTokens
       .map((token) =>
-        isEnglish ? `LOWER("aliasEn") LIKE LOWER('%${token}%')` : `alias LIKE '%${token}%'`,
+        isEnglish
+          ? `${normalizeCol('"aliasEn"')} LIKE '%${token}%'`
+          : `alias LIKE '%${tokens[normalizedTokens.indexOf(token)]}%'`,
       )
       .join(' OR ');
 
-    // 주소 매핑 검색 조건
-    const mappingConditions = tokens
-      .map((token) =>
+    // 주소 매핑 검색 조건 (정규화된 비교)
+    const mappingConditions = normalizedTokens
+      .map((token, idx) =>
         isEnglish
-          ? `(LOWER("sidoEn") LIKE LOWER('%${token}%') OR LOWER("sigunguEn") LIKE LOWER('%${token}%') OR LOWER("bnameEn") LIKE LOWER('%${token}%'))`
-          : `(sido LIKE '%${token}%' OR sigungu LIKE '%${token}%' OR bname LIKE '%${token}%')`,
+          ? `(${normalizeCol('"sidoEn"')} LIKE '%${token}%' OR ${normalizeCol('"sigunguEn"')} LIKE '%${token}%' OR ${normalizeCol('"bnameEn"')} LIKE '%${token}%')`
+          : `(sido LIKE '%${tokens[idx]}%' OR sigungu LIKE '%${tokens[idx]}%' OR bname LIKE '%${tokens[idx]}%')`,
       )
       .join(' OR ');
 
     // 매칭 카운트 계산 서브쿼리 (각 토큰이 매칭되는지 확인)
-    const matchCountAlias = tokens
-      .map((token) =>
+    const matchCountAlias = normalizedTokens
+      .map((token, idx) =>
         isEnglish
-          ? `CASE WHEN LOWER("aliasEn") LIKE LOWER('%${token}%') THEN 1 ELSE 0 END`
-          : `CASE WHEN alias LIKE '%${token}%' THEN 1 ELSE 0 END`,
+          ? `CASE WHEN ${normalizeCol('"aliasEn"')} LIKE '%${token}%' THEN 1 ELSE 0 END`
+          : `CASE WHEN alias LIKE '%${tokens[idx]}%' THEN 1 ELSE 0 END`,
       )
       .join(' + ');
 
-    const matchCountMapping = tokens
-      .map((token) =>
+    const matchCountMapping = normalizedTokens
+      .map((token, idx) =>
         isEnglish
-          ? `CASE WHEN LOWER("sidoEn") LIKE LOWER('%${token}%') OR LOWER("sigunguEn") LIKE LOWER('%${token}%') OR LOWER("bnameEn") LIKE LOWER('%${token}%') THEN 1 ELSE 0 END`
-          : `CASE WHEN sido LIKE '%${token}%' OR sigungu LIKE '%${token}%' OR bname LIKE '%${token}%' THEN 1 ELSE 0 END`,
+          ? `CASE WHEN ${normalizeCol('"sidoEn"')} LIKE '%${token}%' OR ${normalizeCol('"sigunguEn"')} LIKE '%${token}%' OR ${normalizeCol('"bnameEn"')} LIKE '%${token}%' THEN 1 ELSE 0 END`
+          : `CASE WHEN sido LIKE '%${tokens[idx]}%' OR sigungu LIKE '%${tokens[idx]}%' OR bname LIKE '%${tokens[idx]}%' THEN 1 ELSE 0 END`,
       )
       .join(' + ');
 
@@ -586,13 +594,13 @@ export class AccommodationsService {
           "sigunguEn",
           "sidoEn",
           (${matchCountMapping}) as match_count,
-          -- 관련성 점수: 토큰 매칭 위치에 따른 가중치
+          -- 관련성 점수: 토큰 매칭 위치에 따른 가중치 (정규화된 비교)
           (
-            ${tokens
-              .map((token) =>
+            ${normalizedTokens
+              .map((token, idx) =>
                 isEnglish
-                  ? `CASE WHEN LOWER("bnameEn") LIKE LOWER('%${token}%') THEN 10 WHEN LOWER("sigunguEn") LIKE LOWER('%${token}%') THEN 5 WHEN LOWER("sidoEn") LIKE LOWER('%${token}%') THEN 2 ELSE 0 END`
-                  : `CASE WHEN bname LIKE '%${token}%' THEN 10 WHEN sigungu LIKE '%${token}%' THEN 5 WHEN sido LIKE '%${token}%' THEN 2 ELSE 0 END`,
+                  ? `CASE WHEN ${normalizeCol('"bnameEn"')} LIKE '%${token}%' THEN 10 WHEN ${normalizeCol('"sigunguEn"')} LIKE '%${token}%' THEN 5 WHEN ${normalizeCol('"sidoEn"')} LIKE '%${token}%' THEN 2 ELSE 0 END`
+                  : `CASE WHEN bname LIKE '%${tokens[idx]}%' THEN 10 WHEN sigungu LIKE '%${tokens[idx]}%' THEN 5 WHEN sido LIKE '%${tokens[idx]}%' THEN 2 ELSE 0 END`,
               )
               .join(' + ')}
           )::float as score
@@ -611,28 +619,28 @@ export class AccommodationsService {
           NULL::text as "bnameEn",
           "sigunguEn",
           "sidoEn",
-          (${tokens
-            .map((token) =>
+          (${normalizedTokens
+            .map((token, idx) =>
               isEnglish
-                ? `CASE WHEN LOWER("sigunguEn") LIKE LOWER('%${token}%') OR LOWER("sidoEn") LIKE LOWER('%${token}%') THEN 1 ELSE 0 END`
-                : `CASE WHEN sigungu LIKE '%${token}%' OR sido LIKE '%${token}%' THEN 1 ELSE 0 END`,
+                ? `CASE WHEN ${normalizeCol('"sigunguEn"')} LIKE '%${token}%' OR ${normalizeCol('"sidoEn"')} LIKE '%${token}%' THEN 1 ELSE 0 END`
+                : `CASE WHEN sigungu LIKE '%${tokens[idx]}%' OR sido LIKE '%${tokens[idx]}%' THEN 1 ELSE 0 END`,
             )
             .join(' + ')}) as match_count,
           (
-            ${tokens
-              .map((token) =>
+            ${normalizedTokens
+              .map((token, idx) =>
                 isEnglish
-                  ? `CASE WHEN LOWER("sigunguEn") LIKE LOWER('%${token}%') THEN 5 WHEN LOWER("sidoEn") LIKE LOWER('%${token}%') THEN 2 ELSE 0 END`
-                  : `CASE WHEN sigungu LIKE '%${token}%' THEN 5 WHEN sido LIKE '%${token}%' THEN 2 ELSE 0 END`,
+                  ? `CASE WHEN ${normalizeCol('"sigunguEn"')} LIKE '%${token}%' THEN 5 WHEN ${normalizeCol('"sidoEn"')} LIKE '%${token}%' THEN 2 ELSE 0 END`
+                  : `CASE WHEN sigungu LIKE '%${tokens[idx]}%' THEN 5 WHEN sido LIKE '%${tokens[idx]}%' THEN 2 ELSE 0 END`,
               )
               .join(' + ')}
           )::float as score
         FROM address_mappings
-        WHERE sigungu IS NOT NULL AND (${tokens
-          .map((token) =>
+        WHERE sigungu IS NOT NULL AND (${normalizedTokens
+          .map((token, idx) =>
             isEnglish
-              ? `(LOWER("sidoEn") LIKE LOWER('%${token}%') OR LOWER("sigunguEn") LIKE LOWER('%${token}%'))`
-              : `(sido LIKE '%${token}%' OR sigungu LIKE '%${token}%')`,
+              ? `(${normalizeCol('"sidoEn"')} LIKE '%${token}%' OR ${normalizeCol('"sigunguEn"')} LIKE '%${token}%')`
+              : `(sido LIKE '%${tokens[idx]}%' OR sigungu LIKE '%${tokens[idx]}%')`,
           )
           .join(' OR ')})
       )
