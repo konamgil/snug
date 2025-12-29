@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import { useAuthStore } from '@/shared/stores';
 
 const STORAGE_KEY = 'snug_promo_banner_hidden';
 
 export function PromoBanner() {
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     // Check if banner was closed
@@ -26,8 +28,11 @@ export function PromoBanner() {
 
   if (!isVisible) return null;
 
+  // 로그인 되어 있으면 /map, 아니면 /mypage (로그인 화면)
+  const href = user ? '/map' : '/mypage';
+
   return (
-    <Link href="/mypage" className="block md:hidden">
+    <Link href={href} className="block md:hidden">
       <div className="relative bg-[#f2f2f2] h-14 flex items-center px-5">
         {/* Left Content */}
         <div className="flex flex-col">
