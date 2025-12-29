@@ -27,7 +27,7 @@ export function PromoBanner() {
   if (!isVisible) return null;
 
   return (
-    <Link href="/login" className="block md:hidden">
+    <Link href="/mypage" className="block md:hidden">
       <div className="relative bg-[#f2f2f2] h-14 flex items-center px-5">
         {/* Left Content */}
         <div className="flex flex-col">
