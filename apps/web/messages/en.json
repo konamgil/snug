@@ -807,7 +807,10 @@
       "settlementAmount": "{month} Settlement",
       "comparedToPrevMonth": "vs. last month {amount}",
       "thousandWon": "K KRW",
-      "comingSoonOverlay": "Thank you for joining the Snug Host Pre-Open on December 31st.\nWe will contact you in order.\nSign up on our website now and get early bird benefits.\n\nFor inquiries: support@findsnug.com"
+      "comingSoonTitle": "Thank you for registering for the Host Pre-Open.",
+      "comingSoonDescription": "We will contact you to complete the review before the official launch.",
+      "comingSoonContact": "Inquiries",
+      "comingSoonEmail": "support@findsnug.com"
     },
     "accommodation": {
       "form": {

@@ -379,10 +379,10 @@ export function AccommodationNewPage() {
       rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
 
     // BLOCKING validations
-    const roomNamePassed = formData.roomName && formData.roomName.trim().length > 0;
-    const addressPassed = formData.address && formData.address.trim().length > 0;
+    const roomNamePassed = !!(formData.roomName && formData.roomName.trim().length > 0);
+    const addressPassed = !!(formData.address && formData.address.trim().length > 0);
     const accommodationTypePassed = !!formData.accommodationType;
-    const usageTypesPassed = formData.usageTypes && formData.usageTypes.length > 0;
+    const usageTypesPassed = !!(formData.usageTypes && formData.usageTypes.length > 0);
     const photosPassed = photoCount >= 1;
     const roomsPassed = totalRooms > 0;
     const capacityPassed = formData.space.capacity >= 1;
@@ -727,10 +727,10 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
 
     // BLOCKING validations
-    const roomNamePassed = formData.roomName && formData.roomName.trim().length > 0;
-    const addressPassed = formData.address && formData.address.trim().length > 0;
+    const roomNamePassed = !!(formData.roomName && formData.roomName.trim().length > 0);
+    const addressPassed = !!(formData.address && formData.address.trim().length > 0);
     const accommodationTypePassed = !!formData.accommodationType;
-    const usageTypesPassed = formData.usageTypes && formData.usageTypes.length > 0;
+    const usageTypesPassed = !!(formData.usageTypes && formData.usageTypes.length > 0);
     const photosPassed = photoCount >= 1;
     const roomsPassed = totalRooms > 0;
     const capacityPassed = formData.space.capacity >= 1;
