@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { X, ImageIcon } from 'lucide-react';
@@ -63,9 +64,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
   const { format } = useCurrencySafe();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [currentImageIndex] = useState(0);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const totalImages = 10;
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -167,9 +166,19 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
           >
             {/* Image */}
             <div className="relative aspect-[16/10]">
-              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
-              </div>
+              {selectedRoom.imageUrl ? (
+                <Image
+                  src={selectedRoom.imageUrl}
+                  alt={selectedRoom.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                  <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+                </div>
+              )}
 
               {/* Tags */}
               <div className="absolute top-3 left-3 flex gap-2">
@@ -196,11 +205,6 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
                   filled={isFavorite}
                 />
               </button>
-
-              {/* Image Counter */}
-              <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/50 rounded-full text-white text-xs">
-                {currentImageIndex + 1} / {totalImages}
-              </div>
             </div>
 
             {/* Content */}

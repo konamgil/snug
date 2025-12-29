@@ -806,7 +806,8 @@
       "unread": "안 읽음",
       "settlementAmount": "{month} 정산금액",
       "comparedToPrevMonth": "전월 대비 {amount}",
-      "thousandWon": "천원"
+      "thousandWon": "천원",
+      "comingSoonOverlay": "정식 오픈때 공개됩니다"
     },
     "accommodation": {
       "form": {
@@ -900,6 +901,8 @@
           "addressRequired": "주소를 입력해주세요",
           "accommodationTypeRequired": "숙소 유형을 선택해주세요",
           "usageTypesRequired": "이용 타입을 1개 이상 선택해주세요",
+          "mainPhotosRequired": "사진을 1장 이상 등록해주세요",
+          "roomsRequired": "공간을 1개 이상 선택해주세요",
           "basePriceRequired": "기본가를 입력해주세요",
           "basePriceMin": "기본가는 0원 이상이어야 합니다",
           "capacityRequired": "수용 인원을 입력해주세요",
@@ -1054,6 +1057,7 @@
       "all": "전체",
       "operating": "운영 중",
       "notOperating": "미운영 중",
+      "cannotOperateTooltip": "공개 조건을 충족해야 운영 가능합니다",
       "operatingShort": "운영",
       "notOperatingShort": "미운영",
       "newRegistration": "신규 등록",

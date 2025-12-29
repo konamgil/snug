@@ -369,6 +369,14 @@ export function AccommodationNewPage() {
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
+  // 운영 가능 여부 (Publish Gate 조건)
+  const canOperate = useMemo(() => {
+    const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
+    const introLength = formData.space.introduction?.length || 0;
+    const basePrice = formData.pricing.basePrice;
+    return photoCount >= 1 && introLength >= 50 && basePrice > 0;
+  }, [formData.mainPhotos, formData.space.introduction, formData.pricing.basePrice]);
+
   // Set breadcrumb
   useEffect(() => {
     setBreadcrumb([t('breadcrumbManagement'), t('breadcrumbNew')]);
@@ -379,11 +387,12 @@ export function AccommodationNewPage() {
   useEffect(() => {
     setHeaderActions({
       isOperating: formData.isOperating,
+      canOperate,
       onToggleOperating: (value: boolean) =>
         setFormData((prev) => ({ ...prev, isOperating: value })),
     });
     return () => setHeaderActions({});
-  }, [setHeaderActions, formData.isOperating]);
+  }, [setHeaderActions, formData.isOperating, canOperate]);
 
   // Fetch groups on mount
   useEffect(() => {
@@ -681,6 +690,14 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
+  // 운영 가능 여부 (Publish Gate 조건)
+  const canOperate = useMemo(() => {
+    const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
+    const introLength = formData.space.introduction?.length || 0;
+    const basePrice = formData.pricing.basePrice;
+    return photoCount >= 1 && introLength >= 50 && basePrice > 0;
+  }, [formData.mainPhotos, formData.space.introduction, formData.pricing.basePrice]);
+
   // Set breadcrumb (only after data is loaded)
   useEffect(() => {
     if (!isLoading && formData.roomName) {
@@ -695,12 +712,13 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       setHeaderActions({
         lastModifiedBy: formData.lastModifiedAt,
         isOperating: formData.isOperating,
+        canOperate,
         onToggleOperating: (value: boolean) =>
           setFormData((prev) => ({ ...prev, isOperating: value })),
       });
     }
     return () => setHeaderActions({});
-  }, [setHeaderActions, isLoading, formData.lastModifiedAt, formData.isOperating]);
+  }, [setHeaderActions, isLoading, formData.lastModifiedAt, formData.isOperating, canOperate]);
 
   // Fetch groups and accommodation data on mount
   useEffect(() => {

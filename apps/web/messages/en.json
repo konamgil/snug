@@ -806,7 +806,8 @@
       "unread": "Unread",
       "settlementAmount": "{month} Settlement",
       "comparedToPrevMonth": "vs. last month {amount}",
-      "thousandWon": "K KRW"
+      "thousandWon": "K KRW",
+      "comingSoonOverlay": "Coming at official launch"
     },
     "accommodation": {
       "form": {
@@ -1054,6 +1055,7 @@
         "all": "All",
         "operating": "Operating",
         "notOperating": "Not Operating",
+        "cannotOperateTooltip": "Meet publish requirements to enable operating",
         "operatingShort": "Active",
         "notOperatingShort": "Inactive",
         "newRegistration": "New Registration",

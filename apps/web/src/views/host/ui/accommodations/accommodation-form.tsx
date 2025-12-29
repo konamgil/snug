@@ -80,6 +80,20 @@ export function AccommodationForm({
       errs.usageTypes = tValidation('usageTypesRequired');
     }
 
+    // mainPhotos - at least 1 photo required
+    const hasPhotos = data.mainPhotos.some((cat) => cat.photos.length > 0);
+    if (!hasPhotos) {
+      errs.mainPhotos = tValidation('mainPhotosRequired');
+    }
+
+    // rooms - at least 1 room required
+    const { rooms } = data.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+    if (totalRooms === 0) {
+      errs.rooms = tValidation('roomsRequired');
+    }
+
     if (data.pricing.basePrice < 0) {
       errs.basePrice = tValidation('basePriceMin');
     }
@@ -257,6 +271,12 @@ export function AccommodationForm({
                   setIsPhotoGalleryModalOpen(true);
                 }}
               />
+              {errors.mainPhotos && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.mainPhotos}
+                </p>
+              )}
             </div>
 
             {/* 그룹명 */}
@@ -1000,6 +1020,12 @@ export function AccommodationForm({
                 </div>
               ))}
             </div>
+            {errors.rooms && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.rooms}
+              </p>
+            )}
           </div>
 
           {/* 침대 종류 */}

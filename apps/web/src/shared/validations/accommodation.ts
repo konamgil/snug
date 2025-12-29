@@ -80,12 +80,33 @@ export const accommodationBlockingSchema = z.object({
   address: z.string().min(1),
   accommodationType: accommodationTypeEnum,
   usageTypes: z.array(usageTypeEnum).min(1),
+  // At least 1 photo required
+  mainPhotos: z
+    .array(photoCategorySchema)
+    .refine((categories) => categories.some((cat) => cat.photos.length > 0), {
+      message: 'validation.mainPhotosRequired',
+    }),
   pricing: z.object({
     basePrice: z.number().min(0),
   }),
   space: z.object({
     capacity: z.number().min(1),
+    // At least 1 room required (total of all space types)
+    rooms: z
+      .object({
+        room: z.number(),
+        livingRoom: z.number(),
+        kitchen: z.number(),
+        bathroom: z.number(),
+        terrace: z.number(),
+      })
+      .refine(
+        (rooms) =>
+          rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace > 0,
+        { message: 'validation.roomsRequired' },
+      ),
   }),
+  minReservationDays: z.number().min(1),
 });
 
 /**
@@ -170,6 +191,12 @@ export const validationMessages = {
   },
   usageTypes: {
     required: 'validation.usageTypesRequired',
+  },
+  mainPhotos: {
+    required: 'validation.mainPhotosRequired',
+  },
+  rooms: {
+    required: 'validation.roomsRequired',
   },
   basePrice: {
     required: 'validation.basePriceRequired',

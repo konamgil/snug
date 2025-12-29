@@ -76,7 +76,8 @@
       "Bash(git push:*)",
       "Bash(pnpm db:generate:*)",
       "WebFetch(domain:www.prisma.io)",
-      "Bash(pnpm build)"
+      "Bash(pnpm build)",
+      "Bash(grep:*)"
     ]
   }
 }
