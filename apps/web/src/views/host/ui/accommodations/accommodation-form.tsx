@@ -105,28 +105,52 @@ export function AccommodationForm({
     return errs;
   }, [data, tValidation]);
 
-  // Publish gate check
+  // Publish gate check (includes all BLOCKING validations + additional quality requirements)
   const publishGateStatus = useMemo(() => {
     const photoCount = data.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
     const introLength = data.space.introduction?.length || 0;
     const basePrice = data.pricing.basePrice;
+    const { rooms } = data.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = data.roomName && data.roomName.trim().length > 0;
+    const addressPassed = data.address && data.address.trim().length > 0;
+    const accommodationTypePassed = !!data.accommodationType;
+    const usageTypesPassed = data.usageTypes && data.usageTypes.length > 0;
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = data.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    const canPublish =
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed;
 
     return {
-      photos: {
-        passed: photoCount >= 1,
-        current: photoCount,
-      },
-      introduction: {
-        passed: introLength >= 50,
-        current: introLength,
-      },
-      basePrice: {
-        passed: basePrice > 0,
-        current: basePrice,
-      },
-      canPublish: photoCount >= 1 && introLength >= 50 && basePrice > 0,
+      roomName: { passed: roomNamePassed },
+      address: { passed: addressPassed },
+      accommodationType: { passed: accommodationTypePassed },
+      usageTypes: { passed: usageTypesPassed },
+      photos: { passed: photosPassed, current: photoCount },
+      rooms: { passed: roomsPassed },
+      capacity: { passed: capacityPassed, current: data.space.capacity },
+      introduction: { passed: introductionPassed, current: introLength },
+      basePrice: { passed: basePricePassed, current: basePrice },
+      canPublish,
     };
-  }, [data.mainPhotos, data.space.introduction, data.pricing.basePrice]);
+  }, [data]);
 
   // Sync internal state when initialData changes (for edit mode)
   useEffect(() => {
@@ -1246,7 +1270,68 @@ export function AccommodationForm({
           {tPublishGate('title')}
         </h2>
         <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">{tPublishGate('description')}</p>
-        <ul className="space-y-3">
+        <ul className="space-y-2">
+          {/* 방 이름 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.roomName.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.roomName.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('roomNameRequired')}
+            </span>
+          </li>
+          {/* 주소 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.address.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.address.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('addressRequired')}
+            </span>
+          </li>
+          {/* 숙소 유형 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.accommodationType.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.accommodationType.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('accommodationTypeRequired')}
+            </span>
+          </li>
+          {/* 이용 타입 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.usageTypes.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.usageTypes.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('usageTypesRequired')}
+            </span>
+          </li>
+          {/* 대표 사진 */}
           <li className="flex items-center gap-2">
             {publishGateStatus.photos.passed ? (
               <CheckCircle className="w-5 h-5 text-green-500" />
@@ -1263,6 +1348,54 @@ export function AccommodationForm({
               })}
             </span>
           </li>
+          {/* 공간 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.rooms.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.rooms.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('roomsRequired')}
+            </span>
+          </li>
+          {/* 수용 인원 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.capacity.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.capacity.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('capacityRequired', {
+                current: publishGateStatus.capacity.current,
+              })}
+            </span>
+          </li>
+          {/* 기본가 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.basePrice.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.basePrice.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('basePriceRequired')}
+            </span>
+          </li>
+          {/* 소개글 */}
           <li className="flex items-center gap-2">
             {publishGateStatus.introduction.passed ? (
               <CheckCircle className="w-5 h-5 text-green-500" />
@@ -1277,20 +1410,6 @@ export function AccommodationForm({
               {tPublishGate('introductionRequired', {
                 current: publishGateStatus.introduction.current,
               })}
-            </span>
-          </li>
-          <li className="flex items-center gap-2">
-            {publishGateStatus.basePrice.passed ? (
-              <CheckCircle className="w-5 h-5 text-green-500" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-red-500" />
-            )}
-            <span
-              className={`text-sm ${
-                publishGateStatus.basePrice.passed ? 'text-green-600' : 'text-red-500'
-              }`}
-            >
-              {tPublishGate('basePriceRequired')}
             </span>
           </li>
         </ul>

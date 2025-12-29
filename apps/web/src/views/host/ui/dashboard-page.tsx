@@ -124,10 +124,12 @@ export function DashboardPage() {
       </div>
 
       {/* Coming soon overlay */}
-      <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px]">
-        <div className="text-center px-4">
+      <div className="absolute inset-0 flex items-start justify-center pt-24 md:pt-32 bg-white/60 backdrop-blur-[2px]">
+        <div className="text-center px-4 max-w-md">
           <div className="bg-white rounded-2xl shadow-lg px-8 py-6 border border-gray-100">
-            <p className="text-lg font-medium text-gray-700">{t('comingSoonOverlay')}</p>
+            <p className="text-base font-medium text-gray-700 whitespace-pre-line">
+              {t('comingSoonOverlay')}
+            </p>
           </div>
         </div>
       </div>

@@ -369,13 +369,40 @@ export function AccommodationNewPage() {
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
-  // 운영 가능 여부 (Publish Gate 조건)
+  // 운영 가능 여부 (Publish Gate 조건 - 모든 BLOCKING 검증 + 추가 품질 요건)
   const canOperate = useMemo(() => {
     const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
     const introLength = formData.space.introduction?.length || 0;
     const basePrice = formData.pricing.basePrice;
-    return photoCount >= 1 && introLength >= 50 && basePrice > 0;
-  }, [formData.mainPhotos, formData.space.introduction, formData.pricing.basePrice]);
+    const { rooms } = formData.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = formData.roomName && formData.roomName.trim().length > 0;
+    const addressPassed = formData.address && formData.address.trim().length > 0;
+    const accommodationTypePassed = !!formData.accommodationType;
+    const usageTypesPassed = formData.usageTypes && formData.usageTypes.length > 0;
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = formData.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    return (
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed
+    );
+  }, [formData]);
 
   // Set breadcrumb
   useEffect(() => {
@@ -690,13 +717,40 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
-  // 운영 가능 여부 (Publish Gate 조건)
+  // 운영 가능 여부 (Publish Gate 조건 - 모든 BLOCKING 검증 + 추가 품질 요건)
   const canOperate = useMemo(() => {
     const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
     const introLength = formData.space.introduction?.length || 0;
     const basePrice = formData.pricing.basePrice;
-    return photoCount >= 1 && introLength >= 50 && basePrice > 0;
-  }, [formData.mainPhotos, formData.space.introduction, formData.pricing.basePrice]);
+    const { rooms } = formData.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = formData.roomName && formData.roomName.trim().length > 0;
+    const addressPassed = formData.address && formData.address.trim().length > 0;
+    const accommodationTypePassed = !!formData.accommodationType;
+    const usageTypesPassed = formData.usageTypes && formData.usageTypes.length > 0;
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = formData.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    return (
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed
+    );
+  }, [formData]);
 
   // Set breadcrumb (only after data is loaded)
   useEffect(() => {

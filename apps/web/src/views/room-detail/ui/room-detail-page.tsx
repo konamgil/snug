@@ -653,14 +653,6 @@ export function RoomDetailPage() {
               )}
             </div>
 
-            {/* Room Type Badge - Desktop */}
-            <div className="hidden lg:flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 bg-[hsl(var(--snug-orange))] text-white text-xs font-medium rounded-full">
-                Studio
-              </span>
-              <span className="text-sm text-[hsl(var(--snug-gray))]">{roomData.size}</span>
-            </div>
-
             {/* Title & Location */}
             {/* Mobile: Location as title */}
             <h1 className="lg:hidden text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">

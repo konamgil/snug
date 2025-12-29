@@ -807,7 +807,7 @@
       "settlementAmount": "{month} 정산금액",
       "comparedToPrevMonth": "전월 대비 {amount}",
       "thousandWon": "천원",
-      "comingSoonOverlay": "정식 오픈때 공개됩니다"
+      "comingSoonOverlay": "12월 31일 Snug 호스트 프리 오픈에 참여해주셔서 감사합니다.\n순차적으로 연락을 드릴 예정입니다.\n지금 웹 사이트에서 회원가입하고 얼리버드 혜택을 받아보세요.\n\n기타 문의는 support@findsnug.com"
     },
     "accommodation": {
       "form": {
@@ -911,9 +911,15 @@
         "publishGate": {
           "title": "공개 조건",
           "description": "숙소를 공개하려면 아래 조건을 모두 충족해야 합니다.",
+          "roomNameRequired": "방 이름 입력",
+          "addressRequired": "주소 입력",
+          "accommodationTypeRequired": "숙소 유형 선택",
+          "usageTypesRequired": "이용 타입 선택",
           "photosRequired": "사진 {current}장 등록됨 (최소 1장 필요)",
+          "roomsRequired": "공간 설정 (1개 이상)",
+          "capacityRequired": "수용 인원 {current}명 설정됨 (최소 1명 필요)",
+          "basePriceRequired": "기본가 설정 (0원 불가)",
           "introductionRequired": "소개글 {current}자 작성됨 (최소 50자 필요)",
-          "basePriceRequired": "기본가 설정 필요 (0원 불가)",
           "canPublish": "모든 조건 충족! 공개 가능합니다.",
           "cannotPublish": "위 조건을 모두 충족해야 숙소를 공개할 수 있습니다."
         }

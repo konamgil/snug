@@ -807,7 +807,7 @@
       "settlementAmount": "{month} Settlement",
       "comparedToPrevMonth": "vs. last month {amount}",
       "thousandWon": "K KRW",
-      "comingSoonOverlay": "Coming at official launch"
+      "comingSoonOverlay": "Thank you for joining the Snug Host Pre-Open on December 31st.\nWe will contact you in order.\nSign up on our website now and get early bird benefits.\n\nFor inquiries: support@findsnug.com"
     },
     "accommodation": {
       "form": {
@@ -901,6 +901,8 @@
           "addressRequired": "Please enter an address",
           "accommodationTypeRequired": "Please select an accommodation type",
           "usageTypesRequired": "Please select at least one usage type",
+          "mainPhotosRequired": "Please upload at least one photo",
+          "roomsRequired": "Please add at least one space",
           "basePriceRequired": "Please enter a base price",
           "basePriceMin": "Base price must be 0 or more",
           "capacityRequired": "Please enter capacity",
@@ -909,9 +911,15 @@
         "publishGate": {
           "title": "Publish Requirements",
           "description": "All requirements below must be met to publish your accommodation.",
+          "roomNameRequired": "Room name entered",
+          "addressRequired": "Address entered",
+          "accommodationTypeRequired": "Accommodation type selected",
+          "usageTypesRequired": "Usage type selected",
           "photosRequired": "{current} photo(s) uploaded (minimum 1 required)",
+          "roomsRequired": "Space configured (at least 1)",
+          "capacityRequired": "Capacity set to {current} (minimum 1 required)",
+          "basePriceRequired": "Base price set (cannot be 0)",
           "introductionRequired": "{current} characters written (minimum 50 required)",
-          "basePriceRequired": "Base price required (cannot be 0)",
           "canPublish": "All requirements met! Ready to publish.",
           "cannotPublish": "All requirements above must be met to publish your accommodation."
         }
