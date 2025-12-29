@@ -26,8 +26,8 @@ export * from './enums';
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more EmailOtps
+ * const emailOtps = await prisma.emailOtp.findMany()
  * ```
  *
  * Read more in our [docs](https://pris.ly/d/client).
@@ -40,6 +40,11 @@ export type PrismaClient<
 > = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>;
 export { Prisma };
 
+/**
+ * Model EmailOtp
+ *
+ */
+export type EmailOtp = Prisma.EmailOtpModel;
 /**
  * Model User
  *

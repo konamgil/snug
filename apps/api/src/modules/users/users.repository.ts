@@ -6,9 +6,11 @@ import { User, UserRole } from '@snug/database';
 const USER_SELECT = {
   id: true,
   email: true,
+  emailVerified: true,
   firstName: true,
   lastName: true,
   phone: true,
+  countryCode: true,
   avatarUrl: true,
   role: true,
   createdAt: true,
@@ -22,12 +24,23 @@ export class UsersRepository extends BaseRepository<User> {
     super(prisma);
   }
 
-  async create(data: { email: string; firstName?: string; lastName?: string; role?: UserRole }) {
+  async create(data: {
+    email: string;
+    emailVerified?: boolean;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    countryCode?: string;
+    role?: UserRole;
+  }) {
     return this.prisma.user.create({
       data: {
         email: data.email,
+        emailVerified: data.emailVerified ?? false,
         firstName: data.firstName,
         lastName: data.lastName,
+        phone: data.phone,
+        countryCode: data.countryCode ?? '+82',
         role: data.role ?? 'GUEST',
       },
     });

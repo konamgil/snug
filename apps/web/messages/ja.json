@@ -233,7 +233,21 @@
       "phoneNumber": "電話番号",
       "email": "メールアドレス",
       "continue": "続ける",
-      "backToLogin": "ログインに戻る"
+      "backToLogin": "ログインに戻る",
+      "findIdHint": "登録時の電話番号を入力してください。",
+      "findIdError": "この電話番号で登録されたアカウントが見つかりませんでした。",
+      "idFound": "IDが見つかりました！",
+      "goToLogin": "ログインする",
+      "verifyEmail": "メール認証",
+      "emailVerified": "メール認証完了",
+      "newPassword": "新しいパスワード",
+      "confirmPassword": "パスワード確認",
+      "passwordHint": "8文字以上、大文字小文字を区別",
+      "passwordMismatch": "パスワードが一致しません",
+      "resetPassword": "パスワードリセット",
+      "resetSuccess": "パスワードが変更されました！",
+      "resetSuccessHint": "新しいパスワードでログインしてください。",
+      "resetError": "パスワードのリセットに失敗しました。もう一度お試しください。"
     },
     "signupPage": {
       "title": "アカウントを作成",
@@ -247,6 +261,7 @@
       "nameHint": "身分証明書に記載されている名前と一致していることを確認してください。別の名前を使用する場合は、希望の名前を追加できます。",
       "countryCode": "国コード",
       "phoneNumber": "電話番号",
+      "phoneOptional": "電話番号は任意です。",
       "agreeTerms": "個人情報の収集と利用に同意します。",
       "termsPreview": "Snugプラットフォームの利用に必要な個人情報を収集します。",
       "termsFullText": "Snugプラットフォームの利用に必要な個人情報を収集します。名前、メールアドレス、電話番号、その他の登録情報が含まれます。",
@@ -271,6 +286,18 @@
       "sending": "送信中...",
       "sendError": "認証コードの送信に失敗しました",
       "verifyError": "認証に失敗しました"
+    },
+    "emailVerification": {
+      "title": "メール認証",
+      "sentTo": "{email}に認証コードを送信しました",
+      "enterFullCode": "6桁の認証コードを入力してください",
+      "verified": "認証完了！",
+      "verify": "認証する",
+      "resend": "コードを再送信",
+      "resendIn": "{seconds}秒後に再送信可能",
+      "sending": "送信中...",
+      "sendError": "認証コードの送信に失敗しました。しばらくしてからお試しください。",
+      "verifyError": "認証に失敗しました。認証コードをご確認ください。"
     }
   },
   "profile": {

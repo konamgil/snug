@@ -233,7 +233,21 @@
       "phoneNumber": "Số điện thoại",
       "email": "Địa chỉ Email",
       "continue": "Tiếp tục",
-      "backToLogin": "Quay lại đăng nhập"
+      "backToLogin": "Quay lại đăng nhập",
+      "findIdHint": "Nhập số điện thoại bạn đã đăng ký.",
+      "findIdError": "Không tìm thấy tài khoản với số điện thoại này.",
+      "idFound": "Đã tìm thấy ID của bạn!",
+      "goToLogin": "Đi đến đăng nhập",
+      "verifyEmail": "Xác thực Email",
+      "emailVerified": "Email đã xác thực",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "passwordHint": "Ít nhất 8 ký tự, phân biệt chữ hoa chữ thường",
+      "passwordMismatch": "Mật khẩu không khớp",
+      "resetPassword": "Đặt lại mật khẩu",
+      "resetSuccess": "Mật khẩu đã được thay đổi!",
+      "resetSuccessHint": "Vui lòng đăng nhập bằng mật khẩu mới.",
+      "resetError": "Không thể đặt lại mật khẩu. Vui lòng thử lại."
     },
     "signupPage": {
       "title": "Tạo tài khoản của bạn",
@@ -247,6 +261,7 @@
       "nameHint": "Đảm bảo tên này khớp với tên trên giấy tờ tùy thân. Nếu bạn sử dụng tên khác, bạn có thể thêm tên ưa thích.",
       "countryCode": "Mã quốc gia",
       "phoneNumber": "Số điện thoại",
+      "phoneOptional": "Số điện thoại là tùy chọn.",
       "agreeTerms": "Tôi đồng ý với việc thu thập và sử dụng thông tin cá nhân của tôi.",
       "termsPreview": "Chúng tôi thu thập thông tin cá nhân cần thiết để sử dụng nền tảng Snug.",
       "termsFullText": "Chúng tôi thu thập thông tin cá nhân cần thiết để sử dụng nền tảng Snug. Bao gồm tên, email, số điện thoại và các chi tiết đăng ký khác.",
@@ -271,6 +286,18 @@
       "sending": "Đang gửi...",
       "sendError": "Gửi mã xác minh thất bại",
       "verifyError": "Xác minh thất bại"
+    },
+    "emailVerification": {
+      "title": "Xác minh Email",
+      "sentTo": "Mã xác minh đã được gửi đến {email}",
+      "enterFullCode": "Vui lòng nhập mã 6 chữ số",
+      "verified": "Xác minh thành công!",
+      "verify": "Xác minh",
+      "resend": "Gửi lại mã",
+      "resendIn": "Gửi lại sau {seconds}s",
+      "sending": "Đang gửi...",
+      "sendError": "Gửi mã xác minh thất bại. Vui lòng thử lại sau.",
+      "verifyError": "Xác minh thất bại. Vui lòng kiểm tra mã xác minh."
     }
   },
   "profile": {

@@ -325,6 +325,11 @@ export function RoomDetailPage() {
   const displayRoomType = accommodation
     ? getAccommodationTypeLabel(accommodation.accommodationType, locale)
     : roomData.roomType;
+  const displayRoomTypeDescription = accommodation
+    ? t(
+        `host.accommodation.accommodationTypeDescriptions.${accommodation.accommodationType.toLowerCase()}`,
+      )
+    : roomData.roomTypeDescription;
   const displayBuildingType = accommodation?.buildingType
     ? getBuildingTypeLabel(accommodation.buildingType, locale)
     : roomData.buildingType;
@@ -1109,7 +1114,7 @@ export function RoomDetailPage() {
             <div className="sticky top-24">
               <BookingSidePanel
                 roomType={displayRoomType}
-                roomTypeDescription={accommodation.roomName}
+                roomTypeDescription={displayRoomTypeDescription}
                 priceBreakdown={{
                   pricePerNight: pricePerNight,
                   nights: nights,

@@ -10,3 +10,5 @@ export * from './ui/contracts';
 export * from './ui/accommodations';
 export * from './ui/users';
 export * from './ui/operations';
+export * from './ui/settlements';
+export * from './ui/chat';

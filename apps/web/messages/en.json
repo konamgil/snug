@@ -233,7 +233,21 @@
       "phoneNumber": "Phone Number",
       "email": "Email Address",
       "continue": "Continue",
-      "backToLogin": "Back to Login"
+      "backToLogin": "Back to Login",
+      "findIdHint": "Enter the phone number you registered with.",
+      "findIdError": "No account found with this phone number.",
+      "idFound": "Your ID has been found!",
+      "goToLogin": "Go to Login",
+      "verifyEmail": "Verify Email",
+      "emailVerified": "Email Verified",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordHint": "At least 8 characters, case-sensitive",
+      "passwordMismatch": "Passwords do not match",
+      "resetPassword": "Reset Password",
+      "resetSuccess": "Password has been changed!",
+      "resetSuccessHint": "Please log in with your new password.",
+      "resetError": "Failed to reset password. Please try again."
     },
     "signupPage": {
       "title": "Create your Account",
@@ -247,6 +261,7 @@
       "nameHint": "Make sure this matches the name on your government ID. If you go by another name, you can add a preferred first name.",
       "countryCode": "Country Code",
       "phoneNumber": "Phone Number",
+      "phoneOptional": "Phone number is optional.",
       "agreeTerms": "I agree to the collection and use of my personal information.",
       "termsPreview": "We collect personal information needed to use the Snug platform.",
       "termsFullText": "We collect personal information needed to use the Snug platform. This includes name, email, phone number, and other registration details.",
@@ -255,10 +270,12 @@
       "agreeMarketing": "I want to receive marketing emails. (optional)",
       "continue": "Continue",
       "signupSuccess": "Account created successfully!",
-      "checkEmail": "Please check your email to verify your account.",
+      "checkEmail": "Please log in to start using the service.",
       "goToLogin": "Go to Login",
       "verify": "Verify",
-      "verified": "Verified"
+      "verified": "Verified",
+      "verifyEmail": "Verify Email",
+      "emailVerified": "Email Verified"
     },
     "phoneVerification": {
       "title": "Phone Verification",
@@ -271,6 +288,18 @@
       "sending": "Sending...",
       "sendError": "Failed to send verification code",
       "verifyError": "Failed to verify code"
+    },
+    "emailVerification": {
+      "title": "Email Verification",
+      "sentTo": "Verification code sent to {email}",
+      "enterFullCode": "Please enter the full 6-digit code",
+      "verified": "Verified!",
+      "verify": "Verify",
+      "resend": "Resend Code",
+      "resendIn": "Resend in {seconds}s",
+      "sending": "Sending...",
+      "sendError": "Failed to send verification code. Please try again later.",
+      "verifyError": "Verification failed. Please check the code."
     }
   },
   "profile": {
@@ -1036,6 +1065,12 @@
         "share_room": "Share Room",
         "share_house": "Share House",
         "apartment": "Apartment/Villa"
+      },
+      "accommodationTypeDescriptions": {
+        "house": "An entire space for your exclusive use.",
+        "share_room": "A room shared with other guests.",
+        "share_house": "A private room with shared common areas.",
+        "apartment": "All or part of an apartment or villa."
       },
       "buildingTypes": {
         "apartment": "Apartment",

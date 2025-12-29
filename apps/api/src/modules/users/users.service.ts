@@ -6,7 +6,7 @@ import { RegisterDto } from '../auth/dto';
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async create(data: RegisterDto) {
+  async create(data: RegisterDto & { emailVerified?: boolean }) {
     const existingUser = await this.usersRepository.findByEmail(data.email);
 
     if (existingUser) {
@@ -16,8 +16,11 @@ export class UsersService {
     // TODO: Hash password with Supabase Auth or bcrypt
     return this.usersRepository.create({
       email: data.email,
+      emailVerified: data.emailVerified ?? false,
       firstName: data.firstName,
       lastName: data.lastName,
+      phone: data.phone,
+      countryCode: data.countryCode ?? '+82',
       role: data.role ?? 'GUEST',
     });
   }
