@@ -289,6 +289,15 @@ export function RoomDetailPage() {
   const dragX = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // Transform for smooth carousel sliding - must be at top level (Rules of Hooks)
+  const carouselX = useTransform(dragX, (value) => -carouselIndex * containerWidth + value);
+
+  // Sync carouselIndex with currentImageIndex
+  useEffect(() => {
+    setCarouselIndex(currentImageIndex);
+  }, [currentImageIndex]);
 
   // Measure container width for carousel calculations
   useEffect(() => {
@@ -461,7 +470,7 @@ export function RoomDetailPage() {
               onDrag={handleDrag}
               onDragEnd={handleDragEnd}
               style={{
-                x: useTransform(dragX, (value) => -currentImageIndex * containerWidth + value),
+                x: carouselX,
               }}
               animate={{
                 x: -currentImageIndex * containerWidth,
