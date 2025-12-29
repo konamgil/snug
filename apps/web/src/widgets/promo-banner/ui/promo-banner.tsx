@@ -28,8 +28,8 @@ export function PromoBanner() {
 
   if (!isVisible) return null;
 
-  // 로그인 되어 있으면 /map, 아니면 /mypage (로그인 화면)
-  const href = user ? '/map' : '/mypage';
+  // 로그인 되어 있으면 /map (강남 중심), 아니면 /mypage (로그인 화면)
+  const href = user ? '/map?lat=37.507387&lng=127.033762' : '/mypage';
 
   return (
     <Link href={href} className="block md:hidden">

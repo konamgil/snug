@@ -68,6 +68,12 @@ function MapPageContent() {
   const guestsParam = searchParams.get('guests');
   const totalGuests = guestsParam ? parseInt(guestsParam, 10) : 0;
 
+  // 초기 지도 중심점 (URL 파라미터에서 가져옴)
+  const latParam = searchParams.get('lat');
+  const lngParam = searchParams.get('lng');
+  const initialCenter =
+    latParam && lngParam ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) } : undefined;
+
   // 숙소 목록 가져오기
   const fetchAccommodations = useCallback(async () => {
     setIsLoading(true);
@@ -166,7 +172,7 @@ function MapPageContent() {
             <p className="text-[hsl(var(--snug-gray))]">Loading...</p>
           </div>
         ) : (
-          <SearchMap rooms={rooms} />
+          <SearchMap rooms={rooms} initialCenter={initialCenter} />
         )}
       </div>
 

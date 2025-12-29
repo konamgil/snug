@@ -11,6 +11,7 @@ import type { Room } from './room-card';
 
 interface SearchMapProps {
   rooms: Room[];
+  initialCenter?: { lat: number; lng: number };
   onRoomSelect?: (roomId: string | null) => void;
 }
 
@@ -57,7 +58,7 @@ const tagSecondColors = {
   green: 'bg-green-400 text-white font-bold',
 };
 
-export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
+export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps) {
   const locale = useLocale();
   const { format } = useCurrencySafe();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -122,7 +123,7 @@ export function SearchMap({ rooms, onRoomSelect }: SearchMapProps) {
     <div className="relative w-full h-full">
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        center={defaultCenter}
+        center={initialCenter || defaultCenter}
         zoom={15}
         options={mapOptions}
         onLoad={onMapLoad}
