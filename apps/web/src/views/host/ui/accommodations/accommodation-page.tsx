@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, AlertCircle } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
@@ -28,6 +28,7 @@ interface AccommodationPageFooterProps {
   onSave?: () => void;
   showDelete?: boolean;
   isSaving?: boolean;
+  isFormValid?: boolean;
 }
 
 function AccommodationPageFooter({
@@ -37,6 +38,7 @@ function AccommodationPageFooter({
   onSave,
   showDelete = false,
   isSaving = false,
+  isFormValid = true,
 }: AccommodationPageFooterProps) {
   const t = useTranslations('host.accommodation.page');
   const tCommon = useTranslations('common');
@@ -76,8 +78,8 @@ function AccommodationPageFooter({
         <button
           type="button"
           onClick={onSave}
-          disabled={isSaving}
-          className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          disabled={isSaving || !isFormValid}
+          className="px-6 py-3 text-sm font-bold text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? t('saving') : t('save')}
         </button>
@@ -358,6 +360,11 @@ export function AccommodationNewPage() {
     setTimeout(() => setShowToast(false), 3000);
   }, []);
 
+  // 필수값 유효성 검사
+  const isFormValid = useMemo(() => {
+    return !!(formData.roomName?.trim() && formData.address?.trim());
+  }, [formData.roomName, formData.address]);
+
   // Set breadcrumb
   useEffect(() => {
     setBreadcrumb([t('breadcrumbManagement'), t('breadcrumbNew')]);
@@ -608,6 +615,7 @@ export function AccommodationNewPage() {
         onSave={handleSave}
         showDelete={false}
         isSaving={isSaving}
+        isFormValid={isFormValid}
       />
 
       {/* Toast Notification */}
@@ -659,6 +667,11 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }, []);
+
+  // 필수값 유효성 검사
+  const isFormValid = useMemo(() => {
+    return !!(formData.roomName?.trim() && formData.address?.trim());
+  }, [formData.roomName, formData.address]);
 
   // Set breadcrumb (only after data is loaded)
   useEffect(() => {
@@ -958,6 +971,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         onSave={handleSave}
         showDelete={true}
         isSaving={isSaving}
+        isFormValid={isFormValid}
       />
 
       {/* Delete Confirmation Modal */}
