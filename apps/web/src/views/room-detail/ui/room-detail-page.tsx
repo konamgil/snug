@@ -393,14 +393,37 @@ export function RoomDetailPage() {
         >
           {/* Photo or Placeholder */}
           {photos.length > 0 && photos[currentImageIndex] ? (
-            <Image
-              src={photos[currentImageIndex].url}
-              alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
+            <>
+              <Image
+                src={photos[currentImageIndex].url}
+                alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority
+              />
+              {/* Preload adjacent images for faster swiping */}
+              {photos.length > 1 && photos[(currentImageIndex + 1) % photos.length]?.url && (
+                <Image
+                  src={photos[(currentImageIndex + 1) % photos.length]!.url}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="opacity-0 pointer-events-none"
+                  priority
+                />
+              )}
+              {photos.length > 1 && currentImageIndex > 0 && photos[currentImageIndex - 1]?.url && (
+                <Image
+                  src={photos[currentImageIndex - 1]!.url}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="opacity-0 pointer-events-none"
+                  priority
+                />
+              )}
+            </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
               <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
@@ -474,14 +497,39 @@ export function RoomDetailPage() {
             >
               {/* Photo or Placeholder */}
               {photos.length > 0 && photos[currentImageIndex] ? (
-                <Image
-                  src={photos[currentImageIndex].url}
-                  alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 896px"
-                  className="object-cover group-hover:brightness-95 transition-all"
-                  priority
-                />
+                <>
+                  <Image
+                    src={photos[currentImageIndex].url}
+                    alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 896px"
+                    className="object-cover group-hover:brightness-95 transition-all"
+                    priority
+                  />
+                  {/* Preload adjacent images for faster navigation */}
+                  {photos.length > 1 && photos[(currentImageIndex + 1) % photos.length]?.url && (
+                    <Image
+                      src={photos[(currentImageIndex + 1) % photos.length]!.url}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 896px"
+                      className="opacity-0 pointer-events-none"
+                      priority
+                    />
+                  )}
+                  {photos.length > 1 &&
+                    currentImageIndex > 0 &&
+                    photos[currentImageIndex - 1]?.url && (
+                      <Image
+                        src={photos[currentImageIndex - 1]!.url}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 896px"
+                        className="opacity-0 pointer-events-none"
+                        priority
+                      />
+                    )}
+                </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
                   <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
