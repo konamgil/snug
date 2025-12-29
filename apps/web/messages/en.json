@@ -1041,6 +1041,10 @@
           "accommodationInfo": "Accommodation Info",
           "accommodationType": "Type",
           "operatingStatus": "Status"
+        },
+        "empty": {
+          "title": "No accommodations registered yet.",
+          "description": "Register an accommodation to see the list here."
         }
       },
       "page": {

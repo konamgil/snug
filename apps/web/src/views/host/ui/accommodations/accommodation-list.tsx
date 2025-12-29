@@ -298,82 +298,93 @@ export function AccommodationList({
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item) => (
-              <tr
-                key={item.id}
-                onClick={() => onSelect(item)}
-                className={`border-b border-[hsl(var(--snug-border))] cursor-pointer transition-colors ${
-                  selectedId === item.id
-                    ? 'bg-[hsl(var(--snug-light-gray))]'
-                    : 'hover:bg-[hsl(var(--snug-light-gray))]/50'
-                }`}
-              >
-                <td className="w-10 md:w-12 px-2 md:px-4 py-3 md:py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(item.id)}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      toggleSelect(item.id);
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
-                  />
-                </td>
-                <td className="px-2 md:px-4 py-3 md:py-4">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-14 h-10 md:w-16 md:h-12 rounded-lg overflow-hidden flex-shrink-0 bg-[hsl(var(--snug-light-gray))]">
-                      {item.thumbnailUrl ? (
-                        <Image
-                          src={item.thumbnailUrl}
-                          alt={item.roomName}
-                          width={64}
-                          height={48}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-50" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-sm font-medium text-[hsl(var(--snug-text-primary))] line-clamp-2">
-                        {getDisplayName(item)}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-2 md:px-4 py-3 md:py-4 whitespace-nowrap">
-                  <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                    {getUsageTypeLabel(item.usageType)}
-                  </span>
-                </td>
-                <td className="px-2 md:px-4 py-3 md:py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1.5 md:gap-2">
-                    <span
-                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        item.isOperating
-                          ? 'bg-[hsl(var(--snug-orange))]'
-                          : 'bg-[hsl(var(--snug-gray))]'
-                      }`}
-                    />
-                    <span
-                      className={`text-sm ${
-                        item.isOperating
-                          ? 'text-[hsl(var(--snug-text-primary))]'
-                          : 'text-[hsl(var(--snug-gray))]'
-                      }`}
-                    >
-                      <span className="md:hidden">
-                        {item.isOperating ? t('operatingShort') : t('notOperatingShort')}
-                      </span>
-                      <span className="hidden md:inline">
-                        {item.isOperating ? t('operating') : t('notOperating')}
-                      </span>
-                    </span>
-                  </div>
+            {filteredItems.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-20 text-center">
+                  <p className="text-sm text-[hsl(var(--snug-text-primary))]">{t('empty.title')}</p>
+                  <p className="text-sm text-[hsl(var(--snug-gray))] mt-1">
+                    {t('empty.description')}
+                  </p>
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredItems.map((item) => (
+                <tr
+                  key={item.id}
+                  onClick={() => onSelect(item)}
+                  className={`border-b border-[hsl(var(--snug-border))] cursor-pointer transition-colors ${
+                    selectedId === item.id
+                      ? 'bg-[hsl(var(--snug-light-gray))]'
+                      : 'hover:bg-[hsl(var(--snug-light-gray))]/50'
+                  }`}
+                >
+                  <td className="w-10 md:w-12 px-2 md:px-4 py-3 md:py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        toggleSelect(item.id);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
+                    />
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-14 h-10 md:w-16 md:h-12 rounded-lg overflow-hidden flex-shrink-0 bg-[hsl(var(--snug-light-gray))]">
+                        {item.thumbnailUrl ? (
+                          <Image
+                            src={item.thumbnailUrl}
+                            alt={item.roomName}
+                            width={64}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-50" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-[hsl(var(--snug-text-primary))] line-clamp-2">
+                          {getDisplayName(item)}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 whitespace-nowrap">
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {getUsageTypeLabel(item.usageType)}
+                    </span>
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          item.isOperating
+                            ? 'bg-[hsl(var(--snug-orange))]'
+                            : 'bg-[hsl(var(--snug-gray))]'
+                        }`}
+                      />
+                      <span
+                        className={`text-sm ${
+                          item.isOperating
+                            ? 'text-[hsl(var(--snug-text-primary))]'
+                            : 'text-[hsl(var(--snug-gray))]'
+                        }`}
+                      >
+                        <span className="md:hidden">
+                          {item.isOperating ? t('operatingShort') : t('notOperatingShort')}
+                        </span>
+                        <span className="hidden md:inline">
+                          {item.isOperating ? t('operating') : t('notOperating')}
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

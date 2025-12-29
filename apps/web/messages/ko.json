@@ -1041,6 +1041,10 @@
         "accommodationInfo": "숙소정보",
         "accommodationType": "숙소유형",
         "operatingStatus": "운영상태"
+      },
+      "empty": {
+        "title": "아직 등록된 숙소가 없습니다.",
+        "description": "숙소를 등록하면 이곳에서 숙소 목록을 확인할 수 있습니다."
       }
     },
     "page": {
