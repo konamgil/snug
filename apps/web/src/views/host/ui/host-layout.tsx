@@ -45,7 +45,7 @@ export function HostLayout({ children }: HostLayoutProps) {
 
           {/* Desktop Sidebar */}
           <div className="hidden md:block">
-            <HostSidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+            <HostSidebar isCollapsed={isSidebarCollapsed} />
           </div>
 
           {/* Main Content */}
