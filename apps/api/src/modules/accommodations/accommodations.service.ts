@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import type { User, Accommodation, AccommodationGroup, Prisma } from '@snug/database';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -471,6 +476,42 @@ export class AccommodationsService {
   }
 
   /**
+   * ACTIVE 전환 조건 검증 (Publish Gate)
+   * - 사진 1장 이상
+   * - 소개글 50자 이상
+   * - 기본가 0원 초과
+   */
+  private validatePublishGate(accommodation: {
+    photos?: { id: string }[];
+    introduction?: string | null;
+    basePrice: number;
+  }): { canPublish: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    // 사진 검증
+    const photoCount = accommodation.photos?.length ?? 0;
+    if (photoCount < 1) {
+      errors.push('At least 1 photo is required to publish');
+    }
+
+    // 소개글 검증
+    const introLength = accommodation.introduction?.length ?? 0;
+    if (introLength < 50) {
+      errors.push('Introduction must be at least 50 characters');
+    }
+
+    // 기본가 검증
+    if (accommodation.basePrice <= 0) {
+      errors.push('Base price must be greater than 0 to publish');
+    }
+
+    return {
+      canPublish: errors.length === 0,
+      errors,
+    };
+  }
+
+  /**
    * 주소 자동완성 검색 (최적화 버전 v2)
    * 단일 Raw SQL 쿼리로 AddressMapping + AddressAlias 동시 검색
    * PostgreSQL similarity() 함수로 DB에서 직접 관련성 점수 계산
@@ -858,10 +899,15 @@ export class AccommodationsService {
    * 숙소 수정
    */
   async update(id: string, user: User, dto: UpdateAccommodationDto): Promise<Accommodation> {
-    // 소유권 확인
+    // 소유권 확인 및 기본 정보 조회
     const existing = await this.prisma.accommodation.findUnique({
       where: { id },
-      select: { hostId: true },
+      select: {
+        hostId: true,
+        status: true,
+        basePrice: true,
+        introduction: true,
+      },
     });
 
     if (!existing) {
@@ -870,6 +916,32 @@ export class AccommodationsService {
 
     if (existing.hostId !== user.id) {
       throw new ForbiddenException('You do not have permission to update this accommodation');
+    }
+
+    // ACTIVE 전환 시 Publish Gate 검증
+    if (dto.status === 'ACTIVE' && existing.status !== 'ACTIVE') {
+      // 사진 정보 조회
+      const photos = await this.prisma.accommodationPhoto.findMany({
+        where: { accommodationId: id },
+        select: { id: true },
+      });
+
+      // 업데이트 후 최종 값으로 검증
+      const finalBasePrice = dto.basePrice ?? existing.basePrice;
+      const finalIntroduction = dto.introduction ?? existing.introduction;
+
+      const validation = this.validatePublishGate({
+        photos,
+        introduction: finalIntroduction,
+        basePrice: finalBasePrice,
+      });
+
+      if (!validation.canPublish) {
+        throw new BadRequestException({
+          message: 'Cannot publish accommodation: requirements not met',
+          errors: validation.errors,
+        });
+      }
     }
 
     // 업데이트 데이터 구성

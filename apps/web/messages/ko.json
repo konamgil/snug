@@ -811,6 +811,9 @@
     "accommodation": {
       "form": {
         "basicInfo": "기본 정보",
+        "basicInfoDesc": "숙소의 기본 정보를 입력해주세요. 게스트가 검색 시 가장 먼저 보게 되는 정보입니다.",
+        "pricingInfoDesc": "1박 기준 요금을 입력해주세요. 주말/성수기 요금은 별도로 설정할 수 있습니다.",
+        "spaceInfoDesc": "숙소의 크기와 구조를 입력해주세요. 정확한 정보가 예약 후 만족도를 높입니다.",
         "mainPhoto": "대표 사진",
         "addPhoto": "+ 사진 등록",
         "groupNameLabel": "그룹명 (선택)",
@@ -890,7 +893,27 @@
         "managerInfoOptional": "관리자 정보 (선택)",
         "addManager": "+ 관리자 추가",
         "managerInfoHint": "관리자 정보 미 기입 시 호스트 정보가 기입됩니다.",
-        "spaceSizeOptional": "공간 사이즈 (선택)"
+        "spaceSizeOptional": "공간 사이즈 (선택)",
+        "validation": {
+          "roomNameRequired": "방 이름을 입력해주세요",
+          "roomNameMaxLength": "방 이름은 100자 이내로 입력해주세요",
+          "addressRequired": "주소를 입력해주세요",
+          "accommodationTypeRequired": "숙소 유형을 선택해주세요",
+          "usageTypesRequired": "이용 타입을 1개 이상 선택해주세요",
+          "basePriceRequired": "기본가를 입력해주세요",
+          "basePriceMin": "기본가는 0원 이상이어야 합니다",
+          "capacityRequired": "수용 인원을 입력해주세요",
+          "capacityMin": "수용 인원은 1명 이상이어야 합니다"
+        },
+        "publishGate": {
+          "title": "공개 조건",
+          "description": "숙소를 공개하려면 아래 조건을 모두 충족해야 합니다.",
+          "photosRequired": "사진 {current}장 등록됨 (최소 1장 필요)",
+          "introductionRequired": "소개글 {current}자 작성됨 (최소 50자 필요)",
+          "basePriceRequired": "기본가 설정 필요 (0원 불가)",
+          "canPublish": "모든 조건 충족! 공개 가능합니다.",
+          "cannotPublish": "위 조건을 모두 충족해야 숙소를 공개할 수 있습니다."
+        }
       },
       "spaceTypes": {
         "room": "방",

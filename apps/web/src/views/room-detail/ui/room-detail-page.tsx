@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion';
+import { motion, type PanInfo } from 'framer-motion';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
@@ -286,18 +286,9 @@ export function RoomDetailPage() {
 
   // Mobile carousel state
   const [isSwiping, setIsSwiping] = useState(false);
-  const dragX = useMotionValue(0);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [carouselIndex, setCarouselIndex] = useState(0);
-
-  // Transform for smooth carousel sliding - must be at top level (Rules of Hooks)
-  const carouselX = useTransform(dragX, (value) => -carouselIndex * containerWidth + value);
-
-  // Sync carouselIndex with currentImageIndex
-  useEffect(() => {
-    setCarouselIndex(currentImageIndex);
-  }, [currentImageIndex]);
 
   // Measure container width for carousel calculations
   useEffect(() => {
@@ -359,18 +350,13 @@ export function RoomDetailPage() {
   // Carousel drag handlers
   const handleDragStart = useCallback(() => {
     setIsSwiping(true);
+    setIsDragging(true);
   }, []);
-
-  const handleDrag = useCallback(
-    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      // Update drag position in real-time for smooth sliding
-      dragX.set(info.offset.x);
-    },
-    [dragX],
-  );
 
   const handleDragEnd = useCallback(
     (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      setIsDragging(false);
+
       const threshold = containerWidth / 4; // 25% of width to trigger slide
       const velocity = info.velocity.x;
       const offset = info.offset.x;
@@ -386,14 +372,13 @@ export function RoomDetailPage() {
         newIndex = Math.max(currentImageIndex - 1, 0);
       }
 
-      // Animate to new position
+      // Update index
       setCurrentImageIndex(newIndex);
-      animate(dragX, 0, { type: 'spring', stiffness: 300, damping: 30 });
 
       // Reset swiping state after animation
       setTimeout(() => setIsSwiping(false), 100);
     },
-    [containerWidth, currentImageIndex, totalImages, dragX],
+    [containerWidth, currentImageIndex, totalImages],
   );
 
   const handleOpenGallery = useCallback(() => {
@@ -460,28 +445,31 @@ export function RoomDetailPage() {
       <div className="lg:hidden relative overflow-hidden" ref={containerRef}>
         <div className="relative aspect-[4/3]">
           {/* Sliding Images Container */}
-          {photos.length > 0 ? (
+          {photos.length > 0 && containerWidth > 0 ? (
             <motion.div
               className="flex h-full cursor-grab active:cursor-grabbing"
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.1}
+              dragElastic={0.2}
               onDragStart={handleDragStart}
-              onDrag={handleDrag}
               onDragEnd={handleDragEnd}
-              style={{
-                x: carouselX,
-              }}
-              animate={{
-                x: -currentImageIndex * containerWidth,
-              }}
+              animate={
+                isDragging
+                  ? undefined
+                  : {
+                      x: -currentImageIndex * containerWidth,
+                    }
+              }
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{
+                width: containerWidth * photos.length,
+              }}
             >
               {photos.map((photo, index) => (
                 <div
                   key={photo.id || index}
                   className="relative flex-shrink-0 h-full"
-                  style={{ width: containerWidth || '100vw' }}
+                  style={{ width: containerWidth }}
                   onClick={() => !isSwiping && handleOpenGallery()}
                 >
                   <Image
@@ -495,6 +483,18 @@ export function RoomDetailPage() {
                 </div>
               ))}
             </motion.div>
+          ) : photos.length > 0 && containerWidth === 0 ? (
+            // Fallback while measuring container width
+            <div className="absolute inset-0">
+              <Image
+                src={photos[0]!.url}
+                alt={`${accommodation.roomName} - 1`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority
+              />
+            </div>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
               <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />

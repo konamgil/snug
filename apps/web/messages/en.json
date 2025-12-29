@@ -811,6 +811,9 @@
     "accommodation": {
       "form": {
         "basicInfo": "Basic Info",
+        "basicInfoDesc": "Enter basic information about your accommodation. This is the first thing guests see when searching.",
+        "pricingInfoDesc": "Enter pricing per night. Weekend and seasonal pricing can be set separately.",
+        "spaceInfoDesc": "Enter the size and layout of your space. Accurate information improves guest satisfaction.",
         "mainPhoto": "Main Photo",
         "addPhoto": "+ Add Photo",
         "groupNameLabel": "Group Name (Optional)",
@@ -890,7 +893,27 @@
         "managerInfoOptional": "Manager Info (Optional)",
         "addManager": "+ Add Manager",
         "managerInfoHint": "Host info will be used if manager info is not entered.",
-        "spaceSizeOptional": "Space Size (Optional)"
+        "spaceSizeOptional": "Space Size (Optional)",
+        "validation": {
+          "roomNameRequired": "Please enter a room name",
+          "roomNameMaxLength": "Room name must be 100 characters or less",
+          "addressRequired": "Please enter an address",
+          "accommodationTypeRequired": "Please select an accommodation type",
+          "usageTypesRequired": "Please select at least one usage type",
+          "basePriceRequired": "Please enter a base price",
+          "basePriceMin": "Base price must be 0 or more",
+          "capacityRequired": "Please enter capacity",
+          "capacityMin": "Capacity must be at least 1"
+        },
+        "publishGate": {
+          "title": "Publish Requirements",
+          "description": "All requirements below must be met to publish your accommodation.",
+          "photosRequired": "{current} photo(s) uploaded (minimum 1 required)",
+          "introductionRequired": "{current} characters written (minimum 50 required)",
+          "basePriceRequired": "Base price required (cannot be 0)",
+          "canPublish": "All requirements met! Ready to publish.",
+          "cannotPublish": "All requirements above must be met to publish your accommodation."
+        }
       },
       "spaceTypes": {
         "room": "Room",
