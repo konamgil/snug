@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { motion, type PanInfo } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
@@ -284,9 +284,23 @@ export function RoomDetailPage() {
   // Show map when loaded (even if there's an API key error, Google Maps will show)
   const shouldShowMap = isLoaded;
 
-  // Track if user is swiping to prevent gallery open
+  // Mobile carousel state
   const [isSwiping, setIsSwiping] = useState(false);
-  const swipeStartTime = useRef<number>(0);
+  const dragX = useMotionValue(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Measure container width for carousel calculations
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -333,37 +347,44 @@ export function RoomDetailPage() {
     setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
   }, [totalImages]);
 
+  // Carousel drag handlers
   const handleDragStart = useCallback(() => {
-    swipeStartTime.current = Date.now();
+    setIsSwiping(true);
   }, []);
+
+  const handleDrag = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      // Update drag position in real-time for smooth sliding
+      dragX.set(info.offset.x);
+    },
+    [dragX],
+  );
 
   const handleDragEnd = useCallback(
     (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      const swipeDuration = Date.now() - swipeStartTime.current;
-      const swipeThreshold = 50; // minimum distance for swipe
-      const velocityThreshold = 500; // minimum velocity for swipe
+      const threshold = containerWidth / 4; // 25% of width to trigger slide
+      const velocity = info.velocity.x;
+      const offset = info.offset.x;
 
-      // Check if it's a swipe (fast enough or far enough)
-      const isSwipe =
-        Math.abs(info.offset.x) > swipeThreshold || Math.abs(info.velocity.x) > velocityThreshold;
+      let newIndex = currentImageIndex;
 
-      if (isSwipe) {
-        setIsSwiping(true);
-        if (info.offset.x > 0 || info.velocity.x > velocityThreshold) {
-          // Swiped right -> previous image
-          handlePrevImage();
-        } else {
-          // Swiped left -> next image
-          handleNextImage();
-        }
-        // Reset swiping state after a short delay
-        setTimeout(() => setIsSwiping(false), 100);
-      } else if (swipeDuration < 200 && Math.abs(info.offset.x) < 10) {
-        // Short tap without much movement -> allow click
-        setIsSwiping(false);
+      // Determine new index based on drag distance or velocity
+      if (offset < -threshold || velocity < -500) {
+        // Swiped left -> next image
+        newIndex = Math.min(currentImageIndex + 1, totalImages - 1);
+      } else if (offset > threshold || velocity > 500) {
+        // Swiped right -> previous image
+        newIndex = Math.max(currentImageIndex - 1, 0);
       }
+
+      // Animate to new position
+      setCurrentImageIndex(newIndex);
+      animate(dragX, 0, { type: 'spring', stiffness: 300, damping: 30 });
+
+      // Reset swiping state after animation
+      setTimeout(() => setIsSwiping(false), 100);
     },
-    [handlePrevImage, handleNextImage],
+    [containerWidth, currentImageIndex, totalImages, dragX],
   );
 
   const handleOpenGallery = useCallback(() => {
@@ -426,50 +447,45 @@ export function RoomDetailPage() {
       {/* Desktop Header - Hidden on Mobile */}
       <Header variant="with-search" onSearch={handleHeaderSearch} />
 
-      {/* Mobile Image Gallery - Full Width with Overlay Buttons */}
-      <div className="lg:hidden relative overflow-hidden">
-        <motion.div
-          className="relative aspect-[4/3] cursor-pointer"
-          onClick={handleOpenGallery}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.2}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          {/* Photo or Placeholder */}
-          {photos.length > 0 && photos[currentImageIndex] ? (
-            <>
-              <Image
-                src={photos[currentImageIndex].url}
-                alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
-                fill
-                sizes="100vw"
-                className="object-cover"
-                priority
-              />
-              {/* Preload adjacent images for faster swiping */}
-              {photos.length > 1 && photos[(currentImageIndex + 1) % photos.length]?.url && (
-                <Image
-                  src={photos[(currentImageIndex + 1) % photos.length]!.url}
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="opacity-0 pointer-events-none"
-                  priority
-                />
-              )}
-              {photos.length > 1 && currentImageIndex > 0 && photos[currentImageIndex - 1]?.url && (
-                <Image
-                  src={photos[currentImageIndex - 1]!.url}
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="opacity-0 pointer-events-none"
-                  priority
-                />
-              )}
-            </>
+      {/* Mobile Image Gallery - Sliding Carousel */}
+      <div className="lg:hidden relative overflow-hidden" ref={containerRef}>
+        <div className="relative aspect-[4/3]">
+          {/* Sliding Images Container */}
+          {photos.length > 0 ? (
+            <motion.div
+              className="flex h-full cursor-grab active:cursor-grabbing"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.1}
+              onDragStart={handleDragStart}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}
+              style={{
+                x: useTransform(dragX, (value) => -currentImageIndex * containerWidth + value),
+              }}
+              animate={{
+                x: -currentImageIndex * containerWidth,
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              {photos.map((photo, index) => (
+                <div
+                  key={photo.id || index}
+                  className="relative flex-shrink-0 h-full"
+                  style={{ width: containerWidth || '100vw' }}
+                  onClick={() => !isSwiping && handleOpenGallery()}
+                >
+                  <Image
+                    src={photo.url}
+                    alt={`${accommodation.roomName} - ${index + 1}`}
+                    fill
+                    sizes="100vw"
+                    className="object-cover pointer-events-none"
+                    priority={index <= currentImageIndex + 1}
+                  />
+                </div>
+              ))}
+            </motion.div>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
               <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
@@ -529,7 +545,7 @@ export function RoomDetailPage() {
               </span>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-6 pb-32 lg:pb-6">
