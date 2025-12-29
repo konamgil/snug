@@ -46,6 +46,13 @@ const houseRuleToGenderRule: Record<string, GenderRule> = {
   'Pets allowed': 'PET_ALLOWED',
 };
 
+// Quick filter ID → houseRules value mapping
+const quickFilterToHouseRule: Record<string, string> = {
+  womenOnly: 'Women Only',
+  menOnly: 'Men Only',
+  parking: 'parking', // parking은 별도 필터로 처리 필요
+};
+
 // API 응답 → Room 타입 변환
 function mapAccommodationToRoom(
   item: AccommodationListItem,
@@ -100,17 +107,19 @@ function SearchPageContent() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
   // Track selected room from map marker click (PC only)
   const [selectedMapRoomId, setSelectedMapRoomId] = useState<string | null>(null);
 
   const hasActiveFilters =
-    activeFilters !== null &&
-    (activeFilters.roomTypes.length > 0 ||
-      activeFilters.propertyTypes.length > 0 ||
-      activeFilters.apartmentSize !== null ||
-      activeFilters.houseRules.length > 0 ||
-      activeFilters.facilities.length > 0 ||
-      activeFilters.amenities.length > 0);
+    activeQuickFilters.length > 0 ||
+    (activeFilters !== null &&
+      (activeFilters.roomTypes.length > 0 ||
+        activeFilters.propertyTypes.length > 0 ||
+        activeFilters.apartmentSize !== null ||
+        activeFilters.houseRules.length > 0 ||
+        activeFilters.facilities.length > 0 ||
+        activeFilters.amenities.length > 0));
 
   // Search state - used for both header and mobile
   const [locationValue, setLocationValue] = useState(searchParams.get('location') || '');
@@ -171,6 +180,13 @@ function SearchPageContent() {
     }
   }, []);
 
+  // Quick filter toggle handler
+  const handleQuickFilterToggle = useCallback((filterId: string) => {
+    setActiveQuickFilters((prev) =>
+      prev.includes(filterId) ? prev.filter((f) => f !== filterId) : [...prev, filterId],
+    );
+  }, []);
+
   // 숙소 목록 가져오기
   const fetchAccommodations = useCallback(async () => {
     setIsLoading(true);
@@ -214,6 +230,22 @@ function SearchPageContent() {
         }
       }
 
+      // Quick filters (FilterBar chips) - merge with activeFilters
+      if (activeQuickFilters.length > 0) {
+        const quickFilterRules = activeQuickFilters
+          .map((filterId) => quickFilterToHouseRule[filterId])
+          .filter((rule): rule is string => !!rule && rule !== 'parking') // parking은 별도 처리
+          .map((rule) => houseRuleToGenderRule[rule])
+          .filter((genderRule): genderRule is GenderRule => !!genderRule);
+
+        if (quickFilterRules.length > 0) {
+          // Merge with existing genderRules
+          const existingRules = params.genderRules || [];
+          const mergedRules = [...new Set([...existingRules, ...quickFilterRules])];
+          params.genderRules = mergedRules;
+        }
+      }
+
       const result = await getPublicAccommodations(params);
       const nights = calculateNights();
       const mappedRooms = result.data.map((item: AccommodationListItem) =>
@@ -229,7 +261,16 @@ function SearchPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [locationValue, guests, sortOption, activeFilters, calculateNights, mapSortOption, locale]);
+  }, [
+    locationValue,
+    guests,
+    sortOption,
+    activeFilters,
+    activeQuickFilters,
+    calculateNights,
+    mapSortOption,
+    locale,
+  ]);
 
   // 초기 로딩 및 검색 조건 변경 시 데이터 fetch
   useEffect(() => {
@@ -351,6 +392,8 @@ function SearchPageContent() {
                 onViewChange={setView}
                 onFilterClick={() => setIsFilterModalOpen(true)}
                 hasActiveFilters={hasActiveFilters}
+                activeQuickFilters={activeQuickFilters}
+                onQuickFilterToggle={handleQuickFilterToggle}
               />
             )}
 
@@ -455,6 +498,15 @@ function SearchPageContent() {
         onClose={() => setIsFilterModalOpen(false)}
         onApply={(filters) => {
           setActiveFilters(filters);
+          // Sync quick filters with modal's houseRules
+          const newQuickFilters: string[] = [];
+          if (filters.houseRules.includes('Women Only')) {
+            newQuickFilters.push('womenOnly');
+          }
+          if (filters.houseRules.includes('Men Only')) {
+            newQuickFilters.push('menOnly');
+          }
+          setActiveQuickFilters(newQuickFilters);
           setIsFilterModalOpen(false);
         }}
       />
