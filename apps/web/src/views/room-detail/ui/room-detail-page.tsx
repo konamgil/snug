@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { motion, type PanInfo } from 'framer-motion';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
@@ -283,17 +284,9 @@ export function RoomDetailPage() {
   // Show map when loaded (even if there's an API key error, Google Maps will show)
   const shouldShowMap = isLoaded;
 
-  const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
-  };
-
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
-  };
-
-  const handleOpenGallery = () => {
-    router.push(`/${locale}/room/${roomId}/gallery`);
-  };
+  // Track if user is swiping to prevent gallery open
+  const [isSwiping, setIsSwiping] = useState(false);
+  const swipeStartTime = useRef<number>(0);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -330,6 +323,54 @@ export function RoomDetailPage() {
   const displayLng = accommodation?.longitude ?? roomData.lng;
   const photos = accommodation?.photos ?? [];
   const totalImages = photos.length;
+
+  // Image navigation handlers
+  const handlePrevImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
+  }, [totalImages]);
+
+  const handleNextImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
+  }, [totalImages]);
+
+  const handleDragStart = useCallback(() => {
+    swipeStartTime.current = Date.now();
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const swipeDuration = Date.now() - swipeStartTime.current;
+      const swipeThreshold = 50; // minimum distance for swipe
+      const velocityThreshold = 500; // minimum velocity for swipe
+
+      // Check if it's a swipe (fast enough or far enough)
+      const isSwipe =
+        Math.abs(info.offset.x) > swipeThreshold || Math.abs(info.velocity.x) > velocityThreshold;
+
+      if (isSwipe) {
+        setIsSwiping(true);
+        if (info.offset.x > 0 || info.velocity.x > velocityThreshold) {
+          // Swiped right -> previous image
+          handlePrevImage();
+        } else {
+          // Swiped left -> next image
+          handleNextImage();
+        }
+        // Reset swiping state after a short delay
+        setTimeout(() => setIsSwiping(false), 100);
+      } else if (swipeDuration < 200 && Math.abs(info.offset.x) < 10) {
+        // Short tap without much movement -> allow click
+        setIsSwiping(false);
+      }
+    },
+    [handlePrevImage, handleNextImage],
+  );
+
+  const handleOpenGallery = useCallback(() => {
+    if (!isSwiping) {
+      router.push(`/${locale}/room/${roomId}/gallery`);
+    }
+  }, [isSwiping, router, locale, roomId]);
 
   // Handle search from header - navigate to search page
   const handleHeaderSearch = (values: SearchBarValues) => {
@@ -386,10 +427,15 @@ export function RoomDetailPage() {
       <Header variant="with-search" onSearch={handleHeaderSearch} />
 
       {/* Mobile Image Gallery - Full Width with Overlay Buttons */}
-      <div className="lg:hidden relative">
-        <div
-          className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+      <div className="lg:hidden relative overflow-hidden">
+        <motion.div
+          className="relative aspect-[4/3] cursor-pointer"
           onClick={handleOpenGallery}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
         >
           {/* Photo or Placeholder */}
           {photos.length > 0 && photos[currentImageIndex] ? (
@@ -483,7 +529,7 @@ export function RoomDetailPage() {
               </span>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-6 pb-32 lg:pb-6">
