@@ -177,7 +177,25 @@ export function RoomDetailPage() {
 
   const initialCheckIn = parseDate(searchParams.get('checkIn'));
   const initialCheckOut = parseDate(searchParams.get('checkOut'));
-  const initialGuestCount = parseInt(searchParams.get('guests') || '1', 10);
+  // 개별 게스트 수 파라미터 읽기 (하위 호환성 유지)
+  const initialGuests = (() => {
+    const adultsParam = searchParams.get('adults');
+    const childrenParam = searchParams.get('children');
+    const infantsParam = searchParams.get('infants');
+
+    if (adultsParam !== null || childrenParam !== null || infantsParam !== null) {
+      return {
+        adults: adultsParam ? parseInt(adultsParam, 10) : 1,
+        children: childrenParam ? parseInt(childrenParam, 10) : 0,
+        infants: infantsParam ? parseInt(infantsParam, 10) : 0,
+      };
+    }
+
+    // 하위 호환성: 기존 guests 파라미터만 있는 경우
+    const guestsParam = searchParams.get('guests');
+    const guestCount = guestsParam ? parseInt(guestsParam, 10) : 1;
+    return { adults: guestCount, children: 0, infants: 0 };
+  })();
 
   // API data state
   const [accommodation, setAccommodation] = useState<AccommodationPublic | null>(null);
@@ -189,7 +207,7 @@ export function RoomDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [checkIn] = useState<Date | null>(initialCheckIn);
   const [checkOut] = useState<Date | null>(initialCheckOut);
-  const [guests] = useState<GuestCount>({ adults: initialGuestCount, children: 0, infants: 0 });
+  const [guests] = useState<GuestCount>(initialGuests);
   const [, setIsDateOpen] = useState(false);
   const [, setIsGuestOpen] = useState(false);
   const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
@@ -321,7 +339,12 @@ export function RoomDetailPage() {
     if (values.checkOut)
       searchParams.set('checkOut', values.checkOut.toISOString().substring(0, 10));
     const totalGuests = values.guests.adults + values.guests.children;
-    if (totalGuests > 0) searchParams.set('guests', totalGuests.toString());
+    if (totalGuests > 0) {
+      searchParams.set('guests', totalGuests.toString());
+      searchParams.set('adults', values.guests.adults.toString());
+      searchParams.set('children', values.guests.children.toString());
+      searchParams.set('infants', values.guests.infants.toString());
+    }
     i18nRouter.push(`/search?${searchParams.toString()}`);
   };
 

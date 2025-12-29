@@ -13,7 +13,6 @@ import {
   Settings,
   Users,
 } from 'lucide-react';
-import { CollapseIcon } from '@/shared/ui/icons';
 
 interface NavItem {
   labelKey: string;
@@ -61,10 +60,9 @@ const navItems: NavItem[] = [
 
 interface HostSidebarProps {
   isCollapsed?: boolean;
-  onToggle?: () => void;
 }
 
-export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
+export function HostSidebar({ isCollapsed }: HostSidebarProps) {
   const pathname = usePathname();
   const t = useTranslations('host.sidebar');
 
@@ -126,22 +124,6 @@ export function HostSidebar({ isCollapsed, onToggle }: HostSidebarProps) {
           ))}
         </ul>
       </nav>
-
-      {/* Collapse Toggle */}
-      {onToggle && (
-        <div className="p-2">
-          <button
-            type="button"
-            onClick={onToggle}
-            className="w-full flex items-center justify-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <CollapseIcon
-              className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
-      )}
     </aside>
   );
 }

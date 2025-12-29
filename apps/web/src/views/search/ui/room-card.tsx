@@ -71,10 +71,16 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
     const checkIn = searchParams.get('checkIn');
     const checkOut = searchParams.get('checkOut');
     const guests = searchParams.get('guests');
+    const adults = searchParams.get('adults');
+    const children = searchParams.get('children');
+    const infants = searchParams.get('infants');
 
     if (checkIn) params.set('checkIn', checkIn);
     if (checkOut) params.set('checkOut', checkOut);
     if (guests) params.set('guests', guests);
+    if (adults) params.set('adults', adults);
+    if (children) params.set('children', children);
+    if (infants) params.set('infants', infants);
 
     const queryString = params.toString();
     return `/${locale}/room/${room.id}${queryString ? `?${queryString}` : ''}`;

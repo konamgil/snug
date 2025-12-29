@@ -11,7 +11,10 @@ interface HostAuthGuardProps {
 /**
  * Guard component that protects host routes
  * - Not logged in → redirect to login
- * - Logged in (any role) → can access host dashboard
+ * - Logged in → can access host dashboard
+ *
+ * Note: Host/non-host routing is handled by the "Host Mode" button in the header.
+ * This guard only checks login status.
  */
 export function HostAuthGuard({ children }: HostAuthGuardProps) {
   const router = useRouter();

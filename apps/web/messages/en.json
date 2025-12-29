@@ -564,22 +564,27 @@
       "descriptionLine2": "No more back-and-forth communication—request, accept, and record everything automatically with just one click."
     },
     "eligibility": {
-      "title": "Can I register my space?",
-      "subtitle": "Anyone with a licensed accommodation or residential space available for 14+ day rentals can register.",
+      "titleHighlight": "My space",
+      "titleSuffix": " — can I register it?",
+      "subtitleLine1": "Anyone with a licensed accommodation or",
+      "subtitleLine2": "residential space available for 14+ day rentals can register.",
       "cards": {
         "0": {
           "title": "Short-term Accommodation",
-          "description": "Residential spaces with business permits like goshiwon, hotels, co-living"
+          "descriptionLine1": "Goshiwon, hotels, co-living, etc.",
+          "descriptionLine2": "Residential spaces with business permits"
         },
         "1": {
           "title": "Long-term Residential",
-          "description": "Residential spaces available for 14+ day rentals like officetel, studio, apartment, house"
+          "descriptionLine1": "Officetel, studio, apartment, house, etc.",
+          "descriptionLine2": "Spaces available for 14+ day rentals"
         }
       }
     },
     "cta": {
-      "subtitle": "Start your easier hosting journey with Snug",
-      "title": "Start your easier hosting journey with Snug",
+      "titlePrefix": "Start easier hosting with ",
+      "titleHighlight": "Snug",
+      "titleSuffix": "",
       "button": "Start Hosting"
     }
   },

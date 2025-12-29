@@ -8,7 +8,7 @@ export function ValueSection() {
   const t = useTranslations('hostIntro.value');
 
   return (
-    <section className="relative bg-white overflow-hidden">
+    <section className="relative bg-white overflow-x-clip">
       {/* Top orange stripe - full width */}
       <div
         className="h-3 w-full"
@@ -62,7 +62,6 @@ export function ValueSection() {
             </AnimateOnScroll>
 
             {/* Right - Buildings: starts 156px below orange bg bottom */}
-            {/* Left building: 524px, Right building: 654px */}
             <StaggerContainer
               staggerDelay={0.15}
               className="hidden lg:flex items-end gap-[26px] translate-y-[156px]"

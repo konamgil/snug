@@ -90,7 +90,7 @@ export function HeroSection() {
               <span className="inline-flex items-center">
                 [
                 <span
-                  className={`mx-1 font-extrabold ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
+                  className={`mx-1 font-extrabold min-w-[4rem] md:min-w-[5.5rem] text-center ${slides[currentSlide]?.textColor ?? ''} transition-all duration-300`}
                 >
                   {slides[currentSlide]?.keyword ?? ''}
                 </span>

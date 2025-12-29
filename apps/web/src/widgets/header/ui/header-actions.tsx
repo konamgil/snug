@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { User, Globe, X } from 'lucide-react';
 // import { ChatIcon } from '@/shared/ui/icons'; // TODO: 채팅 기능 오픈 시 활성화
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 // import { ChatModal } from '@/features/chat'; // TODO: 채팅 기능 오픈 시 활성화
 import { LanguageDropdown } from './language-dropdown';
+import { useAuthStore } from '@/shared/stores';
+import { getAccommodations } from '@/shared/api/accommodation';
 
 interface HeaderActionsProps {
   className?: string;
@@ -14,19 +16,45 @@ interface HeaderActionsProps {
 
 export function HeaderActions({ className }: HeaderActionsProps) {
   const t = useTranslations('home');
+  const router = useRouter();
+  const { user } = useAuthStore();
   // const [isChatOpen, setIsChatOpen] = useState(false); // TODO: 채팅 기능 오픈 시 활성화
   const [isLangOpen, setIsLangOpen] = useState(false);
+
+  const handleHostModeClick = async () => {
+    // Not logged in → redirect to login
+    if (!user) {
+      router.push('/login?redirect=/host');
+      return;
+    }
+
+    try {
+      const accommodations = await getAccommodations();
+      if (accommodations.length > 0) {
+        // Host → go to dashboard
+        router.push('/host');
+      } else {
+        // Not a host → go to intro
+        router.push('/host/intro');
+      }
+    } catch (error) {
+      console.error('[HeaderActions] Error checking host status:', error);
+      // On error, go to intro
+      router.push('/host/intro');
+    }
+  };
 
   return (
     <>
       <div className={`flex items-center gap-2.5 ${className ?? ''}`}>
         {/* Host Mode Button */}
-        <Link
-          href="/host"
+        <button
+          type="button"
+          onClick={handleHostModeClick}
           className="flex px-4 py-2 text-xs font-normal text-[hsl(var(--snug-brown))] border border-[hsl(var(--snug-brown))] rounded-full hover:bg-[hsl(var(--snug-brown))]/5 transition-colors whitespace-nowrap"
         >
           {t('hostMode')}
-        </Link>
+        </button>
 
         {/* My Page Button */}
         <Link

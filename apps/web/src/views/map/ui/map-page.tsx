@@ -134,7 +134,12 @@ function MapPageContent() {
     if (params.checkOut)
       newSearchParams.set('checkOut', params.checkOut.toISOString().substring(0, 10));
     const newTotalGuests = params.guests.adults + params.guests.children;
-    if (newTotalGuests > 0) newSearchParams.set('guests', newTotalGuests.toString());
+    if (newTotalGuests > 0) {
+      newSearchParams.set('guests', newTotalGuests.toString());
+      newSearchParams.set('adults', params.guests.adults.toString());
+      newSearchParams.set('children', params.guests.children.toString());
+      newSearchParams.set('infants', params.guests.infants.toString());
+    }
 
     router.push(`/map?${newSearchParams.toString()}`);
     setIsSearchModalOpen(false);

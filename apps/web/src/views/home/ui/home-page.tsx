@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { HeroBanner } from '@/widgets/hero-banner';
 import { MobileNav } from '@/widgets/mobile-nav';
+import { PromoBanner } from '@/widgets/promo-banner';
 import { SearchForm, SearchModal, SearchTrigger, type SearchParams } from '@/features/search';
 import { SnugLogo, ViewOnMapButton } from '@/shared/ui';
 
@@ -21,7 +22,12 @@ export function HomePage() {
     if (params.checkOut)
       searchParams.set('checkOut', params.checkOut.toISOString().substring(0, 10));
     const totalGuests = params.guests.adults + params.guests.children;
-    if (totalGuests > 0) searchParams.set('guests', totalGuests.toString());
+    if (totalGuests > 0) {
+      searchParams.set('guests', totalGuests.toString());
+      searchParams.set('adults', params.guests.adults.toString());
+      searchParams.set('children', params.guests.children.toString());
+      searchParams.set('infants', params.guests.infants.toString());
+    }
 
     // Navigate to search page
     router.push(`/search?${searchParams.toString()}`);
@@ -30,6 +36,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <PromoBanner />
       <Header />
 
       <main className="flex-1 flex flex-col items-center px-5 md:px-4 pt-[15vh] md:pt-[18vh] pb-28 md:pb-24">

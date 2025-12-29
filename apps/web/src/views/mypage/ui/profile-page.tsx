@@ -119,13 +119,10 @@ export function ProfilePage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // PC에서 로그인 안 된 경우 바로 로그인 페이지로 리다이렉트
+  // 로그인 안 된 경우 바로 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (isInitialized && !user) {
-      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      if (isDesktop) {
-        router.push('/login');
-      }
+      router.push('/login');
     }
   }, [isInitialized, user, router]);
 
@@ -328,24 +325,12 @@ export function ProfilePage() {
     );
   }
 
-  // 로그인 안 된 상태
+  // 로그인 안 된 상태 - 리다이렉트 중 로딩 표시
   if (!user) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="hidden md:block">
-          <Header showLogo />
-        </div>
-        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-          <p className="text-[hsl(var(--snug-gray))]">
-            {t('loginRequired') || '로그인이 필요합니다.'}
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push('/login')}
-            className="px-6 py-3 bg-[hsl(var(--snug-orange))] text-white rounded-2xl text-sm font-medium"
-          >
-            {t('goToLogin') || '로그인하기'}
-          </button>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
         </div>
       </div>
     );

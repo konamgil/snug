@@ -123,6 +123,20 @@ function SearchPageContent() {
     return checkOutParam ? new Date(checkOutParam) : null;
   });
   const [guests, setGuests] = useState<GuestCount>(() => {
+    const adultsParam = searchParams.get('adults');
+    const childrenParam = searchParams.get('children');
+    const infantsParam = searchParams.get('infants');
+
+    // 개별 파라미터가 있으면 사용, 없으면 기존 guests 파라미터로 fallback (하위 호환성)
+    if (adultsParam !== null || childrenParam !== null || infantsParam !== null) {
+      return {
+        adults: adultsParam ? parseInt(adultsParam, 10) : 0,
+        children: childrenParam ? parseInt(childrenParam, 10) : 0,
+        infants: infantsParam ? parseInt(infantsParam, 10) : 0,
+      };
+    }
+
+    // 하위 호환성: 기존 guests 파라미터만 있는 경우
     const guestsParam = searchParams.get('guests');
     const guestCount = guestsParam ? parseInt(guestsParam, 10) : 0;
     return { adults: guestCount, children: 0, infants: 0 };
@@ -236,7 +250,12 @@ function SearchPageContent() {
     if (values.checkOut)
       newSearchParams.set('checkOut', values.checkOut.toISOString().substring(0, 10));
     const newTotalGuests = values.guests.adults + values.guests.children;
-    if (newTotalGuests > 0) newSearchParams.set('guests', newTotalGuests.toString());
+    if (newTotalGuests > 0) {
+      newSearchParams.set('guests', newTotalGuests.toString());
+      newSearchParams.set('adults', values.guests.adults.toString());
+      newSearchParams.set('children', values.guests.children.toString());
+      newSearchParams.set('infants', values.guests.infants.toString());
+    }
 
     // Update local state
     setLocationValue(values.location);
@@ -257,7 +276,12 @@ function SearchPageContent() {
     if (params.checkOut)
       newSearchParams.set('checkOut', params.checkOut.toISOString().substring(0, 10));
     const newTotalGuests = params.guests.adults + params.guests.children;
-    if (newTotalGuests > 0) newSearchParams.set('guests', newTotalGuests.toString());
+    if (newTotalGuests > 0) {
+      newSearchParams.set('guests', newTotalGuests.toString());
+      newSearchParams.set('adults', params.guests.adults.toString());
+      newSearchParams.set('children', params.guests.children.toString());
+      newSearchParams.set('infants', params.guests.infants.toString());
+    }
 
     // Update local state
     setLocationValue(params.location);
