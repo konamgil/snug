@@ -1,9 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Mail, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/shared/stores';
+
+type LoginMethod = 'google' | 'apple' | 'kakao' | 'facebook' | 'email';
+
+const RECENT_LOGIN_KEY = 'snug_recent_login';
+
+function getRecentLoginMethod(): LoginMethod | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(RECENT_LOGIN_KEY) as LoginMethod | null;
+}
+
+function setRecentLoginMethod(method: LoginMethod): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(RECENT_LOGIN_KEY, method);
+}
 
 interface SocialLoginButtonsProps {
   onEmailClick: () => void;
@@ -99,10 +113,17 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const signInWithKakao = useAuthStore((state) => state.signInWithKakao);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recentMethod, setRecentMethod] = useState<LoginMethod | null>(null);
+
+  // Load recent login method from localStorage on mount
+  useEffect(() => {
+    setRecentMethod(getRecentLoginMethod());
+  }, []);
 
   const handleGoogleLogin = async () => {
     setLoadingProvider('google');
     setError(null);
+    setRecentLoginMethod('google');
     const { error } = await signInWithGoogle();
     if (error) {
       setError(error.message);
@@ -118,6 +139,7 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const handleKakaoLogin = async () => {
     setLoadingProvider('kakao');
     setError(null);
+    setRecentLoginMethod('kakao');
     const { error } = await signInWithKakao();
     if (error) {
       setError(error.message);
@@ -130,36 +152,50 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     setError('Facebook login is not available yet');
   };
 
+  const handleEmailClick = () => {
+    setRecentLoginMethod('email');
+    onEmailClick();
+  };
+
   const isLoading = loadingProvider !== null;
 
   return (
     <div className="space-y-3">
-      {error && (
-        <p className="text-sm text-red-500 text-center px-1">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-500 text-center px-1">{error}</p>}
       <SocialButton
-        icon={loadingProvider === 'google' ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
+        icon={
+          loadingProvider === 'google' ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <GoogleIcon />
+          )
+        }
         label={t('continueWithGoogle')}
         onClick={handleGoogleLogin}
-        badge="recent"
+        badge={recentMethod === 'google' ? 'recent' : undefined}
         disabled={isLoading}
       />
       <SocialButton
         icon={<AppleIcon />}
         label={t('continueWithApple')}
         onClick={handleAppleLogin}
+        badge={recentMethod === 'apple' ? 'recent' : undefined}
         disabled={isLoading}
       />
       <SocialButton
-        icon={loadingProvider === 'kakao' ? <Loader2 className="w-5 h-5 animate-spin" /> : <KakaoIcon />}
+        icon={
+          loadingProvider === 'kakao' ? <Loader2 className="w-5 h-5 animate-spin" /> : <KakaoIcon />
+        }
         label={t('continueWithKakao')}
         onClick={handleKakaoLogin}
+        badge={recentMethod === 'kakao' ? 'recent' : undefined}
         disabled={isLoading}
       />
       <SocialButton
         icon={<FacebookIcon />}
         label={t('continueWithFacebook')}
         onClick={handleFacebookLogin}
+        badge={recentMethod === 'facebook' ? 'recent' : undefined}
         disabled={isLoading}
       />
 
@@ -174,7 +210,8 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
       <SocialButton
         icon={<Mail className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />}
         label={t('continueWithEmail')}
-        onClick={onEmailClick}
+        onClick={handleEmailClick}
+        badge={recentMethod === 'email' ? 'recent' : undefined}
         disabled={isLoading}
       />
     </div>

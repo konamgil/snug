@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
 import { InquiryDetailPanel, type InquiryDetailData } from './inquiry-detail-panel';
 import { InquiryChatView } from './inquiry-chat-view';
+import { ComingSoonOverlay } from '../coming-soon-overlay';
 
 type InquiryType = 'cleaning' | 'repair' | 'bedding';
 type InquiryStatus = 'received' | 'in_progress' | 'completed';
@@ -232,91 +233,96 @@ export function OperationsPage() {
   };
 
   return (
-    <div className="flex h-full">
-      {/* Main Content */}
-      <div
-        className={`flex-1 bg-white overflow-auto transition-all ${selectedInquiry ? 'mr-[354px]' : ''}`}
-      >
-        {showChatView && selectedInquiry ? (
-          <InquiryChatView guestName={selectedInquiry.questioner} onClose={handleCloseChat} />
-        ) : (
-          <div className="p-5">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-1">
-                <h2 className="text-lg font-bold text-black">{t('customerInquiry')}</h2>
-                <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">
-                  {filteredInquiries.length}
-                </span>
-              </div>
-              <button type="button" className="p-2 hover:bg-[#f4f4f4] rounded-lg transition-colors">
-                <Search className="w-4 h-4 text-[#161616]" />
-              </button>
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-3.5 mb-6">
-              {filterTabs.map((tab) => (
-                <FilterTabButton
-                  key={tab.key}
-                  active={selectedFilter === tab.key}
-                  label={tab.label}
-                  onClick={() => setSelectedFilter(tab.key)}
-                />
-              ))}
-            </div>
-
-            {/* Table Header */}
-            <div className="flex items-center text-xs font-bold text-black mb-2 px-0.5">
-              <div className="w-[60px]">{tTable('receivedDate')}</div>
-              <div className="w-[70px]">{tTable('questioner')}</div>
-              <div className="flex-1">{tTable('inquiryContent')}</div>
-              <div className="w-[70px] text-center">{tTable('inquiryType')}</div>
-              <div className="w-[60px] text-center">{tTable('processedDate')}</div>
-            </div>
-            <div className="border-t border-[#a8a8a8] mb-2" />
-
-            {/* Table Body */}
-            <div className="space-y-0">
-              {filteredInquiries.map((inquiry) => (
-                <div
-                  key={inquiry.id}
-                  onClick={() => handleRowClick(inquiry)}
-                  className={`flex items-center py-3 px-0.5 border-b border-[#f0f0f0] cursor-pointer hover:bg-[#f4f4f4] transition-colors ${
-                    selectedInquiry?.id === inquiry.id ? 'bg-[#f4f4f4]' : ''
-                  }`}
-                >
-                  <div className="w-[60px] text-xs text-black">{inquiry.receivedDate}</div>
-                  <div className="w-[70px] text-xs text-black">{inquiry.questioner}</div>
-                  <div className="flex-1 text-xs text-black pr-4 line-clamp-2">
-                    {inquiry.content}
-                  </div>
-                  <div className="w-[70px] flex justify-center">
-                    <InquiryTypeBadge
-                      type={inquiry.type}
-                      label={getInquiryTypeLabel(inquiry.type)}
-                    />
-                  </div>
-                  <div className="w-[60px] text-xs text-black text-center">
-                    {inquiry.processedDate}
-                  </div>
+    <ComingSoonOverlay>
+      <div className="flex h-full">
+        {/* Main Content */}
+        <div
+          className={`flex-1 bg-white overflow-auto transition-all ${selectedInquiry ? 'mr-[354px]' : ''}`}
+        >
+          {showChatView && selectedInquiry ? (
+            <InquiryChatView guestName={selectedInquiry.questioner} onClose={handleCloseChat} />
+          ) : (
+            <div className="p-5">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-1">
+                  <h2 className="text-lg font-bold text-black">{t('customerInquiry')}</h2>
+                  <span className="text-lg font-bold text-[hsl(var(--snug-orange))]">
+                    {filteredInquiries.length}
+                  </span>
                 </div>
-              ))}
+                <button
+                  type="button"
+                  className="p-2 hover:bg-[#f4f4f4] rounded-lg transition-colors"
+                >
+                  <Search className="w-4 h-4 text-[#161616]" />
+                </button>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-3.5 mb-6">
+                {filterTabs.map((tab) => (
+                  <FilterTabButton
+                    key={tab.key}
+                    active={selectedFilter === tab.key}
+                    label={tab.label}
+                    onClick={() => setSelectedFilter(tab.key)}
+                  />
+                ))}
+              </div>
+
+              {/* Table Header */}
+              <div className="flex items-center text-xs font-bold text-black mb-2 px-0.5">
+                <div className="w-[60px]">{tTable('receivedDate')}</div>
+                <div className="w-[70px]">{tTable('questioner')}</div>
+                <div className="flex-1">{tTable('inquiryContent')}</div>
+                <div className="w-[70px] text-center">{tTable('inquiryType')}</div>
+                <div className="w-[60px] text-center">{tTable('processedDate')}</div>
+              </div>
+              <div className="border-t border-[#a8a8a8] mb-2" />
+
+              {/* Table Body */}
+              <div className="space-y-0">
+                {filteredInquiries.map((inquiry) => (
+                  <div
+                    key={inquiry.id}
+                    onClick={() => handleRowClick(inquiry)}
+                    className={`flex items-center py-3 px-0.5 border-b border-[#f0f0f0] cursor-pointer hover:bg-[#f4f4f4] transition-colors ${
+                      selectedInquiry?.id === inquiry.id ? 'bg-[#f4f4f4]' : ''
+                    }`}
+                  >
+                    <div className="w-[60px] text-xs text-black">{inquiry.receivedDate}</div>
+                    <div className="w-[70px] text-xs text-black">{inquiry.questioner}</div>
+                    <div className="flex-1 text-xs text-black pr-4 line-clamp-2">
+                      {inquiry.content}
+                    </div>
+                    <div className="w-[70px] flex justify-center">
+                      <InquiryTypeBadge
+                        type={inquiry.type}
+                        label={getInquiryTypeLabel(inquiry.type)}
+                      />
+                    </div>
+                    <div className="w-[60px] text-xs text-black text-center">
+                      {inquiry.processedDate}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+        </div>
+
+        {/* Detail Panel */}
+        {selectedInquiry && (
+          <div className="fixed right-0 top-12 bottom-0 w-[354px] border-l border-[#e0e0e0] bg-white z-10">
+            <InquiryDetailPanel
+              data={getDetailData(selectedInquiry)}
+              onClose={handleClosePanel}
+              onChat={handleOpenChat}
+            />
           </div>
         )}
       </div>
-
-      {/* Detail Panel */}
-      {selectedInquiry && (
-        <div className="fixed right-0 top-12 bottom-0 w-[354px] border-l border-[#e0e0e0] bg-white z-10">
-          <InquiryDetailPanel
-            data={getDetailData(selectedInquiry)}
-            onClose={handleClosePanel}
-            onChat={handleOpenChat}
-          />
-        </div>
-      )}
-    </div>
+    </ComingSoonOverlay>
   );
 }

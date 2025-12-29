@@ -3,6 +3,7 @@ export { HostSidebar } from './ui/host-sidebar';
 export { HostHeader } from './ui/host-header';
 export { HostAuthGuard } from './ui/host-auth-guard';
 export { DashboardPage, DashboardEmptyPage } from './ui/dashboard-page';
+export { ComingSoonOverlay } from './ui/coming-soon-overlay';
 export { HostIntroPage } from './ui/intro';
 export * from './ui/dashboard';
 export * from './ui/contracts';

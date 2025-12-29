@@ -132,9 +132,12 @@ export function DashboardPage() {
             <div className="pt-4 border-t border-gray-100">
               <p className="text-xs text-gray-500">
                 {t('comingSoonContact')} :{' '}
-                <span className="text-[hsl(var(--snug-orange))] font-medium">
+                <a
+                  href={`mailto:${t('comingSoonEmail')}`}
+                  className="text-[hsl(var(--snug-orange))] font-medium hover:underline"
+                >
                   {t('comingSoonEmail')}
-                </span>
+                </a>
               </p>
             </div>
           </div>

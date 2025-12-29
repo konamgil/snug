@@ -250,85 +250,89 @@ export function AccommodationListPage() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* List Section */}
-        <div className={`${selectedItem ? 'hidden md:block md:flex-1' : 'flex-1'} overflow-hidden`}>
-          <AccommodationList
-            items={items}
-            selectedId={selectedItem?.id}
-            onSelect={handleSelect}
-            onNewAccommodation={handleNewAccommodation}
-            onGroupManage={handleGroupManage}
-            onBulkStatusChange={handleBulkStatusChange}
-            onBulkDelete={handleBulkDelete}
-          />
-        </div>
-
-        {/* Detail Panel - Desktop */}
-        {selectedItem && (
-          <div className="hidden md:block w-[380px] flex-shrink-0">
-            <AccommodationListDetail
-              item={selectedItem}
-              onClose={handleCloseDetail}
-              onEditInfo={handleEditInfo}
-              onManagePricing={handleManagePricing}
+    <ComingSoonOverlay>
+      <div className="h-full flex flex-col bg-white">
+        {/* Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* List Section */}
+          <div
+            className={`${selectedItem ? 'hidden md:block md:flex-1' : 'flex-1'} overflow-hidden`}
+          >
+            <AccommodationList
+              items={items}
+              selectedId={selectedItem?.id}
+              onSelect={handleSelect}
+              onNewAccommodation={handleNewAccommodation}
+              onGroupManage={handleGroupManage}
+              onBulkStatusChange={handleBulkStatusChange}
+              onBulkDelete={handleBulkDelete}
             />
           </div>
-        )}
 
-        {/* Detail Panel - Mobile (Full Screen) */}
-        {selectedItem && (
-          <div className="md:hidden fixed inset-0 z-50 bg-white">
-            <div className="h-full flex flex-col">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-[hsl(var(--snug-border))]">
-                <button
-                  type="button"
-                  onClick={handleCloseDetail}
-                  className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <span className="font-bold">숙소 상세</span>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <AccommodationListDetail
-                  item={selectedItem}
-                  onClose={handleCloseDetail}
-                  onEditInfo={handleEditInfo}
-                  onManagePricing={handleManagePricing}
-                />
+          {/* Detail Panel - Desktop */}
+          {selectedItem && (
+            <div className="hidden md:block w-[380px] flex-shrink-0">
+              <AccommodationListDetail
+                item={selectedItem}
+                onClose={handleCloseDetail}
+                onEditInfo={handleEditInfo}
+                onManagePricing={handleManagePricing}
+              />
+            </div>
+          )}
+
+          {/* Detail Panel - Mobile (Full Screen) */}
+          {selectedItem && (
+            <div className="md:hidden fixed inset-0 z-50 bg-white">
+              <div className="h-full flex flex-col">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-[hsl(var(--snug-border))]">
+                  <button
+                    type="button"
+                    onClick={handleCloseDetail}
+                    className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <span className="font-bold">숙소 상세</span>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <AccommodationListDetail
+                    item={selectedItem}
+                    onClose={handleCloseDetail}
+                    onEditInfo={handleEditInfo}
+                    onManagePricing={handleManagePricing}
+                  />
+                </div>
               </div>
             </div>
+          )}
+        </div>
+
+        {/* Group Management Modal */}
+        <GroupManagementModal
+          isOpen={isGroupModalOpen}
+          onClose={() => setIsGroupModalOpen(false)}
+          groups={groups}
+          accommodations={accommodationSimples}
+          onSave={handleGroupSave}
+        />
+
+        {/* Toast Notification */}
+        {showToast && (
+          <div
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+              toastType === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`}
+          >
+            {toastType === 'success' ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <AlertCircle className="w-4 h-4" />
+            )}
+            {toastMessage}
           </div>
         )}
       </div>
-
-      {/* Group Management Modal */}
-      <GroupManagementModal
-        isOpen={isGroupModalOpen}
-        onClose={() => setIsGroupModalOpen(false)}
-        groups={groups}
-        accommodations={accommodationSimples}
-        onSave={handleGroupSave}
-      />
-
-      {/* Toast Notification */}
-      {showToast && (
-        <div
-          className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 text-white text-sm rounded-lg shadow-lg z-50 flex items-center gap-2 ${
-            toastType === 'success' ? 'bg-green-600' : 'bg-red-600'
-          }`}
-        >
-          {toastType === 'success' ? (
-            <Check className="w-4 h-4" />
-          ) : (
-            <AlertCircle className="w-4 h-4" />
-          )}
-          {toastMessage}
-        </div>
-      )}
-    </div>
+    </ComingSoonOverlay>
   );
 }
