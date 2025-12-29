@@ -191,7 +191,7 @@ export function PhoneVerificationModal({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-[400px] bg-white rounded-2xl p-6 shadow-xl">
+      <div className="relative w-full max-w-[400px] bg-white rounded-2xl p-5 sm:p-6 shadow-xl mx-4">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -214,7 +214,7 @@ export function PhoneVerificationModal({
         </p>
 
         {/* OTP Inputs */}
-        <div className="flex justify-center gap-2 mb-4">
+        <div className="flex justify-center gap-1.5 sm:gap-2 mb-4">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -228,7 +228,7 @@ export function PhoneVerificationModal({
               onChange={(e) => handleInputChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               disabled={isLoading || isVerified}
-              className={`w-12 h-14 text-center text-xl font-semibold border rounded-xl transition-all
+              className={`w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold border rounded-xl transition-all
                 ${
                   isVerified
                     ? 'border-green-500 bg-green-50 text-green-600'

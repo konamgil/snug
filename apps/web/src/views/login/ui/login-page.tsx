@@ -15,7 +15,7 @@ export function LoginPage() {
   const [view, setView] = useState<LoginView>('social');
 
   return (
-    <div className="min-h-screen flex flex-col bg-white relative">
+    <div className="min-h-screen flex flex-col bg-white relative overflow-y-auto no-scrollbar">
       {/* Back Button - Top Left */}
       {view === 'email' && (
         <button
