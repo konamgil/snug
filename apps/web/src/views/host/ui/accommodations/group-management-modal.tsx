@@ -37,7 +37,7 @@ export function GroupManagementModal({
 }: GroupManagementModalProps) {
   const [localGroups, setLocalGroups] = useState<GroupItem[]>(() => [...groups]);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
-    groups.length > 0 ? groups[0].id : null,
+    groups.length > 0 ? (groups[0]?.id ?? null) : null,
   );
   const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -121,7 +121,7 @@ export function GroupManagementModal({
 
     // 삭제된 그룹이 선택된 상태였다면 첫 번째 그룹 선택
     if (selectedGroupId === groupId) {
-      setSelectedGroupId(newGroups.length > 0 ? newGroups[0].id : null);
+      setSelectedGroupId(newGroups.length > 0 ? (newGroups[0]?.id ?? null) : null);
     }
   };
 
@@ -326,21 +326,6 @@ export function GroupManagementModal({
                                 : 'hover:bg-[hsl(var(--snug-light-gray))]/50 border-l-3 border-l-transparent'
                             }`}
                           >
-                            {/* 썸네일 */}
-                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
-                              {acc.thumbnailUrl ? (
-                                <img
-                                  src={acc.thumbnailUrl}
-                                  alt={acc.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[hsl(var(--snug-gray))] text-lg">
-                                  🏠
-                                </div>
-                              )}
-                            </div>
-
                             {/* 숙소 정보 */}
                             <div className="flex-1 text-left">
                               <span
