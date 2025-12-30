@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ChevronDown } from 'lucide-react';
 import { FilterIcon, GridViewIcon, ListViewIcon } from '@/shared/ui/icons';
+import { RoomTypeDropdown, type RoomTypeOption } from './room-type-dropdown';
 
 interface FilterBarProps {
   onViewChange?: (view: 'grid' | 'list') => void;
@@ -11,6 +11,8 @@ interface FilterBarProps {
   hasActiveFilters?: boolean;
   activeQuickFilters?: string[];
   onQuickFilterToggle?: (filterId: string) => void;
+  roomType?: RoomTypeOption;
+  onRoomTypeChange?: (value: RoomTypeOption) => void;
 }
 
 export function FilterBar({
@@ -20,6 +22,8 @@ export function FilterBar({
   hasActiveFilters = false,
   activeQuickFilters = [],
   onQuickFilterToggle,
+  roomType = 'all',
+  onRoomTypeChange,
 }: FilterBarProps) {
   const t = useTranslations('search.filters');
 
@@ -45,13 +49,10 @@ export function FilterBar({
       </button>
 
       {/* Room Type Dropdown */}
-      <button
-        type="button"
-        className="flex items-center gap-1.5 px-3 py-1.5 border border-[hsl(var(--snug-border))] rounded-full text-xs hover:border-[hsl(var(--snug-gray))] transition-colors whitespace-nowrap"
-      >
-        {t('roomType')}
-        <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />
-      </button>
+      <RoomTypeDropdown
+        value={roomType}
+        onChange={(value) => onRoomTypeChange?.(value)}
+      />
 
       {/* Filter Pills */}
       {filters.map((filter) => (

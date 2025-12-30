@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AccommodationsModule } from './modules/accommodations/accommodations.module';
 import { ExchangeRatesModule } from './modules/exchange-rates/exchange-rates.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -43,6 +44,9 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 
     // Database
     PrismaModule,
+
+    // Global modules
+    StorageModule,
 
     // Feature modules
     AuthModule,

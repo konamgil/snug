@@ -191,7 +191,7 @@
   },
   "auth": {
     "login": {
-      "title": "登录您的账户",
+      "title": "登录或注册",
       "email": "邮箱",
       "password": "密码",
       "forgotPassword": "忘记ID或密码？",
@@ -211,7 +211,10 @@
       "staySignedIn": "保持登录状态",
       "continue": "继续",
       "signUp": "注册",
-      "incorrectCredentials": "邮箱或密码错误，请重试。"
+      "incorrectCredentials": "邮箱或密码错误，请重试。",
+      "useSocialLogin": "该邮箱已通过{provider}注册。请使用{provider}登录。",
+      "emailAlreadyRegistered": "该邮箱已通过其他方式注册。请使用邮箱登录。",
+      "authError": "登录时发生错误，请重试。"
     },
     "signup": {
       "title": "创建账号",

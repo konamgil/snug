@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { SocialLoginButtons } from '@/features/auth';
 import { EmailLoginForm } from '@/features/auth';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -13,7 +14,26 @@ type LoginView = 'social' | 'email';
 export function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [view, setView] = useState<LoginView>('social');
+  const [callbackError, setCallbackError] = useState<string | null>(null);
+
+  // URL 파라미터에서 에러 확인
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      if (error === 'email_already_registered') {
+        setCallbackError(t('login.emailAlreadyRegistered'));
+      } else if (error === 'auth_callback_error') {
+        setCallbackError(t('login.authError'));
+      }
+
+      // URL에서 에러 파라미터 제거
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams, t]);
 
   const handleBackClick = () => {
     if (view === 'email') {
@@ -24,7 +44,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white relative overflow-y-auto no-scrollbar">
+    <div className="min-h-dvh flex flex-col bg-white relative overflow-y-auto no-scrollbar">
       {/* Back Button - Top Left */}
       <button
         type="button"
@@ -50,6 +70,13 @@ export function LoginPage() {
         <h1 className="text-base font-bold text-[hsl(var(--snug-text-primary))] mb-6">
           {t('login.title')}
         </h1>
+
+        {/* Callback Error Message */}
+        {callbackError && (
+          <div className="w-full max-w-[400px] mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600 text-center">{callbackError}</p>
+          </div>
+        )}
 
         {/* Login Content */}
         <div className="w-full max-w-[400px]">

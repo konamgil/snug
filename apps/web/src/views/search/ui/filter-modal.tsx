@@ -23,11 +23,13 @@ export interface FilterState {
 
 const APARTMENT_SIZES = ['≥58㎡', '≥82㎡', '≥92㎡'];
 
+const BUDGET_MAX_VALUE = 10000;
+
 const DEFAULT_FILTERS: FilterState = {
   roomTypes: [],
   propertyTypes: [],
-  budgetMin: 210,
-  budgetMax: 920,
+  budgetMin: 0,
+  budgetMax: BUDGET_MAX_VALUE,
   apartmentSize: null,
   houseRules: [],
   facilities: [],
@@ -183,19 +185,20 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
           <div
             className="absolute h-full bg-[hsl(var(--snug-orange))] rounded-full"
             style={{
-              left: `${(filters.budgetMin / 1000) * 100}%`,
-              right: `${100 - (filters.budgetMax / 1000) * 100}%`,
+              left: `${(filters.budgetMin / BUDGET_MAX_VALUE) * 100}%`,
+              right: `${100 - (filters.budgetMax / BUDGET_MAX_VALUE) * 100}%`,
             }}
           />
           <input
             type="range"
             min="0"
-            max="1000"
+            max={BUDGET_MAX_VALUE}
+            step="100"
             value={filters.budgetMin}
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
-                budgetMin: Math.min(Number(e.target.value), prev.budgetMax - 50),
+                budgetMin: Math.min(Number(e.target.value), prev.budgetMax - 100),
               }))
             }
             className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:pointer-events-auto"
@@ -203,12 +206,13 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
           <input
             type="range"
             min="0"
-            max="1000"
+            max={BUDGET_MAX_VALUE}
+            step="100"
             value={filters.budgetMax}
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
-                budgetMax: Math.max(Number(e.target.value), prev.budgetMin + 50),
+                budgetMax: Math.max(Number(e.target.value), prev.budgetMin + 100),
               }))
             }
             className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[hsl(var(--snug-orange))] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:pointer-events-auto"

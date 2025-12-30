@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Check, AlertCircle } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
@@ -21,6 +22,14 @@ import type { AccommodationFormData, AccommodationType, BuildingType, GenderRule
 import { DEFAULT_FORM_DATA } from './types';
 import type { GroupItem } from './group-management-modal';
 import { useBreadcrumb } from '../host-breadcrumb-context';
+import {
+  hasDraft,
+  getDraft,
+  saveDraft,
+  clearDraft,
+  getDraftTimestamp,
+  formatDraftTime,
+} from '../../lib/accommodation-draft';
 
 interface AccommodationPageFooterProps {
   onDelete?: () => void;
@@ -84,6 +93,50 @@ function AccommodationPageFooter({
         >
           {isSaving ? t('saving') : t('save')}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Draft Recovery Banner Component
+interface DraftRecoveryBannerProps {
+  timestamp: number;
+  locale: string;
+  onRestore: () => void;
+  onDiscard: () => void;
+}
+
+function DraftRecoveryBanner({ timestamp, locale, onRestore, onDiscard }: DraftRecoveryBannerProps) {
+  const t = useTranslations('host.accommodation.page');
+  const timeStr = formatDraftTime(timestamp, locale);
+
+  return (
+    <div className="bg-[hsl(var(--snug-orange))]/10 border border-[hsl(var(--snug-orange))]/30 rounded-lg p-4 mb-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
+            {t('draftRecoveryTitle')}
+          </p>
+          <p className="text-xs text-[hsl(var(--snug-gray))] mt-1">
+            {t('draftRecoveryMessage', { time: timeStr })}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onDiscard}
+            className="px-3 py-1.5 text-xs font-medium text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))] transition-colors"
+          >
+            {t('draftRecoveryDiscard')}
+          </button>
+          <button
+            type="button"
+            onClick={onRestore}
+            className="px-3 py-1.5 text-xs font-medium text-white bg-[hsl(var(--snug-orange))] rounded hover:opacity-90 transition-opacity"
+          >
+            {t('draftRecoveryRestore')}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -338,15 +391,25 @@ function accommodationToFormData(acc: Accommodation, groupName?: string): Accomm
   };
 }
 
+// Auto-save debounce delay (5 seconds)
+const AUTO_SAVE_DELAY = 5000;
+
 // New Accommodation Page
 export function AccommodationNewPage() {
   const router = useRouter();
   const t = useTranslations('host.accommodation.page');
+  const locale = useLocale();
   const { user, refreshUser } = useAuthStore();
   const { setBreadcrumb, setHeaderActions } = useBreadcrumb();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Draft recovery state
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [draftTimestamp, setDraftTimestamp] = useState<number | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInitializedRef = useRef(false);
 
   // Toast 상태
   const [showToast, setShowToast] = useState(false);
@@ -446,6 +509,70 @@ export function AccommodationNewPage() {
     loadGroups();
   }, [user?.id, showToastMessage]);
 
+  // Check for saved draft on mount
+  useEffect(() => {
+    if (hasDraft()) {
+      const timestamp = getDraftTimestamp();
+      if (timestamp) {
+        setDraftTimestamp(timestamp);
+        setShowDraftBanner(true);
+      }
+    }
+    isInitializedRef.current = true;
+  }, []);
+
+  // Auto-save draft on form change (debounced)
+  useEffect(() => {
+    // Skip auto-save until initialized and banner is dismissed
+    if (!isInitializedRef.current || showDraftBanner) return;
+
+    // Clear previous timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout for auto-save
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft(formData);
+    }, AUTO_SAVE_DELAY);
+
+    // Cleanup
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, showDraftBanner]);
+
+  // Save draft on page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isInitializedRef.current && !showDraftBanner) {
+        saveDraft(formData);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [formData, showDraftBanner]);
+
+  // Handle draft restore
+  const handleRestoreDraft = useCallback(() => {
+    const draft = getDraft();
+    if (draft) {
+      setFormData(draft);
+    }
+    setShowDraftBanner(false);
+  }, []);
+
+  // Handle draft discard
+  const handleDiscardDraft = useCallback(() => {
+    clearDraft();
+    setShowDraftBanner(false);
+  }, []);
+
   const handleSave = async () => {
     if (!user?.id) return;
 
@@ -518,6 +645,9 @@ export function AccommodationNewPage() {
       if (roleUpgraded) {
         await refreshUser();
       }
+
+      // Clear draft on successful save
+      clearDraft();
 
       // Navigate to properties list
       router.push('/host/properties');
@@ -593,6 +723,9 @@ export function AccommodationNewPage() {
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
       });
 
+      // Clear draft on successful save
+      clearDraft();
+
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save draft:', error);
@@ -645,6 +778,16 @@ export function AccommodationNewPage() {
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-6">
+          {/* Draft Recovery Banner */}
+          {showDraftBanner && draftTimestamp && (
+            <DraftRecoveryBanner
+              timestamp={draftTimestamp}
+              locale={locale}
+              onRestore={handleRestoreDraft}
+              onDiscard={handleDiscardDraft}
+            />
+          )}
+
           <AccommodationForm
             initialData={formData}
             onChange={setFormData}
@@ -698,6 +841,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
   const router = useRouter();
   const t = useTranslations('host.accommodation.page');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { user } = useAuthStore();
   const { setBreadcrumb, setHeaderActions } = useBreadcrumb();
   const [formData, setFormData] = useState<AccommodationFormData>(DEFAULT_FORM_DATA);
@@ -706,6 +850,12 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Draft recovery state
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [draftTimestamp, setDraftTimestamp] = useState<number | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInitializedRef = useRef(false);
 
   // Toast 상태
   const [showToast, setShowToast] = useState(false);
@@ -830,6 +980,72 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     loadData();
   }, [accommodationId, router, showToastMessage]);
 
+  // Check for saved draft after data is loaded
+  useEffect(() => {
+    if (!isLoading) {
+      if (hasDraft(accommodationId)) {
+        const timestamp = getDraftTimestamp(accommodationId);
+        if (timestamp) {
+          setDraftTimestamp(timestamp);
+          setShowDraftBanner(true);
+        }
+      }
+      isInitializedRef.current = true;
+    }
+  }, [isLoading, accommodationId]);
+
+  // Auto-save draft on form change (debounced)
+  useEffect(() => {
+    // Skip auto-save until initialized and banner is dismissed
+    if (!isInitializedRef.current || showDraftBanner || isLoading) return;
+
+    // Clear previous timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout for auto-save
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft(formData, accommodationId);
+    }, AUTO_SAVE_DELAY);
+
+    // Cleanup
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, showDraftBanner, isLoading, accommodationId]);
+
+  // Save draft on page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isInitializedRef.current && !showDraftBanner && !isLoading) {
+        saveDraft(formData, accommodationId);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [formData, showDraftBanner, isLoading, accommodationId]);
+
+  // Handle draft restore
+  const handleRestoreDraft = useCallback(() => {
+    const draft = getDraft(accommodationId);
+    if (draft) {
+      setFormData(draft);
+    }
+    setShowDraftBanner(false);
+  }, [accommodationId]);
+
+  // Handle draft discard
+  const handleDiscardDraft = useCallback(() => {
+    clearDraft(accommodationId);
+    setShowDraftBanner(false);
+  }, [accommodationId]);
+
   const handleSave = async () => {
     if (!user?.id) return;
 
@@ -895,6 +1111,9 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         isOperating: formData.isOperating,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
       });
+
+      // Clear draft on successful save
+      clearDraft(accommodationId);
 
       router.push('/host/properties');
     } catch (error) {
@@ -968,6 +1187,9 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         isOperating: false,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
       });
+
+      // Clear draft on successful save
+      clearDraft(accommodationId);
 
       router.push('/host/properties');
     } catch (error) {
@@ -1051,6 +1273,16 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       <div className="flex-1 overflow-hidden flex">
         {/* Form Section */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-6">
+          {/* Draft Recovery Banner */}
+          {showDraftBanner && draftTimestamp && (
+            <DraftRecoveryBanner
+              timestamp={draftTimestamp}
+              locale={locale}
+              onRestore={handleRestoreDraft}
+              onDiscard={handleDiscardDraft}
+            />
+          )}
+
           <AccommodationForm
             initialData={formData}
             onChange={setFormData}

@@ -191,7 +191,7 @@
   },
   "auth": {
     "login": {
-      "title": "Đăng nhập vào tài khoản",
+      "title": "Đăng nhập hoặc Đăng ký",
       "email": "Email",
       "password": "Mật khẩu",
       "forgotPassword": "Quên ID hoặc mật khẩu?",
@@ -211,7 +211,10 @@
       "staySignedIn": "Duy trì đăng nhập",
       "continue": "Tiếp tục",
       "signUp": "Đăng ký",
-      "incorrectCredentials": "Email hoặc mật khẩu không đúng. Vui lòng thử lại."
+      "incorrectCredentials": "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
+      "useSocialLogin": "Email này đã được đăng ký với {provider}. Vui lòng sử dụng đăng nhập {provider}.",
+      "emailAlreadyRegistered": "Email này đã được đăng ký bằng phương thức khác. Vui lòng sử dụng đăng nhập email.",
+      "authError": "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại."
     },
     "signup": {
       "title": "Tạo tài khoản",

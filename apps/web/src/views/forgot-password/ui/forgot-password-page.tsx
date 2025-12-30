@@ -194,7 +194,7 @@ export function ForgotPasswordPage() {
     'px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-text-primary))] placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors';
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-dvh flex flex-col bg-white">
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-8">
         {/* Welcome Logo */}
         <div className="mb-8">

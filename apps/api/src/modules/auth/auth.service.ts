@@ -52,7 +52,62 @@ export class AuthService {
     });
 
     if (!supabaseResponse.ok) {
-      const errorData = (await supabaseResponse.json()) as { message?: string; msg?: string };
+      const errorData = (await supabaseResponse.json()) as {
+        message?: string;
+        msg?: string;
+        code?: string;
+      };
+      const errorMessage = (errorData.message || errorData.msg || '').toLowerCase();
+
+      // 이미 등록된 이메일인 경우 (Supabase auth.users에 있음)
+      if (
+        errorMessage.includes('already registered') ||
+        errorMessage.includes('email already') ||
+        errorMessage.includes('user already') ||
+        errorData.code === 'email_exists'
+      ) {
+        // Supabase에서 해당 사용자의 provider 확인
+        const userResponse = await fetch(
+          `${supabaseUrl}/auth/v1/admin/users?email=${encodeURIComponent(registerDto.email)}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${supabaseServiceKey}`,
+              apikey: supabaseServiceKey,
+            },
+          },
+        );
+
+        if (userResponse.ok) {
+          const userData = (await userResponse.json()) as {
+            users?: Array<{ app_metadata?: { provider?: string } }>;
+          };
+          const existingUser = userData.users?.[0];
+          const provider = existingUser?.app_metadata?.provider || 'email';
+
+          if (provider !== 'email') {
+            // 소셜 로그인으로 가입된 계정
+            throw new BadRequestException(
+              JSON.stringify({
+                code: 'SOCIAL_LOGIN_EXISTS',
+                provider: provider,
+                message: `이 이메일은 ${provider}로 가입되어 있습니다. ${provider} 로그인을 이용해주세요.`,
+              }),
+            );
+          } else {
+            // 이메일로 이미 가입된 계정
+            throw new BadRequestException(
+              JSON.stringify({
+                code: 'EMAIL_EXISTS',
+                message: '이미 가입된 이메일입니다. 로그인해주세요.',
+              }),
+            );
+          }
+        }
+
+        throw new BadRequestException('이미 가입된 이메일입니다.');
+      }
+
       throw new BadRequestException(
         errorData.message || errorData.msg || '회원가입에 실패했습니다.',
       );
@@ -218,11 +273,69 @@ export class AuthService {
 
   /**
    * 이메일로 가입 방식(provider) 확인
+   * User 테이블과 Supabase auth.users 모두 확인
    */
   async checkProvider(email: string) {
-    // 먼저 사용자 존재 확인
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseServiceKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+
+    // 먼저 User 테이블에서 사용자 존재 확인
     const user = await this.usersService.findByEmail(email);
+
+    // User 테이블에 없는 경우, Supabase auth.users 직접 확인
+    // (소셜 로그인으로 Supabase에만 있고 User 테이블에 동기화 안 된 경우)
     if (!user || !user.supabaseId) {
+      if (supabaseUrl && supabaseServiceKey) {
+        // Supabase Admin API로 이메일로 사용자 검색
+        const searchResponse = await fetch(
+          `${supabaseUrl}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${supabaseServiceKey}`,
+              apikey: supabaseServiceKey,
+            },
+          },
+        );
+
+        if (searchResponse.ok) {
+          const searchData = (await searchResponse.json()) as {
+            users?: Array<{ app_metadata?: { provider?: string } }>;
+          };
+
+          if (searchData.users && searchData.users.length > 0) {
+            const existingUser = searchData.users[0];
+            const provider = existingUser?.app_metadata?.provider || 'email';
+            const isSocialLogin = provider !== 'email';
+
+            return {
+              exists: true,
+              provider,
+              isSocialLogin,
+            };
+          }
+        }
+      } else {
+        // 환경변수 없으면 DB 직접 조회
+        const result = await this.prisma.$queryRaw<{ provider: string }[]>`
+          SELECT raw_app_meta_data->>'provider' as provider
+          FROM auth.users
+          WHERE email = ${email}
+        `;
+
+        if (result.length > 0) {
+          const provider = result[0]?.provider || 'email';
+          const isSocialLogin = provider !== 'email';
+
+          return {
+            exists: true,
+            provider,
+            isSocialLogin,
+          };
+        }
+      }
+
+      // Supabase에도 없으면 존재하지 않음
       return {
         exists: false,
         provider: null,
@@ -230,9 +343,7 @@ export class AuthService {
       };
     }
 
-    // Supabase auth.users에서 provider 조회
-    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
-    const supabaseServiceKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+    // User 테이블에 있는 경우, Supabase에서 provider 조회
 
     if (!supabaseUrl || !supabaseServiceKey) {
       // 환경변수 없으면 DB 직접 조회

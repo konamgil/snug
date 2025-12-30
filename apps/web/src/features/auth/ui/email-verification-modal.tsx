@@ -33,13 +33,39 @@ export function EmailVerificationModal({
   const [hasSentInitialOTP, setHasSentInitialOTP] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // handleSendOTP defined before useEffect that uses it
+  const handleSendOTP = useCallback(async () => {
+    setIsSending(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/otp/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setResendTimer(RESEND_COOLDOWN);
+      } else {
+        setError(data.message || t('sendError'));
+      }
+    } catch {
+      setError(t('sendError'));
+    }
+
+    setIsSending(false);
+  }, [email, type, t]);
+
   // Send OTP when modal opens
   useEffect(() => {
     if (isOpen && !hasSentInitialOTP) {
       handleSendOTP();
       setHasSentInitialOTP(true);
     }
-  }, [isOpen, hasSentInitialOTP]);
+  }, [isOpen, hasSentInitialOTP, handleSendOTP]);
 
   // Focus first input when modal opens
   useEffect(() => {
@@ -67,31 +93,6 @@ export function EmailVerificationModal({
       setHasSentInitialOTP(false);
     }
   }, [isOpen]);
-
-  const handleSendOTP = async () => {
-    setIsSending(true);
-    setError('');
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/otp/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, type }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setResendTimer(RESEND_COOLDOWN);
-      } else {
-        setError(data.message || t('sendError'));
-      }
-    } catch {
-      setError(t('sendError'));
-    }
-
-    setIsSending(false);
-  };
 
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;

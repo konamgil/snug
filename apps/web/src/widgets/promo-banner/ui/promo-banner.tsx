@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
@@ -8,16 +8,12 @@ import { useAuthStore } from '@/shared/stores';
 const STORAGE_KEY = 'snug_promo_banner_hidden';
 
 export function PromoBanner() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(() => {
+    // SSR에서는 false, 클라이언트에서 localStorage 확인
+    if (typeof window === 'undefined') return false;
+    return !localStorage.getItem(STORAGE_KEY);
+  });
   const { user } = useAuthStore();
-
-  useEffect(() => {
-    // Check if banner was closed
-    const isHidden = localStorage.getItem(STORAGE_KEY);
-    if (!isHidden) {
-      setIsVisible(true);
-    }
-  }, []);
 
   const handleClose = (e: React.MouseEvent) => {
     e.preventDefault();

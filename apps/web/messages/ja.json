@@ -191,7 +191,7 @@
   },
   "auth": {
     "login": {
-      "title": "アカウントにログイン",
+      "title": "ログインまたは新規登録",
       "email": "メールアドレス",
       "password": "パスワード",
       "forgotPassword": "IDまたはパスワードをお忘れですか？",
@@ -211,7 +211,10 @@
       "staySignedIn": "ログイン状態を維持",
       "continue": "続ける",
       "signUp": "新規登録",
-      "incorrectCredentials": "メールアドレスまたはパスワードが正しくありません。"
+      "incorrectCredentials": "メールアドレスまたはパスワードが正しくありません。",
+      "useSocialLogin": "このメールアドレスは{provider}で登録されています。{provider}ログインをご利用ください。",
+      "emailAlreadyRegistered": "このメールアドレスは既に別の方法で登録されています。メールログインをご利用ください。",
+      "authError": "ログイン中にエラーが発生しました。もう一度お試しください。"
     },
     "signup": {
       "title": "アカウント作成",

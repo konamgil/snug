@@ -194,23 +194,27 @@ export function SignupPage() {
         body: JSON.stringify({ email }),
       });
 
-      const checkData = await checkResponse.json();
+      if (checkResponse.ok) {
+        const checkResult = await checkResponse.json();
+        const checkData = checkResult.data || checkResult; // API 응답 구조 대응
 
-      if (checkData.exists) {
-        if (checkData.isSocialLogin) {
-          // 소셜 로그인으로 가입된 이메일
-          setError(
-            t('alreadySocialLogin', { provider: getProviderDisplayName(checkData.provider) }),
-          );
-          setIsLoading(false);
-          return;
-        } else {
-          // 이메일로 이미 가입된 경우
-          setError(t('alreadyRegistered'));
-          setIsLoading(false);
-          return;
+        if (checkData.exists) {
+          if (checkData.isSocialLogin) {
+            // 소셜 로그인으로 가입된 이메일
+            setError(
+              t('alreadySocialLogin', { provider: getProviderDisplayName(checkData.provider) }),
+            );
+            setIsLoading(false);
+            return;
+          } else {
+            // 이메일로 이미 가입된 경우
+            setError(t('alreadyRegistered'));
+            setIsLoading(false);
+            return;
+          }
         }
       }
+      // check-provider가 실패해도 OTP 전송은 시도 (Supabase에서 최종 검증됨)
 
       // OTP 전송
       const response = await fetch(`${API_BASE_URL}/auth/otp/send`, {
@@ -227,7 +231,8 @@ export function SignupPage() {
       } else {
         setError(data.message || tVerify('sendError'));
       }
-    } catch {
+    } catch (err) {
+      console.error('Signup error:', err);
       setError(tVerify('sendError'));
     }
 
@@ -378,7 +383,27 @@ export function SignupPage() {
       if (response.ok) {
         setSuccess(true);
       } else {
-        setError(data.message || t('signupFailed'));
+        // 백엔드에서 JSON 형식의 상세 에러를 반환할 수 있음
+        let errorMessage = t('signupFailed');
+
+        try {
+          // data.message가 JSON 문자열인 경우 파싱
+          const parsedError = JSON.parse(data.message);
+          if (parsedError.code === 'SOCIAL_LOGIN_EXISTS') {
+            errorMessage = t('alreadySocialLogin', {
+              provider: getProviderDisplayName(parsedError.provider),
+            });
+          } else if (parsedError.code === 'EMAIL_EXISTS') {
+            errorMessage = t('alreadyRegistered');
+          } else {
+            errorMessage = parsedError.message || t('signupFailed');
+          }
+        } catch {
+          // JSON 파싱 실패 시 그냥 메시지 사용
+          errorMessage = data.message || t('signupFailed');
+        }
+
+        setError(errorMessage);
       }
     } catch {
       setError(t('signupFailed'));
@@ -420,7 +445,7 @@ export function SignupPage() {
   const currentStepIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-dvh flex flex-col bg-white">
       <main className="flex-1 flex flex-col items-center px-5 py-6 md:py-8 lg:py-10">
         {/* Header */}
         <div className="w-full max-w-[440px] md:max-w-[480px] lg:max-w-[520px] relative flex items-center justify-center mb-6">

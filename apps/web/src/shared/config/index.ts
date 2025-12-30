@@ -19,3 +19,13 @@ export const config = {
     supportedLocales: (process.env.NEXT_PUBLIC_SUPPORTED_LOCALES || 'en,ko,zh,ja,vi').split(','),
   },
 } as const;
+
+// Platform pricing & policy constants
+export {
+  SERVICE_FEE_PERCENT,
+  LONG_STAY_DISCOUNTS,
+  getLongStayDiscountPercent,
+  calculateLongStayDiscount,
+  calculateServiceFee,
+  calculateTotalPrice,
+} from './platform';

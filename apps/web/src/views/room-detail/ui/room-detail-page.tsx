@@ -39,6 +39,17 @@ import {
   getAccommodationTypeLabel,
   getBuildingTypeLabel,
 } from '@/shared/lib';
+import {
+  SERVICE_FEE_PERCENT,
+  getLongStayDiscountPercent,
+} from '@/shared/config';
+
+// 숙소 유형별 색상
+const roomTypeColors: Record<RoomTypeVariant, string> = {
+  'shared-room': 'text-[hsl(var(--snug-orange))]',
+  'shared-house': 'text-[#F472B6]',
+  house: 'text-[#78350F]',
+};
 
 // AccommodationType → RoomTypeVariant 매핑
 function getRoomTypeVariant(accommodationType: string): RoomTypeVariant {
@@ -73,17 +84,13 @@ const roomData = {
   price: 40,
   pricePerNight: 40,
   cleaningFee: 20,
-  deposit: 100,
   longStayDiscount: 10,
   longStayThreshold: 12,
-  serviceFeePercent: 10,
   nights: 8,
   tags: [
     { label: 'Shared Room', color: 'orange' as const },
     { label: 'Apartment', color: 'purple' as const },
   ],
-  description:
-    "Enjoy a peaceful stay in a cozy, sunlit room made for your comfort. Soft bedding and warm, thoughtful decor help you relax and recharge. Located in Seoul's Gangnam district, the stay offers easy transit access and nearby amenities. Perfect for solo travelers or couples looking for a quiet, comfortable retreat.",
   guidelines: [
     { labelKey: 'checkIn', valueKey: 'selfCheckIn' },
     { labelKey: 'checkOut', valueKey: 'checkOutTime' },
@@ -305,18 +312,15 @@ export function RoomDetailPage() {
 
   // Calculate derived values from accommodation data
   const pricePerNight = accommodation?.basePrice ?? roomData.pricePerNight;
-  const cleaningFee = accommodation?.cleaningFee ?? roomData.cleaningFee;
+  const cleaningFee = accommodation?.cleaningFee ?? 0;
   const nights = calculateNights(checkIn, checkOut) || roomData.nights;
   const subtotal = pricePerNight * nights;
-  const serviceFeePercent = roomData.serviceFeePercent; // Keep from mock for now
+  const serviceFeePercent = SERVICE_FEE_PERCENT;
   const serviceFee = Math.round(subtotal * (serviceFeePercent / 100));
-  // Long-term stay discount calculation based on weeks
-  // 2+ weeks: 5%, 4+ weeks: 10%, 12+ weeks: 20%
-  const weeks = Math.floor(nights / 7);
-  const discountPercent = weeks >= 12 ? 20 : weeks >= 4 ? 10 : weeks >= 2 ? 5 : 0;
+  // Long-term stay discount from config
+  const discountPercent = getLongStayDiscountPercent(nights);
   const discount = Math.round(subtotal * (discountPercent / 100));
-  const deposit = roomData.deposit;
-  const total = subtotal + cleaningFee + deposit + serviceFee - discount;
+  const total = subtotal + cleaningFee + serviceFee - discount;
 
   // Get display values from accommodation or fallback to mock
   const displayLocation = accommodation?.sigunguEn ?? roomData.location;
@@ -335,7 +339,7 @@ export function RoomDetailPage() {
   const displayRoomCount = accommodation?.roomCount ?? roomData.rooms;
   const displayBathroomCount = accommodation?.bathroomCount ?? roomData.bathrooms;
   const displayCapacity = accommodation?.capacity ?? roomData.guests;
-  const displayIntroduction = accommodation?.introduction ?? roomData.description;
+  const displayIntroduction = accommodation?.introduction ?? '';
   const displayHouseRules = accommodation?.houseRules ?? null;
   const displayLat = accommodation?.latitude ?? roomData.lat;
   const displayLng = accommodation?.longitude ?? roomData.lng;
@@ -758,13 +762,17 @@ export function RoomDetailPage() {
               </div>
             </div>
 
-            {/* Mobile: Shared Room Info Card */}
+            {/* Mobile: Room Type Info Card */}
             <div className="lg:hidden py-6">
-              <div className="flex flex-col items-center text-center p-5 border-2 border-[hsl(var(--snug-orange))] rounded-2xl">
-                <p className="text-base font-semibold text-[hsl(var(--snug-text-primary))] mb-1">
+              <div className="flex flex-col items-center text-center p-5 border border-[hsl(var(--snug-border))] rounded-full">
+                <p
+                  className={`text-base font-bold mb-1 ${roomTypeColors[getRoomTypeVariant(accommodation.accommodationType)]}`}
+                >
                   {displayRoomType}
                 </p>
-                <p className="text-[13px] text-[hsl(var(--snug-gray))]">{accommodation.roomName}</p>
+                <p className="text-[13px] text-[hsl(var(--snug-gray))] leading-relaxed">
+                  {displayRoomTypeDescription}
+                </p>
               </div>
             </div>
 
@@ -1007,6 +1015,17 @@ export function RoomDetailPage() {
                                 <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />
                               </div>
                             )}
+                            {/* Tags */}
+                            <div className="absolute top-2 left-2 flex gap-1 z-10">
+                              <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-[#FFF5E6] text-[hsl(var(--snug-orange))]">
+                                {getAccommodationTypeLabel(room.accommodationType, locale)}
+                              </span>
+                              {room.buildingType && (
+                                <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-[#F9A8D4] text-white">
+                                  {getBuildingTypeLabel(room.buildingType, locale)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <h4 className="text-xs font-medium text-[hsl(var(--snug-text-primary))] mb-0.5 truncate">
                             {room.roomName}
@@ -1048,11 +1067,11 @@ export function RoomDetailPage() {
                           )}
                           {/* Tags */}
                           <div className="absolute top-3 left-3 flex gap-1.5 z-10">
-                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-white border border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]">
+                            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#FFF5E6] text-[hsl(var(--snug-orange))]">
                               {getAccommodationTypeLabel(room.accommodationType, locale)}
                             </span>
                             {room.buildingType && (
-                              <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-purple-500 text-white">
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#F9A8D4] text-white">
                                 {getBuildingTypeLabel(room.buildingType, locale)}
                               </span>
                             )}
@@ -1169,8 +1188,6 @@ export function RoomDetailPage() {
                   pricePerNight: pricePerNight,
                   nights: nights,
                   cleaningFee: cleaningFee,
-                  deposit: deposit,
-                  serviceFeePercent: serviceFeePercent,
                 }}
                 initialCheckIn={checkIn}
                 initialCheckOut={checkOut}
@@ -1201,31 +1218,30 @@ export function RoomDetailPage() {
             {format(total)}
           </span>
         </div>
-        {/* Bottom Row: Actions */}
-        <div className="flex items-center gap-3">
-          {/* Chat with Host */}
-          <button
-            type="button"
-            className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] hover:opacity-70 transition-opacity"
-          >
-            <ChatIcon className="w-5 h-5" />
-            <span>{t('roomDetail.contactHost')}</span>
-          </button>
-          {/* Book Button */}
-          <button
-            type="button"
-            onClick={() => {
-              const totalGuests = guests.adults + guests.children;
-              const params = new URLSearchParams();
-              if (checkIn) params.set('checkIn', checkIn.toISOString());
-              if (checkOut) params.set('checkOut', checkOut.toISOString());
-              params.set('guests', String(totalGuests));
-              router.push(`/${locale}/room/${roomId}/payment?${params.toString()}`);
-            }}
-            className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
-          >
-            {t('roomDetail.reserveNow')}
-          </button>
+        {/* Bottom Row: Actions - Disabled until official launch */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            {/* Chat with Host */}
+            <button
+              type="button"
+              disabled={true}
+              className="flex items-center gap-2 text-sm font-bold text-[hsl(var(--snug-text-primary))] opacity-50 cursor-not-allowed"
+            >
+              <ChatIcon className="w-5 h-5" />
+              <span>{t('roomDetail.contactHost')}</span>
+            </button>
+            {/* Book Button */}
+            <button
+              type="button"
+              disabled={true}
+              className="flex-1 py-3.5 bg-[hsl(var(--snug-orange))] text-white text-sm font-semibold rounded-full opacity-50 cursor-not-allowed"
+            >
+              {t('roomDetail.reserveNow')}
+            </button>
+          </div>
+          <p className="text-[10px] text-center text-[hsl(var(--snug-gray))]">
+            {t('roomDetail.booking.comingSoon')}
+          </p>
         </div>
       </div>
 

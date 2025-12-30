@@ -10,13 +10,15 @@ import {
   type GuestCount,
 } from '@/features/search/ui/guest-picker';
 import { useCurrencySafe } from '@/shared/providers';
+import {
+  SERVICE_FEE_PERCENT,
+  getLongStayDiscountPercent,
+} from '@/shared/config';
 
 interface PriceBreakdown {
   pricePerNight: number;
   nights: number;
   cleaningFee: number;
-  deposit: number;
-  serviceFeePercent: number;
 }
 
 export type RoomTypeVariant = 'shared-room' | 'shared-house' | 'house';
@@ -92,15 +94,13 @@ export function BookingSidePanel({
   // Price calculations
   const subtotal = priceBreakdown.pricePerNight * nights;
 
-  // Long-term stay discount calculation based on weeks
-  // 2+ weeks: 5%, 4+ weeks: 10%, 12+ weeks: 20%
-  const weeks = Math.floor(nights / 7);
-  const discountPercent = weeks >= 12 ? 20 : weeks >= 4 ? 10 : weeks >= 2 ? 5 : 0;
+  // Long-term stay discount calculation using config
+  const discountPercent = getLongStayDiscountPercent(nights);
   const longStayDiscount = Math.round(subtotal * (discountPercent / 100));
 
-  const serviceFee = Math.round(subtotal * (priceBreakdown.serviceFeePercent / 100));
-  const total =
-    subtotal + priceBreakdown.cleaningFee + priceBreakdown.deposit + serviceFee - longStayDiscount;
+  // Service fee calculation using config
+  const serviceFee = Math.round(subtotal * (SERVICE_FEE_PERCENT / 100));
+  const total = subtotal + priceBreakdown.cleaningFee + serviceFee - longStayDiscount;
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -297,16 +297,6 @@ export function BookingSidePanel({
             </span>
           </div>
 
-          {/* Deposit */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))]">
-              {t('roomDetail.booking.deposit')}
-            </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">
-              {format(priceBreakdown.deposit)}
-            </span>
-          </div>
-
           {/* Long-stay Discount */}
           {longStayDiscount > 0 && (
             <div className="flex items-center justify-between">
@@ -324,7 +314,7 @@ export function BookingSidePanel({
           {/* Service fee */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {t('roomDetail.booking.serviceFee', { percent: priceBreakdown.serviceFeePercent })}
+              {t('roomDetail.booking.serviceFee', { percent: SERVICE_FEE_PERCENT })}
             </span>
             <span className="text-xs text-[hsl(var(--snug-gray))]">{format(serviceFee)}</span>
           </div>

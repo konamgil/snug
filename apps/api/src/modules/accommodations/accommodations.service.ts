@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import type { User, Accommodation, AccommodationGroup, Prisma } from '@snug/database';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -14,6 +15,7 @@ import {
   SearchAccommodationsDto,
 } from './dto';
 import { GeocodingService } from './geocoding.service';
+import { StorageService } from '../storage/storage.service';
 
 /**
  * 다음 주소 API가 반환하는 짧은 시/도명을 전체 시/도명으로 변환
@@ -79,9 +81,12 @@ function getSearchVariants(term: string): string[] {
  */
 @Injectable()
 export class AccommodationsService {
+  private readonly logger = new Logger(AccommodationsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly geocodingService: GeocodingService,
+    private readonly storageService: StorageService,
   ) {}
 
   // ============================================
@@ -684,6 +689,43 @@ export class AccommodationsService {
               : `(sido LIKE '%${tokens[idx]}%' OR sigungu LIKE '%${tokens[idx]}%')`,
           )
           .join(' OR ')})
+
+        UNION ALL
+
+        -- 주소 매핑 테이블 검색 (시/도 레벨)
+        SELECT DISTINCT ON (sido)
+          "sidoEn" as label,
+          sido as "labelKo",
+          NULL::text as bname,
+          NULL::text as sigungu,
+          sido,
+          NULL::text as "bnameEn",
+          NULL::text as "sigunguEn",
+          "sidoEn",
+          (${normalizedTokens
+            .map((token, idx) =>
+              isEnglish
+                ? `CASE WHEN ${normalizeCol('"sidoEn"')} LIKE '%${token}%' THEN 1 ELSE 0 END`
+                : `CASE WHEN sido LIKE '%${tokens[idx]}%' THEN 1 ELSE 0 END`,
+            )
+            .join(' + ')}) as match_count,
+          (
+            ${normalizedTokens
+              .map((token, idx) =>
+                isEnglish
+                  ? `CASE WHEN ${normalizeCol('"sidoEn"')} LIKE '%${token}%' THEN 15 ELSE 0 END`
+                  : `CASE WHEN sido LIKE '%${tokens[idx]}%' THEN 15 ELSE 0 END`,
+              )
+              .join(' + ')}
+          )::float as score
+        FROM address_mappings
+        WHERE sigungu IS NULL AND bname IS NULL AND (${normalizedTokens
+          .map((token, idx) =>
+            isEnglish
+              ? `(${normalizeCol('"sidoEn"')} LIKE '%${token}%')`
+              : `(sido LIKE '%${tokens[idx]}%')`,
+          )
+          .join(' OR ')})
       )
       -- 최종 결과: 중복 제거, 점수순 정렬
       SELECT DISTINCT ON (label)
@@ -738,7 +780,7 @@ export class AccommodationsService {
     user: User,
     dto: CreateAccommodationDto,
   ): Promise<{ accommodation: Accommodation; roleUpgraded: boolean }> {
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // 1. 현재 유저 역할 확인
       const currentUser = await tx.user.findUnique({
         where: { id: user.id },
@@ -893,6 +935,47 @@ export class AccommodationsService {
 
       return { accommodation, roleUpgraded };
     });
+
+    // 트랜잭션 완료 후 temp 이미지를 영구 경로로 이동 (비동기, 논블로킹)
+    this.moveTempPhotosToPermament(result.accommodation.id).catch((err) => {
+      this.logger.error(
+        `Failed to move temp photos for accommodation ${result.accommodation.id}:`,
+        err,
+      );
+    });
+
+    return result;
+  }
+
+  /**
+   * temp 폴더의 사진을 영구 경로로 이동하고 DB 업데이트
+   */
+  private async moveTempPhotosToPermament(accommodationId: string): Promise<void> {
+    // 해당 숙소의 사진 조회
+    const photos = await this.prisma.accommodationPhoto.findMany({
+      where: { accommodationId },
+      select: { id: true, url: true },
+    });
+
+    // temp URL만 필터링
+    const tempPhotos = photos.filter((p) => p.url.includes('/temp/'));
+    if (tempPhotos.length === 0) {
+      return;
+    }
+
+    this.logger.log(`Moving ${tempPhotos.length} temp photos for accommodation ${accommodationId}`);
+
+    // 각 사진을 이동하고 DB 업데이트
+    for (const photo of tempPhotos) {
+      const newUrl = await this.storageService.moveFromTemp(photo.url, accommodationId);
+      if (newUrl && newUrl !== photo.url) {
+        await this.prisma.accommodationPhoto.update({
+          where: { id: photo.id },
+          data: { url: newUrl },
+        });
+        this.logger.log(`Updated photo ${photo.id}: ${photo.url} → ${newUrl}`);
+      }
+    }
   }
 
   /**

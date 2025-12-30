@@ -16,6 +16,7 @@ import { SearchMap } from './search-map';
 import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
+import type { RoomTypeOption } from './room-type-dropdown';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
 import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
 import type {
@@ -51,6 +52,14 @@ const quickFilterToHouseRule: Record<string, string> = {
   womenOnly: 'Women Only',
   menOnly: 'Men Only',
   parking: 'parking', // parking은 별도 필터로 처리 필요
+};
+
+// RoomTypeOption → AccommodationType 매핑
+const roomTypeOptionToAccommodationType: Record<string, AccommodationType | null> = {
+  all: null,
+  house: 'HOUSE',
+  sharedHouse: 'SHARE_HOUSE',
+  sharedRoom: 'SHARE_ROOM',
 };
 
 // API 응답 → Room 타입 변환
@@ -108,11 +117,13 @@ function SearchPageContent() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+  const [roomType, setRoomType] = useState<RoomTypeOption>('all');
   // Track selected room from map marker click (PC only)
   const [selectedMapRoomId, setSelectedMapRoomId] = useState<string | null>(null);
 
   const hasActiveFilters =
     activeQuickFilters.length > 0 ||
+    roomType !== 'all' ||
     (activeFilters !== null &&
       (activeFilters.roomTypes.length > 0 ||
         activeFilters.propertyTypes.length > 0 ||
@@ -198,13 +209,24 @@ function SearchPageContent() {
         sortBy: mapSortOption(sortOption),
       };
 
+      // Room Type Dropdown 필터
+      if (roomType !== 'all') {
+        const accommodationType = roomTypeOptionToAccommodationType[roomType];
+        if (accommodationType) {
+          params.accommodationType = [accommodationType];
+        }
+      }
+
       // 필터 적용
       if (activeFilters) {
-        // 숙소 타입 필터
+        // 숙소 타입 필터 (modal filter) - dropdown과 병합
         if (activeFilters.roomTypes.length > 0) {
-          params.accommodationType = activeFilters.roomTypes
+          const modalTypes = activeFilters.roomTypes
             .map((type) => roomTypeToAccommodationType[type])
             .filter(Boolean) as AccommodationType[];
+          // 기존 dropdown 필터와 병합
+          const existingTypes = params.accommodationType || [];
+          params.accommodationType = [...new Set([...existingTypes, ...modalTypes])];
         }
 
         // 건물 타입 필터
@@ -218,7 +240,7 @@ function SearchPageContent() {
         if (activeFilters.budgetMin > 0) {
           params.minPrice = activeFilters.budgetMin;
         }
-        if (activeFilters.budgetMax < 1000) {
+        if (activeFilters.budgetMax < 10000) {
           params.maxPrice = activeFilters.budgetMax;
         }
 
@@ -265,6 +287,7 @@ function SearchPageContent() {
     locationValue,
     guests,
     sortOption,
+    roomType,
     activeFilters,
     activeQuickFilters,
     calculateNights,
@@ -394,6 +417,8 @@ function SearchPageContent() {
                 hasActiveFilters={hasActiveFilters}
                 activeQuickFilters={activeQuickFilters}
                 onQuickFilterToggle={handleQuickFilterToggle}
+                roomType={roomType}
+                onRoomTypeChange={setRoomType}
               />
             )}
 

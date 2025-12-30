@@ -6,6 +6,19 @@ import { Eye, EyeOff, X, Loader2 } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+// Provider 이름을 사용자 친화적으로 변환
+const getProviderDisplayName = (provider: string) => {
+  const names: Record<string, string> = {
+    google: 'Google',
+    kakao: '카카오',
+    facebook: 'Facebook',
+    apple: 'Apple',
+  };
+  return names[provider] || provider;
+};
+
 export function EmailLoginForm() {
   const t = useTranslations('auth.login');
   const router = useRouter();
@@ -26,7 +39,26 @@ export function EmailLoginForm() {
     const { error } = await signInWithEmail(email, password);
 
     if (error) {
-      setError(t('incorrectCredentials'));
+      // 로그인 실패 시 소셜 로그인으로 가입된 계정인지 확인
+      try {
+        const checkResponse = await fetch(`${API_BASE_URL}/auth/check-provider`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        const checkResult = await checkResponse.json();
+        const checkData = checkResult.data || checkResult; // API 응답 구조 대응
+
+        if (checkData.exists && checkData.isSocialLogin) {
+          // 소셜 로그인으로 가입된 계정
+          setError(t('useSocialLogin', { provider: getProviderDisplayName(checkData.provider) }));
+        } else {
+          setError(t('incorrectCredentials'));
+        }
+      } catch {
+        setError(t('incorrectCredentials'));
+      }
       setIsSubmitting(false);
     } else {
       router.push('/');

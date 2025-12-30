@@ -21,7 +21,12 @@
     "submit": "Submit",
     "close": "Close",
     "add": "Add",
-    "select": "Select"
+    "select": "Select",
+    "refresh": "Refresh",
+    "newVersionAvailable": "A new version has been deployed",
+    "pleaseRefresh": "Please refresh the page to use the latest version.",
+    "errorOccurred": "An error occurred",
+    "temporaryIssue": "A temporary issue occurred. Please try again."
   },
   "gallery": {
     "allPhotos": "All Photos",
@@ -68,6 +73,7 @@
       "petsAllowed": "Pets allowed",
       "parking": "Parking",
       "roomTypes": {
+        "all": "All",
         "house": "House",
         "sharedHouse": "Shared House",
         "sharedRoom": "Shared Room"
@@ -191,7 +197,7 @@
   },
   "auth": {
     "login": {
-      "title": "Log In to your Account",
+      "title": "Log in or Sign up",
       "email": "Email",
       "password": "Password",
       "forgotPassword": "Forgot your ID? or Password?",
@@ -211,7 +217,10 @@
       "staySignedIn": "Stay signed in",
       "continue": "Continue",
       "signUp": "Sign Up",
-      "incorrectCredentials": "Incorrect email or password. Please try again."
+      "incorrectCredentials": "Incorrect email or password. Please try again.",
+      "useSocialLogin": "This email is registered with {provider}. Please use {provider} login.",
+      "emailAlreadyRegistered": "This email is already registered with another method. Please use email login.",
+      "authError": "An error occurred during login. Please try again."
     },
     "signup": {
       "title": "Create Account",
@@ -1154,7 +1163,11 @@
         "deleteConfirmMessage": "Are you sure you want to delete this accommodation? This action cannot be undone.",
         "emptyTitle": "No accommodations registered yet.",
         "emptyDescription": "Register an accommodation to start managing.",
-        "registerAccommodation": "Register Accommodation"
+        "registerAccommodation": "Register Accommodation",
+        "draftRecoveryTitle": "You have unsaved changes",
+        "draftRecoveryMessage": "Would you like to restore the content you were working on {time}?",
+        "draftRecoveryRestore": "Restore",
+        "draftRecoveryDiscard": "Discard"
       },
       "previewPanel": {
         "title": "Quick Preview",

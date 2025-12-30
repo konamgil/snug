@@ -42,6 +42,22 @@ export function PhoneVerificationModal({
   const formattedPhone = formatPhoneNumber(countryCode, phoneNumber);
   const displayPhone = `${countryCode} ${phoneNumber}`;
 
+  // handleSendOTP defined before useEffect that uses it
+  const handleSendOTP = useCallback(async () => {
+    setIsSending(true);
+    setError('');
+
+    const result = await sendPhoneVerification(formattedPhone);
+
+    if (result.success) {
+      setResendTimer(RESEND_COOLDOWN);
+    } else {
+      setError(result.error || t('sendError'));
+    }
+
+    setIsSending(false);
+  }, [formattedPhone, t]);
+
   // Initialize reCAPTCHA and send OTP when modal opens
   useEffect(() => {
     if (isOpen && !hasSentInitialOTP) {
@@ -53,7 +69,7 @@ export function PhoneVerificationModal({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, hasSentInitialOTP]);
+  }, [isOpen, hasSentInitialOTP, handleSendOTP]);
 
   // Focus first input when modal opens
   useEffect(() => {
@@ -82,21 +98,6 @@ export function PhoneVerificationModal({
       resetVerification();
     }
   }, [isOpen]);
-
-  const handleSendOTP = async () => {
-    setIsSending(true);
-    setError('');
-
-    const result = await sendPhoneVerification(formattedPhone);
-
-    if (result.success) {
-      setResendTimer(RESEND_COOLDOWN);
-    } else {
-      setError(result.error || t('sendError'));
-    }
-
-    setIsSending(false);
-  };
 
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;
