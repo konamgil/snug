@@ -14,20 +14,20 @@ interface HostAuthGuardProps {
  * - Logged in → can access host dashboard
  *
  * Note: Host/non-host routing is handled by the "Host Mode" button in the header.
- * This guard only checks login status.
+ * This guard only checks login status via Supabase session.
  */
 export function HostAuthGuard({ children }: HostAuthGuardProps) {
   const router = useRouter();
-  const { user, isInitialized, isLoading } = useAuthStore();
+  const { session, isInitialized, isLoading } = useAuthStore();
 
   useEffect(() => {
     if (!isInitialized || isLoading) return;
 
     // Not logged in → redirect to login
-    if (!user) {
+    if (!session) {
       router.replace('/login?redirect=/host');
     }
-  }, [user, isInitialized, isLoading, router]);
+  }, [session, isInitialized, isLoading, router]);
 
   // Show loading while checking auth
   if (!isInitialized || isLoading) {
@@ -39,7 +39,7 @@ export function HostAuthGuard({ children }: HostAuthGuardProps) {
   }
 
   // Redirect in progress (not logged in)
-  if (!user) {
+  if (!session) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f5f5f5]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--snug-orange))]" />

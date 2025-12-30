@@ -17,13 +17,13 @@ interface HeaderActionsProps {
 export function HeaderActions({ className }: HeaderActionsProps) {
   const t = useTranslations('home');
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { session } = useAuthStore();
   // const [isChatOpen, setIsChatOpen] = useState(false); // TODO: 채팅 기능 오픈 시 활성화
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   const handleHostModeClick = async () => {
     // Not logged in → redirect to login
-    if (!user) {
+    if (!session) {
       router.push('/login?redirect=/host');
       return;
     }

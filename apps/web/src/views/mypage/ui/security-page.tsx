@@ -37,7 +37,7 @@ interface IdentityMap {
 export function SecurityPage() {
   const t = useTranslations('mypage.security');
   const router = useRouter();
-  const { user, supabaseUser, isInitialized } = useAuthStore();
+  const { user, session, supabaseUser, isInitialized } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<TabType>('login');
   const [newPassword, setNewPassword] = useState('');
@@ -258,7 +258,7 @@ export function SecurityPage() {
   }
 
   // 로그인 안 된 상태 - 리다이렉트 중 로딩 표시
-  if (!user) {
+  if (!session) {
     return (
       <div className="min-h-screen bg-white">
         <div className="flex items-center justify-center h-[60vh]">

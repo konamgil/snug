@@ -40,7 +40,7 @@ export function MypageMobile() {
   const t = useTranslations('mypage');
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isInitialized } = useAuthStore();
+  const { session, isInitialized } = useAuthStore();
   const signOut = useAuthStore((state) => state.signOut);
 
   const handleLogout = async () => {
@@ -151,7 +151,7 @@ export function MypageMobile() {
   }
 
   // Unauthenticated state - show login page
-  if (!user) {
+  if (!session) {
     return (
       <div className="pb-20">
         <LoginPage />

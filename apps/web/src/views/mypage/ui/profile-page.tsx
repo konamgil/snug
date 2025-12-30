@@ -76,7 +76,7 @@ function apiToFormData(data: ApiProfileData): ProfileFormData {
 export function ProfilePage() {
   const t = useTranslations('mypage.profile');
   const router = useRouter();
-  const { user, isInitialized, refreshUser } = useAuthStore();
+  const { user, session, isInitialized, refreshUser } = useAuthStore();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -121,10 +121,10 @@ export function ProfilePage() {
 
   // 로그인 안 된 경우 바로 로그인 페이지로 리다이렉트
   useEffect(() => {
-    if (isInitialized && !user) {
+    if (isInitialized && !session) {
       router.push('/login');
     }
-  }, [isInitialized, user, router]);
+  }, [isInitialized, session, router]);
 
   // 프로필 데이터 로드
   useEffect(() => {
@@ -326,7 +326,7 @@ export function ProfilePage() {
   }
 
   // 로그인 안 된 상태 - 리다이렉트 중 로딩 표시
-  if (!user) {
+  if (!session) {
     return (
       <div className="min-h-screen bg-white">
         <div className="flex items-center justify-center h-[60vh]">
