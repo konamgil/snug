@@ -16,8 +16,6 @@ interface PriceBreakdown {
   nights: number;
   cleaningFee: number;
   deposit: number;
-  longStayDiscount: number;
-  longStayThreshold: number;
   serviceFeePercent: number;
 }
 
@@ -93,11 +91,16 @@ export function BookingSidePanel({
 
   // Price calculations
   const subtotal = priceBreakdown.pricePerNight * nights;
-  const longStayDiscount =
-    nights >= priceBreakdown.longStayThreshold ? priceBreakdown.longStayDiscount : 0;
+
+  // Long-term stay discount calculation based on weeks
+  // 2+ weeks: 5%, 4+ weeks: 10%, 12+ weeks: 20%
+  const weeks = Math.floor(nights / 7);
+  const discountPercent = weeks >= 12 ? 20 : weeks >= 4 ? 10 : weeks >= 2 ? 5 : 0;
+  const longStayDiscount = Math.round(subtotal * (discountPercent / 100));
+
   const serviceFee = Math.round(subtotal * (priceBreakdown.serviceFeePercent / 100));
   const total =
-    subtotal + priceBreakdown.cleaningFee + priceBreakdown.deposit - longStayDiscount - serviceFee;
+    subtotal + priceBreakdown.cleaningFee + priceBreakdown.deposit + serviceFee - longStayDiscount;
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -308,8 +311,8 @@ export function BookingSidePanel({
           {longStayDiscount > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-                {t('roomDetail.booking.longStayDiscount', {
-                  days: priceBreakdown.longStayThreshold,
+                {t('roomDetail.booking.longStayDiscountApplied', {
+                  percent: discountPercent,
                 })}
               </span>
               <span className="text-xs text-[hsl(var(--snug-orange))]">
@@ -323,7 +326,7 @@ export function BookingSidePanel({
             <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
               {t('roomDetail.booking.serviceFee', { percent: priceBreakdown.serviceFeePercent })}
             </span>
-            <span className="text-xs text-[hsl(var(--snug-orange))]">-{format(serviceFee)}</span>
+            <span className="text-xs text-[hsl(var(--snug-gray))]">{format(serviceFee)}</span>
           </div>
 
           <div className="h-px bg-[#f0f0f0]" />

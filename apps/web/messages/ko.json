@@ -597,6 +597,7 @@
       "cleaningFee": "청소비 (퇴실 후)",
       "deposit": "보증금 (환불 가능)",
       "longStayDiscount": "장기 투숙 할인 ({days}일 이상)",
+      "longStayDiscountApplied": "장기 투숙 할인 ({percent}%)",
       "serviceFee": "스너그 서비스 수수료 ({percent}%)",
       "total": "총액",
       "chatWithHost": "호스트와 채팅",

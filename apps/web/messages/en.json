@@ -715,6 +715,7 @@
       "cleaningFee": "Cleaning (After check-out)",
       "deposit": "Deposit (Refundable)",
       "longStayDiscount": "Long-stay Discount (Over {days} days)",
+      "longStayDiscountApplied": "Long-stay Discount ({percent}%)",
       "serviceFee": "Snug service fee ({percent}%)",
       "total": "Total",
       "chatWithHost": "Chat with Host",

@@ -152,8 +152,8 @@ export function PhotoGalleryModal({
 
   const selectedCategory = localCategories.find((c) => c.id === selectedCategoryId);
 
-  // Check if any group has 2+ photos - determines if thumbnail tabs are shown
-  const shouldShowThumbnailTabs = localCategories.some((cat) => cat.photos.length >= 2);
+  // Check if any group has photos - determines if thumbnail tabs are shown
+  const shouldShowThumbnailTabs = localCategories.some((cat) => cat.photos.length >= 1);
 
   // Get categories with photos for thumbnail tabs
   const categoriesWithPhotos = localCategories.filter((cat) => cat.photos.length > 0);

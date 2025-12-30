@@ -310,11 +310,13 @@ export function RoomDetailPage() {
   const subtotal = pricePerNight * nights;
   const serviceFeePercent = roomData.serviceFeePercent; // Keep from mock for now
   const serviceFee = Math.round(subtotal * (serviceFeePercent / 100));
-  const longStayThreshold = roomData.longStayThreshold;
-  const longStayDiscount = roomData.longStayDiscount;
-  const discount = nights >= longStayThreshold ? longStayDiscount : 0;
+  // Long-term stay discount calculation based on weeks
+  // 2+ weeks: 5%, 4+ weeks: 10%, 12+ weeks: 20%
+  const weeks = Math.floor(nights / 7);
+  const discountPercent = weeks >= 12 ? 20 : weeks >= 4 ? 10 : weeks >= 2 ? 5 : 0;
+  const discount = Math.round(subtotal * (discountPercent / 100));
   const deposit = roomData.deposit;
-  const total = subtotal + cleaningFee + deposit - discount - serviceFee;
+  const total = subtotal + cleaningFee + deposit + serviceFee - discount;
 
   // Get display values from accommodation or fallback to mock
   const displayLocation = accommodation?.sigunguEn ?? roomData.location;
@@ -1168,8 +1170,6 @@ export function RoomDetailPage() {
                   nights: nights,
                   cleaningFee: cleaningFee,
                   deposit: deposit,
-                  longStayDiscount: longStayDiscount,
-                  longStayThreshold: longStayThreshold,
                   serviceFeePercent: serviceFeePercent,
                 }}
                 initialCheckIn={checkIn}
