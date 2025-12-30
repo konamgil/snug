@@ -190,7 +190,9 @@ export function EmailVerificationModal({
   if (!isOpen) return null;
 
   // Mask email for display (a***@example.com)
-  const [localPart, domain] = email.split('@');
+  const parts = email.split('@');
+  const localPart = parts[0] ?? '';
+  const domain = parts[1] ?? '';
   const maskedEmail =
     localPart.length > 2
       ? `${localPart.charAt(0)}${'*'.repeat(Math.min(localPart.length - 1, 4))}@${domain}`
