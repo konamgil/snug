@@ -68,8 +68,8 @@ export function BookingSidePanel({
   initialCheckIn = null,
   initialCheckOut = null,
   initialGuests = { adults: 1, children: 0, infants: 0 },
-  onBook,
-  onChatWithHost,
+  onBook: _onBook,
+  onChatWithHost: _onChatWithHost,
 }: BookingSidePanelProps) {
   const t = useTranslations();
   const { format } = useCurrencySafe();
@@ -342,23 +342,28 @@ export function BookingSidePanel({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 mt-4">
-          <button
-            type="button"
-            onClick={onChatWithHost}
-            className="flex items-center justify-center gap-1 h-8 px-2.5 bg-white rounded text-xs font-extrabold text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] transition-colors tracking-tight"
-          >
-            <ChatIcon className="w-3.5 h-3.5" />
-            <span>{t('roomDetail.booking.chatWithHost')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={onBook}
-            className="flex-1 h-8 bg-[hsl(var(--snug-orange))] text-white text-xs font-extrabold rounded-full hover:opacity-90 transition-opacity tracking-tight"
-          >
-            {t('roomDetail.booking.book')}
-          </button>
+        {/* Action Buttons - Disabled until official launch */}
+        <div className="flex flex-col gap-2 mt-4">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              disabled={true}
+              className="flex items-center justify-center gap-1 h-8 px-2.5 bg-white rounded text-xs font-extrabold text-[hsl(var(--snug-text-primary))] opacity-50 cursor-not-allowed tracking-tight"
+            >
+              <ChatIcon className="w-3.5 h-3.5" />
+              <span>{t('roomDetail.booking.chatWithHost')}</span>
+            </button>
+            <button
+              type="button"
+              disabled={true}
+              className="flex-1 h-8 bg-[hsl(var(--snug-orange))] text-white text-xs font-extrabold rounded-full opacity-50 cursor-not-allowed tracking-tight"
+            >
+              {t('roomDetail.booking.book')}
+            </button>
+          </div>
+          <p className="text-[10px] text-center text-[hsl(var(--snug-gray))]">
+            {t('roomDetail.booking.comingSoon')}
+          </p>
         </div>
       </div>
 

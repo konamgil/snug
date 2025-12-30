@@ -719,7 +719,8 @@
       "serviceFee": "Snug service fee ({percent}%)",
       "total": "Total",
       "chatWithHost": "Chat with Host",
-      "book": "Book"
+      "book": "Book",
+      "comingSoon": "Available at Official Launch"
     },
     "checkout": {
       "title": "Additional information",

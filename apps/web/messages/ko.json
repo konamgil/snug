@@ -601,7 +601,8 @@
       "serviceFee": "스너그 서비스 수수료 ({percent}%)",
       "total": "총액",
       "chatWithHost": "호스트와 채팅",
-      "book": "예약하기"
+      "book": "예약하기",
+      "comingSoon": "정식 오픈 시 이용 가능"
     },
     "checkout": {
       "title": "추가 정보",
