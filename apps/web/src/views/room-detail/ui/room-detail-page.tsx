@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { motion, type PanInfo } from 'framer-motion';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
@@ -29,7 +28,7 @@ import { useRouter as useI18nRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
 import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
-import { BookingSidePanel } from './booking-side-panel';
+import { BookingSidePanel, type RoomTypeVariant } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
 import { useAccommodationPublic, useSimilarAccommodations } from '@/shared/api/accommodation';
@@ -40,6 +39,20 @@ import {
   getAccommodationTypeLabel,
   getBuildingTypeLabel,
 } from '@/shared/lib';
+
+// AccommodationType → RoomTypeVariant 매핑
+function getRoomTypeVariant(accommodationType: string): RoomTypeVariant {
+  switch (accommodationType) {
+    case 'SHARE_ROOM':
+      return 'shared-room';
+    case 'SHARE_HOUSE':
+      return 'shared-house';
+    case 'HOUSE':
+    case 'APARTMENT':
+    default:
+      return 'house';
+  }
+}
 
 // Mock room data
 const roomData = {
@@ -269,8 +282,10 @@ export function RoomDetailPage() {
   // Mobile carousel state
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const touchStartX = useRef<number>(0);
 
   // Measure container width for carousel calculations
   useEffect(() => {
@@ -367,44 +382,61 @@ export function RoomDetailPage() {
     return indices;
   }, [currentImageIndex, totalImages]);
 
-  // Carousel drag handlers
-  const handleDragStart = useCallback(() => {
-    setIsSwiping(true);
+  // Touch drag handlers - real-time finger following
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? 0;
     setIsDragging(true);
+    setDragOffset(0);
   }, []);
 
-  const handleDragEnd = useCallback(
-    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      setIsDragging(false);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging) return;
 
-      const threshold = containerWidth / 4; // 25% of width to trigger slide
-      const velocity = info.velocity.x;
-      const offset = info.offset.x;
+      const currentX = e.touches[0]?.clientX ?? 0;
+      const diff = currentX - touchStartX.current;
 
-      let newIndex = currentImageIndex;
+      // Calculate boundaries
+      const minOffset = -(totalImages - 1 - currentImageIndex) * containerWidth;
+      const maxOffset = currentImageIndex * containerWidth;
 
-      // Determine new index based on drag distance or velocity
-      if (offset < -threshold || velocity < -500) {
-        // Swiped left -> next image
-        newIndex = Math.min(currentImageIndex + 1, totalImages - 1);
-      } else if (offset > threshold || velocity > 500) {
-        // Swiped right -> previous image
-        newIndex = Math.max(currentImageIndex - 1, 0);
+      // Apply resistance at boundaries
+      let constrainedDiff = diff;
+      if (diff > maxOffset) {
+        constrainedDiff = maxOffset + (diff - maxOffset) * 0.3;
+      } else if (diff < minOffset) {
+        constrainedDiff = minOffset + (diff - minOffset) * 0.3;
       }
 
-      // Set loading state if image not loaded
-      if (newIndex !== currentImageIndex && !loadedImages.has(newIndex)) {
-        setIsImageLoading(true);
+      setDragOffset(constrainedDiff);
+
+      if (Math.abs(diff) > 10) {
+        setIsSwiping(true);
       }
-
-      // Update index
-      setCurrentImageIndex(newIndex);
-
-      // Reset swiping state after animation
-      setTimeout(() => setIsSwiping(false), 100);
     },
-    [containerWidth, currentImageIndex, totalImages, loadedImages],
+    [isDragging, totalImages, currentImageIndex, containerWidth],
   );
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+
+    const threshold = containerWidth / 4; // 25% to change slide
+    let newIndex = currentImageIndex;
+
+    if (dragOffset < -threshold) {
+      // Dragged left -> next image
+      newIndex = Math.min(currentImageIndex + 1, totalImages - 1);
+    } else if (dragOffset > threshold) {
+      // Dragged right -> previous image
+      newIndex = Math.max(currentImageIndex - 1, 0);
+    }
+
+    setCurrentImageIndex(newIndex);
+    setDragOffset(0);
+
+    // Reset swiping state after animation
+    setTimeout(() => setIsSwiping(false), 300);
+  }, [dragOffset, containerWidth, currentImageIndex, totalImages]);
 
   const handleOpenGallery = useCallback(() => {
     if (!isSwiping) {
@@ -471,23 +503,15 @@ export function RoomDetailPage() {
         <div className="relative aspect-[4/3]">
           {/* Sliding Images Container */}
           {photos.length > 0 && containerWidth > 0 ? (
-            <motion.div
-              className="flex h-full cursor-grab active:cursor-grabbing"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              animate={
-                isDragging
-                  ? undefined
-                  : {
-                      x: -currentImageIndex * containerWidth,
-                    }
-              }
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            <div
+              className="flex h-full"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               style={{
                 width: containerWidth * photos.length,
+                transform: `translateX(${-currentImageIndex * containerWidth + dragOffset}px)`,
+                transition: isDragging ? 'none' : 'transform 0.3s ease-out',
               }}
             >
               {photos.map((photo, index) => (
@@ -502,23 +526,14 @@ export function RoomDetailPage() {
                     alt={`${accommodation.roomName} - ${index + 1}`}
                     fill
                     sizes="100vw"
-                    className={`object-cover pointer-events-none transition-all duration-300 ${
-                      index === currentImageIndex && isImageLoading
-                        ? 'blur-sm scale-105'
-                        : 'blur-0 scale-100'
-                    }`}
-                    priority={index <= currentImageIndex + 2}
+                    className="object-cover pointer-events-none"
+                    priority={true}
+                    loading="eager"
                     onLoad={() => handleImageLoad(index)}
                   />
-                  {/* Loading spinner for current image */}
-                  {index === currentImageIndex && isImageLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 z-10">
-                      <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
-                    </div>
-                  )}
                 </div>
               ))}
-            </motion.div>
+            </div>
           ) : photos.length > 0 && containerWidth === 0 ? (
             // Fallback while measuring container width
             <div className="absolute inset-0">
@@ -1147,6 +1162,7 @@ export function RoomDetailPage() {
               <BookingSidePanel
                 roomType={displayRoomType}
                 roomTypeDescription={displayRoomTypeDescription}
+                roomTypeVariant={getRoomTypeVariant(accommodation.accommodationType)}
                 priceBreakdown={{
                   pricePerNight: pricePerNight,
                   nights: nights,

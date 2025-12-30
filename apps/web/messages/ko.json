@@ -1084,15 +1084,17 @@
     },
     "accommodationTypeDescriptions": {
       "house": "전체 공간을 독립적으로 사용하는 숙소입니다.",
-      "share_room": "다른 게스트와 방을 함께 사용하는 숙소입니다.",
-      "share_house": "공용 공간을 함께 사용하며 개인 방을 사용하는 숙소입니다.",
-      "apartment": "아파트 또는 빌라의 전체 또는 일부를 사용하는 숙소입니다."
+      "share_room": "함께 생활하며 소통할 수 있는 쉐어 하우스입니다.",
+      "share_house": "개인 공간과 편안함을 즐길 수 있는 쉐어 하우스입니다.",
+      "apartment": "전체 공간을 독립적으로 사용하는 아파트입니다."
     },
     "buildingTypes": {
-      "apartment": "아파트",
+      "apartment_villa": "아파트/빌라",
       "villa": "빌라",
-      "house": "단독주택",
-      "officetel": "오피스텔"
+      "house": "주택/단독주택",
+      "hotel": "호텔",
+      "motel": "모텔",
+      "dormitory": "기숙사/고시원"
     },
     "weekdays": {
       "sun": "일요일",

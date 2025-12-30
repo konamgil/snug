@@ -303,7 +303,7 @@ export function PhotoUploadModal({
               className="flex items-center gap-0.5 px-2 py-2 text-xs text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
             >
               <Plus className="w-4 h-4" />
-              그룹 관리
+              그룹 추가
             </button>
           </div>
         </div>

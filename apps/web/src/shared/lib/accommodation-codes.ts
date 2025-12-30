@@ -92,12 +92,12 @@ export const ACCOMMODATION_TYPE_LABELS: Record<string, Record<string, string>> =
 };
 
 export const BUILDING_TYPE_LABELS: Record<string, Record<string, string>> = {
-  APARTMENT: {
-    ko: '아파트',
-    en: 'Apartment',
-    ja: 'アパート',
-    zh: '公寓',
-    vi: 'Căn hộ',
+  APARTMENT_VILLA: {
+    ko: '아파트/빌라',
+    en: 'Apartment/Villa',
+    ja: 'アパート/ヴィラ',
+    zh: '公寓/别墅',
+    vi: 'Căn hộ/Biệt thự',
   },
   VILLA: {
     ko: '빌라',
@@ -107,18 +107,32 @@ export const BUILDING_TYPE_LABELS: Record<string, Record<string, string>> = {
     vi: 'Biệt thự',
   },
   HOUSE: {
-    ko: '단독주택',
-    en: 'House',
+    ko: '주택/단독주택',
+    en: 'House/Detached',
     ja: '一戸建て',
     zh: '独栋房屋',
     vi: 'Nhà riêng',
   },
-  OFFICETEL: {
-    ko: '오피스텔',
-    en: 'Officetel',
-    ja: 'オフィステル',
-    zh: '酒店式公寓',
-    vi: 'Officetel',
+  HOTEL: {
+    ko: '호텔',
+    en: 'Hotel',
+    ja: 'ホテル',
+    zh: '酒店',
+    vi: 'Khách sạn',
+  },
+  MOTEL: {
+    ko: '모텔',
+    en: 'Motel',
+    ja: 'モーテル',
+    zh: '汽车旅馆',
+    vi: 'Nhà nghỉ',
+  },
+  DORMITORY: {
+    ko: '기숙사/고시원',
+    en: 'Dormitory/Goshiwon',
+    ja: '寮/コシウォン',
+    zh: '宿舍/考试院',
+    vi: 'Ký túc xá',
   },
 };
 

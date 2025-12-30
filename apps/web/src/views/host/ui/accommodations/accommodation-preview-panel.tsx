@@ -9,13 +9,11 @@ import { AccommodationPreviewModal } from './accommodation-preview-modal';
 
 interface AccommodationPreviewPanelProps {
   data: AccommodationFormData;
-  contractorName?: string;
   accommodationId?: string; // 편집 모드에서 유사 숙소 조회용
 }
 
 export function AccommodationPreviewPanel({
   data,
-  contractorName = '',
   accommodationId,
 }: AccommodationPreviewPanelProps) {
   const t = useTranslations('host.accommodation.previewPanel');
@@ -63,7 +61,6 @@ export function AccommodationPreviewPanel({
   };
 
   const mainPhoto = getMainPhoto();
-  const allPhotos = data.mainPhotos.flatMap((cat) => cat.photos);
 
   return (
     <div className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-5">
@@ -74,37 +71,8 @@ export function AccommodationPreviewPanel({
       {/* Photo Preview */}
       <div className="mb-4">
         {mainPhoto ? (
-          <div className="space-y-2">
-            {/* Main image */}
-            <div className="relative aspect-video rounded-lg overflow-hidden">
-              <Image src={mainPhoto.url} alt="Main photo" fill className="object-cover" />
-            </div>
-
-            {/* Thumbnail row */}
-            {allPhotos.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {allPhotos.slice(0, 4).map((photo, index) => (
-                  <div
-                    key={photo.id}
-                    className="relative w-16 h-12 rounded overflow-hidden flex-shrink-0"
-                  >
-                    <Image
-                      src={photo.url}
-                      alt={`Photo ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-                {allPhotos.length > 4 && (
-                  <div className="w-16 h-12 rounded bg-[hsl(var(--snug-light-gray))] flex items-center justify-center flex-shrink-0">
-                    <span className="text-xs text-[hsl(var(--snug-gray))]">
-                      +{allPhotos.length - 4}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+          <div className="relative aspect-video rounded-lg overflow-hidden">
+            <Image src={mainPhoto.url} alt="Main photo" fill className="object-cover" />
           </div>
         ) : (
           <div className="aspect-video bg-[hsl(var(--snug-light-gray))] rounded-lg flex flex-col items-center justify-center">
@@ -116,18 +84,11 @@ export function AccommodationPreviewPanel({
 
       {/* Info Display */}
       <div className="space-y-3">
-        {/* Contractor Name */}
-        <div>
-          <p className="text-xs text-[hsl(var(--snug-gray))]">{t('contractorName')}</p>
-          <p className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
-            {contractorName || t('accommodationName')}
-          </p>
-        </div>
-
         {/* Accommodation Name */}
-        {data.roomName && data.groupName && (
+        {data.roomName && (
           <p className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-            {data.groupName} {data.roomName}호 ({data.groupName})
+            {data.roomName}
+            {data.groupName && `(${data.groupName})`}
           </p>
         )}
 

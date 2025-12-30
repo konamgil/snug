@@ -1083,16 +1083,18 @@
         "apartment": "Apartment/Villa"
       },
       "accommodationTypeDescriptions": {
-        "house": "An entire space for your exclusive use.",
-        "share_room": "A room shared with other guests.",
-        "share_house": "A private room with shared common areas.",
-        "apartment": "All or part of an apartment or villa."
+        "house": "A whole house for enjoying the entire space privately.",
+        "share_room": "A shared house for living together and connecting with others.",
+        "share_house": "A shared house for enjoying personal space and comfort.",
+        "apartment": "A whole apartment for enjoying the entire space privately."
       },
       "buildingTypes": {
-        "apartment": "Apartment",
+        "apartment_villa": "Apartment/Villa",
         "villa": "Villa",
-        "house": "House",
-        "officetel": "Officetel"
+        "house": "House/Detached",
+        "hotel": "Hotel",
+        "motel": "Motel",
+        "dormitory": "Dormitory/Goshiwon"
       },
       "weekdays": {
         "sun": "Sunday",

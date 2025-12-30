@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
   // Disable image optimization for static export
   images: {
     unoptimized: isExport,
+    // Reduce max image sizes to prevent timeout on slow connections
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Cache optimized images longer to reduce upstream requests
+    minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
     remotePatterns: [
       {
         protocol: 'https',

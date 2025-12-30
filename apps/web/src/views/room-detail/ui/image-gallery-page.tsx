@@ -38,15 +38,6 @@ function photosToCategories(photos: AccommodationPhoto[]): ImageCategory[] {
   // Convert to ImageCategory array
   const categories: ImageCategory[] = [];
 
-  // Add 'all' category first
-  if (photos.length > 0) {
-    categories.push({
-      id: 'all',
-      count: photos.length,
-      images: photos.map((p) => p.url),
-    });
-  }
-
   // Add individual categories in order
   CATEGORY_ORDER.forEach((categoryId) => {
     const images = categoryMap.get(categoryId);
@@ -76,7 +67,7 @@ export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
   const router = useRouter();
   const t = useTranslations('host.accommodation.photoGroups');
   const tGallery = useTranslations('gallery');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   // Use React Query hook for caching - data shared with detail page
   const { data: accommodation, isLoading } = useAccommodationPublic(roomId);
@@ -84,10 +75,7 @@ export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
   // Get category label with translation
   const getCategoryLabel = (categoryId: string): string => {
     // Default groups use translations
-    if (['all', 'main', 'room', 'living_room', 'kitchen', 'bathroom'].includes(categoryId)) {
-      if (categoryId === 'all') {
-        return tGallery('allPhotos');
-      }
+    if (['main', 'room', 'living_room', 'kitchen', 'bathroom'].includes(categoryId)) {
       return t(categoryId);
     }
     // Custom groups (group_XXX) - show as generic name
@@ -105,8 +93,8 @@ export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
   const currentCategory = categories.find((c) => c.id === selectedCategory) || categories[0];
   const currentImages = currentCategory?.images || [];
 
-  // 'all' 제외한 카테고리 중 2개 이상 사진이 있는 그룹이 있는지 체크
-  const hasMultiplePhotosInAnyCategory = categories.some((c) => c.id !== 'all' && c.count > 1);
+  // 카테고리 중 2개 이상 사진이 있는 그룹이 있는지 체크
+  const hasMultiplePhotosInAnyCategory = categories.some((c) => c.count > 1);
 
   const handleBack = () => {
     router.back();

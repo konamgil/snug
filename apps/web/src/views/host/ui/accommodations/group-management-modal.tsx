@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import { X, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { DEFAULT_PHOTO_GROUPS } from './types';
+
+// 기본 그룹 ID (삭제 불가)
+const DEFAULT_GROUP_IDS: string[] = DEFAULT_PHOTO_GROUPS.map((g) => g.id);
 
 export interface GroupItem {
   id: string;
@@ -88,6 +92,12 @@ export function GroupManagementModal({
     });
   };
 
+  const handleDeleteGroup = (groupId: string) => {
+    // 기본 그룹은 삭제 불가
+    if (DEFAULT_GROUP_IDS.includes(groupId)) return;
+    setLocalGroups(localGroups.filter((g) => g.id !== groupId));
+  };
+
   const handleSave = () => {
     onSave(localGroups);
     onClose();
@@ -110,7 +120,7 @@ export function GroupManagementModal({
             <X className="w-4 h-4 text-[hsl(var(--snug-text-primary))]" />
           </button>
 
-          <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">그룹관리</h3>
+          <h3 className="text-lg font-bold text-[hsl(var(--snug-text-primary))]">그룹 추가</h3>
           <p className="text-xs text-[hsl(var(--snug-gray))] mt-3 leading-relaxed">
             숙소를 그룹으로 묶어 한 번에 관리할 수 있습니다.
             <br />
@@ -119,7 +129,7 @@ export function GroupManagementModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-5">
+        <div className="flex-1 overflow-y-auto px-5 pb-5 scrollbar-minimal">
           {/* Add Group Input */}
           <div className="flex items-center gap-2 mb-4">
             <input
@@ -171,17 +181,30 @@ export function GroupManagementModal({
                     </span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleToggleExpand(group.id)}
-                    className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
-                  >
-                    {expandedGroupId === group.id ? (
-                      <ChevronUp className="w-4 h-4 text-[hsl(var(--snug-text-primary))]" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-[hsl(var(--snug-text-primary))]" />
+                  <div className="flex items-center gap-1">
+                    {/* Delete Button - only for custom groups */}
+                    {!DEFAULT_GROUP_IDS.includes(group.id) && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteGroup(group.id)}
+                        className="p-1 hover:bg-red-50 rounded transition-colors group/delete"
+                      >
+                        <X className="w-4 h-4 text-[hsl(var(--snug-gray))] group-hover/delete:text-red-500" />
+                      </button>
                     )}
-                  </button>
+                    {/* Expand/Collapse Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleExpand(group.id)}
+                      className="p-1 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+                    >
+                      {expandedGroupId === group.id ? (
+                        <ChevronUp className="w-4 h-4 text-[hsl(var(--snug-text-primary))]" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-[hsl(var(--snug-text-primary))]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Accordion Content - Accommodations List */}

@@ -145,15 +145,17 @@ export const AMENITY_OPTIONS = ['hairDryer', 'shampoo', 'conditioner', 'bodyWash
 export type AmenityId = (typeof AMENITY_OPTIONS)[number];
 
 // Accommodation type options (labels come from translations: host.accommodation.accommodationTypes.*)
-export const ACCOMMODATION_TYPE_OPTIONS = [
-  'house',
-  'share_room',
-  'share_house',
-  'apartment',
-] as const;
+export const ACCOMMODATION_TYPE_OPTIONS = ['house', 'share_room', 'share_house'] as const;
 
 // Building type options (labels come from translations: host.accommodation.buildingTypes.*)
-export const BUILDING_TYPE_OPTIONS = ['apartment', 'villa', 'house', 'officetel'] as const;
+export const BUILDING_TYPE_OPTIONS = [
+  'apartment_villa',
+  'villa',
+  'house',
+  'hotel',
+  'motel',
+  'dormitory',
+] as const;
 
 // Weekday options (labels come from translations: host.accommodation.weekdays.*)
 export const WEEKDAY_OPTIONS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;

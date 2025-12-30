@@ -8,6 +8,7 @@ import { useAuthStore } from '@/shared/stores';
 import {
   createAccommodation,
   createAccommodationGroup,
+  deleteAccommodationGroup,
   getAccommodationGroups,
   getAccommodation,
   updateAccommodation,
@@ -628,6 +629,16 @@ export function AccommodationNewPage() {
     }
   };
 
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      await deleteAccommodationGroup(groupId);
+      setGroups(groups.filter((g) => g.id !== groupId));
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      showToastMessage('그룹 삭제에 실패했습니다.', 'error');
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--snug-light-gray))]">
       {/* Content */}
@@ -639,6 +650,7 @@ export function AccommodationNewPage() {
             onChange={setFormData}
             groups={groups}
             onAddGroup={handleAddGroup}
+            onDeleteGroup={handleDeleteGroup}
           />
         </div>
 
@@ -1011,6 +1023,16 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     }
   };
 
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      await deleteAccommodationGroup(groupId);
+      setGroups(groups.filter((g) => g.id !== groupId));
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      showToastMessage('그룹 삭제에 실패했습니다.', 'error');
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -1034,6 +1056,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
             onChange={setFormData}
             groups={groups}
             onAddGroup={handleAddGroup}
+            onDeleteGroup={handleDeleteGroup}
           />
         </div>
 

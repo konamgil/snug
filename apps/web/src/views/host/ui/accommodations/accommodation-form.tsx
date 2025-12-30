@@ -31,6 +31,7 @@ interface AccommodationFormProps {
   onChange: (data: AccommodationFormData) => void;
   groups?: GroupItem[];
   onAddGroup?: (groupName: string) => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 export function AccommodationForm({
@@ -38,6 +39,7 @@ export function AccommodationForm({
   onChange,
   groups = [],
   onAddGroup,
+  onDeleteGroup,
 }: AccommodationFormProps) {
   const t = useTranslations('host.accommodation.form');
   const tCommon = useTranslations('common');
@@ -52,6 +54,8 @@ export function AccommodationForm({
   const tPublishGate = useTranslations('host.accommodation.form.publishGate');
   const [data, setData] = useState<AccommodationFormData>(initialData);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isUsageTypeTooltipOpen, setIsUsageTypeTooltipOpen] = useState(false);
+  const [isStayTooltipOpen, setIsStayTooltipOpen] = useState(false);
 
   // Mark field as touched on blur
   const handleBlur = (field: string) => {
@@ -196,13 +200,6 @@ export function AccommodationForm({
     updateSpace({ beds: { ...data.space.beds, [key]: Math.max(0, value) } });
   };
 
-  const toggleUsageType = (type: 'stay' | 'short_term') => {
-    const newTypes = data.usageTypes.includes(type)
-      ? data.usageTypes.filter((t) => t !== type)
-      : [...data.usageTypes, type];
-    updateData({ usageTypes: newTypes });
-  };
-
   const toggleWeekendDay = (day: string) => {
     const newDays = data.pricing.weekendDays.includes(day)
       ? data.pricing.weekendDays.filter((d) => d !== day)
@@ -337,7 +334,7 @@ export function AccommodationForm({
                       setNewGroupName('');
                     }}
                   />
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20 max-h-[200px] overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20 max-h-[200px] overflow-y-auto scrollbar-minimal">
                     {/* 선택 안함 */}
                     <button
                       type="button"
@@ -351,22 +348,41 @@ export function AccommodationForm({
                     </button>
 
                     {/* 기존 그룹 목록 */}
-                    {groups.map((group) => (
-                      <button
-                        key={group.id}
-                        type="button"
-                        onClick={() => {
-                          updateData({ groupName: group.name });
-                          setIsGroupDropdownOpen(false);
-                        }}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] ${
+                    {groups.map((group, index) => (
+                      <div
+                        key={group.id || `group-${index}`}
+                        className={`flex items-center justify-between px-4 py-3 hover:bg-[hsl(var(--snug-light-gray))] ${
                           data.groupName === group.name
                             ? 'text-[hsl(var(--snug-orange))] bg-[hsl(var(--snug-light-gray))]'
                             : 'text-[hsl(var(--snug-text-primary))]'
                         }`}
                       >
-                        {group.name}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateData({ groupName: group.name });
+                            setIsGroupDropdownOpen(false);
+                          }}
+                          className="flex-1 text-left text-sm"
+                        >
+                          {group.name}
+                        </button>
+                        {onDeleteGroup && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteGroup(group.id);
+                              if (data.groupName === group.name) {
+                                updateData({ groupName: undefined });
+                              }
+                            }}
+                            className="p-1 hover:bg-red-50 rounded transition-colors group/delete"
+                          >
+                            <X className="w-3.5 h-3.5 text-[hsl(var(--snug-gray))] group-hover/delete:text-red-500" />
+                          </button>
+                        )}
+                      </div>
                     ))}
 
                     {/* 구분선 */}
@@ -515,31 +531,105 @@ export function AccommodationForm({
             {/* 숙소 이용 & 최소 예약일 */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="flex items-center gap-1 text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
-                  {t('accommodationType')} <span className="text-[hsl(var(--snug-orange))]">*</span>
-                  <HelpCircle className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                </label>
-                <div className="flex items-center gap-4" onBlur={() => handleBlur('usageTypes')}>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={data.usageTypes.includes('stay')}
-                      onChange={() => toggleUsageType('stay')}
-                      className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
-                    />
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      {t('stay')}
-                    </span>
+                <div className="flex items-center gap-1 mb-2 relative">
+                  <label className="text-sm font-medium text-[hsl(var(--snug-text-primary))]">
+                    {t('accommodationType')}{' '}
+                    <span className="text-[hsl(var(--snug-orange))]">*</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={data.usageTypes.includes('short_term')}
-                      onChange={() => toggleUsageType('short_term')}
-                      className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
-                    />
+                  <button
+                    type="button"
+                    onClick={() => setIsUsageTypeTooltipOpen(!isUsageTypeTooltipOpen)}
+                    className="hover:opacity-70"
+                  >
+                    <HelpCircle className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                  </button>
+
+                  {/* Usage Type Tooltip */}
+                  {isUsageTypeTooltipOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsUsageTypeTooltipOpen(false)}
+                      />
+                      <div className="absolute -top-[270px] left-[95px] w-80 bg-white border border-[hsl(var(--snug-border))] rounded-lg shadow-lg z-20 p-4">
+                        <button
+                          type="button"
+                          onClick={() => setIsUsageTypeTooltipOpen(false)}
+                          className="absolute top-3 right-3 hover:opacity-70"
+                        >
+                          <X className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                        </button>
+                        <div className="space-y-3 text-sm">
+                          <div>
+                            <p className="font-bold text-[hsl(var(--snug-orange))]">
+                              {t('stay')}은
+                            </p>
+                            <p className="text-[hsl(var(--snug-gray))] mt-1">
+                              호텔·모텔·게스트하우스·펜션·외도민 등 숙박업 신고가 완료된 공간을
+                              의미하며, 최소 1박부터 예약 받을 수 있습니다. (관련 사업자등록증이
+                              필요합니다.)
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-bold text-[hsl(var(--snug-text-primary))]">
+                              {t('shortTermRental')}는
+                            </p>
+                            <p className="text-[hsl(var(--snug-gray))] mt-1">
+                              쉐어하우스 또는 주거용 공간처럼 1박 이상 거주를 받는 임대 형태입니다.
+                              게스트 전입신고가 가능하며, 스너그에서 단기임대 계약서·거소증 문서를
+                              지원합니다.
+                            </p>
+                          </div>
+                          <p className="text-[hsl(var(--snug-gray))] text-xs pt-2 border-t border-[hsl(var(--snug-border))]">
+                            숙박/단기임대 여부는 반드시 호스트가 직접 확인 후 선택해야 하며, 잘못된
+                            선택으로 발생하는 책임은 호스트에게 있습니다.
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-center gap-6" onBlur={() => handleBlur('usageTypes')}>
+                  <label
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => updateData({ usageTypes: ['short_term'] })}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        data.usageTypes.includes('short_term')
+                          ? 'border-[hsl(var(--snug-orange))]'
+                          : 'border-[hsl(var(--snug-border))]'
+                      }`}
+                    >
+                      {data.usageTypes.includes('short_term') && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--snug-orange))]" />
+                      )}
+                    </div>
                     <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                       {t('shortTermRental')}
+                    </span>
+                  </label>
+                  <label
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => {
+                      updateData({ usageTypes: ['stay'] });
+                      setIsStayTooltipOpen(true);
+                      setTimeout(() => setIsStayTooltipOpen(false), 5000);
+                    }}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        data.usageTypes.includes('stay')
+                          ? 'border-[hsl(var(--snug-orange))]'
+                          : 'border-[hsl(var(--snug-border))]'
+                      }`}
+                    >
+                      {data.usageTypes.includes('stay') && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--snug-orange))]" />
+                      )}
+                    </div>
+                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                      {t('stay')}
                     </span>
                   </label>
                 </div>
@@ -762,13 +852,30 @@ export function AccommodationForm({
             />
             <div className="flex flex-wrap gap-3 mt-3">
               {WEEKDAY_OPTIONS.map((day) => (
-                <label key={day} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={data.pricing.weekendDays.includes(day)}
-                    onChange={() => toggleWeekendDay(day)}
-                    className="w-5 h-5 rounded border-[hsl(var(--snug-border))] text-[hsl(var(--snug-orange))] focus:ring-[hsl(var(--snug-orange))]"
-                  />
+                <label
+                  key={day}
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => toggleWeekendDay(day)}
+                >
+                  <div
+                    className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
+                      data.pricing.weekendDays.includes(day)
+                        ? 'bg-[#FF7900]'
+                        : 'border-2 border-[hsl(var(--snug-border))]'
+                    }`}
+                  >
+                    {data.pricing.weekendDays.includes(day) && (
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
                     {tWeekdays(day as any)}
                   </span>
@@ -1147,11 +1254,14 @@ export function AccommodationForm({
               </button>
             </div>
             {data.facilities.length > 0 ? (
-              <ul className="list-disc list-inside text-sm text-[hsl(var(--snug-text-primary))] space-y-1">
+              <div className="grid grid-cols-4 gap-2 text-sm text-[hsl(var(--snug-text-primary))]">
                 {data.facilities.map((facility) => (
-                  <li key={facility}>{getFacilityLabel(facility)}</li>
+                  <div key={facility} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-[hsl(var(--snug-orange))]" />
+                    {getFacilityLabel(facility)}
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noFacilitiesAdded')}</p>
             )}
@@ -1172,11 +1282,14 @@ export function AccommodationForm({
               </button>
             </div>
             {data.amenities.length > 0 ? (
-              <ul className="list-disc list-inside text-sm text-[hsl(var(--snug-text-primary))] space-y-1">
+              <div className="grid grid-cols-4 gap-2 text-sm text-[hsl(var(--snug-text-primary))]">
                 {data.amenities.map((amenity) => (
-                  <li key={amenity}>{getAmenityLabel(amenity)}</li>
+                  <div key={amenity} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-[hsl(var(--snug-orange))]" />
+                    {getAmenityLabel(amenity)}
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
               <p className="text-sm text-[hsl(var(--snug-gray))]">{t('noAmenitiesAdded')}</p>
             )}
@@ -1504,6 +1617,19 @@ export function AccommodationForm({
         onClose={() => setIsAdditionalFeeModalOpen(false)}
         onSave={addAdditionalFee}
       />
+
+      {/* 숙박 선택 시 하단 중앙 팝오버 */}
+      {isStayTooltipOpen && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 max-w-md">
+          <div
+            className="bg-[#333] text-white text-sm px-4 py-3 rounded-lg shadow-lg cursor-pointer"
+            onClick={() => setIsStayTooltipOpen(false)}
+          >
+            숙박은 호텔·모텔·게스트하우스·펜션·외국인관광 도시민박 등 숙박업 신고가 완료된 공간을
+            의미하며, 최소 1박부터 예약 받을 수 있습니다. (관련 사업자등록증이 필요합니다.)
+          </div>
+        </div>
+      )}
     </div>
   );
 }
