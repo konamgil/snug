@@ -18,7 +18,7 @@ const COUNTRY_CODES = [
   { code: '+44', country: 'UK' },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword');

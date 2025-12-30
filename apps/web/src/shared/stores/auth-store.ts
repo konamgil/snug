@@ -51,37 +51,56 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initialize: async () => {
     const supabase = getSupabaseClient();
 
-    // 현재 세션 가져오기
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    try {
+      // 현재 세션 가져오기
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    if (session?.user) {
-      // Prisma에서 유저 정보 가져오거나 없으면 생성
-      let dbUser = await getUserBySupabaseId(session.user.id);
+      if (session?.user) {
+        // Prisma에서 유저 정보 가져오거나 없으면 생성
+        let dbUser: User | null = null;
 
-      // DB에 유저가 없으면 upsert
-      if (!dbUser) {
-        const metadata = session.user.user_metadata;
-        dbUser = await upsertUserFromAuth({
-          email: session.user.email!,
-          supabaseId: session.user.id,
-          // Google: given_name/family_name, Others: first_name/last_name
-          firstName: metadata?.given_name || metadata?.first_name,
-          lastName: metadata?.family_name || metadata?.last_name,
-          // Google: picture, Others: avatar_url
-          avatarUrl: metadata?.picture || metadata?.avatar_url,
+        try {
+          dbUser = await getUserBySupabaseId(session.user.id);
+
+          // DB에 유저가 없으면 upsert
+          if (!dbUser) {
+            const metadata = session.user.user_metadata;
+            dbUser = await upsertUserFromAuth({
+              email: session.user.email!,
+              supabaseId: session.user.id,
+              // Google: given_name/family_name, Others: first_name/last_name
+              firstName: metadata?.given_name || metadata?.first_name,
+              lastName: metadata?.family_name || metadata?.last_name,
+              // Google: picture, Others: avatar_url
+              avatarUrl: metadata?.picture || metadata?.avatar_url,
+            });
+          }
+        } catch (dbError) {
+          // DB 오류가 발생해도 세션은 유지 (유저 정보만 null)
+          console.error('Failed to fetch/create user from DB:', dbError);
+        }
+
+        set({
+          session,
+          supabaseUser: session.user,
+          user: dbUser,
+          isLoading: false,
+          isInitialized: true,
+        });
+      } else {
+        set({
+          session: null,
+          supabaseUser: null,
+          user: null,
+          isLoading: false,
+          isInitialized: true,
         });
       }
-
-      set({
-        session,
-        supabaseUser: session.user,
-        user: dbUser,
-        isLoading: false,
-        isInitialized: true,
-      });
-    } else {
+    } catch (error) {
+      // 초기화 실패해도 isInitialized를 true로 설정하여 페이지가 보이도록 함
+      console.error('Auth initialization failed:', error);
       set({
         session: null,
         supabaseUser: null,
@@ -95,16 +114,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       if (event === 'SIGNED_IN' && session?.user) {
         // Prisma DB에 유저 upsert
-        const metadata = session.user.user_metadata;
-        const dbUser = await upsertUserFromAuth({
-          email: session.user.email!,
-          supabaseId: session.user.id,
-          // Google: given_name/family_name, Others: first_name/last_name
-          firstName: metadata?.given_name || metadata?.first_name,
-          lastName: metadata?.family_name || metadata?.last_name,
-          // Google: picture, Others: avatar_url
-          avatarUrl: metadata?.picture || metadata?.avatar_url,
-        });
+        let dbUser: User | null = null;
+        try {
+          const metadata = session.user.user_metadata;
+          dbUser = await upsertUserFromAuth({
+            email: session.user.email!,
+            supabaseId: session.user.id,
+            // Google: given_name/family_name, Others: first_name/last_name
+            firstName: metadata?.given_name || metadata?.first_name,
+            lastName: metadata?.family_name || metadata?.last_name,
+            // Google: picture, Others: avatar_url
+            avatarUrl: metadata?.picture || metadata?.avatar_url,
+          });
+        } catch (dbError) {
+          console.error('Failed to upsert user on sign in:', dbError);
+        }
 
         set({
           session,
