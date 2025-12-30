@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const messages = await getMessages({ locale });
   const metadata = messages.metadata as { title: string; description: string };
 
-  const siteUrl = 'https://findsnug.com';
+  const siteUrl = 'https://www.findsnug.com';
   const ogImageUrl = `${siteUrl}/images/og_1200x630.png`;
 
   return {
@@ -32,6 +32,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     icons: {
       icon: '/images/logo/favicon.svg',
       apple: '/apple-touch-icon.png',
+    },
+    alternates: {
+      canonical: `${siteUrl}/${locale}`,
+      languages: {
+        en: `${siteUrl}/en`,
+        ko: `${siteUrl}/ko`,
+        zh: `${siteUrl}/zh`,
+        ja: `${siteUrl}/ja`,
+        vi: `${siteUrl}/vi`,
+        'x-default': `${siteUrl}/en`,
+      },
     },
     openGraph: {
       title: metadata.title,
