@@ -6,7 +6,7 @@ import { ImagePlus, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import type { PhotoCategory, PhotoItem } from './types';
 import { DEFAULT_PHOTO_GROUPS } from './types';
-import { GroupManagementModal, type GroupItem } from './group-management-modal';
+import { PhotoGroupManagementModal, type PhotoGroupItem } from './photo-group-management-modal';
 import {
   uploadFiles,
   validateImageFile,
@@ -60,28 +60,40 @@ export function PhotoUploadModal({
 
   if (!isOpen) return null;
 
-  // Convert localCategories to GroupItem format for the modal
-  const groupsForModal: GroupItem[] = localCategories.map((cat) => ({
+  // Convert localCategories to PhotoGroupItem format for the modal
+  const groupsForModal: PhotoGroupItem[] = localCategories.map((cat) => ({
     id: cat.id,
     name: cat.name,
-    isSelected: false,
-    accommodationIds: [],
+    photoCount: cat.photos.length,
   }));
 
   // Handle save from group management modal
-  const handleGroupManagementSave = (updatedGroups: GroupItem[]) => {
+  const handleGroupManagementSave = (updatedGroups: PhotoGroupItem[]) => {
     // Add new groups that don't exist in localCategories
     const existingIds = localCategories.map((c) => c.id);
     const newGroups = updatedGroups.filter((g) => !existingIds.includes(g.id));
 
+    // Find deleted groups
+    const updatedIds = updatedGroups.map((g) => g.id);
+    const remainingCategories = localCategories.filter((c) => updatedIds.includes(c.id));
+
+    // Update names for existing groups
+    const updatedCategories = remainingCategories.map((cat) => {
+      const updated = updatedGroups.find((g) => g.id === cat.id);
+      return updated ? { ...cat, name: updated.name } : cat;
+    });
+
+    // Add new groups
     if (newGroups.length > 0) {
       const newCategories: PhotoCategory[] = newGroups.map((g, index) => ({
         id: g.id,
         name: g.name,
         photos: [],
-        order: localCategories.length + index,
+        order: updatedCategories.length + index,
       }));
-      setLocalCategories([...localCategories, ...newCategories]);
+      setLocalCategories([...updatedCategories, ...newCategories]);
+    } else {
+      setLocalCategories(updatedCategories);
     }
   };
 
@@ -300,10 +312,10 @@ export function PhotoUploadModal({
             <button
               type="button"
               onClick={() => setIsGroupManagementOpen(true)}
-              className="flex items-center gap-0.5 px-2 py-2 text-xs text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded transition-colors"
+              className="flex items-center gap-1 px-3 py-2 text-xs text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
             >
-              <Plus className="w-4 h-4" />
-              그룹 추가
+              <Plus className="w-3.5 h-3.5" />
+              그룹 관리
             </button>
           </div>
         </div>
@@ -552,8 +564,8 @@ export function PhotoUploadModal({
         />
       </div>
 
-      {/* Group Management Modal */}
-      <GroupManagementModal
+      {/* Photo Group Management Modal */}
+      <PhotoGroupManagementModal
         isOpen={isGroupManagementOpen}
         onClose={() => setIsGroupManagementOpen(false)}
         groups={groupsForModal}
