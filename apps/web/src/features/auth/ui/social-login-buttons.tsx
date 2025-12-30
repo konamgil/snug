@@ -110,8 +110,8 @@ function FacebookIcon() {
 export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const t = useTranslations('auth.login');
   const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle);
-  const signInWithKakao = useAuthStore((state) => state.signInWithKakao);
-  const signInWithFacebook = useAuthStore((state) => state.signInWithFacebook);
+  const _signInWithKakao = useAuthStore((state) => state.signInWithKakao);
+  const _signInWithFacebook = useAuthStore((state) => state.signInWithFacebook);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [recentMethod, setRecentMethod] = useState<LoginMethod | null>(null);
@@ -132,27 +132,28 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     }
   };
 
-  const handleAppleLogin = () => {
+  // TODO: 정식 오픈 시 활성화
+  const _handleAppleLogin = () => {
     // Apple OAuth - 추후 구현
     setError('Apple login is not available yet');
   };
 
-  const handleKakaoLogin = async () => {
+  const _handleKakaoLogin = async () => {
     setLoadingProvider('kakao');
     setError(null);
     setRecentLoginMethod('kakao');
-    const { error } = await signInWithKakao();
+    const { error } = await _signInWithKakao();
     if (error) {
       setError(error.message);
       setLoadingProvider(null);
     }
   };
 
-  const handleFacebookLogin = async () => {
+  const _handleFacebookLogin = async () => {
     setLoadingProvider('facebook');
     setError(null);
     setRecentLoginMethod('facebook');
-    const { error } = await signInWithFacebook();
+    const { error } = await _signInWithFacebook();
     if (error) {
       setError(error.message);
       setLoadingProvider(null);
@@ -185,31 +186,20 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
       <SocialButton
         icon={<AppleIcon />}
         label={t('continueWithApple')}
-        onClick={handleAppleLogin}
-        badge={recentMethod === 'apple' ? 'recent' : undefined}
-        disabled={isLoading}
+        badge={t('comingSoon')}
+        disabled={true}
       />
       <SocialButton
-        icon={
-          loadingProvider === 'kakao' ? <Loader2 className="w-5 h-5 animate-spin" /> : <KakaoIcon />
-        }
+        icon={<KakaoIcon />}
         label={t('continueWithKakao')}
-        onClick={handleKakaoLogin}
-        badge={recentMethod === 'kakao' ? 'recent' : undefined}
-        disabled={isLoading}
+        badge={t('comingSoon')}
+        disabled={true}
       />
       <SocialButton
-        icon={
-          loadingProvider === 'facebook' ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <FacebookIcon />
-          )
-        }
+        icon={<FacebookIcon />}
         label={t('continueWithFacebook')}
-        onClick={handleFacebookLogin}
-        badge={recentMethod === 'facebook' ? 'recent' : undefined}
-        disabled={isLoading}
+        badge={t('comingSoon')}
+        disabled={true}
       />
 
       {/* Divider */}
