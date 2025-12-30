@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { ChevronDown } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+import { ChevronDown, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { EmailVerificationModal } from '@/features/auth';
 
 type TabType = 'findId' | 'findPassword';
+type FindPasswordStep = 'email' | 'reset';
 
 const COUNTRY_CODES = [
   { code: '+82', country: 'South Korea' },
@@ -16,26 +18,127 @@ const COUNTRY_CODES = [
   { code: '+44', country: 'UK' },
 ];
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword');
+  const router = useRouter();
+
+  // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('findId');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+
+  // Find ID states
   const [countryCode, setCountryCode] = useState('+82');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [foundEmail, setFoundEmail] = useState<string | null>(null);
+  const [findIdLoading, setFindIdLoading] = useState(false);
+  const [findIdError, setFindIdError] = useState('');
+
+  // Find Password states
+  const [email, setEmail] = useState('');
+  const [passwordStep, setPasswordStep] = useState<FindPasswordStep>('email');
+  const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const passwordsMatch = newPassword === confirmPassword;
+  const isPasswordValid = newPassword.length >= 8;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle Find ID submission
+  const handleFindId = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement find ID/password API calls
-    if (activeTab === 'findId') {
-      // Submit find ID request
-    } else {
-      // Submit find password request
+    if (!phoneNumber) return;
+
+    setFindIdLoading(true);
+    setFindIdError('');
+    setFoundEmail(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/find-id`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber, countryCode }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setFoundEmail(data.email);
+      } else {
+        setFindIdError(data.message || t('findIdError'));
+      }
+    } catch {
+      setFindIdError(t('findIdError'));
     }
+
+    setFindIdLoading(false);
+  };
+
+  // Handle email verification for password reset
+  const handleStartEmailVerification = () => {
+    if (isValidEmail) {
+      setShowEmailVerificationModal(true);
+    }
+  };
+
+  const handleEmailVerified = () => {
+    setIsEmailVerified(true);
+    setShowEmailVerificationModal(false);
+    setPasswordStep('reset');
+  };
+
+  // Handle password reset
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isPasswordValid || !passwordsMatch || !isEmailVerified) return;
+
+    setResetLoading(true);
+    setResetError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/password/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setResetSuccess(true);
+      } else {
+        setResetError(data.message || t('resetError'));
+      }
+    } catch {
+      setResetError(t('resetError'));
+    }
+
+    setResetLoading(false);
+  };
+
+  // Reset states when switching tabs
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    // Reset Find ID states
+    setPhoneNumber('');
+    setFoundEmail(null);
+    setFindIdError('');
+    // Reset Find Password states
+    setEmail('');
+    setPasswordStep('email');
+    setIsEmailVerified(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setResetError('');
+    setResetSuccess(false);
   };
 
   const tabBaseClass = 'flex-1 py-3 text-sm font-medium transition-colors';
@@ -63,7 +166,7 @@ export function ForgotPasswordPage() {
         <div className="w-full max-w-[420px] flex border-b border-[hsl(var(--snug-border))] mb-6">
           <button
             type="button"
-            onClick={() => setActiveTab('findId')}
+            onClick={() => handleTabChange('findId')}
             className={[
               tabBaseClass,
               activeTab === 'findId' ? tabActiveClass : tabInactiveClass,
@@ -73,7 +176,7 @@ export function ForgotPasswordPage() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('findPassword')}
+            onClick={() => handleTabChange('findPassword')}
             className={[
               tabBaseClass,
               activeTab === 'findPassword' ? tabActiveClass : tabInactiveClass,
@@ -83,96 +186,204 @@ export function ForgotPasswordPage() {
           </button>
         </div>
 
-        {/* Form Content */}
-        <form onSubmit={handleSubmit} className="w-full max-w-[420px] space-y-3">
-          {activeTab === 'findId' ? (
-            <>
-              {/* Name Row */}
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder={t('firstName')}
-                  className={['flex-1 min-w-0', inputClass].join(' ')}
-                />
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder={t('lastName')}
-                  className={['flex-1 min-w-0', inputClass].join(' ')}
-                />
+        {/* Find ID Tab */}
+        {activeTab === 'findId' && (
+          <div className="w-full max-w-[420px]">
+            {foundEmail ? (
+              /* Show found email */
+              <div className="text-center space-y-4">
+                <div className="p-4 bg-green-50 border border-green-200 rounded-2xl">
+                  <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-medium">{t('idFound')}</span>
+                  </div>
+                  <p className="text-[hsl(var(--snug-text-primary))]">{foundEmail}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/login')}
+                  className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+                >
+                  {t('goToLogin')}
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleFindId} className="space-y-3">
+                {findIdError && <p className="text-sm text-red-500 text-center">{findIdError}</p>}
 
-              {/* Phone Row */}
-              <div className="flex gap-3">
-                {/* Country Code Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                    className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[160px]"
-                  >
-                    <span>
-                      ({countryCode}) {selectedCountry?.country}
-                    </span>
-                    <ChevronDown className="w-4 h-4 ml-auto" />
-                  </button>
-                  {showCountryDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
-                      {COUNTRY_CODES.map((country) => (
-                        <button
-                          key={country.code}
-                          type="button"
-                          onClick={() => {
-                            setCountryCode(country.code);
-                            setShowCountryDropdown(false);
-                          }}
-                          className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                        >
-                          ({country.code}) {country.country}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                {/* Phone Row */}
+                <div className="flex gap-3">
+                  {/* Country Code Dropdown */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                      className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[160px]"
+                    >
+                      <span>
+                        ({countryCode}) {selectedCountry?.country}
+                      </span>
+                      <ChevronDown className="w-4 h-4 ml-auto" />
+                    </button>
+                    {showCountryDropdown && (
+                      <div className="absolute top-full left-0 mt-2 w-full bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
+                        {COUNTRY_CODES.map((country) => (
+                          <button
+                            key={country.code}
+                            type="button"
+                            onClick={() => {
+                              setCountryCode(country.code);
+                              setShowCountryDropdown(false);
+                            }}
+                            className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                          >
+                            ({country.code}) {country.country}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Phone Number */}
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder={t('phoneNumber')}
+                    className={['flex-1', inputClass].join(' ')}
+                  />
                 </div>
 
-                {/* Phone Number */}
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder={t('phoneNumber')}
-                  className={['flex-1', inputClass].join(' ')}
-                />
-              </div>
-            </>
-          ) : (
-            /* Find Password - Email Input */
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('email')}
-              className={['w-full', inputClass].join(' ')}
-            />
-          )}
+                <p className="text-xs text-[hsl(var(--snug-gray))] px-1">{t('findIdHint')}</p>
 
-          {/* Continue Button */}
-          <button
-            type="submit"
-            className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all mt-6"
-          >
-            {t('continue')}
-          </button>
-        </form>
+                {/* Continue Button */}
+                <button
+                  type="submit"
+                  disabled={!phoneNumber || findIdLoading}
+                  className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {findIdLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {t('continue')}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* Find Password Tab */}
+        {activeTab === 'findPassword' && (
+          <div className="w-full max-w-[420px]">
+            {resetSuccess ? (
+              /* Success message */
+              <div className="text-center space-y-4">
+                <div className="p-4 bg-green-50 border border-green-200 rounded-2xl">
+                  <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-medium">{t('resetSuccess')}</span>
+                  </div>
+                  <p className="text-sm text-[hsl(var(--snug-gray))]">{t('resetSuccessHint')}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/login')}
+                  className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+                >
+                  {t('goToLogin')}
+                </button>
+              </div>
+            ) : passwordStep === 'email' ? (
+              /* Step 1: Email input and verification */
+              <div className="space-y-3">
+                {resetError && <p className="text-sm text-red-500 text-center">{resetError}</p>}
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setIsEmailVerified(false);
+                  }}
+                  placeholder={t('email')}
+                  className={['w-full', inputClass].join(' ')}
+                />
+
+                {isEmailVerified ? (
+                  <div className="flex items-center justify-center gap-1 py-2 text-green-600">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="text-sm font-medium">{t('emailVerified')}</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleStartEmailVerification}
+                    disabled={!isValidEmail}
+                    className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {t('verifyEmail')}
+                  </button>
+                )}
+              </div>
+            ) : (
+              /* Step 2: New password input */
+              <form onSubmit={handleResetPassword} className="space-y-3">
+                {resetError && <p className="text-sm text-red-500 text-center">{resetError}</p>}
+
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={t('newPassword')}
+                    className={['w-full pr-12', inputClass].join(' ')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[hsl(var(--snug-gray))]"
+                  >
+                    {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  </button>
+                </div>
+                <p className="text-xs text-[hsl(var(--snug-gray))] px-1">{t('passwordHint')}</p>
+
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t('confirmPassword')}
+                  className={['w-full', inputClass].join(' ')}
+                />
+                {confirmPassword && !passwordsMatch && (
+                  <p className="text-xs text-red-500 px-1">{t('passwordMismatch')}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={!isPasswordValid || !passwordsMatch || resetLoading}
+                  className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {resetLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {t('resetPassword')}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {/* Back to Login Link */}
         <Link href="/login" className="mt-6 text-sm text-[hsl(var(--snug-gray))] underline">
           {t('backToLogin')}
         </Link>
       </main>
+
+      {/* Email Verification Modal */}
+      <EmailVerificationModal
+        isOpen={showEmailVerificationModal}
+        onClose={() => setShowEmailVerificationModal(false)}
+        email={email}
+        type="RESET_PASSWORD"
+        onVerified={handleEmailVerified}
+      />
     </div>
   );
 }

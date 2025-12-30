@@ -40,12 +40,41 @@ enum PartnerServiceType {
 }
 
 // ============================================
+// EMAIL OTP (이메일 인증)
+// ============================================
+
+model EmailOtp {
+  id          String   @id @default(cuid())
+
+  email       String
+  code        String   // 6자리 숫자
+  type        OtpType  // SIGNUP, RESET_PASSWORD, FIND_ID
+
+  verified    Boolean  @default(false)
+  attempts    Int      @default(0)  // 시도 횟수 (최대 5회)
+
+  expiresAt   DateTime // 5분 후 만료
+  createdAt   DateTime @default(now())
+
+  @@index([email, type])
+  @@index([expiresAt])
+  @@map("email_otps")
+}
+
+enum OtpType {
+  SIGNUP
+  RESET_PASSWORD
+  FIND_ID
+}
+
+// ============================================
 // USER & AUTH
 // ============================================
 
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
+  emailVerified Boolean   @default(false)
   role          UserRole  @default(GUEST)
 
   // 기본 정보
@@ -53,7 +82,6 @@ model User {
   lastName      String?
   phone         String?
   countryCode   String?   @default("+82")
-  phoneVerified Boolean   @default(false)
   avatarUrl     String?
 
   // 사용자 설정

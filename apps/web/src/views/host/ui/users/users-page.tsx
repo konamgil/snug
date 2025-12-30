@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, ChevronDown, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { UserDetailPanel, type UserDetailData } from './user-detail-panel';
+import { ComingSoonOverlay } from '../coming-soon-overlay';
 
 // Types
 type UserStatus = 'active' | 'withdrawn' | 'dormant';
@@ -353,135 +354,140 @@ export function UsersPage() {
   const isSomeSelected = selectedIds.size > 0 && selectedIds.size < mockUsers.length;
 
   return (
-    <div className="h-full flex bg-white">
-      {/* Main Content - User List */}
-      <div className={`flex-1 flex flex-col min-w-0 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
-        {/* Title and Actions */}
-        <div className="px-5 py-4 border-b border-[#f0f0f0]">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-[#161616]">{t('title')}</h1>
-            <div className="flex items-center gap-2">
-              <button type="button" className="p-2 hover:bg-[#f4f4f4] rounded-lg transition-colors">
-                <Search className="w-5 h-5 text-[#525252]" />
-              </button>
-              <button
-                type="button"
-                disabled={selectedIds.size === 0}
-                className="px-4 py-2 text-sm border border-[#d8d8d8] rounded-lg hover:bg-[#f4f4f4] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {t('deleteCount', { count: selectedIds.size })}
-              </button>
-              <button
-                type="button"
-                className="px-4 py-2 text-sm text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
-              >
-                {t('addNew')}
-              </button>
+    <ComingSoonOverlay>
+      <div className="h-full flex bg-white">
+        {/* Main Content - User List */}
+        <div className={`flex-1 flex flex-col min-w-0 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
+          {/* Title and Actions */}
+          <div className="px-5 py-4 border-b border-[#f0f0f0]">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-[#161616]">{t('title')}</h1>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="p-2 hover:bg-[#f4f4f4] rounded-lg transition-colors"
+                >
+                  <Search className="w-5 h-5 text-[#525252]" />
+                </button>
+                <button
+                  type="button"
+                  disabled={selectedIds.size === 0}
+                  className="px-4 py-2 text-sm border border-[#d8d8d8] rounded-lg hover:bg-[#f4f4f4] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {t('deleteCount', { count: selectedIds.size })}
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm text-white bg-[hsl(var(--snug-orange))] rounded-lg hover:bg-[hsl(var(--snug-orange))]/90 transition-colors"
+                >
+                  {t('addNew')}
+                </button>
+              </div>
             </div>
+          </div>
+
+          {/* Table */}
+          <div className="flex-1 overflow-auto">
+            <table className="w-full min-w-[900px]">
+              <thead className="bg-white sticky top-0 z-10">
+                <tr className="border-b border-[#f0f0f0]">
+                  <th className="w-12 px-5 py-3 text-left">
+                    <Checkbox
+                      checked={isAllSelected}
+                      indeterminate={isSomeSelected}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    {tTable('guest')}
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    {tTable('phone')}
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    {tTable('email')}
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    {tTable('nationality')}
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    {tTable('gender')}
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    <span className="inline-flex items-center gap-1">
+                      {tTable('permissionType')}
+                      <ChevronDown className="w-3 h-3" />
+                    </span>
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
+                    <span className="inline-flex items-center gap-1">
+                      {tTable('status')}
+                      <ChevronDown className="w-3 h-3" />
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockUsers.map((user) => (
+                  <tr
+                    key={user.id}
+                    onClick={() => handleRowClick(user)}
+                    className={`border-b border-[#f0f0f0] hover:bg-[#f9f9f9] transition-colors cursor-pointer ${
+                      selectedIds.has(user.id) ? 'bg-[#fff7f0]' : ''
+                    } ${selectedUser?.id === user.id ? 'bg-[#f5f5f5]' : ''}`}
+                  >
+                    <td className="px-5 py-3">
+                      <Checkbox
+                        checked={selectedIds.has(user.id)}
+                        onChange={(e) => handleSelectUser(e, user.id)}
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <UserAvatar />
+                        <span className="text-sm text-[#161616]">{user.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-sm text-[#161616]">{user.phone}</td>
+                    <td className="px-3 py-3 text-sm text-[#161616]">{user.email}</td>
+                    <td className="px-3 py-3 text-sm text-[#161616]">{user.nationality}</td>
+                    <td className="px-3 py-3 text-sm text-[#161616]">{user.gender}</td>
+                    <td className="px-3 py-3 text-sm text-[#161616]">
+                      {getPermissionLabel(user.permissionType)}
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusBadge status={user.status} label={getStatusLabel(user.status)} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-5 py-4 border-t border-[#f0f0f0]">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
 
-        {/* Table */}
-        <div className="flex-1 overflow-auto">
-          <table className="w-full min-w-[900px]">
-            <thead className="bg-white sticky top-0 z-10">
-              <tr className="border-b border-[#f0f0f0]">
-                <th className="w-12 px-5 py-3 text-left">
-                  <Checkbox
-                    checked={isAllSelected}
-                    indeterminate={isSomeSelected}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  {tTable('guest')}
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  {tTable('phone')}
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  {tTable('email')}
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  {tTable('nationality')}
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  {tTable('gender')}
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  <span className="inline-flex items-center gap-1">
-                    {tTable('permissionType')}
-                    <ChevronDown className="w-3 h-3" />
-                  </span>
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-[#525252]">
-                  <span className="inline-flex items-center gap-1">
-                    {tTable('status')}
-                    <ChevronDown className="w-3 h-3" />
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  onClick={() => handleRowClick(user)}
-                  className={`border-b border-[#f0f0f0] hover:bg-[#f9f9f9] transition-colors cursor-pointer ${
-                    selectedIds.has(user.id) ? 'bg-[#fff7f0]' : ''
-                  } ${selectedUser?.id === user.id ? 'bg-[#f5f5f5]' : ''}`}
-                >
-                  <td className="px-5 py-3">
-                    <Checkbox
-                      checked={selectedIds.has(user.id)}
-                      onChange={(e) => handleSelectUser(e, user.id)}
-                    />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <UserAvatar />
-                      <span className="text-sm text-[#161616]">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3 text-sm text-[#161616]">{user.phone}</td>
-                  <td className="px-3 py-3 text-sm text-[#161616]">{user.email}</td>
-                  <td className="px-3 py-3 text-sm text-[#161616]">{user.nationality}</td>
-                  <td className="px-3 py-3 text-sm text-[#161616]">{user.gender}</td>
-                  <td className="px-3 py-3 text-sm text-[#161616]">
-                    {getPermissionLabel(user.permissionType)}
-                  </td>
-                  <td className="px-3 py-3">
-                    <StatusBadge status={user.status} label={getStatusLabel(user.status)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Detail Panel */}
+        {selectedUser && (
+          <div className="w-full md:w-[354px] flex-shrink-0 border-l border-[#f0f0f0]">
+            <UserDetailPanel data={detailData} onClose={handleClosePanel} onSave={handleSaveUser} />
+          </div>
+        )}
 
-        {/* Pagination */}
-        <div className="px-5 py-4 border-t border-[#f0f0f0]">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        {/* Mobile Full Screen Panel */}
+        {selectedUser && (
+          <div className="md:hidden fixed inset-0 z-50 bg-white">
+            <UserDetailPanel data={detailData} onClose={handleClosePanel} onSave={handleSaveUser} />
+          </div>
+        )}
       </div>
-
-      {/* Detail Panel */}
-      {selectedUser && (
-        <div className="w-full md:w-[354px] flex-shrink-0 border-l border-[#f0f0f0]">
-          <UserDetailPanel data={detailData} onClose={handleClosePanel} onSave={handleSaveUser} />
-        </div>
-      )}
-
-      {/* Mobile Full Screen Panel */}
-      {selectedUser && (
-        <div className="md:hidden fixed inset-0 z-50 bg-white">
-          <UserDetailPanel data={detailData} onClose={handleClosePanel} onSave={handleSaveUser} />
-        </div>
-      )}
-    </div>
+    </ComingSoonOverlay>
   );
 }

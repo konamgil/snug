@@ -233,7 +233,21 @@
       "phoneNumber": "Phone Number",
       "email": "Email Address",
       "continue": "Continue",
-      "backToLogin": "Back to Login"
+      "backToLogin": "Back to Login",
+      "findIdHint": "Enter the phone number you registered with.",
+      "findIdError": "No account found with this phone number.",
+      "idFound": "Your ID has been found!",
+      "goToLogin": "Go to Login",
+      "verifyEmail": "Verify Email",
+      "emailVerified": "Email Verified",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordHint": "At least 8 characters, case-sensitive",
+      "passwordMismatch": "Passwords do not match",
+      "resetPassword": "Reset Password",
+      "resetSuccess": "Password has been changed!",
+      "resetSuccessHint": "Please log in with your new password.",
+      "resetError": "Failed to reset password. Please try again."
     },
     "signupPage": {
       "title": "Create your Account",
@@ -247,6 +261,7 @@
       "nameHint": "Make sure this matches the name on your government ID. If you go by another name, you can add a preferred first name.",
       "countryCode": "Country Code",
       "phoneNumber": "Phone Number",
+      "phoneOptional": "Phone number is optional.",
       "agreeTerms": "I agree to the collection and use of my personal information.",
       "termsPreview": "We collect personal information needed to use the Snug platform.",
       "termsFullText": "We collect personal information needed to use the Snug platform. This includes name, email, phone number, and other registration details.",
@@ -255,10 +270,12 @@
       "agreeMarketing": "I want to receive marketing emails. (optional)",
       "continue": "Continue",
       "signupSuccess": "Account created successfully!",
-      "checkEmail": "Please check your email to verify your account.",
+      "checkEmail": "Please log in to start using the service.",
       "goToLogin": "Go to Login",
       "verify": "Verify",
-      "verified": "Verified"
+      "verified": "Verified",
+      "verifyEmail": "Verify Email",
+      "emailVerified": "Email Verified"
     },
     "phoneVerification": {
       "title": "Phone Verification",
@@ -271,6 +288,18 @@
       "sending": "Sending...",
       "sendError": "Failed to send verification code",
       "verifyError": "Failed to verify code"
+    },
+    "emailVerification": {
+      "title": "Email Verification",
+      "sentTo": "Verification code sent to {email}",
+      "enterFullCode": "Please enter the full 6-digit code",
+      "verified": "Verified!",
+      "verify": "Verify",
+      "resend": "Resend Code",
+      "resendIn": "Resend in {seconds}s",
+      "sending": "Sending...",
+      "sendError": "Failed to send verification code. Please try again later.",
+      "verifyError": "Verification failed. Please check the code."
     }
   },
   "profile": {
@@ -806,11 +835,18 @@
       "unread": "Unread",
       "settlementAmount": "{month} Settlement",
       "comparedToPrevMonth": "vs. last month {amount}",
-      "thousandWon": "K KRW"
+      "thousandWon": "K KRW",
+      "comingSoonTitle": "Thank you for registering for the Host Pre-Open.",
+      "comingSoonDescription": "We will contact you to complete the review before the official launch.",
+      "comingSoonContact": "Inquiries",
+      "comingSoonEmail": "support@findsnug.com"
     },
     "accommodation": {
       "form": {
         "basicInfo": "Basic Info",
+        "basicInfoDesc": "Enter basic information about your accommodation. This is the first thing guests see when searching.",
+        "pricingInfoDesc": "Enter pricing per night. Weekend and seasonal pricing can be set separately.",
+        "spaceInfoDesc": "Enter the size and layout of your space. Accurate information improves guest satisfaction.",
         "mainPhoto": "Main Photo",
         "addPhoto": "+ Add Photo",
         "groupNameLabel": "Group Name (Optional)",
@@ -890,7 +926,35 @@
         "managerInfoOptional": "Manager Info (Optional)",
         "addManager": "+ Add Manager",
         "managerInfoHint": "Host info will be used if manager info is not entered.",
-        "spaceSizeOptional": "Space Size (Optional)"
+        "spaceSizeOptional": "Space Size (Optional)",
+        "validation": {
+          "roomNameRequired": "Please enter a room name",
+          "roomNameMaxLength": "Room name must be 100 characters or less",
+          "addressRequired": "Please enter an address",
+          "accommodationTypeRequired": "Please select an accommodation type",
+          "usageTypesRequired": "Please select at least one usage type",
+          "mainPhotosRequired": "Please upload at least one photo",
+          "roomsRequired": "Please add at least one space",
+          "basePriceRequired": "Please enter a base price",
+          "basePriceMin": "Base price must be 0 or more",
+          "capacityRequired": "Please enter capacity",
+          "capacityMin": "Capacity must be at least 1"
+        },
+        "publishGate": {
+          "title": "Publish Requirements",
+          "description": "All requirements below must be met to publish your accommodation.",
+          "roomNameRequired": "Room name entered",
+          "addressRequired": "Address entered",
+          "accommodationTypeRequired": "Accommodation type selected",
+          "usageTypesRequired": "Usage type selected",
+          "photosRequired": "{current} photo(s) uploaded (minimum 1 required)",
+          "roomsRequired": "Space configured (at least 1)",
+          "capacityRequired": "Capacity set to {current} (minimum 1 required)",
+          "basePriceRequired": "Base price set (cannot be 0)",
+          "introductionRequired": "{current} characters written (minimum 50 required)",
+          "canPublish": "All requirements met! Ready to publish.",
+          "cannotPublish": "All requirements above must be met to publish your accommodation."
+        }
       },
       "spaceTypes": {
         "room": "Room",
@@ -1002,6 +1066,12 @@
         "share_house": "Share House",
         "apartment": "Apartment/Villa"
       },
+      "accommodationTypeDescriptions": {
+        "house": "An entire space for your exclusive use.",
+        "share_room": "A room shared with other guests.",
+        "share_house": "A private room with shared common areas.",
+        "apartment": "All or part of an apartment or villa."
+      },
       "buildingTypes": {
         "apartment": "Apartment",
         "villa": "Villa",
@@ -1031,6 +1101,7 @@
         "all": "All",
         "operating": "Operating",
         "notOperating": "Not Operating",
+        "cannotOperateTooltip": "Meet publish requirements to enable operating",
         "operatingShort": "Active",
         "notOperatingShort": "Inactive",
         "newRegistration": "New Registration",

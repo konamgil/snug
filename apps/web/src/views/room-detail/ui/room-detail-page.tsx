@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { motion, type PanInfo } from 'framer-motion';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
@@ -283,17 +284,23 @@ export function RoomDetailPage() {
   // Show map when loaded (even if there's an API key error, Google Maps will show)
   const shouldShowMap = isLoaded;
 
-  const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
-  };
+  // Mobile carousel state
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
-  };
-
-  const handleOpenGallery = () => {
-    router.push(`/${locale}/room/${roomId}/gallery`);
-  };
+  // Measure container width for carousel calculations
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -318,6 +325,11 @@ export function RoomDetailPage() {
   const displayRoomType = accommodation
     ? getAccommodationTypeLabel(accommodation.accommodationType, locale)
     : roomData.roomType;
+  const displayRoomTypeDescription = accommodation
+    ? t(
+        `host.accommodation.accommodationTypeDescriptions.${accommodation.accommodationType.toLowerCase()}`,
+      )
+    : roomData.roomTypeDescription;
   const displayBuildingType = accommodation?.buildingType
     ? getBuildingTypeLabel(accommodation.buildingType, locale)
     : roomData.buildingType;
@@ -330,6 +342,55 @@ export function RoomDetailPage() {
   const displayLng = accommodation?.longitude ?? roomData.lng;
   const photos = accommodation?.photos ?? [];
   const totalImages = photos.length;
+
+  // Image navigation handlers
+  const handlePrevImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
+  }, [totalImages]);
+
+  const handleNextImage = useCallback(() => {
+    setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
+  }, [totalImages]);
+
+  // Carousel drag handlers
+  const handleDragStart = useCallback(() => {
+    setIsSwiping(true);
+    setIsDragging(true);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      setIsDragging(false);
+
+      const threshold = containerWidth / 4; // 25% of width to trigger slide
+      const velocity = info.velocity.x;
+      const offset = info.offset.x;
+
+      let newIndex = currentImageIndex;
+
+      // Determine new index based on drag distance or velocity
+      if (offset < -threshold || velocity < -500) {
+        // Swiped left -> next image
+        newIndex = Math.min(currentImageIndex + 1, totalImages - 1);
+      } else if (offset > threshold || velocity > 500) {
+        // Swiped right -> previous image
+        newIndex = Math.max(currentImageIndex - 1, 0);
+      }
+
+      // Update index
+      setCurrentImageIndex(newIndex);
+
+      // Reset swiping state after animation
+      setTimeout(() => setIsSwiping(false), 100);
+    },
+    [containerWidth, currentImageIndex, totalImages],
+  );
+
+  const handleOpenGallery = useCallback(() => {
+    if (!isSwiping) {
+      router.push(`/${locale}/room/${roomId}/gallery`);
+    }
+  }, [isSwiping, router, locale, roomId]);
 
   // Handle search from header - navigate to search page
   const handleHeaderSearch = (values: SearchBarValues) => {
@@ -385,22 +446,60 @@ export function RoomDetailPage() {
       {/* Desktop Header - Hidden on Mobile */}
       <Header variant="with-search" onSearch={handleHeaderSearch} />
 
-      {/* Mobile Image Gallery - Full Width with Overlay Buttons */}
-      <div className="lg:hidden relative">
-        <div
-          className="relative aspect-[4/3] overflow-hidden cursor-pointer"
-          onClick={handleOpenGallery}
-        >
-          {/* Photo or Placeholder */}
-          {photos.length > 0 && photos[currentImageIndex] ? (
-            <Image
-              src={photos[currentImageIndex].url}
-              alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
+      {/* Mobile Image Gallery - Sliding Carousel */}
+      <div className="lg:hidden relative overflow-hidden" ref={containerRef}>
+        <div className="relative aspect-[4/3]">
+          {/* Sliding Images Container */}
+          {photos.length > 0 && containerWidth > 0 ? (
+            <motion.div
+              className="flex h-full cursor-grab active:cursor-grabbing"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              animate={
+                isDragging
+                  ? undefined
+                  : {
+                      x: -currentImageIndex * containerWidth,
+                    }
+              }
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{
+                width: containerWidth * photos.length,
+              }}
+            >
+              {photos.map((photo, index) => (
+                <div
+                  key={photo.id || index}
+                  className="relative flex-shrink-0 h-full"
+                  style={{ width: containerWidth }}
+                  onClick={() => !isSwiping && handleOpenGallery()}
+                >
+                  <Image
+                    src={photo.url}
+                    alt={`${accommodation.roomName} - ${index + 1}`}
+                    fill
+                    sizes="100vw"
+                    className="object-cover pointer-events-none"
+                    priority={index <= currentImageIndex + 1}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          ) : photos.length > 0 && containerWidth === 0 ? (
+            // Fallback while measuring container width
+            <div className="absolute inset-0">
+              <Image
+                src={photos[0]!.url}
+                alt={`${accommodation.roomName} - 1`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority
+              />
+            </div>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
               <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
@@ -474,14 +573,39 @@ export function RoomDetailPage() {
             >
               {/* Photo or Placeholder */}
               {photos.length > 0 && photos[currentImageIndex] ? (
-                <Image
-                  src={photos[currentImageIndex].url}
-                  alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 896px"
-                  className="object-cover group-hover:brightness-95 transition-all"
-                  priority
-                />
+                <>
+                  <Image
+                    src={photos[currentImageIndex].url}
+                    alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 896px"
+                    className="object-cover group-hover:brightness-95 transition-all"
+                    priority
+                  />
+                  {/* Preload adjacent images for faster navigation */}
+                  {photos.length > 1 && photos[(currentImageIndex + 1) % photos.length]?.url && (
+                    <Image
+                      src={photos[(currentImageIndex + 1) % photos.length]!.url}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 896px"
+                      className="opacity-0 pointer-events-none"
+                      priority
+                    />
+                  )}
+                  {photos.length > 1 &&
+                    currentImageIndex > 0 &&
+                    photos[currentImageIndex - 1]?.url && (
+                      <Image
+                        src={photos[currentImageIndex - 1]!.url}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 896px"
+                        className="opacity-0 pointer-events-none"
+                        priority
+                      />
+                    )}
+                </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
                   <ImageIcon className="w-16 h-16 text-[hsl(var(--snug-gray))]/30" />
@@ -532,14 +656,6 @@ export function RoomDetailPage() {
                   {currentImageIndex + 1} / {totalImages}
                 </div>
               )}
-            </div>
-
-            {/* Room Type Badge - Desktop */}
-            <div className="hidden lg:flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 bg-[hsl(var(--snug-orange))] text-white text-xs font-medium rounded-full">
-                Studio
-              </span>
-              <span className="text-sm text-[hsl(var(--snug-gray))]">{roomData.size}</span>
             </div>
 
             {/* Title & Location */}
@@ -998,7 +1114,7 @@ export function RoomDetailPage() {
             <div className="sticky top-24">
               <BookingSidePanel
                 roomType={displayRoomType}
-                roomTypeDescription={accommodation.roomName}
+                roomTypeDescription={displayRoomTypeDescription}
                 priceBreakdown={{
                   pricePerNight: pricePerNight,
                   nights: nights,

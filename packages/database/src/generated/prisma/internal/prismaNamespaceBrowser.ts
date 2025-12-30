@@ -48,6 +48,7 @@ export const JsonNull = runtime.JsonNull;
 export const AnyNull = runtime.AnyNull;
 
 export const ModelName = {
+  EmailOtp: 'EmailOtp',
   User: 'User',
   GuestProfile: 'GuestProfile',
   HostProfile: 'HostProfile',
@@ -88,15 +89,29 @@ export const TransactionIsolationLevel = {
 export type TransactionIsolationLevel =
   (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel];
 
+export const EmailOtpScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  code: 'code',
+  type: 'type',
+  verified: 'verified',
+  attempts: 'attempts',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+} as const;
+
+export type EmailOtpScalarFieldEnum =
+  (typeof EmailOtpScalarFieldEnum)[keyof typeof EmailOtpScalarFieldEnum];
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  emailVerified: 'emailVerified',
   role: 'role',
   firstName: 'firstName',
   lastName: 'lastName',
   phone: 'phone',
   countryCode: 'countryCode',
-  phoneVerified: 'phoneVerified',
   avatarUrl: 'avatarUrl',
   preferredCurrency: 'preferredCurrency',
   preferredLanguage: 'preferredLanguage',

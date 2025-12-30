@@ -10,7 +10,7 @@ export interface ProfileData {
   lastName: string | null;
   phone: string | null;
   countryCode: string | null;
-  phoneVerified: boolean;
+  emailVerified: boolean;
   avatarUrl: string | null;
   // 사용자 설정
   preferredCurrency: string;
@@ -39,7 +39,7 @@ export async function getProfile(userId: string): Promise<ProfileData | null> {
     lastName: user.lastName,
     phone: user.phone,
     countryCode: user.countryCode,
-    phoneVerified: user.phoneVerified,
+    emailVerified: user.emailVerified,
     avatarUrl: user.avatarUrl,
     preferredCurrency: user.preferredCurrency,
     preferredLanguage: user.preferredLanguage,
@@ -67,7 +67,7 @@ export async function getProfileBySupabaseId(supabaseId: string): Promise<Profil
     lastName: user.lastName,
     phone: user.phone,
     countryCode: user.countryCode,
-    phoneVerified: user.phoneVerified,
+    emailVerified: user.emailVerified,
     avatarUrl: user.avatarUrl,
     preferredCurrency: user.preferredCurrency,
     preferredLanguage: user.preferredLanguage,
@@ -83,7 +83,7 @@ export interface UpdateProfileInput {
   lastName?: string;
   phone?: string;
   countryCode?: string;
-  phoneVerified?: boolean;
+  emailVerified?: boolean;
   avatarUrl?: string;
   // 사용자 설정
   preferredCurrency?: string;
@@ -105,7 +105,7 @@ export async function updateProfile(
   if (data.lastName !== undefined) userUpdateData.lastName = data.lastName;
   if (data.phone !== undefined) userUpdateData.phone = data.phone;
   if (data.countryCode !== undefined) userUpdateData.countryCode = data.countryCode;
-  if (data.phoneVerified !== undefined) userUpdateData.phoneVerified = data.phoneVerified;
+  if (data.emailVerified !== undefined) userUpdateData.emailVerified = data.emailVerified;
   if (data.avatarUrl !== undefined) userUpdateData.avatarUrl = data.avatarUrl;
   if (data.preferredCurrency !== undefined)
     userUpdateData.preferredCurrency = data.preferredCurrency;
@@ -146,7 +146,7 @@ export async function updateProfile(
     lastName: user.lastName,
     phone: user.phone,
     countryCode: user.countryCode,
-    phoneVerified: user.phoneVerified,
+    emailVerified: user.emailVerified,
     avatarUrl: user.avatarUrl,
     preferredCurrency: user.preferredCurrency,
     preferredLanguage: user.preferredLanguage,

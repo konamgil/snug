@@ -7,6 +7,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/EmailOtp';
 export type * from './models/User';
 export type * from './models/GuestProfile';
 export type * from './models/HostProfile';

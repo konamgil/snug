@@ -26,12 +26,12 @@ export type AggregateUser = {
 export type UserMinAggregateOutputType = {
   id: string | null;
   email: string | null;
+  emailVerified: boolean | null;
   role: $Enums.UserRole | null;
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
   countryCode: string | null;
-  phoneVerified: boolean | null;
   avatarUrl: string | null;
   preferredCurrency: string | null;
   preferredLanguage: string | null;
@@ -43,12 +43,12 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
   id: string | null;
   email: string | null;
+  emailVerified: boolean | null;
   role: $Enums.UserRole | null;
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
   countryCode: string | null;
-  phoneVerified: boolean | null;
   avatarUrl: string | null;
   preferredCurrency: string | null;
   preferredLanguage: string | null;
@@ -60,12 +60,12 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
   id: number;
   email: number;
+  emailVerified: number;
   role: number;
   firstName: number;
   lastName: number;
   phone: number;
   countryCode: number;
-  phoneVerified: number;
   avatarUrl: number;
   preferredCurrency: number;
   preferredLanguage: number;
@@ -78,12 +78,12 @@ export type UserCountAggregateOutputType = {
 export type UserMinAggregateInputType = {
   id?: true;
   email?: true;
+  emailVerified?: true;
   role?: true;
   firstName?: true;
   lastName?: true;
   phone?: true;
   countryCode?: true;
-  phoneVerified?: true;
   avatarUrl?: true;
   preferredCurrency?: true;
   preferredLanguage?: true;
@@ -95,12 +95,12 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
   id?: true;
   email?: true;
+  emailVerified?: true;
   role?: true;
   firstName?: true;
   lastName?: true;
   phone?: true;
   countryCode?: true;
-  phoneVerified?: true;
   avatarUrl?: true;
   preferredCurrency?: true;
   preferredLanguage?: true;
@@ -112,12 +112,12 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
   id?: true;
   email?: true;
+  emailVerified?: true;
   role?: true;
   firstName?: true;
   lastName?: true;
   phone?: true;
   countryCode?: true;
-  phoneVerified?: true;
   avatarUrl?: true;
   preferredCurrency?: true;
   preferredLanguage?: true;
@@ -203,12 +203,12 @@ export type UserGroupByArgs<
 export type UserGroupByOutputType = {
   id: string;
   email: string;
+  emailVerified: boolean;
   role: $Enums.UserRole;
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
   countryCode: string | null;
-  phoneVerified: boolean;
   avatarUrl: string | null;
   preferredCurrency: string;
   preferredLanguage: string;
@@ -238,12 +238,12 @@ export type UserWhereInput = {
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
   id?: Prisma.StringFilter<'User'> | string;
   email?: Prisma.StringFilter<'User'> | string;
+  emailVerified?: Prisma.BoolFilter<'User'> | boolean;
   role?: Prisma.EnumUserRoleFilter<'User'> | $Enums.UserRole;
   firstName?: Prisma.StringNullableFilter<'User'> | string | null;
   lastName?: Prisma.StringNullableFilter<'User'> | string | null;
   phone?: Prisma.StringNullableFilter<'User'> | string | null;
   countryCode?: Prisma.StringNullableFilter<'User'> | string | null;
-  phoneVerified?: Prisma.BoolFilter<'User'> | boolean;
   avatarUrl?: Prisma.StringNullableFilter<'User'> | string | null;
   preferredCurrency?: Prisma.StringFilter<'User'> | string;
   preferredLanguage?: Prisma.StringFilter<'User'> | string;
@@ -275,12 +275,12 @@ export type UserWhereInput = {
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder;
   email?: Prisma.SortOrder;
+  emailVerified?: Prisma.SortOrder;
   role?: Prisma.SortOrder;
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder;
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder;
   phone?: Prisma.SortOrderInput | Prisma.SortOrder;
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder;
-  phoneVerified?: Prisma.SortOrder;
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
   preferredCurrency?: Prisma.SortOrder;
   preferredLanguage?: Prisma.SortOrder;
@@ -308,12 +308,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<
     AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
     OR?: Prisma.UserWhereInput[];
     NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[];
+    emailVerified?: Prisma.BoolFilter<'User'> | boolean;
     role?: Prisma.EnumUserRoleFilter<'User'> | $Enums.UserRole;
     firstName?: Prisma.StringNullableFilter<'User'> | string | null;
     lastName?: Prisma.StringNullableFilter<'User'> | string | null;
     phone?: Prisma.StringNullableFilter<'User'> | string | null;
     countryCode?: Prisma.StringNullableFilter<'User'> | string | null;
-    phoneVerified?: Prisma.BoolFilter<'User'> | boolean;
     avatarUrl?: Prisma.StringNullableFilter<'User'> | string | null;
     preferredCurrency?: Prisma.StringFilter<'User'> | string;
     preferredLanguage?: Prisma.StringFilter<'User'> | string;
@@ -346,12 +346,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder;
   email?: Prisma.SortOrder;
+  emailVerified?: Prisma.SortOrder;
   role?: Prisma.SortOrder;
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder;
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder;
   phone?: Prisma.SortOrderInput | Prisma.SortOrder;
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder;
-  phoneVerified?: Prisma.SortOrder;
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
   preferredCurrency?: Prisma.SortOrder;
   preferredLanguage?: Prisma.SortOrder;
@@ -369,12 +369,12 @@ export type UserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[];
   id?: Prisma.StringWithAggregatesFilter<'User'> | string;
   email?: Prisma.StringWithAggregatesFilter<'User'> | string;
+  emailVerified?: Prisma.BoolWithAggregatesFilter<'User'> | boolean;
   role?: Prisma.EnumUserRoleWithAggregatesFilter<'User'> | $Enums.UserRole;
   firstName?: Prisma.StringNullableWithAggregatesFilter<'User'> | string | null;
   lastName?: Prisma.StringNullableWithAggregatesFilter<'User'> | string | null;
   phone?: Prisma.StringNullableWithAggregatesFilter<'User'> | string | null;
   countryCode?: Prisma.StringNullableWithAggregatesFilter<'User'> | string | null;
-  phoneVerified?: Prisma.BoolWithAggregatesFilter<'User'> | boolean;
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<'User'> | string | null;
   preferredCurrency?: Prisma.StringWithAggregatesFilter<'User'> | string;
   preferredLanguage?: Prisma.StringWithAggregatesFilter<'User'> | string;
@@ -386,12 +386,12 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -414,12 +414,12 @@ export type UserCreateInput = {
 export type UserUncheckedCreateInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -442,12 +442,12 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -470,12 +470,12 @@ export type UserUpdateInput = {
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -498,12 +498,12 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -515,12 +515,12 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -532,12 +532,12 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -549,12 +549,12 @@ export type UserUncheckedUpdateManyInput = {
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   email?: Prisma.SortOrder;
+  emailVerified?: Prisma.SortOrder;
   role?: Prisma.SortOrder;
   firstName?: Prisma.SortOrder;
   lastName?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   countryCode?: Prisma.SortOrder;
-  phoneVerified?: Prisma.SortOrder;
   avatarUrl?: Prisma.SortOrder;
   preferredCurrency?: Prisma.SortOrder;
   preferredLanguage?: Prisma.SortOrder;
@@ -566,12 +566,12 @@ export type UserCountOrderByAggregateInput = {
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   email?: Prisma.SortOrder;
+  emailVerified?: Prisma.SortOrder;
   role?: Prisma.SortOrder;
   firstName?: Prisma.SortOrder;
   lastName?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   countryCode?: Prisma.SortOrder;
-  phoneVerified?: Prisma.SortOrder;
   avatarUrl?: Prisma.SortOrder;
   preferredCurrency?: Prisma.SortOrder;
   preferredLanguage?: Prisma.SortOrder;
@@ -583,12 +583,12 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   email?: Prisma.SortOrder;
+  emailVerified?: Prisma.SortOrder;
   role?: Prisma.SortOrder;
   firstName?: Prisma.SortOrder;
   lastName?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   countryCode?: Prisma.SortOrder;
-  phoneVerified?: Prisma.SortOrder;
   avatarUrl?: Prisma.SortOrder;
   preferredCurrency?: Prisma.SortOrder;
   preferredLanguage?: Prisma.SortOrder;
@@ -607,24 +607,12 @@ export type UserNullableScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput | null;
 };
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string;
-};
-
 export type EnumUserRoleFieldUpdateOperationsInput = {
   set?: $Enums.UserRole;
 };
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null;
-};
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean;
-};
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string;
 };
 
 export type UserCreateNestedOneWithoutGuestProfileInput = {
@@ -918,12 +906,12 @@ export type UserUpdateOneWithoutAssignedOperationsNestedInput = {
 export type UserCreateWithoutGuestProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -945,12 +933,12 @@ export type UserCreateWithoutGuestProfileInput = {
 export type UserUncheckedCreateWithoutGuestProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1000,12 +988,12 @@ export type UserUpdateToOneWithWhereWithoutGuestProfileInput = {
 export type UserUpdateWithoutGuestProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1027,12 +1015,12 @@ export type UserUpdateWithoutGuestProfileInput = {
 export type UserUncheckedUpdateWithoutGuestProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1054,12 +1042,12 @@ export type UserUncheckedUpdateWithoutGuestProfileInput = {
 export type UserCreateWithoutHostProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1081,12 +1069,12 @@ export type UserCreateWithoutHostProfileInput = {
 export type UserUncheckedCreateWithoutHostProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1136,12 +1124,12 @@ export type UserUpdateToOneWithWhereWithoutHostProfileInput = {
 export type UserUpdateWithoutHostProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1163,12 +1151,12 @@ export type UserUpdateWithoutHostProfileInput = {
 export type UserUncheckedUpdateWithoutHostProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1190,12 +1178,12 @@ export type UserUncheckedUpdateWithoutHostProfileInput = {
 export type UserCreateWithoutPartnerProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1217,12 +1205,12 @@ export type UserCreateWithoutPartnerProfileInput = {
 export type UserUncheckedCreateWithoutPartnerProfileInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1272,12 +1260,12 @@ export type UserUpdateToOneWithWhereWithoutPartnerProfileInput = {
 export type UserUpdateWithoutPartnerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1299,12 +1287,12 @@ export type UserUpdateWithoutPartnerProfileInput = {
 export type UserUncheckedUpdateWithoutPartnerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1326,12 +1314,12 @@ export type UserUncheckedUpdateWithoutPartnerProfileInput = {
 export type UserCreateWithoutOwnedMembershipsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1353,12 +1341,12 @@ export type UserCreateWithoutOwnedMembershipsInput = {
 export type UserUncheckedCreateWithoutOwnedMembershipsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1388,12 +1376,12 @@ export type UserCreateOrConnectWithoutOwnedMembershipsInput = {
 export type UserCreateWithoutMemberMembershipsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1415,12 +1403,12 @@ export type UserCreateWithoutMemberMembershipsInput = {
 export type UserUncheckedCreateWithoutMemberMembershipsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1470,12 +1458,12 @@ export type UserUpdateToOneWithWhereWithoutOwnedMembershipsInput = {
 export type UserUpdateWithoutOwnedMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1497,12 +1485,12 @@ export type UserUpdateWithoutOwnedMembershipsInput = {
 export type UserUncheckedUpdateWithoutOwnedMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1544,12 +1532,12 @@ export type UserUpdateToOneWithWhereWithoutMemberMembershipsInput = {
 export type UserUpdateWithoutMemberMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1571,12 +1559,12 @@ export type UserUpdateWithoutMemberMembershipsInput = {
 export type UserUncheckedUpdateWithoutMemberMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1598,12 +1586,12 @@ export type UserUncheckedUpdateWithoutMemberMembershipsInput = {
 export type UserCreateWithoutAccommodationGroupsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1625,12 +1613,12 @@ export type UserCreateWithoutAccommodationGroupsInput = {
 export type UserUncheckedCreateWithoutAccommodationGroupsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1680,12 +1668,12 @@ export type UserUpdateToOneWithWhereWithoutAccommodationGroupsInput = {
 export type UserUpdateWithoutAccommodationGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1707,12 +1695,12 @@ export type UserUpdateWithoutAccommodationGroupsInput = {
 export type UserUncheckedUpdateWithoutAccommodationGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1734,12 +1722,12 @@ export type UserUncheckedUpdateWithoutAccommodationGroupsInput = {
 export type UserCreateWithoutAccommodationsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1761,12 +1749,12 @@ export type UserCreateWithoutAccommodationsInput = {
 export type UserUncheckedCreateWithoutAccommodationsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1816,12 +1804,12 @@ export type UserUpdateToOneWithWhereWithoutAccommodationsInput = {
 export type UserUpdateWithoutAccommodationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1843,12 +1831,12 @@ export type UserUpdateWithoutAccommodationsInput = {
 export type UserUncheckedUpdateWithoutAccommodationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1870,12 +1858,12 @@ export type UserUncheckedUpdateWithoutAccommodationsInput = {
 export type UserCreateWithoutContractsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1897,12 +1885,12 @@ export type UserCreateWithoutContractsInput = {
 export type UserUncheckedCreateWithoutContractsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -1952,12 +1940,12 @@ export type UserUpdateToOneWithWhereWithoutContractsInput = {
 export type UserUpdateWithoutContractsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1979,12 +1967,12 @@ export type UserUpdateWithoutContractsInput = {
 export type UserUncheckedUpdateWithoutContractsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2006,12 +1994,12 @@ export type UserUncheckedUpdateWithoutContractsInput = {
 export type UserCreateWithoutFavoritesInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2033,12 +2021,12 @@ export type UserCreateWithoutFavoritesInput = {
 export type UserUncheckedCreateWithoutFavoritesInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2088,12 +2076,12 @@ export type UserUpdateToOneWithWhereWithoutFavoritesInput = {
 export type UserUpdateWithoutFavoritesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2115,12 +2103,12 @@ export type UserUpdateWithoutFavoritesInput = {
 export type UserUncheckedUpdateWithoutFavoritesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2142,12 +2130,12 @@ export type UserUncheckedUpdateWithoutFavoritesInput = {
 export type UserCreateWithoutRecentlyViewedInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2169,12 +2157,12 @@ export type UserCreateWithoutRecentlyViewedInput = {
 export type UserUncheckedCreateWithoutRecentlyViewedInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2224,12 +2212,12 @@ export type UserUpdateToOneWithWhereWithoutRecentlyViewedInput = {
 export type UserUpdateWithoutRecentlyViewedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2251,12 +2239,12 @@ export type UserUpdateWithoutRecentlyViewedInput = {
 export type UserUncheckedUpdateWithoutRecentlyViewedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2278,12 +2266,12 @@ export type UserUncheckedUpdateWithoutRecentlyViewedInput = {
 export type UserCreateWithoutAssignedOperationsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2305,12 +2293,12 @@ export type UserCreateWithoutAssignedOperationsInput = {
 export type UserUncheckedCreateWithoutAssignedOperationsInput = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   role?: $Enums.UserRole;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   countryCode?: string | null;
-  phoneVerified?: boolean;
   avatarUrl?: string | null;
   preferredCurrency?: string;
   preferredLanguage?: string;
@@ -2360,12 +2348,12 @@ export type UserUpdateToOneWithWhereWithoutAssignedOperationsInput = {
 export type UserUpdateWithoutAssignedOperationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2387,12 +2375,12 @@ export type UserUpdateWithoutAssignedOperationsInput = {
 export type UserUncheckedUpdateWithoutAssignedOperationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   email?: Prisma.StringFieldUpdateOperationsInput | string;
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole;
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
-  phoneVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string;
   preferredLanguage?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -2529,12 +2517,12 @@ export type UserSelect<
   {
     id?: boolean;
     email?: boolean;
+    emailVerified?: boolean;
     role?: boolean;
     firstName?: boolean;
     lastName?: boolean;
     phone?: boolean;
     countryCode?: boolean;
-    phoneVerified?: boolean;
     avatarUrl?: boolean;
     preferredCurrency?: boolean;
     preferredLanguage?: boolean;
@@ -2563,12 +2551,12 @@ export type UserSelectCreateManyAndReturn<
   {
     id?: boolean;
     email?: boolean;
+    emailVerified?: boolean;
     role?: boolean;
     firstName?: boolean;
     lastName?: boolean;
     phone?: boolean;
     countryCode?: boolean;
-    phoneVerified?: boolean;
     avatarUrl?: boolean;
     preferredCurrency?: boolean;
     preferredLanguage?: boolean;
@@ -2585,12 +2573,12 @@ export type UserSelectUpdateManyAndReturn<
   {
     id?: boolean;
     email?: boolean;
+    emailVerified?: boolean;
     role?: boolean;
     firstName?: boolean;
     lastName?: boolean;
     phone?: boolean;
     countryCode?: boolean;
-    phoneVerified?: boolean;
     avatarUrl?: boolean;
     preferredCurrency?: boolean;
     preferredLanguage?: boolean;
@@ -2604,12 +2592,12 @@ export type UserSelectUpdateManyAndReturn<
 export type UserSelectScalar = {
   id?: boolean;
   email?: boolean;
+  emailVerified?: boolean;
   role?: boolean;
   firstName?: boolean;
   lastName?: boolean;
   phone?: boolean;
   countryCode?: boolean;
-  phoneVerified?: boolean;
   avatarUrl?: boolean;
   preferredCurrency?: boolean;
   preferredLanguage?: boolean;
@@ -2623,12 +2611,12 @@ export type UserOmit<
 > = runtime.Types.Extensions.GetOmit<
   | 'id'
   | 'email'
+  | 'emailVerified'
   | 'role'
   | 'firstName'
   | 'lastName'
   | 'phone'
   | 'countryCode'
-  | 'phoneVerified'
   | 'avatarUrl'
   | 'preferredCurrency'
   | 'preferredLanguage'
@@ -2681,12 +2669,12 @@ export type $UserPayload<
     {
       id: string;
       email: string;
+      emailVerified: boolean;
       role: $Enums.UserRole;
       firstName: string | null;
       lastName: string | null;
       phone: string | null;
       countryCode: string | null;
-      phoneVerified: boolean;
       avatarUrl: string | null;
       preferredCurrency: string;
       preferredLanguage: string;
@@ -3363,12 +3351,12 @@ export interface Prisma__UserClient<
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<'User', 'String'>;
   readonly email: Prisma.FieldRef<'User', 'String'>;
+  readonly emailVerified: Prisma.FieldRef<'User', 'Boolean'>;
   readonly role: Prisma.FieldRef<'User', 'UserRole'>;
   readonly firstName: Prisma.FieldRef<'User', 'String'>;
   readonly lastName: Prisma.FieldRef<'User', 'String'>;
   readonly phone: Prisma.FieldRef<'User', 'String'>;
   readonly countryCode: Prisma.FieldRef<'User', 'String'>;
-  readonly phoneVerified: Prisma.FieldRef<'User', 'Boolean'>;
   readonly avatarUrl: Prisma.FieldRef<'User', 'String'>;
   readonly preferredCurrency: Prisma.FieldRef<'User', 'String'>;
   readonly preferredLanguage: Prisma.FieldRef<'User', 'String'>;

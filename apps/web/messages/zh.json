@@ -233,7 +233,21 @@
       "phoneNumber": "电话号码",
       "email": "邮箱地址",
       "continue": "继续",
-      "backToLogin": "返回登录"
+      "backToLogin": "返回登录",
+      "findIdHint": "请输入您注册时使用的电话号码。",
+      "findIdError": "未找到使用此电话号码注册的账户。",
+      "idFound": "已找到您的ID！",
+      "goToLogin": "去登录",
+      "verifyEmail": "验证邮箱",
+      "emailVerified": "邮箱已验证",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "passwordHint": "至少8个字符，区分大小写",
+      "passwordMismatch": "两次密码不一致",
+      "resetPassword": "重置密码",
+      "resetSuccess": "密码已更改！",
+      "resetSuccessHint": "请使用新密码登录。",
+      "resetError": "密码重置失败，请重试。"
     },
     "signupPage": {
       "title": "创建您的账户",
@@ -247,6 +261,7 @@
       "nameHint": "请确保与您的身份证件上的名字一致。如果您使用其他名字，可以添加首选名。",
       "countryCode": "国家代码",
       "phoneNumber": "电话号码",
+      "phoneOptional": "电话号码是可选的。",
       "agreeTerms": "我同意收集和使用我的个人信息。",
       "termsPreview": "我们收集使用Snug平台所需的个人信息。",
       "termsFullText": "我们收集使用Snug平台所需的个人信息。包括姓名、邮箱、电话号码和其他注册详情。",
@@ -271,6 +286,18 @@
       "sending": "发送中...",
       "sendError": "验证码发送失败",
       "verifyError": "验证失败"
+    },
+    "emailVerification": {
+      "title": "邮箱验证",
+      "sentTo": "验证码已发送至 {email}",
+      "enterFullCode": "请输入6位验证码",
+      "verified": "验证成功！",
+      "verify": "验证",
+      "resend": "重新发送验证码",
+      "resendIn": "{seconds}秒后可重新发送",
+      "sending": "发送中...",
+      "sendError": "验证码发送失败，请稍后重试。",
+      "verifyError": "验证失败，请检查验证码。"
     }
   },
   "profile": {

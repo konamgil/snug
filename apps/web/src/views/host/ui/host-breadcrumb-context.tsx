@@ -6,6 +6,7 @@ interface HeaderActions {
   openDate?: string;
   lastModifiedBy?: string;
   isOperating?: boolean;
+  canOperate?: boolean; // publish gate 조건 충족 여부
   onToggleOperating?: (value: boolean) => void;
 }
 

@@ -4,10 +4,12 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { OtpService } from './otp.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SupabaseJwtStrategy } from './strategies/supabase-jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../email/email.module';
 
 /**
  * Auth Module
@@ -34,6 +36,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     UsersModule,
+    EmailModule,
     // Supabase JWT를 기본 전략으로 사용
     PassportModule.register({ defaultStrategy: 'supabase-jwt' }),
     JwtModule.registerAsync({
@@ -51,10 +54,11 @@ import { UsersModule } from '../users/users.module';
   controllers: [AuthController],
   providers: [
     AuthService,
+    OtpService,
     SupabaseJwtStrategy, // Supabase JWT 검증 (주요)
     JwtStrategy, // 자체 JWT 검증 (레거시)
     JwtAuthGuard,
   ],
-  exports: [AuthService, JwtAuthGuard],
+  exports: [AuthService, OtpService, JwtAuthGuard],
 })
 export class AuthModule {}

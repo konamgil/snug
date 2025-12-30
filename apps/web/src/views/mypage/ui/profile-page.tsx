@@ -26,7 +26,7 @@ interface ProfileFormData {
   email: string;
   countryCode: string;
   phone: string;
-  phoneVerified: boolean;
+  emailVerified: boolean;
   passportNumber: string;
   avatarUrl: string;
 }
@@ -67,7 +67,7 @@ function apiToFormData(data: ApiProfileData): ProfileFormData {
     email: data.email,
     countryCode: data.countryCode || '+82',
     phone: data.phone || '',
-    phoneVerified: data.phoneVerified,
+    emailVerified: data.emailVerified,
     passportNumber: data.passportNumber || '',
     avatarUrl: data.avatarUrl || '',
   };
@@ -109,7 +109,7 @@ export function ProfilePage() {
     email: '',
     countryCode: '+82',
     phone: '',
-    phoneVerified: false,
+    emailVerified: false,
     passportNumber: '',
     avatarUrl: '',
   });
@@ -200,7 +200,7 @@ export function ProfilePage() {
         lastName: editedProfile.lastName || undefined,
         phone: editedProfile.phone || undefined,
         countryCode: editedProfile.countryCode || undefined,
-        phoneVerified: editedProfile.phoneVerified,
+        emailVerified: editedProfile.emailVerified,
         aboutMe: editedProfile.aboutMe || undefined,
         purposeOfStay,
         passportNumber: editedProfile.passportNumber || undefined,
@@ -238,7 +238,7 @@ export function ProfilePage() {
     if (verificationCode === '123456') {
       setVerificationState('success');
       setIsTimerActive(false);
-      setEditedProfile((prev) => ({ ...prev, phoneVerified: true }));
+      setEditedProfile((prev) => ({ ...prev, emailVerified: true }));
     } else {
       setVerificationState('error');
     }
@@ -588,7 +588,7 @@ export function ProfilePage() {
                         className="w-full md:flex-1 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
                       />
                       {/* Verify button - Desktop only in row */}
-                      {verificationState === 'idle' && !editedProfile.phoneVerified && (
+                      {verificationState === 'idle' && !editedProfile.emailVerified && (
                         <button
                           type="button"
                           onClick={handleVerify}
@@ -611,7 +611,7 @@ export function ProfilePage() {
                     <p className="mt-2 text-xs text-[hsl(var(--snug-gray))]">{t('phoneHint')}</p>
 
                     {/* Mobile: Verify/Resend button below */}
-                    {verificationState === 'idle' && !editedProfile.phoneVerified && (
+                    {verificationState === 'idle' && !editedProfile.emailVerified && (
                       <button
                         type="button"
                         onClick={handleVerify}
@@ -696,7 +696,7 @@ export function ProfilePage() {
                       </div>
                     )}
 
-                    {editedProfile.phoneVerified && verificationState === 'idle' && (
+                    {editedProfile.emailVerified && verificationState === 'idle' && (
                       <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
                         <svg
                           className="w-4 h-4"
@@ -726,7 +726,7 @@ export function ProfilePage() {
                         {profile.phone || '-'}
                       </div>
                     </div>
-                    {profile.phoneVerified && (
+                    {profile.emailVerified && (
                       <p className="mt-2 text-xs text-[hsl(var(--snug-gray))]">{t('verified')}</p>
                     )}
                   </>

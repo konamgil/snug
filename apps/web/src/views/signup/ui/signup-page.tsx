@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Eye, EyeOff, X, ChevronDown, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, X, ChevronDown, Loader2, CheckCircle, Mail } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { useAuthStore } from '@/shared/stores';
-import { PhoneVerificationModal } from '@/features/auth';
+import { EmailVerificationModal } from '@/features/auth';
 
 const COUNTRY_CODES = [
   { code: '+82', country: 'South Korea' },
@@ -121,53 +121,56 @@ export function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState('');
+  const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
 
   const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
 
   const passwordError =
     confirmPassword && password !== confirmPassword ? t('passwordMismatch') : '';
 
+  // Email validation
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const isFormValid =
     email &&
+    isEmailVerified &&
     password.length >= 8 &&
     password === confirmPassword &&
     firstName &&
     lastName &&
-    agreeTerms &&
-    isPhoneVerified;
+    agreeTerms;
 
-  const canStartVerification = countryCode && phoneNumber.length >= 8;
+  const canStartEmailVerification = isValidEmail && !isEmailVerified;
 
-  const handleStartVerification = () => {
-    if (canStartVerification) {
-      setShowVerificationModal(true);
+  const handleStartEmailVerification = () => {
+    if (canStartEmailVerification) {
+      setShowEmailVerificationModal(true);
     }
   };
 
-  const handleVerified = () => {
-    setIsPhoneVerified(true);
-    setVerifiedPhoneNumber(`${countryCode}${phoneNumber}`);
-    setShowVerificationModal(false);
+  const handleEmailVerified = () => {
+    setIsEmailVerified(true);
+    setVerifiedEmail(email);
+    setShowEmailVerificationModal(false);
   };
 
-  // Reset verification if phone number changes
+  // Reset verification if email changes
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (isEmailVerified && value !== verifiedEmail) {
+      setIsEmailVerified(false);
+      setVerifiedEmail('');
+    }
+  };
+
   const handlePhoneChange = (value: string) => {
     setPhoneNumber(value);
-    if (isPhoneVerified && `${countryCode}${value}` !== verifiedPhoneNumber) {
-      setIsPhoneVerified(false);
-      setVerifiedPhoneNumber('');
-    }
   };
 
   const handleCountryCodeChange = (code: string) => {
     setCountryCode(code);
-    if (isPhoneVerified && `${code}${phoneNumber}` !== verifiedPhoneNumber) {
-      setIsPhoneVerified(false);
-      setVerifiedPhoneNumber('');
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,13 +227,35 @@ export function SignupPage() {
           /* Form */
           <form onSubmit={handleSubmit} className="w-full max-w-[500px] space-y-4">
             {error && <p className="text-sm text-red-500 text-center px-1">{error}</p>}
-            <FloatingInput
-              id="email"
-              label={t('emailAddress')}
-              type="email"
-              value={email}
-              onChange={setEmail}
-            />
+
+            {/* Email with Verification */}
+            <div className="space-y-3">
+              <FloatingInput
+                id="email"
+                label={t('emailAddress')}
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+              />
+
+              {/* Email Verify Button / Verified Status */}
+              {isEmailVerified ? (
+                <div className="flex items-center justify-center gap-1 py-2 text-green-600">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm font-medium">{t('emailVerified')}</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleStartEmailVerification}
+                  disabled={!canStartEmailVerification}
+                  className="w-full px-4 py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-3xl hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  {t('verifyEmail')}
+                </button>
+              )}
+            </div>
 
             <FloatingInput
               id="password"
@@ -275,63 +300,44 @@ export function SignupPage() {
               </div>
               <p className="text-xs text-[hsl(var(--snug-gray))] mb-4 px-1">{t('nameHint')}</p>
 
-              <div className="space-y-3">
-                {/* Phone number inputs row */}
-                <div className="flex gap-3">
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                      disabled={isPhoneVerified}
-                      className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[100px] sm:min-w-[120px] bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
-                    >
-                      <span>{selectedCountry ? selectedCountry.code : t('countryCode')}</span>
-                      <ChevronDown className="w-4 h-4 ml-auto" />
-                    </button>
-                    {showCountryDropdown && (
-                      <div className="absolute top-full left-0 mt-2 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
-                        {COUNTRY_CODES.map((country) => (
-                          <button
-                            key={country.code}
-                            type="button"
-                            onClick={() => {
-                              handleCountryCodeChange(country.code);
-                              setShowCountryDropdown(false);
-                            }}
-                            className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-                          >
-                            {country.code} {country.country}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder={t('phoneNumber')}
-                    disabled={isPhoneVerified}
-                    className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50 disabled:opacity-60"
-                  />
-                </div>
-                {/* Verify button / Verified status row */}
-                {isPhoneVerified ? (
-                  <div className="flex items-center justify-center gap-1 py-2 text-green-600">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">{t('verified')}</span>
-                  </div>
-                ) : (
+              {/* Phone number inputs row - Optional, no verification required */}
+              <div className="flex gap-3">
+                <div className="relative">
                   <button
                     type="button"
-                    onClick={handleStartVerification}
-                    disabled={!canStartVerification}
-                    className="w-full px-4 py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-3xl hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                    className="flex items-center gap-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm text-[hsl(var(--snug-gray))] hover:border-[hsl(var(--snug-gray))] transition-colors min-w-[100px] sm:min-w-[120px] bg-[hsl(var(--snug-light-gray))]/50"
                   >
-                    {t('verify')}
+                    <span>{selectedCountry ? selectedCountry.code : t('countryCode')}</span>
+                    <ChevronDown className="w-4 h-4 ml-auto" />
                   </button>
-                )}
+                  {showCountryDropdown && (
+                    <div className="absolute top-full left-0 mt-2 w-[180px] bg-white border border-[hsl(var(--snug-border))] rounded-2xl shadow-lg p-2 z-10">
+                      {COUNTRY_CODES.map((country) => (
+                        <button
+                          key={country.code}
+                          type="button"
+                          onClick={() => {
+                            handleCountryCodeChange(country.code);
+                            setShowCountryDropdown(false);
+                          }}
+                          className="w-full px-3 py-2.5 text-left text-sm hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
+                        >
+                          {country.code} {country.country}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  placeholder={t('phoneNumber')}
+                  className="flex-1 min-w-0 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-3xl text-sm placeholder:text-[hsl(var(--snug-gray))] focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors bg-[hsl(var(--snug-light-gray))]/50"
+                />
               </div>
+              <p className="text-xs text-[hsl(var(--snug-gray))] px-1">{t('phoneOptional')}</p>
             </div>
 
             {/* Divider */}
@@ -410,13 +416,13 @@ export function SignupPage() {
         )}
       </main>
 
-      {/* Phone Verification Modal */}
-      <PhoneVerificationModal
-        isOpen={showVerificationModal}
-        onClose={() => setShowVerificationModal(false)}
-        phoneNumber={phoneNumber}
-        countryCode={countryCode}
-        onVerified={handleVerified}
+      {/* Email Verification Modal */}
+      <EmailVerificationModal
+        isOpen={showEmailVerificationModal}
+        onClose={() => setShowEmailVerificationModal(false)}
+        email={email}
+        type="SIGNUP"
+        onVerified={handleEmailVerified}
       />
     </div>
   );

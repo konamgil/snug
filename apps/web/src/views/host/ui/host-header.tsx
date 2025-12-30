@@ -90,14 +90,23 @@ export function HostHeader({ onToggleSidebar, onOpenDrawer, isSidebarCollapsed }
               <span className="text-[hsl(var(--snug-border))]">|</span>
             </>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative group">
             <button
               type="button"
-              onClick={() => headerActions.onToggleOperating?.(!headerActions.isOperating)}
+              onClick={() => {
+                // 켜는 동작일 때만 canOperate 체크
+                if (!headerActions.isOperating && headerActions.canOperate === false) {
+                  return; // 조건 미충족 시 무시
+                }
+                headerActions.onToggleOperating?.(!headerActions.isOperating);
+              }}
+              disabled={!headerActions.isOperating && headerActions.canOperate === false}
               className={`relative w-12 h-6 rounded-full transition-colors ${
                 headerActions.isOperating
                   ? 'bg-[hsl(var(--snug-orange))]'
-                  : 'bg-[hsl(var(--snug-gray))]'
+                  : headerActions.canOperate === false
+                    ? 'bg-[hsl(var(--snug-border))] cursor-not-allowed'
+                    : 'bg-[hsl(var(--snug-gray))]'
               }`}
             >
               <span
@@ -106,9 +115,22 @@ export function HostHeader({ onToggleSidebar, onOpenDrawer, isSidebarCollapsed }
                 }`}
               />
             </button>
-            <span className="text-[hsl(var(--snug-text-primary))]">
+            <span
+              className={
+                !headerActions.isOperating && headerActions.canOperate === false
+                  ? 'text-[hsl(var(--snug-gray))]'
+                  : 'text-[hsl(var(--snug-text-primary))]'
+              }
+            >
               {headerActions.isOperating ? t('operating') : t('notOperating')}
             </span>
+            {/* 조건 미충족 시 툴팁 */}
+            {!headerActions.isOperating && headerActions.canOperate === false && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-[hsl(var(--snug-text-primary))] text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                {t('cannotOperateTooltip')}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[hsl(var(--snug-text-primary))] rotate-45" />
+              </div>
+            )}
           </div>
         </div>
       )}

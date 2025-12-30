@@ -16,6 +16,7 @@ import {
 } from './dashboard';
 
 export function DashboardPage() {
+  const t = useTranslations('host.dashboard');
   // Operation drawer state
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<OperationDetailData | null>(null);
@@ -96,28 +97,52 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-      {/* Contract Management Section */}
-      <ContractSection onItemClick={handleContractItemClick} />
+    <div className="relative min-h-[calc(100vh-120px)]">
+      {/* Dashboard content - blurred and disabled */}
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6 blur-sm pointer-events-none select-none">
+        {/* Contract Management Section */}
+        <ContractSection onItemClick={handleContractItemClick} />
 
-      {/* Settlement Section - Full width on mobile */}
-      <div className="md:hidden">
-        <SettlementSection />
+        {/* Settlement Section - Full width on mobile */}
+        <div className="md:hidden">
+          <SettlementSection />
+        </div>
+
+        {/* Settlement & Operations Row - Desktop only */}
+        <div className="hidden md:grid md:grid-cols-2 gap-6">
+          <SettlementSection />
+          <OperationSection onItemClick={handleOperationItemClick} />
+        </div>
+
+        {/* Operations Section - Mobile */}
+        <div className="md:hidden">
+          <OperationSection onItemClick={handleOperationItemClick} />
+        </div>
+
+        {/* Recent Chats Section */}
+        <ChatSection />
       </div>
 
-      {/* Settlement & Operations Row - Desktop only */}
-      <div className="hidden md:grid md:grid-cols-2 gap-6">
-        <SettlementSection />
-        <OperationSection onItemClick={handleOperationItemClick} />
+      {/* Coming soon overlay */}
+      <div className="absolute inset-0 flex items-start justify-center pt-24 md:pt-32 bg-white/60 backdrop-blur-[2px]">
+        <div className="text-center px-4 max-w-md">
+          <div className="bg-white rounded-2xl shadow-lg px-8 py-8 border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('comingSoonTitle')}</h3>
+            <p className="text-sm text-gray-600 mb-6">{t('comingSoonDescription')}</p>
+            <div className="pt-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500">
+                {t('comingSoonContact')} :{' '}
+                <a
+                  href={`mailto:${t('comingSoonEmail')}`}
+                  className="text-[hsl(var(--snug-orange))] font-medium hover:underline"
+                >
+                  {t('comingSoonEmail')}
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Operations Section - Mobile */}
-      <div className="md:hidden">
-        <OperationSection onItemClick={handleOperationItemClick} />
-      </div>
-
-      {/* Recent Chats Section */}
-      <ChatSection />
 
       {/* Operation Detail Drawer */}
       <OperationDetailDrawer

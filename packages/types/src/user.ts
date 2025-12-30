@@ -10,7 +10,7 @@ export interface User {
   lastName: string | null;
   phone: string | null;
   countryCode: string | null;
-  phoneVerified: boolean;
+  emailVerified: boolean;
   avatarUrl: string | null;
   supabaseId: string | null;
   // 사용자 설정

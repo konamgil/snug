@@ -39,6 +39,14 @@ export const PartnerServiceType = {
 
 export type PartnerServiceType = (typeof PartnerServiceType)[keyof typeof PartnerServiceType];
 
+export const OtpType = {
+  SIGNUP: 'SIGNUP',
+  RESET_PASSWORD: 'RESET_PASSWORD',
+  FIND_ID: 'FIND_ID',
+} as const;
+
+export type OtpType = (typeof OtpType)[keyof typeof OtpType];
+
 export const PermissionType = {
   CONTRACTS_VIEW: 'CONTRACTS_VIEW',
   CONTRACTS_MANAGE: 'CONTRACTS_MANAGE',

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, HelpCircle, Plus, Minus, X } from 'lucide-react';
+import { ChevronDown, HelpCircle, Plus, Minus, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { PhotoUploadSection } from './photo-upload-section';
 import { PhotoUploadModal } from './photo-upload-modal';
 import { PhotoGalleryModal } from './photo-gallery-modal';
@@ -48,7 +48,109 @@ export function AccommodationForm({
   const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
   const tBuildingTypes = useTranslations('host.accommodation.buildingTypes');
   const tWeekdays = useTranslations('host.accommodation.weekdays');
+  const tValidation = useTranslations('host.accommodation.form.validation');
+  const tPublishGate = useTranslations('host.accommodation.form.publishGate');
   const [data, setData] = useState<AccommodationFormData>(initialData);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Mark field as touched on blur
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation errors
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+
+    if (!data.roomName || data.roomName.trim() === '') {
+      errs.roomName = tValidation('roomNameRequired');
+    } else if (data.roomName.length > 100) {
+      errs.roomName = tValidation('roomNameMaxLength');
+    }
+
+    if (!data.address || data.address.trim() === '') {
+      errs.address = tValidation('addressRequired');
+    }
+
+    if (!data.accommodationType) {
+      errs.accommodationType = tValidation('accommodationTypeRequired');
+    }
+
+    if (!data.usageTypes || data.usageTypes.length === 0) {
+      errs.usageTypes = tValidation('usageTypesRequired');
+    }
+
+    // mainPhotos - at least 1 photo required
+    const hasPhotos = data.mainPhotos.some((cat) => cat.photos.length > 0);
+    if (!hasPhotos) {
+      errs.mainPhotos = tValidation('mainPhotosRequired');
+    }
+
+    // rooms - at least 1 room required
+    const { rooms } = data.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+    if (totalRooms === 0) {
+      errs.rooms = tValidation('roomsRequired');
+    }
+
+    if (data.pricing.basePrice < 0) {
+      errs.basePrice = tValidation('basePriceMin');
+    }
+
+    if (data.space.capacity < 1) {
+      errs.capacity = tValidation('capacityMin');
+    }
+
+    return errs;
+  }, [data, tValidation]);
+
+  // Publish gate check (includes all BLOCKING validations + additional quality requirements)
+  const publishGateStatus = useMemo(() => {
+    const photoCount = data.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
+    const introLength = data.space.introduction?.length || 0;
+    const basePrice = data.pricing.basePrice;
+    const { rooms } = data.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = data.roomName && data.roomName.trim().length > 0;
+    const addressPassed = data.address && data.address.trim().length > 0;
+    const accommodationTypePassed = !!data.accommodationType;
+    const usageTypesPassed = data.usageTypes && data.usageTypes.length > 0;
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = data.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    const canPublish =
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed;
+
+    return {
+      roomName: { passed: roomNamePassed },
+      address: { passed: addressPassed },
+      accommodationType: { passed: accommodationTypePassed },
+      usageTypes: { passed: usageTypesPassed },
+      photos: { passed: photosPassed, current: photoCount },
+      rooms: { passed: roomsPassed },
+      capacity: { passed: capacityPassed, current: data.space.capacity },
+      introduction: { passed: introductionPassed, current: introLength },
+      basePrice: { passed: basePricePassed, current: basePrice },
+      canPublish,
+    };
+  }, [data]);
 
   // Sync internal state when initialData changes (for edit mode)
   useEffect(() => {
@@ -160,9 +262,10 @@ export function AccommodationForm({
     <div className="space-y-8">
       {/* 기본 정보 (Basic Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
           {t('basicInfo')}
         </h2>
+        <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">{t('basicInfoDesc')}</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
@@ -192,6 +295,12 @@ export function AccommodationForm({
                   setIsPhotoGalleryModalOpen(true);
                 }}
               />
+              {errors.mainPhotos && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.mainPhotos}
+                </p>
+              )}
             </div>
 
             {/* 그룹명 */}
@@ -339,9 +448,20 @@ export function AccommodationForm({
                 type="text"
                 value={data.roomName}
                 onChange={(e) => updateData({ roomName: e.target.value })}
+                onBlur={() => handleBlur('roomName')}
                 placeholder={t('roomNamePlaceholder')}
-                className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                className={`w-full px-4 py-3 border rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] ${
+                  touched.roomName && errors.roomName
+                    ? 'border-red-500'
+                    : 'border-[hsl(var(--snug-border))]'
+                }`}
               />
+              {touched.roomName && errors.roomName && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.roomName}
+                </p>
+              )}
             </div>
           </div>
 
@@ -372,7 +492,9 @@ export function AccommodationForm({
                 type="text"
                 value={data.address}
                 placeholder={t('searchAddressPlaceholder')}
-                className="w-full mt-2 px-4 py-3 bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))] rounded-lg text-sm"
+                className={`w-full mt-2 px-4 py-3 bg-[hsl(var(--snug-light-gray))] border rounded-lg text-sm ${
+                  errors.address ? 'border-red-500' : 'border-[hsl(var(--snug-border))]'
+                }`}
                 readOnly
               />
               <input
@@ -382,6 +504,12 @@ export function AccommodationForm({
                 placeholder={t('detailedAddressPlaceholder')}
                 className="w-full mt-2 px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
               />
+              {errors.address && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.address}
+                </p>
+              )}
             </div>
 
             {/* 숙소 이용 & 최소 예약일 */}
@@ -391,7 +519,7 @@ export function AccommodationForm({
                   {t('accommodationType')} <span className="text-[hsl(var(--snug-orange))]">*</span>
                   <HelpCircle className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
                 </label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4" onBlur={() => handleBlur('usageTypes')}>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -415,6 +543,12 @@ export function AccommodationForm({
                     </span>
                   </label>
                 </div>
+                {touched.usageTypes && errors.usageTypes && (
+                  <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.usageTypes}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -469,7 +603,12 @@ export function AccommodationForm({
                 <button
                   type="button"
                   onClick={() => setIsAccommodationTypeOpen(!isAccommodationTypeOpen)}
-                  className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
+                  onBlur={() => handleBlur('accommodationType')}
+                  className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg text-sm text-[hsl(var(--snug-text-primary))] ${
+                    touched.accommodationType && errors.accommodationType
+                      ? 'border-red-500'
+                      : 'border-[hsl(var(--snug-border))]'
+                  }`}
                 >
                   {data.accommodationType
                     ? tAccommodationTypes(data.accommodationType as any)
@@ -506,6 +645,12 @@ export function AccommodationForm({
                   </>
                 )}
               </div>
+              {touched.accommodationType && errors.accommodationType && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.accommodationType}
+                </p>
+              )}
             </div>
 
             {/* 건물 유형 */}
@@ -557,9 +702,10 @@ export function AccommodationForm({
 
       {/* 요금 정보 (Pricing Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
           {t('pricingInfo')}
         </h2>
+        <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">{t('pricingInfoDesc')}</p>
 
         <div className="space-y-6">
           {/* 기본 요금 */}
@@ -571,9 +717,20 @@ export function AccommodationForm({
               type="number"
               value={data.pricing.basePrice || ''}
               onChange={(e) => updatePricing({ basePrice: parseInt(e.target.value) || 0 })}
+              onBlur={() => handleBlur('basePrice')}
               placeholder={t('amountPlaceholder')}
-              className="w-full max-w-xs px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+              className={`w-full max-w-xs px-4 py-3 border rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] ${
+                touched.basePrice && errors.basePrice
+                  ? 'border-red-500'
+                  : 'border-[hsl(var(--snug-border))]'
+              }`}
             />
+            {touched.basePrice && errors.basePrice && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.basePrice}
+              </p>
+            )}
             <label className="flex items-center gap-2 mt-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -727,9 +884,10 @@ export function AccommodationForm({
 
       {/* 공간 정보 (Space Information) */}
       <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
-        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-6">
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
           {t('spaceInfo')}
         </h2>
+        <p className="text-sm text-[hsl(var(--snug-gray))] mb-6">{t('spaceInfoDesc')}</p>
 
         <div className="space-y-6">
           {/* 수용 인원 & 이용 규칙 */}
@@ -742,10 +900,21 @@ export function AccommodationForm({
                 type="number"
                 value={data.space.capacity || ''}
                 onChange={(e) => updateSpace({ capacity: parseInt(e.target.value) || 0 })}
+                onBlur={() => handleBlur('capacity')}
                 placeholder="0"
                 min="0"
-                className="w-full px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))]"
+                className={`w-full px-4 py-3 border rounded-lg text-sm focus:outline-none focus:border-[hsl(var(--snug-orange))] ${
+                  touched.capacity && errors.capacity
+                    ? 'border-red-500'
+                    : 'border-[hsl(var(--snug-border))]'
+                }`}
               />
+              {touched.capacity && errors.capacity && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.capacity}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-[hsl(var(--snug-text-primary))] mb-2">
@@ -875,6 +1044,12 @@ export function AccommodationForm({
                 </div>
               ))}
             </div>
+            {errors.rooms && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.rooms}
+              </p>
+            )}
           </div>
 
           {/* 침대 종류 */}
@@ -1087,6 +1262,167 @@ export function AccommodationForm({
             </div>
           </div>
         )}
+      </section>
+
+      {/* 공개 조건 체크리스트 (Publish Gate Checklist) */}
+      <section className="bg-white rounded-lg border border-[hsl(var(--snug-border))] p-6">
+        <h2 className="text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
+          {tPublishGate('title')}
+        </h2>
+        <p className="text-sm text-[hsl(var(--snug-gray))] mb-4">{tPublishGate('description')}</p>
+        <ul className="space-y-2">
+          {/* 방 이름 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.roomName.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.roomName.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('roomNameRequired')}
+            </span>
+          </li>
+          {/* 주소 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.address.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.address.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('addressRequired')}
+            </span>
+          </li>
+          {/* 숙소 유형 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.accommodationType.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.accommodationType.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('accommodationTypeRequired')}
+            </span>
+          </li>
+          {/* 이용 타입 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.usageTypes.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.usageTypes.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('usageTypesRequired')}
+            </span>
+          </li>
+          {/* 대표 사진 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.photos.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.photos.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('photosRequired', {
+                current: publishGateStatus.photos.current,
+              })}
+            </span>
+          </li>
+          {/* 공간 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.rooms.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.rooms.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('roomsRequired')}
+            </span>
+          </li>
+          {/* 수용 인원 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.capacity.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.capacity.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('capacityRequired', {
+                current: publishGateStatus.capacity.current,
+              })}
+            </span>
+          </li>
+          {/* 기본가 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.basePrice.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.basePrice.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('basePriceRequired')}
+            </span>
+          </li>
+          {/* 소개글 */}
+          <li className="flex items-center gap-2">
+            {publishGateStatus.introduction.passed ? (
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            <span
+              className={`text-sm ${
+                publishGateStatus.introduction.passed ? 'text-green-600' : 'text-red-500'
+              }`}
+            >
+              {tPublishGate('introductionRequired', {
+                current: publishGateStatus.introduction.current,
+              })}
+            </span>
+          </li>
+        </ul>
+        <div className="mt-4 pt-4 border-t border-[hsl(var(--snug-border))]">
+          {publishGateStatus.canPublish ? (
+            <p className="text-sm text-green-600 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              {tPublishGate('canPublish')}
+            </p>
+          ) : (
+            <p className="text-sm text-[hsl(var(--snug-gray))]">{tPublishGate('cannotPublish')}</p>
+          )}
+        </div>
       </section>
 
       {/* Modals */}

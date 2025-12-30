@@ -369,6 +369,41 @@ export function AccommodationNewPage() {
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
+  // 운영 가능 여부 (Publish Gate 조건 - 모든 BLOCKING 검증 + 추가 품질 요건)
+  const canOperate = useMemo(() => {
+    const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
+    const introLength = formData.space.introduction?.length || 0;
+    const basePrice = formData.pricing.basePrice;
+    const { rooms } = formData.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = !!(formData.roomName && formData.roomName.trim().length > 0);
+    const addressPassed = !!(formData.address && formData.address.trim().length > 0);
+    const accommodationTypePassed = !!formData.accommodationType;
+    const usageTypesPassed = !!(formData.usageTypes && formData.usageTypes.length > 0);
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = formData.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    return (
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed
+    );
+  }, [formData]);
+
   // Set breadcrumb
   useEffect(() => {
     setBreadcrumb([t('breadcrumbManagement'), t('breadcrumbNew')]);
@@ -379,11 +414,12 @@ export function AccommodationNewPage() {
   useEffect(() => {
     setHeaderActions({
       isOperating: formData.isOperating,
+      canOperate,
       onToggleOperating: (value: boolean) =>
         setFormData((prev) => ({ ...prev, isOperating: value })),
     });
     return () => setHeaderActions({});
-  }, [setHeaderActions, formData.isOperating]);
+  }, [setHeaderActions, formData.isOperating, canOperate]);
 
   // Fetch groups on mount
   useEffect(() => {
@@ -681,6 +717,41 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
     );
   }, [formData.roomName, formData.address, formData.usageTypes]);
 
+  // 운영 가능 여부 (Publish Gate 조건 - 모든 BLOCKING 검증 + 추가 품질 요건)
+  const canOperate = useMemo(() => {
+    const photoCount = formData.mainPhotos.reduce((acc, cat) => acc + cat.photos.length, 0);
+    const introLength = formData.space.introduction?.length || 0;
+    const basePrice = formData.pricing.basePrice;
+    const { rooms } = formData.space;
+    const totalRooms =
+      rooms.room + rooms.livingRoom + rooms.kitchen + rooms.bathroom + rooms.terrace;
+
+    // BLOCKING validations
+    const roomNamePassed = !!(formData.roomName && formData.roomName.trim().length > 0);
+    const addressPassed = !!(formData.address && formData.address.trim().length > 0);
+    const accommodationTypePassed = !!formData.accommodationType;
+    const usageTypesPassed = !!(formData.usageTypes && formData.usageTypes.length > 0);
+    const photosPassed = photoCount >= 1;
+    const roomsPassed = totalRooms > 0;
+    const capacityPassed = formData.space.capacity >= 1;
+
+    // Publish gate additional requirements
+    const introductionPassed = introLength >= 50;
+    const basePricePassed = basePrice > 0;
+
+    return (
+      roomNamePassed &&
+      addressPassed &&
+      accommodationTypePassed &&
+      usageTypesPassed &&
+      photosPassed &&
+      roomsPassed &&
+      capacityPassed &&
+      introductionPassed &&
+      basePricePassed
+    );
+  }, [formData]);
+
   // Set breadcrumb (only after data is loaded)
   useEffect(() => {
     if (!isLoading && formData.roomName) {
@@ -695,12 +766,13 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       setHeaderActions({
         lastModifiedBy: formData.lastModifiedAt,
         isOperating: formData.isOperating,
+        canOperate,
         onToggleOperating: (value: boolean) =>
           setFormData((prev) => ({ ...prev, isOperating: value })),
       });
     }
     return () => setHeaderActions({});
-  }, [setHeaderActions, isLoading, formData.lastModifiedAt, formData.isOperating]);
+  }, [setHeaderActions, isLoading, formData.lastModifiedAt, formData.isOperating, canOperate]);
 
   // Fetch groups and accommodation data on mount
   useEffect(() => {

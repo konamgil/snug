@@ -1,15 +1,27 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import type { User } from '@snug/database';
+import { OtpType } from '@snug/database';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
+import { OtpService } from './otp.service';
+import {
+  LoginDto,
+  RegisterDto,
+  SendOtpDto,
+  VerifyOtpDto,
+  ResetPasswordDto,
+  FindIdDto,
+} from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly otpService: OtpService,
+  ) {}
 
   /**
    * 인증 테스트용 Ping 엔드포인트
@@ -93,5 +105,57 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refresh(@Body('refreshToken') refreshToken: string) {
     return this.authService.refresh(refreshToken);
+  }
+
+  // ============================================
+  // OTP Endpoints
+  // ============================================
+
+  @Post('otp/send')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send OTP to email' })
+  @ApiBody({ type: SendOtpDto })
+  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
+  @ApiResponse({ status: 400, description: 'Failed to send OTP' })
+  async sendOtp(@Body() dto: SendOtpDto) {
+    return this.otpService.sendOtp(dto.email, OtpType[dto.type]);
+  }
+
+  @Post('otp/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify OTP code' })
+  @ApiBody({ type: VerifyOtpDto })
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.otpService.verifyOtp(dto.email, dto.code, OtpType[dto.type]);
+  }
+
+  // ============================================
+  // Password Reset
+  // ============================================
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password after OTP verification' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Email not verified or user not found' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.email, dto.newPassword);
+  }
+
+  // ============================================
+  // Find ID (아이디 찾기)
+  // ============================================
+
+  @Post('find-id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Find user ID by phone number' })
+  @ApiBody({ type: FindIdDto })
+  @ApiResponse({ status: 200, description: 'User email found' })
+  @ApiResponse({ status: 400, description: 'No user found with this phone' })
+  async findId(@Body() dto: FindIdDto) {
+    return this.authService.findIdByPhone(dto.phone, dto.countryCode);
   }
 }

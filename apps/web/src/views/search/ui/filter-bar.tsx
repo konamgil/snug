@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { FilterIcon, GridViewIcon, ListViewIcon } from '@/shared/ui/icons';
@@ -10,6 +9,8 @@ interface FilterBarProps {
   currentView?: 'grid' | 'list';
   onFilterClick?: () => void;
   hasActiveFilters?: boolean;
+  activeQuickFilters?: string[];
+  onQuickFilterToggle?: (filterId: string) => void;
 }
 
 export function FilterBar({
@@ -17,15 +18,10 @@ export function FilterBar({
   currentView = 'grid',
   onFilterClick,
   hasActiveFilters = false,
+  activeQuickFilters = [],
+  onQuickFilterToggle,
 }: FilterBarProps) {
   const t = useTranslations('search.filters');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
-  const toggleFilter = (filter: string) => {
-    setActiveFilters((prev) =>
-      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter],
-    );
-  };
 
   const filters = [
     { id: 'womenOnly', label: t('womenOnly') },
@@ -62,9 +58,9 @@ export function FilterBar({
         <button
           key={filter.id}
           type="button"
-          onClick={() => toggleFilter(filter.id)}
+          onClick={() => onQuickFilterToggle?.(filter.id)}
           className={`px-3 py-1.5 border rounded-full text-xs transition-colors whitespace-nowrap ${
-            activeFilters.includes(filter.id)
+            activeQuickFilters.includes(filter.id)
               ? 'border-[hsl(var(--snug-orange))] text-[hsl(var(--snug-orange))]'
               : 'border-[hsl(var(--snug-border))] text-[hsl(var(--snug-text-primary))] hover:border-[hsl(var(--snug-gray))]'
           }`}
