@@ -18,7 +18,7 @@ import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
 import type { RoomTypeOption } from './room-type-dropdown';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
-import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
+import { getAccommodationTypeLabel, getBuildingTypeLabel, useDebouncedValue } from '@/shared/lib';
 import type {
   AccommodationListItem,
   AccommodationSearchParams,
@@ -167,6 +167,14 @@ function SearchPageContent() {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 디바운싱된 검색 파라미터 (300ms 지연으로 불필요한 API 호출 방지)
+  const debouncedLocation = useDebouncedValue(locationValue, 300);
+  const debouncedGuests = useDebouncedValue(guests, 300);
+  const debouncedSortOption = useDebouncedValue(sortOption, 300);
+  const debouncedRoomType = useDebouncedValue(roomType, 300);
+  const debouncedActiveFilters = useDebouncedValue(activeFilters, 300);
+  const debouncedQuickFilters = useDebouncedValue(activeQuickFilters, 300);
+
   // 날짜로 숙박일 계산
   const calculateNights = useCallback(() => {
     if (checkIn && checkOut) {
@@ -198,30 +206,30 @@ function SearchPageContent() {
     );
   }, []);
 
-  // 숙소 목록 가져오기
+  // 숙소 목록 가져오기 (디바운싱된 값 사용)
   const fetchAccommodations = useCallback(async () => {
     setIsLoading(true);
     try {
-      const totalGuests = guests.adults + guests.children;
+      const totalGuests = debouncedGuests.adults + debouncedGuests.children;
       const params: AccommodationSearchParams = {
-        location: locationValue || undefined,
+        location: debouncedLocation || undefined,
         guests: totalGuests > 0 ? totalGuests : undefined,
-        sortBy: mapSortOption(sortOption),
+        sortBy: mapSortOption(debouncedSortOption),
       };
 
       // Room Type Dropdown 필터
-      if (roomType !== 'all') {
-        const accommodationType = roomTypeOptionToAccommodationType[roomType];
+      if (debouncedRoomType !== 'all') {
+        const accommodationType = roomTypeOptionToAccommodationType[debouncedRoomType];
         if (accommodationType) {
           params.accommodationType = [accommodationType];
         }
       }
 
       // 필터 적용
-      if (activeFilters) {
+      if (debouncedActiveFilters) {
         // 숙소 타입 필터 (modal filter) - dropdown과 병합
-        if (activeFilters.roomTypes.length > 0) {
-          const modalTypes = activeFilters.roomTypes
+        if (debouncedActiveFilters.roomTypes.length > 0) {
+          const modalTypes = debouncedActiveFilters.roomTypes
             .map((type) => roomTypeToAccommodationType[type])
             .filter(Boolean) as AccommodationType[];
           // 기존 dropdown 필터와 병합
@@ -230,31 +238,31 @@ function SearchPageContent() {
         }
 
         // 건물 타입 필터
-        if (activeFilters.propertyTypes.length > 0) {
-          params.buildingType = activeFilters.propertyTypes
+        if (debouncedActiveFilters.propertyTypes.length > 0) {
+          params.buildingType = debouncedActiveFilters.propertyTypes
             .map((type) => propertyTypeToBuildingType[type])
             .filter(Boolean) as BuildingType[];
         }
 
         // 가격 필터
-        if (activeFilters.budgetMin > 0) {
-          params.minPrice = activeFilters.budgetMin;
+        if (debouncedActiveFilters.budgetMin > 0) {
+          params.minPrice = debouncedActiveFilters.budgetMin;
         }
-        if (activeFilters.budgetMax < 10000) {
-          params.maxPrice = activeFilters.budgetMax;
+        if (debouncedActiveFilters.budgetMax < 10000) {
+          params.maxPrice = debouncedActiveFilters.budgetMax;
         }
 
         // 성별/반려동물 규칙 필터
-        if (activeFilters.houseRules.length > 0) {
-          params.genderRules = activeFilters.houseRules
+        if (debouncedActiveFilters.houseRules.length > 0) {
+          params.genderRules = debouncedActiveFilters.houseRules
             .map((rule) => houseRuleToGenderRule[rule])
             .filter(Boolean) as GenderRule[];
         }
       }
 
       // Quick filters (FilterBar chips) - merge with activeFilters
-      if (activeQuickFilters.length > 0) {
-        const quickFilterRules = activeQuickFilters
+      if (debouncedQuickFilters.length > 0) {
+        const quickFilterRules = debouncedQuickFilters
           .map((filterId) => quickFilterToHouseRule[filterId])
           .filter((rule): rule is string => !!rule && rule !== 'parking') // parking은 별도 처리
           .map((rule) => houseRuleToGenderRule[rule])
@@ -284,12 +292,12 @@ function SearchPageContent() {
       setIsLoading(false);
     }
   }, [
-    locationValue,
-    guests,
-    sortOption,
-    roomType,
-    activeFilters,
-    activeQuickFilters,
+    debouncedLocation,
+    debouncedGuests,
+    debouncedSortOption,
+    debouncedRoomType,
+    debouncedActiveFilters,
+    debouncedQuickFilters,
     calculateNights,
     mapSortOption,
     locale,
