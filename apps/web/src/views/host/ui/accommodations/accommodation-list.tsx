@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, MoreVertical, X } from 'lucide-react';
 import Image from 'next/image';
 import type { AccommodationListItem, AccommodationListFilter } from './types';
 
@@ -38,6 +38,16 @@ export function AccommodationList({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // 검색 열릴 때 포커스
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   const operatingCount = items.filter((item) => item.isOperating).length;
   const notOperatingCount = items.filter((item) => !item.isOperating).length;
@@ -48,11 +58,21 @@ export function AccommodationList({
     { id: 'not_operating', label: t('notOperating'), count: notOperatingCount },
   ];
 
-  const filteredItems = items.filter((item) => {
-    if (activeFilter === 'operating') return item.isOperating;
-    if (activeFilter === 'not_operating') return !item.isOperating;
-    return true;
-  });
+  const filteredItems = items
+    .filter((item) => {
+      if (activeFilter === 'operating') return item.isOperating;
+      if (activeFilter === 'not_operating') return !item.isOperating;
+      return true;
+    })
+    .filter((item) => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        item.roomName.toLowerCase().includes(query) ||
+        item.groupName?.toLowerCase().includes(query) ||
+        item.address?.toLowerCase().includes(query)
+      );
+    });
 
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredItems.length) {
@@ -105,13 +125,52 @@ export function AccommodationList({
             {t('title')} <span className="text-[hsl(var(--snug-orange))]">{items.length}</span>
           </h2>
           <div className="flex items-center gap-2 md:gap-3">
-            <button
-              type="button"
-              className="p-2 hover:bg-[hsl(var(--snug-light-gray))] rounded-lg transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
-            </button>
+            {/* 확장되는 검색 UI */}
+            <div className="flex items-center">
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  isSearchOpen ? 'w-40 md:w-56 opacity-100 mr-1' : 'w-0 opacity-0'
+                }`}
+              >
+                <div className="relative">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('searchPlaceholder')}
+                    className="w-full px-3 py-2 pr-8 text-sm border border-[hsl(var(--snug-border))] rounded-lg focus:outline-none focus:border-[hsl(var(--snug-orange))] transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))]"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isSearchOpen && !searchQuery) {
+                    setIsSearchOpen(false);
+                  } else {
+                    setIsSearchOpen(true);
+                  }
+                }}
+                className={`p-2 rounded-lg transition-colors ${
+                  isSearchOpen
+                    ? 'bg-[hsl(var(--snug-light-gray))]'
+                    : 'hover:bg-[hsl(var(--snug-light-gray))]'
+                }`}
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5 text-[hsl(var(--snug-text-primary))]" />
+              </button>
+            </div>
             {/* PC: Show buttons directly */}
             <button
               type="button"

@@ -55,10 +55,12 @@ export function HomePage() {
 
         {/* Hero Banner Carousel - hidden when search is focused (desktop only) */}
         {!isSearchFocused && <HeroBanner className="mb-6 md:mb-8" />}
-
-        {/* View on Map Button - 빈 검색과 동일하게 동작 */}
-        <ViewOnMapButton onClick={() => router.push('/search')} />
       </main>
+
+      {/* View on Map Button - 하단 고정 */}
+      <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-40">
+        <ViewOnMapButton onClick={() => router.push('/search')} />
+      </div>
 
       {/* Mobile Navigation - visible on mobile only */}
       <MobileNav />

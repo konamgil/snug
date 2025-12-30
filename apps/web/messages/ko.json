@@ -23,6 +23,10 @@
     "add": "추가",
     "select": "선택"
   },
+  "gallery": {
+    "allPhotos": "전체",
+    "customGroup": "기타"
+  },
   "metadata": {
     "title": "스너그 | 체류 외국인을 위한 새로운 주거 솔루션",
     "description": "한국에서 잠시 머무는 곳이 아닌, 당신의 생활이 되는 집을 연결합니다."
@@ -247,7 +251,10 @@
       "resetPassword": "비밀번호 재설정",
       "resetSuccess": "비밀번호가 변경되었습니다!",
       "resetSuccessHint": "새 비밀번호로 로그인해주세요.",
-      "resetError": "비밀번호 재설정에 실패했습니다. 다시 시도해주세요."
+      "resetError": "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
+      "userNotFound": "등록되지 않은 이메일입니다.",
+      "socialLoginUser": "소셜 로그인 계정입니다",
+      "socialLoginUserHint": "이 계정은 {provider}로 가입되었습니다. 비밀번호 대신 {provider} 로그인을 이용해주세요."
     },
     "signupPage": {
       "title": "회원가입",
@@ -279,7 +286,10 @@
       "createAccount": "가입 완료",
       "signupComplete": "회원가입이 완료되었습니다!",
       "welcomeMessage": "Snug에 오신 것을 환영합니다",
-      "goToLogin": "로그인하기"
+      "goToLogin": "로그인하기",
+      "alreadyRegistered": "이미 가입된 이메일입니다. 로그인해주세요.",
+      "alreadySocialLogin": "이 이메일은 {provider}로 가입되어 있습니다. {provider} 로그인을 이용해주세요.",
+      "signupFailed": "회원가입에 실패했습니다. 다시 시도해주세요."
     },
     "phoneVerification": {
       "title": "전화번호 인증",
@@ -1121,7 +1131,8 @@
       "empty": {
         "title": "아직 등록된 숙소가 없습니다.",
         "description": "숙소를 등록하면 이곳에서 숙소 목록을 확인할 수 있습니다."
-      }
+      },
+      "searchPlaceholder": "숙소 검색..."
     },
     "page": {
       "saving": "저장 중...",

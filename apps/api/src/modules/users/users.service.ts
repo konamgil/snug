@@ -6,14 +6,13 @@ import { RegisterDto } from '../auth/dto';
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async create(data: RegisterDto & { emailVerified?: boolean }) {
+  async create(data: RegisterDto & { emailVerified?: boolean; supabaseId?: string }) {
     const existingUser = await this.usersRepository.findByEmail(data.email);
 
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
-    // TODO: Hash password with Supabase Auth or bcrypt
     return this.usersRepository.create({
       email: data.email,
       emailVerified: data.emailVerified ?? false,
@@ -22,6 +21,7 @@ export class UsersService {
       phone: data.phone,
       countryCode: data.countryCode ?? '+82',
       role: data.role ?? 'GUEST',
+      supabaseId: data.supabaseId,
     });
   }
 

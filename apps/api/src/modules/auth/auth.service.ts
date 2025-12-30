@@ -24,9 +24,47 @@ export class AuthService {
       throw new BadRequestException('이메일 인증이 필요합니다.');
     }
 
+    // Supabase Admin API로 사용자 생성 (이메일 인증 완료 상태로)
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseServiceKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new BadRequestException('서버 설정 오류입니다. 관리자에게 문의하세요.');
+    }
+
+    // Supabase Auth에 사용자 생성
+    const supabaseResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        apikey: supabaseServiceKey,
+      },
+      body: JSON.stringify({
+        email: registerDto.email,
+        password: registerDto.password,
+        email_confirm: true, // 이메일 인증 완료 상태로 생성
+        user_metadata: {
+          first_name: registerDto.firstName,
+          last_name: registerDto.lastName,
+        },
+      }),
+    });
+
+    if (!supabaseResponse.ok) {
+      const errorData = (await supabaseResponse.json()) as { message?: string; msg?: string };
+      throw new BadRequestException(
+        errorData.message || errorData.msg || '회원가입에 실패했습니다.',
+      );
+    }
+
+    const supabaseUser = (await supabaseResponse.json()) as { id: string };
+
+    // Prisma DB에 사용자 생성
     const user = await this.usersService.create({
       ...registerDto,
       emailVerified: true,
+      supabaseId: supabaseUser.id,
     });
 
     // 인증 완료된 OTP 삭제
@@ -175,6 +213,80 @@ export class AuthService {
       success: true,
       email: maskedEmail,
       createdAt: user.createdAt,
+    };
+  }
+
+  /**
+   * 이메일로 가입 방식(provider) 확인
+   */
+  async checkProvider(email: string) {
+    // 먼저 사용자 존재 확인
+    const user = await this.usersService.findByEmail(email);
+    if (!user || !user.supabaseId) {
+      return {
+        exists: false,
+        provider: null,
+        isSocialLogin: false,
+      };
+    }
+
+    // Supabase auth.users에서 provider 조회
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseServiceKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      // 환경변수 없으면 DB 직접 조회
+      const result = await this.prisma.$queryRaw<{ provider: string }[]>`
+        SELECT raw_app_meta_data->>'provider' as provider
+        FROM auth.users
+        WHERE id = ${user.supabaseId}::uuid
+      `;
+
+      const provider = result[0]?.provider || 'email';
+      const isSocialLogin = provider !== 'email';
+
+      return {
+        exists: true,
+        provider,
+        isSocialLogin,
+      };
+    }
+
+    // Supabase Admin API로 조회
+    const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${user.supabaseId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        apikey: supabaseServiceKey,
+      },
+    });
+
+    if (!response.ok) {
+      // API 실패 시 DB 직접 조회
+      const result = await this.prisma.$queryRaw<{ provider: string }[]>`
+        SELECT raw_app_meta_data->>'provider' as provider
+        FROM auth.users
+        WHERE id = ${user.supabaseId}::uuid
+      `;
+
+      const provider = result[0]?.provider || 'email';
+      const isSocialLogin = provider !== 'email';
+
+      return {
+        exists: true,
+        provider,
+        isSocialLogin,
+      };
+    }
+
+    const userData = (await response.json()) as { app_metadata?: { provider?: string } };
+    const provider = userData.app_metadata?.provider || 'email';
+    const isSocialLogin = provider !== 'email';
+
+    return {
+      exists: true,
+      provider,
+      isSocialLogin,
     };
   }
 }

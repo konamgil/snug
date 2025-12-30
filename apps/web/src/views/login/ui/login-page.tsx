@@ -6,27 +6,34 @@ import { useTranslations } from 'next-intl';
 import { ArrowLeft } from 'lucide-react';
 import { SocialLoginButtons } from '@/features/auth';
 import { EmailLoginForm } from '@/features/auth';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 
 type LoginView = 'social' | 'email';
 
 export function LoginPage() {
   const t = useTranslations('auth');
+  const router = useRouter();
   const [view, setView] = useState<LoginView>('social');
+
+  const handleBackClick = () => {
+    if (view === 'email') {
+      setView('social');
+    } else {
+      router.push('/');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white relative overflow-y-auto no-scrollbar">
       {/* Back Button - Top Left */}
-      {view === 'email' && (
-        <button
-          type="button"
-          onClick={() => setView('social')}
-          className="absolute top-4 left-4 p-2 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-all z-10"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={handleBackClick}
+        className="absolute top-4 left-4 p-2 text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-text-primary))] hover:bg-[hsl(var(--snug-light-gray))] rounded-full transition-all z-10"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="w-6 h-6" />
+      </button>
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-8">
         {/* Welcome Logo */}
         <div className="mb-6">

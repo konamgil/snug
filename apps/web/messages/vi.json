@@ -23,6 +23,10 @@
     "add": "Thêm",
     "select": "Chọn"
   },
+  "gallery": {
+    "allPhotos": "Tất cả",
+    "customGroup": "Khác"
+  },
   "metadata": {
     "title": "Snug | Giải pháp nhà ở mới cho người nước ngoài tại Hàn Quốc",
     "description": "Không chỉ là nơi tạm trú tại Hàn Quốc, mà là kết nối ngôi nhà trở thành một phần cuộc sống của bạn."
@@ -247,7 +251,10 @@
       "resetPassword": "Đặt lại mật khẩu",
       "resetSuccess": "Mật khẩu đã được thay đổi!",
       "resetSuccessHint": "Vui lòng đăng nhập bằng mật khẩu mới.",
-      "resetError": "Không thể đặt lại mật khẩu. Vui lòng thử lại."
+      "resetError": "Không thể đặt lại mật khẩu. Vui lòng thử lại.",
+      "userNotFound": "Email này chưa được đăng ký.",
+      "socialLoginUser": "Tài khoản đăng nhập xã hội",
+      "socialLoginUserHint": "Tài khoản này được tạo bằng {provider}. Vui lòng sử dụng đăng nhập {provider} thay vì mật khẩu."
     },
     "signupPage": {
       "title": "Đăng ký",
@@ -280,7 +287,10 @@
       "createAccount": "Hoàn tất đăng ký",
       "signupComplete": "Đăng ký thành công!",
       "welcomeMessage": "Chào mừng đến với Snug",
-      "goToLogin": "Đăng nhập"
+      "goToLogin": "Đăng nhập",
+      "alreadyRegistered": "Email này đã được đăng ký. Vui lòng đăng nhập.",
+      "alreadySocialLogin": "Email này đã được đăng ký với {provider}. Vui lòng sử dụng đăng nhập {provider}.",
+      "signupFailed": "Đăng ký thất bại. Vui lòng thử lại."
     },
     "phoneVerification": {
       "title": "Xác minh số điện thoại",

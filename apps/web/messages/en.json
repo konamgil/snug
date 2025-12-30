@@ -23,6 +23,10 @@
     "add": "Add",
     "select": "Select"
   },
+  "gallery": {
+    "allPhotos": "All Photos",
+    "customGroup": "Other"
+  },
   "metadata": {
     "title": "Snug | A New Housing Solution for Foreigners in Korea",
     "description": "Not just a place to stay in Korea, but a home that becomes part of your life."
@@ -247,7 +251,10 @@
       "resetPassword": "Reset Password",
       "resetSuccess": "Password has been changed!",
       "resetSuccessHint": "Please log in with your new password.",
-      "resetError": "Failed to reset password. Please try again."
+      "resetError": "Failed to reset password. Please try again.",
+      "userNotFound": "This email is not registered.",
+      "socialLoginUser": "Social Login Account",
+      "socialLoginUserHint": "This account was created with {provider}. Please use {provider} login instead of a password."
     },
     "signupPage": {
       "title": "Sign Up",
@@ -279,7 +286,10 @@
       "createAccount": "Create Account",
       "signupComplete": "Sign up complete!",
       "welcomeMessage": "Welcome to Snug",
-      "goToLogin": "Go to Login"
+      "goToLogin": "Go to Login",
+      "alreadyRegistered": "This email is already registered. Please log in.",
+      "alreadySocialLogin": "This email is registered with {provider}. Please use {provider} login.",
+      "signupFailed": "Sign up failed. Please try again."
     },
     "phoneVerification": {
       "title": "Phone Verification",
@@ -1121,7 +1131,8 @@
         "empty": {
           "title": "No accommodations registered yet.",
           "description": "Register an accommodation to see the list here."
-        }
+        },
+        "searchPlaceholder": "Search..."
       },
       "page": {
         "saving": "Saving...",

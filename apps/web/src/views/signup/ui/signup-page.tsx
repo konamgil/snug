@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Eye, EyeOff, ChevronDown, Loader2, CheckCircle } from 'lucide-react';
 import { useRouter, Link } from '@/i18n/navigation';
-import { useAuthStore } from '@/shared/stores';
 
 const COUNTRY_CODES = [
   // 아시아
@@ -117,7 +116,6 @@ export function SignupPage() {
   const t = useTranslations('auth.signupPage');
   const tVerify = useTranslations('auth.emailVerification');
   const router = useRouter();
-  const signUpWithEmail = useAuthStore((state) => state.signUpWithEmail);
 
   // Step state
   const [currentStep, setCurrentStep] = useState<SignupStep>('email');
@@ -170,6 +168,17 @@ export function SignupPage() {
     }
   }, [currentStep, isLoading]);
 
+  // Provider 이름을 사용자 친화적으로 변환
+  const getProviderDisplayName = (provider: string) => {
+    const names: Record<string, string> = {
+      google: 'Google',
+      kakao: '카카오',
+      facebook: 'Facebook',
+      apple: 'Apple',
+    };
+    return names[provider] || provider;
+  };
+
   // Step 1: Send OTP
   const handleSendOTP = async () => {
     if (!isValidEmail) return;
@@ -178,6 +187,32 @@ export function SignupPage() {
     setError('');
 
     try {
+      // 먼저 이미 가입된 이메일인지 확인
+      const checkResponse = await fetch(`${API_BASE_URL}/auth/check-provider`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const checkData = await checkResponse.json();
+
+      if (checkData.exists) {
+        if (checkData.isSocialLogin) {
+          // 소셜 로그인으로 가입된 이메일
+          setError(
+            t('alreadySocialLogin', { provider: getProviderDisplayName(checkData.provider) }),
+          );
+          setIsLoading(false);
+          return;
+        } else {
+          // 이메일로 이미 가입된 경우
+          setError(t('alreadyRegistered'));
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // OTP 전송
       const response = await fetch(`${API_BASE_URL}/auth/otp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -323,15 +358,33 @@ export function SignupPage() {
     setIsLoading(true);
     setError('');
 
-    const { error } = await signUpWithEmail(email, password, { firstName, lastName });
+    try {
+      // 백엔드 API로 회원가입 (Supabase Admin API 사용하여 이메일 인증 완료 상태로 생성)
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          phone: phoneNumber || undefined,
+          countryCode: countryCode || undefined,
+        }),
+      });
 
-    if (error) {
-      setError(error.message);
-      setIsLoading(false);
-    } else {
-      setSuccess(true);
-      setIsLoading(false);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(true);
+      } else {
+        setError(data.message || t('signupFailed'));
+      }
+    } catch {
+      setError(t('signupFailed'));
     }
+
+    setIsLoading(false);
   };
 
   // Back navigation

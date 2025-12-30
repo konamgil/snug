@@ -23,6 +23,10 @@
     "add": "添加",
     "select": "选择"
   },
+  "gallery": {
+    "allPhotos": "全部",
+    "customGroup": "其他"
+  },
   "metadata": {
     "title": "Snug | 在韩外国人的全新住房解决方案",
     "description": "不只是在韩国的临时住所，而是连接成为您生活一部分的家。"
@@ -247,7 +251,10 @@
       "resetPassword": "重置密码",
       "resetSuccess": "密码已更改！",
       "resetSuccessHint": "请使用新密码登录。",
-      "resetError": "密码重置失败，请重试。"
+      "resetError": "密码重置失败，请重试。",
+      "userNotFound": "该邮箱未注册。",
+      "socialLoginUser": "社交账号登录",
+      "socialLoginUserHint": "此账号是通过{provider}创建的。请使用{provider}登录，而非密码。"
     },
     "signupPage": {
       "title": "注册",
@@ -280,7 +287,10 @@
       "createAccount": "完成注册",
       "signupComplete": "注册成功！",
       "welcomeMessage": "欢迎来到Snug",
-      "goToLogin": "去登录"
+      "goToLogin": "去登录",
+      "alreadyRegistered": "该邮箱已注册。请登录。",
+      "alreadySocialLogin": "该邮箱已通过{provider}注册。请使用{provider}登录。",
+      "signupFailed": "注册失败。请重试。"
     },
     "phoneVerification": {
       "title": "手机号验证",

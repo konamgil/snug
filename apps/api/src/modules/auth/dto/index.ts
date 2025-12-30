@@ -80,3 +80,8 @@ export class FindIdDto {
   @IsOptional()
   countryCode?: string;
 }
+
+export class CheckProviderDto {
+  @IsEmail()
+  email!: string;
+}

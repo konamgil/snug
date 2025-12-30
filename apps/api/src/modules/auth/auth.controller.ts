@@ -11,6 +11,7 @@ import {
   VerifyOtpDto,
   ResetPasswordDto,
   FindIdDto,
+  CheckProviderDto,
 } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators';
@@ -157,5 +158,29 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'No user found with this phone' })
   async findId(@Body() dto: FindIdDto) {
     return this.authService.findIdByPhone(dto.phone, dto.countryCode);
+  }
+
+  // ============================================
+  // Check Provider (가입 방식 확인)
+  // ============================================
+
+  @Post('check-provider')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Check user login provider by email' })
+  @ApiBody({ type: CheckProviderDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Provider info returned',
+    schema: {
+      type: 'object',
+      properties: {
+        exists: { type: 'boolean' },
+        provider: { type: 'string', nullable: true },
+        isSocialLogin: { type: 'boolean' },
+      },
+    },
+  })
+  async checkProvider(@Body() dto: CheckProviderDto) {
+    return this.authService.checkProvider(dto.email);
   }
 }

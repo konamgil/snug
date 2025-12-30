@@ -23,6 +23,10 @@
     "add": "追加",
     "select": "選択"
   },
+  "gallery": {
+    "allPhotos": "すべて",
+    "customGroup": "その他"
+  },
   "metadata": {
     "title": "Snug | 在韓外国人のための新しい住居ソリューション",
     "description": "韓国での一時的な滞在先ではなく、あなたの生活の一部となる家をつなぎます。"
@@ -247,7 +251,10 @@
       "resetPassword": "パスワードリセット",
       "resetSuccess": "パスワードが変更されました！",
       "resetSuccessHint": "新しいパスワードでログインしてください。",
-      "resetError": "パスワードのリセットに失敗しました。もう一度お試しください。"
+      "resetError": "パスワードのリセットに失敗しました。もう一度お試しください。",
+      "userNotFound": "登録されていないメールアドレスです。",
+      "socialLoginUser": "ソーシャルログインアカウント",
+      "socialLoginUserHint": "このアカウントは{provider}で作成されました。パスワードの代わりに{provider}ログインをご利用ください。"
     },
     "signupPage": {
       "title": "会員登録",
@@ -280,7 +287,10 @@
       "createAccount": "登録完了",
       "signupComplete": "会員登録が完了しました！",
       "welcomeMessage": "Snugへようこそ",
-      "goToLogin": "ログインする"
+      "goToLogin": "ログインする",
+      "alreadyRegistered": "このメールアドレスは既に登録されています。ログインしてください。",
+      "alreadySocialLogin": "このメールアドレスは{provider}で登録されています。{provider}ログインをご利用ください。",
+      "signupFailed": "会員登録に失敗しました。もう一度お試しください。"
     },
     "phoneVerification": {
       "title": "電話番号認証",

@@ -32,6 +32,7 @@ export class UsersRepository extends BaseRepository<User> {
     phone?: string;
     countryCode?: string;
     role?: UserRole;
+    supabaseId?: string;
   }) {
     return this.prisma.user.create({
       data: {
@@ -42,6 +43,7 @@ export class UsersRepository extends BaseRepository<User> {
         phone: data.phone,
         countryCode: data.countryCode ?? '+82',
         role: data.role ?? 'GUEST',
+        supabaseId: data.supabaseId,
       },
     });
   }

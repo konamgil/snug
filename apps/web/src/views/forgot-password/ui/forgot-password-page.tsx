@@ -8,7 +8,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { EmailVerificationModal } from '@/features/auth';
 
 type TabType = 'findId' | 'findPassword';
-type FindPasswordStep = 'email' | 'reset';
+type FindPasswordStep = 'email' | 'reset' | 'socialLoginError';
 
 const COUNTRY_CODES = [
   { code: '+82', country: 'South Korea' },
@@ -46,6 +46,8 @@ export function ForgotPasswordPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [checkingProvider, setCheckingProvider] = useState(false);
+  const [socialProvider, setSocialProvider] = useState<string | null>(null);
 
   const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -83,9 +85,40 @@ export function ForgotPasswordPage() {
   };
 
   // Handle email verification for password reset
-  const handleStartEmailVerification = () => {
-    if (isValidEmail) {
+  const handleStartEmailVerification = async () => {
+    if (!isValidEmail) return;
+
+    setCheckingProvider(true);
+    setResetError('');
+
+    try {
+      // 먼저 provider 확인
+      const response = await fetch(`${API_BASE_URL}/auth/check-provider`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (data.exists && data.isSocialLogin) {
+        // 소셜 로그인 사용자
+        setSocialProvider(data.provider);
+        setPasswordStep('socialLoginError');
+        return;
+      }
+
+      if (!data.exists) {
+        setResetError(t('userNotFound'));
+        return;
+      }
+
+      // 이메일 가입 사용자 - 인증 진행
       setShowEmailVerificationModal(true);
+    } catch {
+      setResetError(t('resetError'));
+    } finally {
+      setCheckingProvider(false);
     }
   };
 
@@ -139,6 +172,18 @@ export function ForgotPasswordPage() {
     setConfirmPassword('');
     setResetError('');
     setResetSuccess(false);
+    setSocialProvider(null);
+  };
+
+  // Provider 이름을 사용자 친화적으로 변환
+  const getProviderDisplayName = (provider: string) => {
+    const names: Record<string, string> = {
+      google: 'Google',
+      kakao: '카카오',
+      facebook: 'Facebook',
+      apple: 'Apple',
+    };
+    return names[provider] || provider;
   };
 
   const tabBaseClass = 'flex-1 py-3 text-sm font-medium transition-colors';
@@ -291,6 +336,27 @@ export function ForgotPasswordPage() {
                   {t('goToLogin')}
                 </button>
               </div>
+            ) : passwordStep === 'socialLoginError' ? (
+              /* Social login user - show info message */
+              <div className="text-center space-y-4">
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                  <div className="text-amber-600 mb-2">
+                    <span className="font-medium">{t('socialLoginUser')}</span>
+                  </div>
+                  <p className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {t('socialLoginUserHint', {
+                      provider: getProviderDisplayName(socialProvider || ''),
+                    })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push('/login')}
+                  className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all"
+                >
+                  {t('goToLogin')}
+                </button>
+              </div>
             ) : passwordStep === 'email' ? (
               /* Step 1: Email input and verification */
               <div className="space-y-3">
@@ -316,9 +382,10 @@ export function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={handleStartEmailVerification}
-                    disabled={!isValidEmail}
-                    className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!isValidEmail || checkingProvider}
+                    className="w-full py-3 bg-[hsl(var(--snug-orange))] text-white text-sm font-medium rounded-full hover:bg-[hsl(var(--snug-orange))]/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
+                    {checkingProvider && <Loader2 className="w-4 h-4 animate-spin" />}
                     {t('verifyEmail')}
                   </button>
                 )}

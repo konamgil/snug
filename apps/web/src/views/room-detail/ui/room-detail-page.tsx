@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { motion, type PanInfo } from 'framer-motion';
@@ -32,7 +32,7 @@ import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
-import { getAccommodationPublic, getSimilarAccommodations } from '@/shared/api/accommodation';
+import { useAccommodationPublic, useSimilarAccommodations } from '@/shared/api/accommodation';
 import { recordView } from '@/shared/api/favorites';
 import {
   getFacilityI18nKey,
@@ -40,7 +40,6 @@ import {
   getAccommodationTypeLabel,
   getBuildingTypeLabel,
 } from '@/shared/lib';
-import type { AccommodationPublic, AccommodationListItem } from '@snug/types';
 
 // Mock room data
 const roomData = {
@@ -198,13 +197,22 @@ export function RoomDetailPage() {
     return { adults: guestCount, children: 0, infants: 0 };
   })();
 
-  // API data state
-  const [accommodation, setAccommodation] = useState<AccommodationPublic | null>(null);
-  const [similarRooms, setSimilarRooms] = useState<AccommodationListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // API data with React Query caching
+  const {
+    data: accommodation,
+    isLoading,
+    error: accommodationError,
+  } = useAccommodationPublic(roomId);
+  const { data: similarRooms = [] } = useSimilarAccommodations(roomId, 6);
+  const error = accommodationError
+    ? 'Failed to load accommodation'
+    : !accommodation && !isLoading
+      ? 'Accommodation not found'
+      : null;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]));
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [checkIn] = useState<Date | null>(initialCheckIn);
   const [checkOut] = useState<Date | null>(initialCheckOut);
@@ -222,32 +230,6 @@ export function RoomDetailPage() {
     refundPolicy: false,
     longTermDiscount: false,
   });
-
-  // Fetch accommodation data
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [data, similar] = await Promise.all([
-          getAccommodationPublic(roomId),
-          getSimilarAccommodations(roomId, 6),
-        ]);
-        if (!data) {
-          setError('Accommodation not found');
-        } else {
-          setAccommodation(data);
-          setSimilarRooms(similar);
-        }
-      } catch (err) {
-        console.error('Failed to fetch accommodation:', err);
-        setError('Failed to load accommodation');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchData();
-  }, [roomId]);
 
   // Record recently viewed (only for logged-in users)
   useEffect(() => {
@@ -343,14 +325,47 @@ export function RoomDetailPage() {
   const photos = accommodation?.photos ?? [];
   const totalImages = photos.length;
 
+  // Image load handler
+  const handleImageLoad = useCallback(
+    (index: number) => {
+      setLoadedImages((prev) => new Set([...prev, index]));
+      if (index === currentImageIndex) {
+        setIsImageLoading(false);
+      }
+    },
+    [currentImageIndex],
+  );
+
   // Image navigation handlers
   const handlePrevImage = useCallback(() => {
-    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
-  }, [totalImages]);
+    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : totalImages - 1;
+    if (!loadedImages.has(newIndex)) {
+      setIsImageLoading(true);
+    }
+    setCurrentImageIndex(newIndex);
+  }, [totalImages, currentImageIndex, loadedImages]);
 
   const handleNextImage = useCallback(() => {
-    setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
-  }, [totalImages]);
+    const newIndex = currentImageIndex < totalImages - 1 ? currentImageIndex + 1 : 0;
+    if (!loadedImages.has(newIndex)) {
+      setIsImageLoading(true);
+    }
+    setCurrentImageIndex(newIndex);
+  }, [totalImages, currentImageIndex, loadedImages]);
+
+  // Preload adjacent images (2 before, 2 after)
+  const preloadIndices = useMemo(() => {
+    const indices: number[] = [];
+    for (let i = -2; i <= 2; i++) {
+      if (i !== 0) {
+        const idx = currentImageIndex + i;
+        if (idx >= 0 && idx < totalImages) {
+          indices.push(idx);
+        }
+      }
+    }
+    return indices;
+  }, [currentImageIndex, totalImages]);
 
   // Carousel drag handlers
   const handleDragStart = useCallback(() => {
@@ -377,13 +392,18 @@ export function RoomDetailPage() {
         newIndex = Math.max(currentImageIndex - 1, 0);
       }
 
+      // Set loading state if image not loaded
+      if (newIndex !== currentImageIndex && !loadedImages.has(newIndex)) {
+        setIsImageLoading(true);
+      }
+
       // Update index
       setCurrentImageIndex(newIndex);
 
       // Reset swiping state after animation
       setTimeout(() => setIsSwiping(false), 100);
     },
-    [containerWidth, currentImageIndex, totalImages],
+    [containerWidth, currentImageIndex, totalImages, loadedImages],
   );
 
   const handleOpenGallery = useCallback(() => {
@@ -482,9 +502,20 @@ export function RoomDetailPage() {
                     alt={`${accommodation.roomName} - ${index + 1}`}
                     fill
                     sizes="100vw"
-                    className="object-cover pointer-events-none"
-                    priority={index <= currentImageIndex + 1}
+                    className={`object-cover pointer-events-none transition-all duration-300 ${
+                      index === currentImageIndex && isImageLoading
+                        ? 'blur-sm scale-105'
+                        : 'blur-0 scale-100'
+                    }`}
+                    priority={index <= currentImageIndex + 2}
+                    onLoad={() => handleImageLoad(index)}
                   />
+                  {/* Loading spinner for current image */}
+                  {index === currentImageIndex && isImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 z-10">
+                      <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
+                    </div>
+                  )}
                 </div>
               ))}
             </motion.div>
@@ -579,32 +610,33 @@ export function RoomDetailPage() {
                     alt={`${accommodation.roomName} - ${currentImageIndex + 1}`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 896px"
-                    className="object-cover group-hover:brightness-95 transition-all"
+                    className={`object-cover group-hover:brightness-95 transition-all duration-300 ${
+                      isImageLoading ? 'blur-sm scale-105' : 'blur-0 scale-100'
+                    }`}
                     priority
+                    onLoad={() => handleImageLoad(currentImageIndex)}
                   />
-                  {/* Preload adjacent images for faster navigation */}
-                  {photos.length > 1 && photos[(currentImageIndex + 1) % photos.length]?.url && (
-                    <Image
-                      src={photos[(currentImageIndex + 1) % photos.length]!.url}
-                      alt=""
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 896px"
-                      className="opacity-0 pointer-events-none"
-                      priority
-                    />
+                  {/* Loading spinner overlay */}
+                  {isImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 z-10">
+                      <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
+                    </div>
                   )}
-                  {photos.length > 1 &&
-                    currentImageIndex > 0 &&
-                    photos[currentImageIndex - 1]?.url && (
-                      <Image
-                        src={photos[currentImageIndex - 1]!.url}
-                        alt=""
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 896px"
-                        className="opacity-0 pointer-events-none"
-                        priority
-                      />
-                    )}
+                  {/* Preload adjacent images for faster navigation */}
+                  {preloadIndices.map(
+                    (idx) =>
+                      photos[idx]?.url && (
+                        <Image
+                          key={`preload-${idx}`}
+                          src={photos[idx]!.url}
+                          alt=""
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 896px"
+                          className="opacity-0 pointer-events-none absolute"
+                          onLoad={() => handleImageLoad(idx)}
+                        />
+                      ),
+                  )}
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center group-hover:brightness-95 transition-all">
