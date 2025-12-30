@@ -31,7 +31,7 @@ interface SortablePhotoProps {
   isHovered: boolean;
   onHover: (id: string | null) => void;
   onDelete: (photoId: string, categoryId: string) => void;
-  getPhotoHeight: (photo: PhotoItem, index: number) => number;
+  getPhotoHeight: (photo: PhotoItem, index: number) => string;
   showCategoryLabel: boolean;
 }
 
@@ -48,12 +48,11 @@ function SortablePhoto({
     id: photo.id,
   });
 
-  const height = getPhotoHeight(photo, index);
+  const heightClass = getPhotoHeight(photo, index);
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    height: `${height}px`,
     opacity: isDragging ? 0.5 : 1,
     cursor: isDragging ? 'grabbing' : 'grab',
   };
@@ -62,7 +61,7 @@ function SortablePhoto({
     <div
       ref={setNodeRef}
       style={style}
-      className="relative w-[230px] overflow-hidden touch-none"
+      className={`relative ${heightClass} rounded-lg overflow-hidden break-inside-avoid mb-3 touch-none`}
       onMouseEnter={() => onHover(photo.id)}
       onMouseLeave={() => onHover(null)}
       {...attributes}
@@ -240,11 +239,10 @@ export function PhotoGalleryModal({
     onClose();
   };
 
-  // Determine photo orientation (placeholder logic - in real app would check actual image dimensions)
-  const getPhotoHeight = (_photo: PhotoItem, index: number): number => {
-    // Alternate between landscape (153px) and portrait (326px) for demo
-    // In production, this would be based on actual image aspect ratio
-    return index % 3 === 0 ? 326 : 153;
+  // Determine photo height class for masonry layout (like gallery page)
+  const getPhotoHeight = (_photo: PhotoItem, index: number): string => {
+    // Vary heights for masonry effect
+    return index % 3 === 0 ? 'h-[200px]' : index % 3 === 1 ? 'h-[150px]' : 'h-[180px]';
   };
 
   // Handle drag end - reorder photos within category
@@ -369,7 +367,7 @@ export function PhotoGalleryModal({
                 items={photosToDisplay.map((p) => p.id)}
                 strategy={rectSortingStrategy}
               >
-                <div className="grid grid-cols-2 gap-5">
+                <div className="columns-2 gap-3">
                   {photosToDisplay.map((photo, index) => (
                     <SortablePhoto
                       key={photo.id}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { X, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, ChevronDown, ChevronUp, Check, Pencil } from 'lucide-react';
 import { DEFAULT_PHOTO_GROUPS } from './types';
 
 // 기본 그룹 ID (삭제 불가)
@@ -38,8 +38,47 @@ export function GroupManagementModal({
   const [localGroups, setLocalGroups] = useState<GroupItem[]>(() => [...groups]);
   const [newGroupName, setNewGroupName] = useState('');
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editingGroupName, setEditingGroupName] = useState('');
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  // 수정 모드 진입 시 input에 포커스
+  useEffect(() => {
+    if (editingGroupId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingGroupId]);
 
   if (!isOpen) return null;
+
+  const handleStartEdit = (group: GroupItem) => {
+    // 기본 그룹은 수정 불가
+    if (DEFAULT_GROUP_IDS.includes(group.id)) return;
+    setEditingGroupId(group.id);
+    setEditingGroupName(group.name);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingGroupId || !editingGroupName.trim()) {
+      setEditingGroupId(null);
+      setEditingGroupName('');
+      return;
+    }
+
+    setLocalGroups(
+      localGroups.map((g) =>
+        g.id === editingGroupId ? { ...g, name: editingGroupName.trim() } : g,
+      ),
+    );
+    setEditingGroupId(null);
+    setEditingGroupName('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingGroupId(null);
+    setEditingGroupName('');
+  };
 
   const handleAddGroup = () => {
     if (!newGroupName.trim()) return;
@@ -173,9 +212,42 @@ export function GroupManagementModal({
                       )}
                     </button>
 
-                    <span className="text-sm text-[hsl(var(--snug-text-primary))]">
-                      {group.name}
-                    </span>
+                    {editingGroupId === group.id ? (
+                      <input
+                        ref={editInputRef}
+                        type="text"
+                        value={editingGroupName}
+                        onChange={(e) => setEditingGroupName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveEdit();
+                          if (e.key === 'Escape') handleCancelEdit();
+                        }}
+                        onBlur={handleSaveEdit}
+                        className="flex-1 h-6 px-2 bg-[#f4f4f4] border-b border-[hsl(var(--snug-orange))] text-sm text-[hsl(var(--snug-text-primary))] focus:outline-none"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-1 group/name">
+                        <span
+                          className={`text-sm text-[hsl(var(--snug-text-primary))] ${
+                            !DEFAULT_GROUP_IDS.includes(group.id)
+                              ? 'cursor-pointer hover:text-[hsl(var(--snug-orange))]'
+                              : ''
+                          }`}
+                          onClick={() => handleStartEdit(group)}
+                        >
+                          {group.name}
+                        </span>
+                        {!DEFAULT_GROUP_IDS.includes(group.id) && (
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(group)}
+                            className="p-0.5 opacity-0 group-hover/name:opacity-100 hover:bg-[hsl(var(--snug-light-gray))] rounded transition-all"
+                          >
+                            <Pencil className="w-3 h-3 text-[hsl(var(--snug-gray))]" />
+                          </button>
+                        )}
+                      </div>
+                    )}
                     <span className="text-xs text-[hsl(var(--snug-gray))]">
                       ({group.accommodationIds.length})
                     </span>

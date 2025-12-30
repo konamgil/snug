@@ -414,83 +414,92 @@ export function PhotoUploadModal({
                       </div>
                     )}
 
-                    {/* Hover Overlay - only show when has photos */}
-                    {hasPhotos && hoveredGroupId === group.id && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <div className="flex items-center gap-3.5">
-                          {/* View Gallery Button */}
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onViewGallery?.(group.id, localCategories);
-                              }}
-                              onMouseEnter={() => setHoveredButton(`view-${group.id}`)}
-                              onMouseLeave={() => setHoveredButton(null)}
-                              className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
-                            >
-                              <ImagePlus className="w-3.5 h-3.5 text-[#161616]" />
-                            </button>
-                            {hoveredButton === `view-${group.id}` && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
-                                <span className="text-[10px] text-white">
-                                  {group.name} 전체보기
-                                </span>
+                    {/* Hover Overlay - show for groups with photos OR custom groups without photos */}
+                    {(hasPhotos || !defaultGroupIds.includes(group.id)) &&
+                      hoveredGroupId === group.id && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <div className="flex items-center gap-3.5">
+                            {/* View Gallery Button - only show when has photos */}
+                            {hasPhotos && (
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onViewGallery?.(group.id, localCategories);
+                                  }}
+                                  onMouseEnter={() => setHoveredButton(`view-${group.id}`)}
+                                  onMouseLeave={() => setHoveredButton(null)}
+                                  className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
+                                >
+                                  <ImagePlus className="w-3.5 h-3.5 text-[#161616]" />
+                                </button>
+                                {hoveredButton === `view-${group.id}` && (
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
+                                    <span className="text-[10px] text-white">
+                                      {group.name} 전체보기
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             )}
-                          </div>
 
-                          {/* Edit Button */}
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleFileSelect(group.id);
-                              }}
-                              onMouseEnter={() => setHoveredButton(`edit-${group.id}`)}
-                              onMouseLeave={() => setHoveredButton(null)}
-                              className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
-                            >
-                              <Pencil className="w-3.5 h-3.5 text-[#161616]" />
-                            </button>
-                            {hoveredButton === `edit-${group.id}` && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
-                                <span className="text-[10px] text-white">수정</span>
+                            {/* Edit Button - only show when has photos */}
+                            {hasPhotos && (
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFileSelect(group.id);
+                                  }}
+                                  onMouseEnter={() => setHoveredButton(`edit-${group.id}`)}
+                                  onMouseLeave={() => setHoveredButton(null)}
+                                  className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
+                                >
+                                  <Pencil className="w-3.5 h-3.5 text-[#161616]" />
+                                </button>
+                                {hoveredButton === `edit-${group.id}` && (
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
+                                    <span className="text-[10px] text-white">수정</span>
+                                  </div>
+                                )}
                               </div>
                             )}
-                          </div>
 
-                          {/* Delete Button - clears photos for default groups, deletes group for custom */}
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (defaultGroupIds.includes(group.id)) {
-                                  handleClearPhotos(group.id);
-                                } else {
-                                  handleDeleteGroup(group.id);
-                                }
-                              }}
-                              onMouseEnter={() => setHoveredButton(`delete-${group.id}`)}
-                              onMouseLeave={() => setHoveredButton(null)}
-                              className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-[#da1e28]" />
-                            </button>
-                            {hoveredButton === `delete-${group.id}` && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
-                                <span className="text-[10px] text-white">
-                                  {defaultGroupIds.includes(group.id) ? '사진 삭제' : '그룹 삭제'}
-                                </span>
+                            {/* Delete Button - clears photos for default groups, deletes group for custom */}
+                            {(hasPhotos || !defaultGroupIds.includes(group.id)) && (
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (defaultGroupIds.includes(group.id)) {
+                                      handleClearPhotos(group.id);
+                                    } else {
+                                      handleDeleteGroup(group.id);
+                                    }
+                                  }}
+                                  onMouseEnter={() => setHoveredButton(`delete-${group.id}`)}
+                                  onMouseLeave={() => setHoveredButton(null)}
+                                  className="w-8 h-8 rounded-full bg-[#f0f0f0] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 text-[#da1e28]" />
+                                </button>
+                                {hoveredButton === `delete-${group.id}` && (
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 bg-[#393939] rounded-md whitespace-nowrap">
+                                    <span className="text-[10px] text-white">
+                                      {defaultGroupIds.includes(group.id)
+                                        ? '사진 삭제'
+                                        : '그룹 삭제'}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   {/* Group Label - centered */}
