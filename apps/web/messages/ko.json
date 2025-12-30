@@ -250,32 +250,36 @@
       "resetError": "비밀번호 재설정에 실패했습니다. 다시 시도해주세요."
     },
     "signupPage": {
-      "title": "계정 만들기",
+      "title": "회원가입",
+      "stepEmail": "이메일",
+      "stepVerify": "인증",
+      "stepInfo": "정보입력",
+      "enterEmail": "이메일을 입력해주세요",
+      "emailDescription": "로그인과 중요한 알림에 사용됩니다",
       "emailAddress": "이메일 주소",
+      "completeSignup": "회원정보를 입력해주세요",
+      "infoDescription": "서비스 이용에 필요한 기본 정보입니다",
       "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
       "passwordHint": "8자 이상, 대소문자 구분",
-      "passwordMismatch": "비밀번호를 다시 입력해 주세요",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다",
       "personalInfo": "개인 정보",
       "firstName": "이름",
       "lastName": "성",
-      "nameHint": "정부 발급 신분증에 표시된 이름과 일치하는지 확인하세요. 다른 이름을 사용하는 경우 선호하는 이름을 추가할 수 있습니다.",
+      "nameHint": "정부 발급 신분증에 표시된 이름과 일치하는지 확인하세요.",
       "countryCode": "국가 코드",
       "phoneNumber": "전화번호",
       "phoneOptional": "전화번호는 선택사항입니다.",
-      "agreeTerms": "개인정보 수집 및 이용에 동의합니다.",
-      "termsPreview": "Snug 플랫폼 이용에 필요한 개인정보를 수집합니다.",
-      "termsFullText": "Snug 플랫폼 이용에 필요한 개인정보를 수집합니다. 이름, 이메일, 전화번호 등이 포함됩니다.",
-      "showMore": "더 보기",
-      "showLess": "접기",
+      "termsOfService": "서비스 이용약관",
+      "privacyPolicy": "개인정보처리방침",
+      "and": " 및 ",
+      "agreeToTerms": "에 동의합니다.",
       "agreeMarketing": "마케팅 이메일 수신에 동의합니다. (선택)",
-      "continue": "계속하기",
-      "signupSuccess": "계정이 생성되었습니다!",
-      "checkEmail": "로그인하여 서비스를 이용해주세요.",
-      "goToLogin": "로그인하기",
-      "verify": "인증하기",
-      "verified": "인증완료",
-      "verifyEmail": "이메일 인증하기",
-      "emailVerified": "이메일 인증완료"
+      "continue": "계속",
+      "createAccount": "가입 완료",
+      "signupComplete": "회원가입이 완료되었습니다!",
+      "welcomeMessage": "Snug에 오신 것을 환영합니다",
+      "goToLogin": "로그인하기"
     },
     "phoneVerification": {
       "title": "전화번호 인증",
@@ -290,11 +294,12 @@
       "verifyError": "인증에 실패했습니다"
     },
     "emailVerification": {
-      "title": "이메일 인증",
+      "title": "인증번호 입력",
       "sentTo": "{email}(으)로 인증번호가 전송되었습니다",
       "enterFullCode": "6자리 인증번호를 모두 입력해주세요",
       "verified": "인증 완료!",
       "verify": "인증하기",
+      "verifying": "확인 중...",
       "resend": "인증번호 재전송",
       "resendIn": "{seconds}초 후 재전송 가능",
       "sending": "전송 중...",
@@ -839,7 +844,7 @@
       "comingSoonTitle": "호스트용 프리 오픈에 등록해 주셔서 감사합니다.",
       "comingSoonDescription": "정식 오픈 전에 심사를 마칠 수 있도록 연락드릴 예정입니다.",
       "comingSoonContact": "문의 사항",
-      "comingSoonEmail": "support@findsnug.com"
+      "comingSoonEmail": "cs@findsnug.com"
     },
     "accommodation": {
       "form": {
@@ -1157,44 +1162,111 @@
     }
   },
     "facilities": {
-      "digitalLock": "디지털 도어락",
-      "refrigerator": "냉장고",
-      "airConditioner": "에어컨",
-      "conditioner": "컨디셔너",
-      "coffeeMaker": "커피 메이커",
-      "washer": "세탁기",
-      "closet": "옷장",
-      "tv": "TV",
-      "wifi": "와이파이",
-      "cctv": "CCTV",
+      "freeParkingOnPremises": "숙소 내 무료 주차",
+      "paidParkingOnPremises": "숙소 내 유료 주차",
+      "paidParkingOffPremises": "숙소 밖 유료 주차",
+      "freeStreetParking": "무료 노상 주차",
+      "permitParking": "주차 허가증 필요",
+      "evCharger": "EV 충전기",
       "elevator": "엘리베이터",
-      "parking": "주차장",
-      "microwave": "전자레인지",
-      "induction": "인덕션",
-      "gasStove": "가스레인지",
-      "oven": "오븐",
-      "dishwasher": "식기세척기",
-      "dryer": "건조기",
-      "iron": "다리미",
-      "desk": "책상",
-      "chair": "의자"
+      "pool": "수영장",
+      "privatePool": "프라이빗 수영장",
+      "sharedPool": "공용 수영장",
+      "gameRoom": "게임룸/오락실",
+      "hotTub": "온수 욕조/자쿠지",
+      "privateHotTub": "프라이빗 온수 욕조",
+      "sharedHotTub": "공용 온수 욕조",
+      "gym": "헬스장",
+      "sauna": "사우나",
+      "steamRoom": "스팀룸",
+      "turkishBath": "터키탕/하맘",
+      "patioOrBalcony": "파티오/발코니",
+      "terrace": "테라스",
+      "balcony": "발코니",
+      "rooftopTerrace": "옥상 테라스",
+      "garden": "정원/뒷마당",
+      "bbqGrill": "바비큐 그릴",
+      "firePit": "화덕/불멍 공간",
+      "outdoorDiningArea": "야외 식사 공간",
+      "playground": "놀이터",
+      "bicycleStorage": "자전거 보관소",
+      "tennisCourt": "테니스 코트",
+      "basketballCourt": "농구 코트",
+      "volleyballCourt": "배구 코트",
+      "golf": "골프/퍼팅그린/골프시뮬레이터",
+      "waterfront": "워터프론트",
+      "beachfront": "해변 바로 앞",
+      "lakeAccess": "호수 접근",
+      "skiInOut": "스키인/스키아웃"
     },
     "amenities": {
-      "hairDryer": "헤어 드라이어",
+      "wifi": "와이파이",
+      "streaming": "스트리밍",
+      "tv": "TV",
+      "airConditioning": "에어컨",
+      "heating": "난방",
+      "heatedFloors": "온돌",
+      "cleaningProducts": "청소용품",
+      "dedicatedWorkspace": "전용 업무 공간",
+      "bathtub": "욕조",
+      "bidet": "비데",
+      "handheldShowerHead": "핸드헬드 샤워기",
+      "hotWater": "온수",
+      "showerGel": "샤워젤/바디워시",
+      "bodySoap": "바디솝",
+      "handSoap": "손비누",
       "shampoo": "샴푸",
       "conditioner": "컨디셔너",
-      "bodyWash": "바디워시",
-      "soap": "비누",
-      "towel": "수건",
-      "toothbrush": "칫솔",
-      "toothpaste": "치약",
-      "slippers": "슬리퍼",
-      "bathrobe": "목욕 가운",
-      "tissue": "티슈",
-      "toiletPaper": "화장지",
-      "firstAidKit": "구급상자",
+      "toiletPaper": "휴지",
+      "bathTowel": "수건",
+      "dryer": "건조기",
+      "washer": "세탁기",
+      "bedLinens": "침구류",
+      "roomDarkeningShades": "암막커튼",
+      "clothingStorage": "옷 수납공간",
+      "hangers": "옷걸이",
+      "dryingRack": "의류 건조대",
+      "iron": "다리미",
+      "hairDryer": "헤어드라이어",
+      "refrigerator": "냉장고",
+      "diningTable": "식탁",
+      "wineGlasses": "와인잔",
+      "microwave": "전자레인지",
+      "oven": "오븐",
+      "stove": "스토브",
+      "dishwasher": "식기세척기",
+      "coffee": "커피",
+      "tea": "티/차",
+      "cookingBasics": "기본 조리도구",
+      "dishes": "식기",
+      "silverware": "수저",
+      "riceCooker": "밥솥",
+      "coffeeMaker": "커피메이커",
+      "toaster": "토스터",
+      "hotWaterKettle": "전기포트",
+      "blender": "블렌더",
+      "bakingSheet": "베이킹 트레이",
+      "bbqUtensils": "바비큐 도구",
+      "safe": "금고",
+      "outdoorFurniture": "야외 가구",
+      "hammock": "해먹",
+      "sunLoungers": "선베드/선라운저",
+      "beachEssentials": "해변용품",
+      "smokeAlarm": "화재 감지기",
+      "carbonMonoxideAlarm": "일산화탄소 감지기",
       "fireExtinguisher": "소화기",
-      "hotWater": "온수"
+      "securityCameras": "보안카메라/모니터",
+      "crib": "유아용 침대",
+      "highChair": "유아용 의자",
+      "changingTable": "기저귀 교환대",
+      "babyBath": "베이비배스",
+      "babyMonitor": "아기 모니터",
+      "babySafetyGates": "아기 안전문",
+      "childrenBooksToys": "어린이 책/장난감",
+      "childrenDinnerware": "아동 식기",
+      "privateEntrance": "전용 출입구",
+      "bedroomLock": "침실 문 잠금장치",
+      "luggageDropoff": "짐 보관 가능"
     },
     "contracts": {
       "title": "계약 목록",
@@ -1440,5 +1512,89 @@
     "firstAidKit": "구급함",
     "fireExtinguisher": "소화기",
     "hotWater": "온수"
+  },
+  "legal": {
+    "terms": {
+      "title": "서비스 이용약관",
+      "effectiveDate": "시행일: 2024년 1월 1일",
+      "section1": {
+        "title": "제1조 (목적)",
+        "content": "이 약관은 주식회사 스너그랩(이하 \"회사\")이 제공하는 스너그 서비스(이하 \"서비스\")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다."
+      },
+      "section2": {
+        "title": "제2조 (정의)",
+        "content": "\"서비스\"란 회사가 제공하는 숙박 중개 플랫폼 및 관련 서비스를 의미합니다. \"이용자\"란 이 약관에 따라 서비스를 이용하는 회원 및 비회원을 말합니다. \"회원\"이란 서비스에 가입하여 아이디를 부여받은 자를 말합니다. \"호스트\"란 서비스를 통해 숙소를 등록하고 게스트에게 제공하는 회원을 말합니다. \"게스트\"란 서비스를 통해 숙소를 예약하고 이용하는 회원을 말합니다."
+      },
+      "section3": {
+        "title": "제3조 (서비스의 제공)",
+        "content": "회사는 다음과 같은 서비스를 제공합니다: 숙소 검색 및 예약 서비스, 호스트와 게스트 간의 중개 서비스, 결제 대행 서비스, 고객 지원 서비스, 기타 회사가 정하는 서비스. 회사는 서비스의 품질 향상을 위해 서비스의 내용을 변경할 수 있으며, 이 경우 변경 내용을 사전에 공지합니다."
+      },
+      "section4": {
+        "title": "제4조 (회원가입)",
+        "content": "회원가입은 이용자가 약관에 동의하고, 회사가 정한 가입 양식에 따라 필요한 정보를 기입하여 가입신청을 하고, 회사가 이를 승낙함으로써 체결됩니다. 회사는 다음 각 호에 해당하는 경우 가입을 거절하거나 사후에 회원자격을 제한할 수 있습니다: 허위 정보를 기재한 경우, 타인의 정보를 도용한 경우, 회사가 정한 가입요건을 충족하지 못한 경우."
+      },
+      "section5": {
+        "title": "제5조 (이용자의 의무)",
+        "content": "이용자는 다음 행위를 하여서는 안 됩니다: 허위 정보의 등록, 타인의 정보 도용, 회사의 서비스 운영을 방해하는 행위, 회사 또는 제3자의 명예를 손상시키는 행위, 법령 또는 공서양속에 반하는 행위, 기타 회사가 정한 이용규칙에 위반하는 행위."
+      },
+      "section6": {
+        "title": "제6조 (책임의 제한)",
+        "content": "회사는 호스트와 게스트 간의 거래에 대해 중개 역할만을 수행하며, 숙소의 품질, 안전성, 합법성 등에 대해 보증하지 않습니다. 회사는 천재지변, 전쟁, 기간통신사업자의 서비스 중단 등 불가항력적 사유로 인한 서비스 제공 불가에 대해 책임을 지지 않습니다."
+      }
+    },
+    "privacy": {
+      "title": "개인정보처리방침",
+      "effectiveDate": "시행일: 2024년 1월 1일",
+      "section1": {
+        "title": "제1조 (개인정보의 수집 항목)",
+        "content": "회사는 서비스 제공을 위해 다음과 같은 개인정보를 수집합니다: 필수항목 - 이메일 주소, 비밀번호, 이름. 선택항목 - 전화번호, 프로필 사진, 여권번호(본인확인용). 서비스 이용 과정에서 자동으로 수집되는 정보 - IP 주소, 쿠키, 서비스 이용 기록, 방문 기록."
+      },
+      "section2": {
+        "title": "제2조 (개인정보의 수집 및 이용 목적)",
+        "content": "회사는 수집한 개인정보를 다음의 목적으로 이용합니다: 서비스 제공 및 운영, 회원 관리 및 본인 확인, 예약 및 결제 처리, 고객 문의 응대, 서비스 개선 및 신규 서비스 개발, 마케팅 및 광고(선택 동의 시)."
+      },
+      "section3": {
+        "title": "제3조 (개인정보의 보유 및 이용 기간)",
+        "content": "회사는 개인정보 수집 및 이용 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 관련 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다: 계약 또는 청약철회 등에 관한 기록 - 5년, 대금결제 및 재화 등의 공급에 관한 기록 - 5년, 소비자의 불만 또는 분쟁처리에 관한 기록 - 3년."
+      },
+      "section4": {
+        "title": "제4조 (개인정보의 제3자 제공)",
+        "content": "회사는 원칙적으로 이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우는 예외로 합니다: 이용자가 사전에 동의한 경우, 법령에 의해 요구되는 경우, 서비스 제공을 위해 필요한 경우(예: 숙소 예약 시 호스트에게 게스트 정보 제공)."
+      },
+      "section5": {
+        "title": "제5조 (개인정보의 파기)",
+        "content": "회사는 개인정보 보유 기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체 없이 해당 개인정보를 파기합니다. 전자적 파일 형태의 정보는 복구할 수 없도록 안전하게 삭제하며, 종이 문서에 기록된 정보는 분쇄기로 분쇄하거나 소각합니다."
+      },
+      "section6": {
+        "title": "제6조 (이용자의 권리)",
+        "content": "이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보의 삭제를 요청할 수 있습니다. 개인정보 열람, 정정, 삭제, 처리정지 요청은 고객센터를 통해 접수할 수 있습니다."
+      },
+      "section7": {
+        "title": "제7조 (개인정보보호 책임자)",
+        "content": "회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 이용자의 불만처리 및 피해구제 등을 위하여 개인정보보호 책임자를 지정하고 있습니다. 개인정보보호 책임자: cs@findsnug.com"
+      }
+    },
+    "dataDeletion": {
+      "title": "사용자 데이터 삭제 안내",
+      "section1": {
+        "title": "데이터 삭제 정책",
+        "content": "스너그는 사용자의 개인정보 보호를 중요하게 생각합니다. Facebook 또는 다른 소셜 로그인을 통해 생성된 계정을 포함하여 모든 사용자는 언제든지 자신의 데이터 삭제를 요청할 수 있습니다."
+      },
+      "section2": {
+        "title": "데이터 삭제 요청 방법",
+        "step1": "1. 스너그 계정에 로그인합니다.",
+        "step2": "2. 마이페이지 > 설정으로 이동합니다.",
+        "step3": "3. '계정 삭제' 또는 '회원 탈퇴' 옵션을 선택합니다.",
+        "step4": "4. 안내에 따라 계정 삭제를 완료합니다."
+      },
+      "section3": {
+        "title": "삭제되는 데이터",
+        "content": "계정 삭제 시 다음 데이터가 영구적으로 삭제됩니다: 프로필 정보(이름, 이메일, 프로필 사진), 예약 기록, 찜 목록, 채팅 기록, 결제 정보. 단, 법적 의무에 따라 일부 데이터는 일정 기간 보관될 수 있습니다."
+      },
+      "section4": {
+        "title": "문의하기",
+        "content": "데이터 삭제에 관한 문의나 직접 삭제 요청은 아래 이메일로 연락해주세요:"
+      }
+    }
   }
 }

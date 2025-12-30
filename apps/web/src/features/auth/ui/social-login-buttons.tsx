@@ -111,6 +111,7 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const t = useTranslations('auth.login');
   const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle);
   const signInWithKakao = useAuthStore((state) => state.signInWithKakao);
+  const signInWithFacebook = useAuthStore((state) => state.signInWithFacebook);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [recentMethod, setRecentMethod] = useState<LoginMethod | null>(null);
@@ -147,9 +148,15 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     }
   };
 
-  const handleFacebookLogin = () => {
-    // Facebook OAuth - 추후 구현
-    setError('Facebook login is not available yet');
+  const handleFacebookLogin = async () => {
+    setLoadingProvider('facebook');
+    setError(null);
+    setRecentLoginMethod('facebook');
+    const { error } = await signInWithFacebook();
+    if (error) {
+      setError(error.message);
+      setLoadingProvider(null);
+    }
   };
 
   const handleEmailClick = () => {
@@ -192,7 +199,13 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
         disabled={isLoading}
       />
       <SocialButton
-        icon={<FacebookIcon />}
+        icon={
+          loadingProvider === 'facebook' ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <FacebookIcon />
+          )
+        }
         label={t('continueWithFacebook')}
         onClick={handleFacebookLogin}
         badge={recentMethod === 'facebook' ? 'recent' : undefined}

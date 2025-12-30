@@ -36,6 +36,7 @@ interface AuthState {
   ) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signInWithKakao: () => Promise<{ error: Error | null }>;
+  signInWithFacebook: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -193,6 +194,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       provider: 'kakao',
       options: {
         redirectTo: `${getAppUrl()}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return { error };
+    }
+
+    return { error: null };
+  },
+
+  signInWithFacebook: async () => {
+    const supabase = getSupabaseClient();
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${getAppUrl()}/auth/callback`,
+        scopes: 'email,public_profile',
       },
     });
 

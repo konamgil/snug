@@ -250,32 +250,36 @@
       "resetError": "Failed to reset password. Please try again."
     },
     "signupPage": {
-      "title": "Create your Account",
+      "title": "Sign Up",
+      "stepEmail": "Email",
+      "stepVerify": "Verify",
+      "stepInfo": "Info",
+      "enterEmail": "Enter your email",
+      "emailDescription": "Used for login and important notifications",
       "emailAddress": "Email address",
+      "completeSignup": "Complete your profile",
+      "infoDescription": "Basic information needed for the service",
       "password": "Password",
+      "confirmPassword": "Confirm Password",
       "passwordHint": "At least 8 characters, case-sensitive",
-      "passwordMismatch": "Re-enter your password",
+      "passwordMismatch": "Passwords do not match",
       "personalInfo": "Personal Information",
       "firstName": "First Name",
       "lastName": "Last Name",
-      "nameHint": "Make sure this matches the name on your government ID. If you go by another name, you can add a preferred first name.",
+      "nameHint": "Make sure this matches the name on your government ID.",
       "countryCode": "Country Code",
       "phoneNumber": "Phone Number",
       "phoneOptional": "Phone number is optional.",
-      "agreeTerms": "I agree to the collection and use of my personal information.",
-      "termsPreview": "We collect personal information needed to use the Snug platform.",
-      "termsFullText": "We collect personal information needed to use the Snug platform. This includes name, email, phone number, and other registration details.",
-      "showMore": "Show more",
-      "showLess": "Show less",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "and": " and ",
+      "agreeToTerms": " and agree.",
       "agreeMarketing": "I want to receive marketing emails. (optional)",
       "continue": "Continue",
-      "signupSuccess": "Account created successfully!",
-      "checkEmail": "Please log in to start using the service.",
-      "goToLogin": "Go to Login",
-      "verify": "Verify",
-      "verified": "Verified",
-      "verifyEmail": "Verify Email",
-      "emailVerified": "Email Verified"
+      "createAccount": "Create Account",
+      "signupComplete": "Sign up complete!",
+      "welcomeMessage": "Welcome to Snug",
+      "goToLogin": "Go to Login"
     },
     "phoneVerification": {
       "title": "Phone Verification",
@@ -290,11 +294,12 @@
       "verifyError": "Failed to verify code"
     },
     "emailVerification": {
-      "title": "Email Verification",
+      "title": "Enter verification code",
       "sentTo": "Verification code sent to {email}",
       "enterFullCode": "Please enter the full 6-digit code",
       "verified": "Verified!",
       "verify": "Verify",
+      "verifying": "Verifying...",
       "resend": "Resend Code",
       "resendIn": "Resend in {seconds}s",
       "sending": "Sending...",
@@ -839,7 +844,7 @@
       "comingSoonTitle": "Thank you for registering for the Host Pre-Open.",
       "comingSoonDescription": "We will contact you to complete the review before the official launch.",
       "comingSoonContact": "Inquiries",
-      "comingSoonEmail": "support@findsnug.com"
+      "comingSoonEmail": "cs@findsnug.com"
     },
     "accommodation": {
       "form": {
@@ -1157,44 +1162,111 @@
       }
     },
     "facilities": {
-      "digitalLock": "Digital Lock",
-      "refrigerator": "Refrigerator",
-      "airConditioner": "Air Conditioner",
-      "conditioner": "Conditioner",
-      "coffeeMaker": "Coffee Maker",
-      "washer": "Washer",
-      "closet": "Closet",
-      "tv": "TV",
-      "wifi": "Wi-Fi",
-      "cctv": "CCTV",
+      "freeParkingOnPremises": "Free parking on premises",
+      "paidParkingOnPremises": "Paid parking on premises",
+      "paidParkingOffPremises": "Paid parking off premises",
+      "freeStreetParking": "Free street parking",
+      "permitParking": "Permit parking",
+      "evCharger": "EV charger",
       "elevator": "Elevator",
-      "parking": "Parking",
-      "microwave": "Microwave",
-      "induction": "Induction",
-      "gasStove": "Gas Stove",
-      "oven": "Oven",
-      "dishwasher": "Dishwasher",
-      "dryer": "Dryer",
-      "iron": "Iron",
-      "desk": "Desk",
-      "chair": "Chair"
+      "pool": "Pool",
+      "privatePool": "Private pool",
+      "sharedPool": "Shared pool",
+      "gameRoom": "Game room / Recreation room",
+      "hotTub": "Hot tub / Jacuzzi",
+      "privateHotTub": "Private hot tub",
+      "sharedHotTub": "Shared hot tub",
+      "gym": "Gym",
+      "sauna": "Sauna",
+      "steamRoom": "Steam room",
+      "turkishBath": "Turkish bath / Hammam",
+      "patioOrBalcony": "Patio or balcony",
+      "terrace": "Terrace",
+      "balcony": "Balcony",
+      "rooftopTerrace": "Rooftop terrace",
+      "garden": "Garden / Backyard",
+      "bbqGrill": "BBQ grill",
+      "firePit": "Fire pit",
+      "outdoorDiningArea": "Outdoor dining area",
+      "playground": "Playground",
+      "bicycleStorage": "Bicycle storage / Bike parking",
+      "tennisCourt": "Tennis court",
+      "basketballCourt": "Basketball court",
+      "volleyballCourt": "Volleyball court",
+      "golf": "Golf / Putting green / Golf simulator",
+      "waterfront": "Waterfront",
+      "beachfront": "Beachfront",
+      "lakeAccess": "Lake access",
+      "skiInOut": "Ski-in / Ski-out"
     },
     "amenities": {
-      "hairDryer": "Hair Dryer",
+      "wifi": "Wi-Fi",
+      "streaming": "Streaming",
+      "tv": "TV",
+      "airConditioning": "Air conditioning",
+      "heating": "Heating",
+      "heatedFloors": "Heated floors",
+      "cleaningProducts": "Cleaning products",
+      "dedicatedWorkspace": "Dedicated workspace",
+      "bathtub": "Bathtub",
+      "bidet": "Bidet",
+      "handheldShowerHead": "Handheld shower head",
+      "hotWater": "Hot water",
+      "showerGel": "Shower gel / Body wash",
+      "bodySoap": "Body soap",
+      "handSoap": "Hand soap",
       "shampoo": "Shampoo",
       "conditioner": "Conditioner",
-      "bodyWash": "Body Wash",
-      "soap": "Soap",
-      "towel": "Towel",
-      "toothbrush": "Toothbrush",
-      "toothpaste": "Toothpaste",
-      "slippers": "Slippers",
-      "bathrobe": "Bathrobe",
-      "tissue": "Tissue",
-      "toiletPaper": "Toilet Paper",
-      "firstAidKit": "First Aid Kit",
-      "fireExtinguisher": "Fire Extinguisher",
-      "hotWater": "Hot Water"
+      "toiletPaper": "Toilet paper",
+      "bathTowel": "Bath towel",
+      "dryer": "Dryer",
+      "washer": "Washer",
+      "bedLinens": "Bed linens",
+      "roomDarkeningShades": "Room darkening shades",
+      "clothingStorage": "Clothing storage / Closet / Dresser",
+      "hangers": "Hangers",
+      "dryingRack": "Drying rack for clothing",
+      "iron": "Iron",
+      "hairDryer": "Hair dryer",
+      "refrigerator": "Refrigerator",
+      "diningTable": "Dining table",
+      "wineGlasses": "Wine glasses",
+      "microwave": "Microwave",
+      "oven": "Oven",
+      "stove": "Stove",
+      "dishwasher": "Dishwasher",
+      "coffee": "Coffee",
+      "tea": "Tea",
+      "cookingBasics": "Cooking basics",
+      "dishes": "Dishes",
+      "silverware": "Silverware",
+      "riceCooker": "Rice cooker",
+      "coffeeMaker": "Coffee maker",
+      "toaster": "Toaster",
+      "hotWaterKettle": "Hot water kettle",
+      "blender": "Blender",
+      "bakingSheet": "Baking sheet",
+      "bbqUtensils": "BBQ utensils",
+      "safe": "Safe",
+      "outdoorFurniture": "Outdoor furniture",
+      "hammock": "Hammock",
+      "sunLoungers": "Sun loungers",
+      "beachEssentials": "Beach essentials",
+      "smokeAlarm": "Smoke alarm",
+      "carbonMonoxideAlarm": "Carbon monoxide alarm",
+      "fireExtinguisher": "Fire extinguisher",
+      "securityCameras": "Security cameras / monitors",
+      "crib": "Crib",
+      "highChair": "High chair",
+      "changingTable": "Changing table",
+      "babyBath": "Baby bath",
+      "babyMonitor": "Baby monitor",
+      "babySafetyGates": "Baby safety gates",
+      "childrenBooksToys": "Children's books and toys",
+      "childrenDinnerware": "Children's dinnerware",
+      "privateEntrance": "Private entrance",
+      "bedroomLock": "Lock on bedroom door",
+      "luggageDropoff": "Luggage dropoff allowed"
     },
     "contracts": {
       "title": "Contract List",
@@ -1440,5 +1512,89 @@
     "firstAidKit": "First Aid Kit",
     "fireExtinguisher": "Fire Extinguisher",
     "hotWater": "Hot Water"
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "effectiveDate": "Effective Date: January 1, 2024",
+      "section1": {
+        "title": "Article 1 (Purpose)",
+        "content": "These Terms of Service govern the rights, obligations, and responsibilities between Snug Lab Co., Ltd. (hereinafter \"Company\") and users regarding the use of Snug services (hereinafter \"Service\")."
+      },
+      "section2": {
+        "title": "Article 2 (Definitions)",
+        "content": "\"Service\" refers to the accommodation platform and related services provided by the Company. \"User\" refers to members and non-members who use the Service in accordance with these Terms. \"Member\" refers to a person who has registered with the Service and has been assigned an ID. \"Host\" refers to a member who registers and provides accommodations to guests through the Service. \"Guest\" refers to a member who books and uses accommodations through the Service."
+      },
+      "section3": {
+        "title": "Article 3 (Provision of Services)",
+        "content": "The Company provides the following services: Accommodation search and booking services, mediation services between hosts and guests, payment processing services, customer support services, and other services determined by the Company. The Company may change the content of the Service to improve its quality, and will notify users of such changes in advance."
+      },
+      "section4": {
+        "title": "Article 4 (Membership Registration)",
+        "content": "Membership registration is completed when the user agrees to these Terms, fills in the required information according to the registration form set by the Company, and the Company approves the application. The Company may refuse registration or restrict membership if: false information is provided, another person's information is used, or the registration requirements set by the Company are not met."
+      },
+      "section5": {
+        "title": "Article 5 (User Obligations)",
+        "content": "Users shall not engage in the following activities: registration of false information, use of another person's information, interference with the Company's service operations, actions that damage the reputation of the Company or third parties, actions that violate laws or public order, and other actions that violate the usage rules set by the Company."
+      },
+      "section6": {
+        "title": "Article 6 (Limitation of Liability)",
+        "content": "The Company only acts as an intermediary for transactions between hosts and guests, and does not guarantee the quality, safety, or legality of accommodations. The Company is not responsible for the inability to provide services due to force majeure events such as natural disasters, wars, or service interruptions by telecommunications providers."
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "effectiveDate": "Effective Date: January 1, 2024",
+      "section1": {
+        "title": "Article 1 (Personal Information Collected)",
+        "content": "The Company collects the following personal information to provide services: Required items - email address, password, name. Optional items - phone number, profile photo, passport number (for identity verification). Information automatically collected during service use - IP address, cookies, service usage records, visit history."
+      },
+      "section2": {
+        "title": "Article 2 (Purpose of Collection and Use)",
+        "content": "The Company uses collected personal information for the following purposes: Service provision and operation, member management and identity verification, reservation and payment processing, customer inquiry response, service improvement and new service development, marketing and advertising (with optional consent)."
+      },
+      "section3": {
+        "title": "Article 3 (Retention Period)",
+        "content": "The Company destroys personal information without delay after the purpose of collection and use has been achieved. However, if preservation is required by relevant laws, it will be retained for the corresponding period: Records on contracts or withdrawal of subscriptions - 5 years, Records on payment and supply of goods - 5 years, Records on consumer complaints or dispute resolution - 3 years."
+      },
+      "section4": {
+        "title": "Article 4 (Disclosure to Third Parties)",
+        "content": "In principle, the Company does not provide personal information to third parties without the user's consent. However, exceptions are made in the following cases: when the user has given prior consent, when required by law, when necessary for service provision (e.g., providing guest information to hosts when booking accommodations)."
+      },
+      "section5": {
+        "title": "Article 5 (Destruction of Personal Information)",
+        "content": "The Company destroys personal information without delay when it becomes unnecessary, such as after the retention period has passed or the processing purpose has been achieved. Information in electronic file format is securely deleted so that it cannot be recovered, and information recorded in paper documents is shredded or incinerated."
+      },
+      "section6": {
+        "title": "Article 6 (User Rights)",
+        "content": "Users can view or modify their personal information at any time, and can request deletion of personal information by withdrawing their membership. Requests for viewing, correcting, deleting, or stopping the processing of personal information can be submitted through the customer center."
+      },
+      "section7": {
+        "title": "Article 7 (Privacy Officer)",
+        "content": "The Company designates a Privacy Officer who is responsible for overseeing all personal information processing and handling user complaints and remedies related to personal information processing. Privacy Officer: cs@findsnug.com"
+      }
+    },
+    "dataDeletion": {
+      "title": "User Data Deletion",
+      "section1": {
+        "title": "Data Deletion Policy",
+        "content": "Snug takes the protection of user personal information seriously. All users, including those with accounts created through Facebook or other social logins, can request deletion of their data at any time."
+      },
+      "section2": {
+        "title": "How to Request Data Deletion",
+        "step1": "1. Log in to your Snug account.",
+        "step2": "2. Go to My Page > Settings.",
+        "step3": "3. Select 'Delete Account' or 'Withdraw Membership' option.",
+        "step4": "4. Follow the instructions to complete account deletion."
+      },
+      "section3": {
+        "title": "Data That Will Be Deleted",
+        "content": "When your account is deleted, the following data will be permanently removed: Profile information (name, email, profile photo), Booking history, Favorites list, Chat history, Payment information. However, some data may be retained for a certain period as required by law."
+      },
+      "section4": {
+        "title": "Contact Us",
+        "content": "For inquiries about data deletion or to request deletion directly, please contact us at:"
+      }
+    }
   }
 }
