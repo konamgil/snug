@@ -77,7 +77,12 @@
       "Bash(pnpm db:generate:*)",
       "WebFetch(domain:www.prisma.io)",
       "Bash(pnpm build)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm prisma db push:*)",
+      "mcp__supabase__list_migrations",
+      "Bash(ls -la \"C:\\\\Users\\\\User\\\\workspace\\\\snug\\\\apps\\\\web\\\\public\\\\images\\\\about\"\" 2>/dev/null || dir \"C:UsersUserworkspacesnugappswebpublicimagesabout \")",
+      "Bash(dir:*)",
+      "Bash(git diff:*)"
     ]
   }
 }

@@ -12,7 +12,7 @@ export function AboutPage() {
         {/* Mobile Image */}
         <Link href="/login" className="block md:hidden">
           <Image
-            src="/images/about/스너그 소개 페이지 모바일.png"
+            src="/images/about/about-page-mobile.png"
             alt="Snug About Page"
             width={390}
             height={5765}
@@ -24,7 +24,7 @@ export function AboutPage() {
         {/* Desktop Image */}
         <Link href="/login" className="hidden md:block max-w-[1312px] mx-auto">
           <Image
-            src="/images/about/스너그 소개 페이지 PC.png"
+            src="/images/about/about-page-desktop.png"
             alt="Snug About Page"
             width={1312}
             height={5892}
