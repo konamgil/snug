@@ -129,6 +129,9 @@
     },
     "viewOnMap": "在地图上查看",
     "hostMode": "房东模式",
+    "becomeHost": "成为房东",
+    "aboutSnug": "关于Snug",
+    "myPage": "我的页面",
     "featured": {
       "title": "精选房源",
       "empty": "暂无精选房源"

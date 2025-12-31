@@ -135,6 +135,9 @@
     },
     "viewOnMap": "지도에서 보기",
     "hostMode": "호스트 모드",
+    "becomeHost": "호스트 되기",
+    "aboutSnug": "스너그 소개",
+    "myPage": "마이페이지",
     "featured": {
       "title": "추천 방",
       "empty": "추천 방이 없습니다"

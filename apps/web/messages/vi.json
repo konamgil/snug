@@ -129,6 +129,9 @@
     },
     "viewOnMap": "Xem trên bản đồ",
     "hostMode": "Chế độ chủ nhà",
+    "becomeHost": "Trở thành chủ nhà",
+    "aboutSnug": "Giới thiệu Snug",
+    "myPage": "Trang cá nhân",
     "featured": {
       "title": "Phòng nổi bật",
       "empty": "Không có phòng nổi bật"

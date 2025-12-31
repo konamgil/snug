@@ -135,6 +135,9 @@
     },
     "viewOnMap": "View on Map",
     "hostMode": "Host Mode",
+    "becomeHost": "Become a Host",
+    "aboutSnug": "About Snug",
+    "myPage": "My Page",
     "featured": {
       "title": "Featured Rooms",
       "empty": "No featured rooms available"

@@ -129,6 +129,9 @@
     },
     "viewOnMap": "地図で見る",
     "hostMode": "ホストモード",
+    "becomeHost": "ホストになる",
+    "aboutSnug": "Snugについて",
+    "myPage": "マイページ",
     "featured": {
       "title": "おすすめの部屋",
       "empty": "おすすめの部屋はありません"
