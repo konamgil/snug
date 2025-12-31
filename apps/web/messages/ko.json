@@ -51,6 +51,7 @@
     "resultsCount": "{location}에서 {count}개의 숙소",
     "noResults": "검색 결과가 없습니다",
     "anywhere": "모든 지역",
+    "viewList": "리스트 보기",
     "guest": "게스트",
     "guests": "게스트",
     "guestCount": "게스트 {count}명",

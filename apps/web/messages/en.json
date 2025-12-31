@@ -51,6 +51,7 @@
     "resultsCount": "{count} Places to Stay in {location}",
     "noResults": "No accommodations found",
     "anywhere": "Anywhere",
+    "viewList": "View List",
     "guest": "Guest",
     "guests": "Guests",
     "guestCount": "{count} {count, plural, one {Guest} other {Guests}}",

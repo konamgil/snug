@@ -46,6 +46,7 @@
     "resultsCount": "{location}で{count}件の宿泊施設",
     "noResults": "宿泊施設が見つかりません",
     "anywhere": "すべての地域",
+    "viewList": "リスト表示",
     "guest": "ゲスト",
     "guests": "ゲスト",
     "guestCount": "ゲスト {count}名",

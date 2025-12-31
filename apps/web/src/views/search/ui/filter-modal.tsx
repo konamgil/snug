@@ -8,6 +8,7 @@ interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApply: (filters: FilterState) => void;
+  initialFilters?: FilterState;
 }
 
 export interface FilterState {
@@ -36,9 +37,9 @@ const DEFAULT_FILTERS: FilterState = {
   amenities: [],
 };
 
-export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
+export function FilterModal({ isOpen, onClose, onApply, initialFilters }: FilterModalProps) {
   const t = useTranslations('search.filters');
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(initialFilters || DEFAULT_FILTERS);
 
   // Translated filter options
   const ROOM_TYPES = [
