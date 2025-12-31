@@ -482,7 +482,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
         </div>
 
         {/* Bottom Actions */}
-        <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-[hsl(var(--snug-border))] px-4 py-4 flex items-center gap-4">
+        <div className="flex-shrink-0 bg-white border-t border-[hsl(var(--snug-border))] px-4 py-4 flex items-center gap-4">
           <button
             type="button"
             onClick={handleReset}
