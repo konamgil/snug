@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 // TODO: 오픈 후 MessageCircle 복원 필요
 import { Search, Map, /* MessageCircle, */ User } from 'lucide-react';
 import { usePathname } from '@/i18n/navigation';
@@ -21,17 +22,39 @@ interface NavItem {
 
 // TODO: 오픈 후 채팅 복원 필요
 const navItems: NavItem[] = [
-  { href: '/', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
+  { href: '/search', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
   { href: '/map', icon: Map, labelKey: 'map' },
   // { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
   { href: '/mypage', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
 ];
 
+// 검색/지도 간 전환 시 유지할 파라미터 목록
+const PRESERVED_PARAMS = [
+  'location',
+  'checkIn',
+  'checkOut',
+  'guests',
+  'adults',
+  'children',
+  'infants',
+  'roomType',
+  'sortBy',
+  'minPrice',
+  'maxPrice',
+  'accommodationType',
+  'buildingType',
+  'genderRules',
+];
+
 export function MobileNav() {
   const t = useTranslations('nav');
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const user = useAuthStore((state) => state.user);
+
+  // 현재 검색/지도 페이지인지 확인
+  const isOnSearchOrMap = pathname === '/search' || pathname === '/map';
 
   const isItemActive = (item: NavItem) => {
     if (item.activeOn) {
@@ -57,6 +80,19 @@ export function MobileNav() {
     if (item.labelKey === 'profile' && !user) {
       return getLocalizedHref('/login');
     }
+
+    // 검색/지도 페이지에서 검색/지도로 이동 시 파라미터 유지
+    if (isOnSearchOrMap && (item.labelKey === 'search' || item.labelKey === 'map')) {
+      const params = new URLSearchParams();
+      PRESERVED_PARAMS.forEach((key) => {
+        const values = searchParams.getAll(key);
+        values.forEach((value) => params.append(key, value));
+      });
+      const queryString = params.toString();
+      const targetPath = item.labelKey === 'search' ? '/search' : '/map';
+      return getLocalizedHref(`${targetPath}${queryString ? `?${queryString}` : ''}`);
+    }
+
     return getLocalizedHref(item.href);
   };
 

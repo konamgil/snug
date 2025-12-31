@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, Link } from '@/i18n/navigation';
-import { ListIcon } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { MobileSearchBar } from '@/views/search/ui/mobile-search-bar';
 import { SearchMap } from '@/views/search/ui/search-map';
@@ -121,13 +120,28 @@ function MapPageContent() {
   const checkIn = checkInParam ? new Date(checkInParam) : null;
   const checkOut = checkOutParam ? new Date(checkOutParam) : null;
 
-  // URL에서 필터 파라미터 읽기
+  // URL에서 필터 파라미터 읽기 (useMemo로 안정화)
   const minPriceParam = searchParams.get('minPrice');
   const maxPriceParam = searchParams.get('maxPrice');
-  const accommodationTypes = searchParams.getAll('accommodationType') as AccommodationType[];
-  const buildingTypes = searchParams.getAll('buildingType') as BuildingType[];
-  const genderRules = searchParams.getAll('genderRules') as GenderRule[];
   const sortByParam = searchParams.get('sortBy') as AccommodationSearchParams['sortBy'] | null;
+
+  // 배열 파라미터는 문자열로 비교하여 안정화
+  const accommodationTypesStr = searchParams.getAll('accommodationType').join(',');
+  const buildingTypesStr = searchParams.getAll('buildingType').join(',');
+  const genderRulesStr = searchParams.getAll('genderRules').join(',');
+
+  const accommodationTypes = useMemo(
+    () => (accommodationTypesStr ? accommodationTypesStr.split(',') : []) as AccommodationType[],
+    [accommodationTypesStr],
+  );
+  const buildingTypes = useMemo(
+    () => (buildingTypesStr ? buildingTypesStr.split(',') : []) as BuildingType[],
+    [buildingTypesStr],
+  );
+  const genderRules = useMemo(
+    () => (genderRulesStr ? genderRulesStr.split(',') : []) as GenderRule[],
+    [genderRulesStr],
+  );
 
   // URL 파라미터에서 FilterState 복원
   const activeFilters = useMemo((): FilterState | null => {
@@ -154,11 +168,21 @@ function MapPageContent() {
     };
   }, [minPriceParam, maxPriceParam, accommodationTypes, buildingTypes, genderRules]);
 
-  // 초기 지도 중심점 (URL 파라미터에서 가져옴)
+  // 초기 지도 중심점 계산
   const latParam = searchParams.get('lat');
   const lngParam = searchParams.get('lng');
-  const initialCenter =
-    latParam && lngParam ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) } : undefined;
+  const initialCenter = useMemo(() => {
+    // 1. URL에 lat/lng가 있으면 사용
+    if (latParam && lngParam) {
+      return { lat: parseFloat(latParam), lng: parseFloat(lngParam) };
+    }
+    // 2. 로드된 숙소가 있으면 첫 번째 숙소 좌표 사용
+    if (rooms.length > 0 && rooms[0]) {
+      return { lat: rooms[0].lat, lng: rooms[0].lng };
+    }
+    // 3. 없으면 undefined (SearchMap의 기본값 사용)
+    return undefined;
+  }, [latParam, lngParam, rooms]);
 
   // 숙소 목록 가져오기 (모든 필터 적용)
   const fetchAccommodations = useCallback(async () => {
@@ -320,45 +344,6 @@ function MapPageContent() {
     setIsFilterModalOpen(false);
   };
 
-  // View List 버튼용 URL 생성
-  const searchPageUrl = useMemo(() => {
-    const params = new URLSearchParams();
-    if (locationValue) params.set('location', locationValue);
-    if (checkIn) params.set('checkIn', checkIn.toISOString().substring(0, 10));
-    if (checkOut) params.set('checkOut', checkOut.toISOString().substring(0, 10));
-    if (totalGuests > 0) {
-      params.set('guests', totalGuests.toString());
-      const adults = searchParams.get('adults');
-      const children = searchParams.get('children');
-      const infants = searchParams.get('infants');
-      if (adults) params.set('adults', adults);
-      if (children) params.set('children', children);
-      if (infants) params.set('infants', infants);
-    }
-    // 필터 파라미터도 전달
-    accommodationTypes.forEach((type) => params.append('accommodationType', type));
-    buildingTypes.forEach((type) => params.append('buildingType', type));
-    genderRules.forEach((rule) => params.append('genderRules', rule));
-    if (minPriceParam) params.set('minPrice', minPriceParam);
-    if (maxPriceParam) params.set('maxPrice', maxPriceParam);
-    if (sortByParam) params.set('sortBy', sortByParam);
-
-    const queryString = params.toString();
-    return `/search${queryString ? `?${queryString}` : ''}`;
-  }, [
-    locationValue,
-    checkIn,
-    checkOut,
-    totalGuests,
-    searchParams,
-    accommodationTypes,
-    buildingTypes,
-    genderRules,
-    minPriceParam,
-    maxPriceParam,
-    sortByParam,
-  ]);
-
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Mobile Header */}
@@ -382,17 +367,6 @@ function MapPageContent() {
         ) : (
           <SearchMap rooms={rooms} initialCenter={initialCenter} />
         )}
-
-        {/* View List Button - Floating */}
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40">
-          <Link
-            href={searchPageUrl}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--snug-orange))] text-white rounded-full shadow-lg hover:opacity-90 transition-opacity"
-          >
-            <ListIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">{t('viewList')}</span>
-          </Link>
-        </div>
       </div>
 
       {/* Mobile Navigation */}
