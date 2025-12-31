@@ -1,0 +1,10 @@
+<svg width="530" height="863" viewBox="0 0 530 863" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Placeholder for hero illustration -->
+  <rect width="530" height="863" rx="20" fill="#F5F5F5"/>
+  <rect x="40" y="100" width="450" height="300" rx="10" fill="#E5E5E5"/>
+  <rect x="60" y="450" width="200" height="150" rx="8" fill="#E5E5E5"/>
+  <rect x="280" y="450" width="200" height="150" rx="8" fill="#E5E5E5"/>
+  <rect x="60" y="620" width="410" height="180" rx="8" fill="#E5E5E5"/>
+  <text x="265" y="450" text-anchor="middle" font-family="Arial" font-size="16" fill="#999">Hero Illustration</text>
+  <text x="265" y="480" text-anchor="middle" font-family="Arial" font-size="12" fill="#AAA">(Replace with Figma export)</text>
+</svg>

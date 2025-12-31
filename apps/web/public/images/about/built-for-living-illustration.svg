@@ -1,0 +1,10 @@
+<svg width="540" height="540" viewBox="0 0 540 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Placeholder for built for living illustration -->
+  <rect width="540" height="540" rx="20" fill="#F5F5F5"/>
+  <!-- Isometric building placeholder -->
+  <path d="M270 80L450 180V420L270 520L90 420V180L270 80Z" fill="#E5E5E5" stroke="#D0D0D0" stroke-width="2"/>
+  <path d="M270 80L270 520" stroke="#D0D0D0" stroke-width="2"/>
+  <path d="M90 180L450 180" stroke="#D0D0D0" stroke-width="2"/>
+  <text x="270" y="280" text-anchor="middle" font-family="Arial" font-size="14" fill="#999">Building Illustration</text>
+  <text x="270" y="300" text-anchor="middle" font-family="Arial" font-size="10" fill="#AAA">(Replace with Figma export)</text>
+</svg>
