@@ -141,7 +141,16 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
     onGroupSelect?.([]);
   }, [onRoomSelect, onGroupSelect]);
 
+  // 마커 클릭 직후 카드 클릭 방지용
+  const markerClickedRef = useRef(false);
+
   const handleMarkerClick = (group: MarkerGroup) => {
+    // 마커 클릭 플래그 설정 (카드 클릭 방지)
+    markerClickedRef.current = true;
+    setTimeout(() => {
+      markerClickedRef.current = false;
+    }, 500);
+
     setSelectedGroup(group);
     setCurrentIndex(0);
 
@@ -251,11 +260,17 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
     }, 300);
   };
 
-  // 카드 클릭 핸들러 (스와이프 중이 아닐 때만 이동)
+  // 카드 클릭 핸들러 (스와이프/마커클릭 직후가 아닐 때만 이동)
   const handleCardClick = useCallback(
     (e: React.MouseEvent, roomId: string) => {
       // 스와이프 중이거나 방금 스와이프했으면 클릭 무시
       if (isSwiping || swipedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      // 마커 클릭 직후면 클릭 무시 (터치 이벤트 중복 방지)
+      if (markerClickedRef.current) {
         e.preventDefault();
         e.stopPropagation();
         return;
