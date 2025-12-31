@@ -1,10 +1,9 @@
 'use client';
 
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { X, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
 import { useCurrencySafe } from '@/shared/providers';
@@ -14,6 +13,16 @@ interface SearchMapProps {
   rooms: Room[];
   initialCenter?: { lat: number; lng: number };
   onRoomSelect?: (roomId: string | null) => void;
+  onGroupSelect?: (roomIds: string[]) => void;
+}
+
+// 좌표 기반 그룹화된 마커
+interface MarkerGroup {
+  key: string;
+  lat: number;
+  lng: number;
+  rooms: Room[];
+  minPrice: number;
 }
 
 const mapContainerStyle = {
@@ -35,12 +44,54 @@ const mapOptions: google.maps.MapOptions = {
   fullscreenControl: false,
 };
 
-function createPriceMarkerIcon(formattedPrice: string, isSelected: boolean): string {
+// 좌표를 키로 변환 (소수점 6자리까지 비교)
+function getCoordinateKey(lat: number, lng: number): string {
+  return `${lat.toFixed(6)}_${lng.toFixed(6)}`;
+}
+
+// 숙소들을 좌표별로 그룹화
+function groupRoomsByLocation(rooms: Room[]): MarkerGroup[] {
+  const groups = new Map<string, Room[]>();
+
+  for (const room of rooms) {
+    const key = getCoordinateKey(room.lat, room.lng);
+    const existing = groups.get(key) || [];
+    existing.push(room);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups.entries())
+    .filter(([, groupRooms]) => groupRooms.length > 0)
+    .map(([key, groupRooms]) => ({
+      key,
+      lat: groupRooms[0]!.lat,
+      lng: groupRooms[0]!.lng,
+      rooms: groupRooms,
+      minPrice: Math.min(...groupRooms.map((r) => r.price)),
+    }));
+}
+
+// 그룹 마커 아이콘 생성 (가격 · N more)
+function createGroupMarkerIcon(
+  formattedPrice: string,
+  extraCount: number,
+  isSelected: boolean,
+): string {
   const bgColor = isSelected ? '%23ff7900' : '%236B7280';
-  // URL encode the formatted price for SVG data URI
   const encodedPrice = encodeURIComponent(formattedPrice);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="30"><rect x="0" y="0" width="80" height="30" rx="15" fill="${bgColor}"/><text x="40" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial">${encodedPrice}</text></svg>`;
-  return `data:image/svg+xml,${svg}`;
+
+  if (extraCount > 0) {
+    // 그룹 마커: "가격 · N more stays"
+    const width = 170;
+    const height = 36;
+    const extraText = encodeURIComponent(`· ${extraCount} more stays`);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect x="0" y="0" width="${width}" height="${height}" rx="18" fill="${bgColor}"/><text x="85" y="24" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">${encodedPrice} ${extraText}</text></svg>`;
+    return `data:image/svg+xml,${svg}`;
+  } else {
+    // 단일 마커: 가격만
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="90" height="36"><rect x="0" y="0" width="90" height="36" rx="18" fill="${bgColor}"/><text x="45" y="24" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">${encodedPrice}</text></svg>`;
+    return `data:image/svg+xml,${svg}`;
+  }
 }
 
 // First tag - soft background
@@ -59,12 +110,20 @@ const tagSecondColors = {
   green: 'bg-green-400 text-white font-bold',
 };
 
-export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps) {
-  const locale = useLocale();
+export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }: SearchMapProps) {
+  const router = useRouter();
   const { format } = useCurrencySafe();
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<MarkerGroup | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const cardContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // 숙소들을 좌표별로 그룹화
+  const markerGroups = useMemo(() => groupRoomsByLocation(rooms), [rooms]);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -76,31 +135,135 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
   }, []);
 
   const onMapClick = useCallback(() => {
-    setSelectedRoom(null);
+    setSelectedGroup(null);
+    setCurrentIndex(0);
     onRoomSelect?.(null);
-  }, [onRoomSelect]);
+    onGroupSelect?.([]);
+  }, [onRoomSelect, onGroupSelect]);
 
-  const handleMarkerClick = (room: Room) => {
-    setSelectedRoom(room);
-    setIsFavorite(room.isFavorite || false);
-    onRoomSelect?.(room.id);
+  const handleMarkerClick = (group: MarkerGroup) => {
+    setSelectedGroup(group);
+    setCurrentIndex(0);
+
+    // PC: 그룹 내 모든 숙소 ID 전달
+    onGroupSelect?.(group.rooms.map((r) => r.id));
+    // 첫 번째 숙소 ID도 전달 (기존 호환성)
+    if (group.rooms[0]) {
+      onRoomSelect?.(group.rooms[0].id);
+    }
 
     // Pan map to show marker above the bottom card
     if (mapRef.current) {
-      const offsetLat = room.lat - 0.003; // Offset to position marker above center
-      mapRef.current.panTo({ lat: offsetLat, lng: room.lng });
+      const offsetLat = group.lat - 0.003;
+      mapRef.current.panTo({ lat: offsetLat, lng: group.lng });
     }
   };
 
   const handleClose = () => {
-    setSelectedRoom(null);
+    setSelectedGroup(null);
+    setCurrentIndex(0);
+    onRoomSelect?.(null);
+    onGroupSelect?.([]);
   };
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const handleFavoriteClick = (e: React.MouseEvent, roomId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(roomId)) {
+        next.delete(roomId);
+      } else {
+        next.add(roomId);
+      }
+      return next;
+    });
   };
+
+  // 스와이프 네비게이션
+  const goToNext = () => {
+    if (selectedGroup && currentIndex < selectedGroup.rooms.length - 1) {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      const room = selectedGroup.rooms[newIndex];
+      if (room) onRoomSelect?.(room.id);
+    }
+  };
+
+  const goToPrev = () => {
+    if (selectedGroup && currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      const room = selectedGroup.rooms[newIndex];
+      if (room) onRoomSelect?.(room.id);
+    }
+  };
+
+  // 터치 스와이프 핸들러
+  const minSwipeDistance = 30;
+  const swipedRef = useRef(false);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const touch = e.targetTouches[0];
+    if (!touch) return;
+    setTouchEnd(null);
+    setTouchStart(touch.clientX);
+    setIsSwiping(false);
+    swipedRef.current = false;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    const touch = e.targetTouches[0];
+    if (!touch) return;
+    setTouchEnd(touch.clientX);
+    // 일정 거리 이상 움직이면 스와이프로 판단
+    if (touchStart !== null) {
+      const distance = Math.abs(touch.clientX - touchStart);
+      if (distance > 10) {
+        setIsSwiping(true);
+        swipedRef.current = true;
+      }
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setIsSwiping(false);
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      goToNext();
+      swipedRef.current = true;
+    } else if (isRightSwipe) {
+      goToPrev();
+      swipedRef.current = true;
+    }
+
+    // 스와이프 상태 리셋 (딜레이 후)
+    setTimeout(() => {
+      setIsSwiping(false);
+      swipedRef.current = false;
+    }, 300);
+  };
+
+  // 카드 클릭 핸들러 (스와이프 중이 아닐 때만 이동)
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent, roomId: string) => {
+      // 스와이프 중이거나 방금 스와이프했으면 클릭 무시
+      if (isSwiping || swipedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      router.push(`/room/${roomId}`);
+    },
+    [isSwiping, router],
+  );
 
   if (loadError) {
     return (
@@ -118,6 +281,9 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
     );
   }
 
+  const currentRoom = selectedGroup?.rooms[currentIndex];
+  const totalInGroup = selectedGroup?.rooms.length || 0;
+
   return (
     <div className="relative w-full h-full">
       <GoogleMap
@@ -128,123 +294,189 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect }: SearchMapProps
         onLoad={onMapLoad}
         onClick={onMapClick}
       >
-        {rooms.map((room) => (
+        {markerGroups.map((group) => (
           <MarkerF
-            key={room.id}
-            position={{ lat: room.lat, lng: room.lng }}
-            onClick={() => handleMarkerClick(room)}
+            key={group.key}
+            position={{ lat: group.lat, lng: group.lng }}
+            onClick={() => handleMarkerClick(group)}
             icon={{
-              url: createPriceMarkerIcon(
-                format(room.price, { compact: true }),
-                selectedRoom?.id === room.id,
+              url: createGroupMarkerIcon(
+                format(group.minPrice, { compact: true }),
+                group.rooms.length - 1,
+                selectedGroup?.key === group.key,
               ),
-              scaledSize: new google.maps.Size(80, 30),
-              anchor: new google.maps.Point(40, 15),
+              scaledSize: new google.maps.Size(group.rooms.length > 1 ? 170 : 90, 36),
+              anchor: new google.maps.Point(group.rooms.length > 1 ? 85 : 45, 18),
             }}
           />
         ))}
       </GoogleMap>
 
-      {/* Selected Room Card - Mobile only */}
-      {selectedRoom && (
+      {/* Selected Room Cards - Mobile Carousel with peek effect */}
+      {selectedGroup && currentRoom && (
         <div className="absolute bottom-0 left-0 right-0 z-10 md:hidden">
-          {/* Close Button */}
-          <div className="flex justify-end px-4 pb-3">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-md"
-            >
-              <X className="w-4 h-4 text-[hsl(var(--snug-text-primary))] drop-shadow-sm" />
-            </button>
-          </div>
-
-          {/* Room Card */}
-          <Link
-            href={`/${locale}/room/${selectedRoom.id}`}
-            className="block mx-4 mb-4 bg-white rounded-2xl shadow-xl overflow-hidden"
-          >
-            {/* Image */}
-            <div className="relative aspect-[16/10]">
-              {selectedRoom.imageUrl ? (
-                <Image
-                  src={selectedRoom.imageUrl}
-                  alt={selectedRoom.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 400px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
-                  <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
-                </div>
-              )}
-
-              {/* Tags */}
-              <div className="absolute top-3 left-3 flex gap-2">
-                {selectedRoom.tags.map((tag, index) => (
-                  <span
-                    key={tag.label}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
-                      index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
-                    }`}
-                  >
-                    {tag.label}
-                  </span>
-                ))}
+          {/* Header: Close + Pagination */}
+          <div className="flex justify-between items-center px-4 pb-3">
+            {/* Pagination indicator */}
+            {totalInGroup > 1 && (
+              <div className="flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
+                <span className="text-white text-xs font-medium">
+                  {currentIndex + 1} / {totalInGroup}
+                </span>
               </div>
-
-              {/* Favorite Button */}
+            )}
+            <div className={totalInGroup <= 1 ? 'ml-auto' : ''}>
               <button
                 type="button"
-                onClick={handleFavoriteClick}
-                className="absolute top-3 right-3 p-2"
+                onClick={handleClose}
+                className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-md"
               >
-                <HeartIcon
-                  className={`w-6 h-6 ${isFavorite ? 'text-red-500' : 'text-white drop-shadow-md'}`}
-                  filled={isFavorite}
-                />
+                <X className="w-4 h-4 text-[hsl(var(--snug-text-primary))] drop-shadow-sm" />
               </button>
             </div>
+          </div>
 
-            {/* Content */}
-            <div className="p-4">
-              {/* Location */}
-              <h3 className="text-[15px] font-semibold text-[hsl(var(--snug-text-primary))] mb-1.5">
-                {selectedRoom.location}, {selectedRoom.district}
-              </h3>
+          {/*
+            Carousel 계산:
+            - 카드 너비: 82vw
+            - 카드 간 gap: 12px
+            - 중앙 정렬 패딩: (100vw - 82vw) / 2 = 9vw
+            - 이동 거리: 82vw + 12px per card
+          */}
+          <div className="relative mb-4 overflow-hidden">
+            {/* Cards Track */}
+            <div
+              ref={cardContainerRef}
+              className="flex transition-transform duration-300 ease-out"
+              style={{
+                paddingLeft: '9vw',
+                paddingRight: '9vw',
+                gap: '12px',
+                transform: `translateX(calc(-${currentIndex} * (82vw + 12px)))`,
+              }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              {selectedGroup.rooms.map((room, idx) => (
+                <div key={room.id} className="flex-shrink-0" style={{ width: '82vw' }}>
+                  {/* Room Card */}
+                  <div
+                    onClick={(e) => handleCardClick(e, room.id)}
+                    className={`block bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer transition-all duration-300 ${
+                      idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-60 scale-[0.97]'
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className="relative aspect-[16/10]">
+                      {room.imageUrl ? (
+                        <Image
+                          src={room.imageUrl}
+                          alt={room.title}
+                          fill
+                          sizes="82vw"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
+                          <ImageIcon className="w-12 h-12 text-[hsl(var(--snug-gray))]/30" />
+                        </div>
+                      )}
 
-              {/* Room Info */}
-              <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
-                <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>
-                  {selectedRoom.rooms} Rooms · {selectedRoom.bathrooms} Bathroom ·{' '}
-                  {selectedRoom.beds} Bed
-                </span>
-              </div>
+                      {/* Tags */}
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {room.tags.map((tag, tagIndex) => (
+                          <span
+                            key={tag.label}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
+                              tagIndex === 0
+                                ? tagFirstColors[tag.color]
+                                : tagSecondColors[tag.color]
+                            }`}
+                          >
+                            {tag.label}
+                          </span>
+                        ))}
+                      </div>
 
-              {/* Guests */}
-              <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
-                <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>{selectedRoom.guests} Guests</span>
-              </div>
+                      {/* Favorite Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleFavoriteClick(e, room.id)}
+                        className="absolute top-3 right-3 p-2"
+                      >
+                        <HeartIcon
+                          className={`w-6 h-6 ${favorites.has(room.id) ? 'text-red-500' : 'text-white drop-shadow-md'}`}
+                          filled={favorites.has(room.id)}
+                        />
+                      </button>
+                    </div>
 
-              {/* Price */}
-              <div className="flex items-baseline gap-1.5">
-                {selectedRoom.originalPrice && (
-                  <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
-                    {format(selectedRoom.originalPrice)}
-                  </span>
-                )}
-                <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
-                  {format(selectedRoom.price)}
-                </span>
-                <span className="text-[13px] text-[hsl(var(--snug-gray))]">
-                  for {selectedRoom.nights} nights
-                </span>
-              </div>
+                    {/* Content */}
+                    <div className="p-4">
+                      {/* Title */}
+                      <h3 className="text-[15px] font-semibold text-[hsl(var(--snug-text-primary))] mb-1.5 truncate">
+                        {room.title}
+                      </h3>
+
+                      {/* Location */}
+                      <p className="text-[13px] text-[hsl(var(--snug-gray))] mb-1">
+                        {room.location}, {room.district}
+                      </p>
+
+                      {/* Room Info */}
+                      <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-0.5">
+                        <HotelIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>
+                          {room.rooms} Rooms · {room.bathrooms} Bathroom · {room.beds} Bed
+                        </span>
+                      </div>
+
+                      {/* Guests */}
+                      <div className="flex items-center gap-1.5 text-[13px] text-[hsl(var(--snug-gray))] mb-2.5">
+                        <UserIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{room.guests} Guests</span>
+                      </div>
+
+                      {/* Price */}
+                      <div className="flex items-baseline gap-1.5">
+                        {room.originalPrice && (
+                          <span className="text-[13px] text-[hsl(var(--snug-gray))] line-through">
+                            {format(room.originalPrice)}
+                          </span>
+                        )}
+                        <span className="text-[17px] font-bold text-[hsl(var(--snug-orange))]">
+                          {format(room.price)}
+                        </span>
+                        <span className="text-[13px] text-[hsl(var(--snug-gray))]">
+                          for {room.nights} nights
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </Link>
+
+            {/* Dot indicators */}
+            {totalInGroup > 1 && (
+              <div className="flex justify-center gap-1.5 mt-3">
+                {selectedGroup.rooms.map((room, idx) => (
+                  <button
+                    key={room.id}
+                    type="button"
+                    onClick={() => {
+                      setCurrentIndex(idx);
+                      onRoomSelect?.(room.id);
+                    }}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      idx === currentIndex ? 'bg-[hsl(var(--snug-orange))]' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

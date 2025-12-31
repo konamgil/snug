@@ -118,8 +118,8 @@ function SearchPageContent() {
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
   const [roomType, setRoomType] = useState<RoomTypeOption>('all');
-  // Track selected room from map marker click (PC only)
-  const [selectedMapRoomId, setSelectedMapRoomId] = useState<string | null>(null);
+  // Track selected rooms from map marker click (PC only) - now supports groups
+  const [selectedGroupRoomIds, setSelectedGroupRoomIds] = useState<string[]>([]);
 
   const hasActiveFilters =
     activeQuickFilters.length > 0 ||
@@ -416,8 +416,8 @@ function SearchPageContent() {
         {/* Left Side - Room List */}
         <div className="w-[480px] flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar">
           <div className="px-4">
-            {/* Filter Bar - hide when room is selected from map */}
-            {!selectedMapRoomId && (
+            {/* Filter Bar - hide when rooms are selected from map */}
+            {selectedGroupRoomIds.length === 0 && (
               <FilterBar
                 currentView={view}
                 onViewChange={setView}
@@ -432,10 +432,10 @@ function SearchPageContent() {
 
             {/* Results Header */}
             <div className="flex items-center justify-between py-3">
-              {selectedMapRoomId ? (
+              {selectedGroupRoomIds.length > 0 ? (
                 <button
                   type="button"
-                  onClick={() => setSelectedMapRoomId(null)}
+                  onClick={() => setSelectedGroupRoomIds([])}
                   className="text-sm text-[hsl(var(--snug-orange))] hover:underline"
                 >
                   ← {t('resultsCount', { count: totalCount, location: searchLocation })}
@@ -447,13 +447,15 @@ function SearchPageContent() {
                   {t('resultsCount', { count: totalCount, location: searchLocation })}
                 </p>
               )}
-              {!selectedMapRoomId && <SortDropdown value={sortOption} onChange={setSortOption} />}
+              {selectedGroupRoomIds.length === 0 && (
+                <SortDropdown value={sortOption} onChange={setSortOption} />
+              )}
             </div>
 
             {/* Room List / Grid */}
             <div
               className={
-                view === 'grid' && !selectedMapRoomId
+                view === 'grid' && selectedGroupRoomIds.length === 0
                   ? 'grid grid-cols-2 gap-4 pb-6'
                   : 'space-y-0 pb-6'
               }
@@ -464,10 +466,10 @@ function SearchPageContent() {
                 <div className="col-span-2 py-12 text-center text-[hsl(var(--snug-gray))]">
                   {t('noResults')}
                 </div>
-              ) : selectedMapRoomId ? (
-                // Show only selected room
+              ) : selectedGroupRoomIds.length > 0 ? (
+                // Show selected group rooms
                 rooms
-                  .filter((room) => room.id === selectedMapRoomId)
+                  .filter((room) => selectedGroupRoomIds.includes(room.id))
                   .map((room) => <RoomCard key={room.id} room={room} viewMode="list" />)
               ) : (
                 // Show all rooms
@@ -480,7 +482,7 @@ function SearchPageContent() {
         {/* Right Side - Map */}
         <div className="flex-1 sticky top-20 h-[calc(100vh-80px)] p-4">
           <div className="w-full h-full rounded-2xl overflow-hidden">
-            <SearchMap rooms={rooms} onRoomSelect={setSelectedMapRoomId} />
+            <SearchMap rooms={rooms} onGroupSelect={setSelectedGroupRoomIds} />
           </div>
         </div>
       </div>
