@@ -240,7 +240,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden px-4 pb-32" onClick={handleContentClick}>
+        <div className="flex-1 overflow-y-auto px-4 pb-32" onClick={handleContentClick}>
           {/* Location Section */}
           <div
             ref={locationRef}
