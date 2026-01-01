@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
 
+// 빌드 시 API 없이도 생성 가능하도록 동적 생성
+export const dynamic = 'force-dynamic';
+
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.findsnug.com';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.findsnug.com';
 const locales = ['en', 'ko', 'zh', 'ja', 'vi'];
