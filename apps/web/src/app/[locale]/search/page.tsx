@@ -15,7 +15,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { locale } = await params;
   const search = await searchParams;
 
-  const siteUrl = 'https://www.findsnug.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://findsnug.com';
   const location = search.location || '';
 
   // 동적 타이틀/설명

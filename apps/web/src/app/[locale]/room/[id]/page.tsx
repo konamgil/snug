@@ -11,7 +11,7 @@ type Props = {
 
 // JSON-LD 구조화된 데이터 컴포넌트
 function AccommodationJsonLd({ room, locale }: { room: AccommodationPublic; locale: string }) {
-  const siteUrl = 'https://www.findsnug.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://findsnug.com';
 
   // 위치 정보
   const addressLocality = locale === 'ko' ? room.sigungu : room.sigunguEn;
@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   const room = await getAccommodationPublic(id);
 
-  const siteUrl = 'https://www.findsnug.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://findsnug.com';
   const path = `/room/${id}`;
 
   if (!room) {

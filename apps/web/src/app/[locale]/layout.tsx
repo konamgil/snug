@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const messages = await getMessages({ locale });
   const metadata = messages.metadata as { title: string; description: string };
 
-  const siteUrl = 'https://www.findsnug.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://findsnug.com';
   const ogImageUrl = `${siteUrl}/images/og_1200x630.png`;
 
   return {

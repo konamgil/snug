@@ -3,20 +3,31 @@ import type { MetadataRoute } from 'next';
 // 빌드 시 API 없이도 생성 가능하도록 동적 생성
 export const dynamic = 'force-dynamic';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.findsnug.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://findsnug.com';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.findsnug.com';
 const locales = ['en', 'ko', 'zh', 'ja', 'vi'];
 
 async function getAccommodations() {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+
     const res = await fetch(`${apiUrl}/accommodations/public?limit=1000`, {
       next: { revalidate: 3600 }, // 1시간 캐시
+      signal: controller.signal,
     });
 
-    if (!res.ok) return [];
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      console.error(`Sitemap fetch failed: ${res.status} ${res.statusText}`);
+      return [];
+    }
 
     const data = await res.json();
-    return data.data || [];
+    const accommodations = data.data?.data || data.data || [];
+    console.log(`Sitemap: fetched ${accommodations.length} accommodations`);
+    return accommodations;
   } catch (error) {
     console.error('Failed to fetch accommodations for sitemap:', error);
     return [];
