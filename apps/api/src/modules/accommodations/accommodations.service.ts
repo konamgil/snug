@@ -260,6 +260,9 @@ export class AccommodationsService {
           take: 1, // 대표 사진 1장만
           orderBy: { order: 'asc' },
         },
+        _count: {
+          select: { photos: true },
+        },
       },
     });
 
@@ -282,6 +285,9 @@ export class AccommodationsService {
           photos: {
             take: 1,
             orderBy: { order: 'asc' },
+          },
+          _count: {
+            select: { photos: true },
           },
         },
       });
@@ -306,7 +312,7 @@ export class AccommodationsService {
       roomCount: acc.roomCount,
       bathroomCount: acc.bathroomCount,
       thumbnailUrl: acc.photos[0]?.url || null,
-      imageCount: acc.photos.length,
+      imageCount: acc._count.photos,
     }));
   }
 
@@ -446,6 +452,9 @@ export class AccommodationsService {
           orderBy: { order: 'asc' },
           take: 1, // 대표 이미지만
         },
+        _count: {
+          select: { photos: true },
+        },
       },
       orderBy,
       skip: (page - 1) * limit,
@@ -470,7 +479,7 @@ export class AccommodationsService {
       roomCount: acc.roomCount,
       bathroomCount: acc.bathroomCount,
       thumbnailUrl: acc.photos[0]?.url || null,
-      imageCount: acc.photos.length,
+      imageCount: acc._count.photos,
     }));
 
     return {
