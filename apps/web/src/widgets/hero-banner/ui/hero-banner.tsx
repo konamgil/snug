@@ -758,6 +758,7 @@ const BannerSlideComponent = memo(function BannerSlideComponent({
             src={slide.image}
             alt={slide.title}
             fill
+            sizes="(max-width: 768px) 100vw, 560px"
             className={`object-cover ${isHostBanner ? 'object-left' : 'object-right'}`}
             priority
           />
@@ -849,6 +850,7 @@ const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
             src={image}
             alt="Snug coworking and living space illustration"
             fill
+            sizes="(max-width: 768px) 100vw, 560px"
             className="object-cover object-center"
             priority
           />

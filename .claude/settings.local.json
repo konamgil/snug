@@ -82,7 +82,11 @@
       "mcp__supabase__list_migrations",
       "Bash(ls -la \"C:\\\\Users\\\\User\\\\workspace\\\\snug\\\\apps\\\\web\\\\public\\\\images\\\\about\"\" 2>/dev/null || dir \"C:UsersUserworkspacesnugappswebpublicimagesabout \")",
       "Bash(dir:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm prisma migrate:*)",
+      "Bash(pnpm update:*)",
+      "Bash(curl -s https://findsnug.com/robots.txt)"
     ]
   }
 }
