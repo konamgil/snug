@@ -29,6 +29,7 @@ import { Header, type SearchBarValues } from '@/widgets/header';
 import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel, type RoomTypeVariant } from './booking-side-panel';
+import { RoomDetailSkeleton } from './room-detail-skeleton';
 import { useCurrencySafe } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
 import {
@@ -478,14 +479,7 @@ export function RoomDetailPage() {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header variant="with-search" onSearch={handleHeaderSearch} />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
-        </div>
-      </div>
-    );
+    return <RoomDetailSkeleton />;
   }
 
   // Error state
