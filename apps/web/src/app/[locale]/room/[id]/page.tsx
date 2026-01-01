@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import type { AccommodationPublic } from '@snug/types';
 import { getAccommodationPublic } from '@/shared/api/accommodation/actions';
-import { accommodationKeys } from '@/shared/api/accommodation/hooks';
+import { accommodationKeys } from '@/shared/api/accommodation/keys';
 import { RoomDetailPage } from '@/views/room-detail';
 
 type Props = {
