@@ -774,7 +774,7 @@ const BannerSlideComponent = memo(function BannerSlideComponent({
 
         {/* Text Content */}
         <div
-          className={`absolute ${isHostBanner ? 'right-3.5 left-[45%]' : 'left-3.5 right-[45%]'} top-[45%] -translate-y-1/2`}
+          className={`absolute ${isHostBanner ? 'right-3.5 left-[45%] top-[48%]' : 'left-3.5 right-[45%] top-[45%]'} -translate-y-1/2`}
         >
           {isHostBanner ? (
             <HostBannerLogo className="w-full h-auto" />
