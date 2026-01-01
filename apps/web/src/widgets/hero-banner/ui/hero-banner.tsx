@@ -254,7 +254,7 @@ export function HeroBanner({ className }: HeroBannerProps) {
   };
 
   return (
-    <div className={`w-full max-w-[600px] ${className ?? ''}`}>
+    <div className={`w-full max-w-[600px] md:max-w-[560px] ${className ?? ''}`}>
       {/* Carousel Container */}
       <div
         className="relative overflow-hidden"

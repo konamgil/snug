@@ -55,8 +55,8 @@ export function HomePage() {
         {!isSearchFocused && <HeroBanner className="mb-6 md:mb-8" />}
       </main>
 
-      {/* View on Map Button - 하단 고정 */}
-      <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-40">
+      {/* View on Map Button - 하단 고정 (데스크탑만) */}
+      <div className="hidden md:block fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
         <ViewOnMapButton onClick={() => router.push('/search')} />
       </div>
 

@@ -23,7 +23,7 @@ interface NavItem {
 // TODO: 오픈 후 채팅 복원 필요
 const navItems: NavItem[] = [
   { href: '/search', icon: Search, labelKey: 'search', activeOn: ['/', '/rooms', '/search'] },
-  { href: '/map', icon: Map, labelKey: 'map' },
+  { href: '/search?view=map', icon: Map, labelKey: 'map' },
   // { href: '/chat', icon: MessageCircle, labelKey: 'messages', badge: 10 },
   { href: '/mypage', icon: User, labelKey: 'profile', activeOn: ['/mypage'] },
 ];
@@ -53,10 +53,20 @@ export function MobileNav() {
   const locale = useLocale();
   const user = useAuthStore((state) => state.user);
 
-  // 현재 검색/지도 페이지인지 확인
-  const isOnSearchOrMap = pathname === '/search' || pathname === '/map';
+  // 현재 검색 페이지인지 확인
+  const isOnSearch = pathname === '/search';
+  const currentView = searchParams.get('view') || 'list';
+  const isOnSearchOrMap = isOnSearch; // 통합된 검색/지도 페이지
 
   const isItemActive = (item: NavItem) => {
+    // Map 탭: /search에서 view=map일 때 active
+    if (item.labelKey === 'map') {
+      return isOnSearch && currentView === 'map';
+    }
+    // Search 탭: /search에서 view=list이거나 view가 없을 때 active
+    if (item.labelKey === 'search') {
+      return isOnSearch && currentView !== 'map';
+    }
     if (item.activeOn) {
       return item.activeOn.some((path) => pathname === path || pathname.startsWith(path + '/'));
     }
@@ -88,9 +98,14 @@ export function MobileNav() {
         const values = searchParams.getAll(key);
         values.forEach((value) => params.append(key, value));
       });
+      // 지도 뷰일 경우 view=map 추가, 리스트 뷰는 view 파라미터 제거
+      if (item.labelKey === 'map') {
+        params.set('view', 'map');
+      } else {
+        params.delete('view');
+      }
       const queryString = params.toString();
-      const targetPath = item.labelKey === 'search' ? '/search' : '/map';
-      return getLocalizedHref(`${targetPath}${queryString ? `?${queryString}` : ''}`);
+      return getLocalizedHref(`/search${queryString ? `?${queryString}` : ''}`);
     }
 
     return getLocalizedHref(item.href);

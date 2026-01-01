@@ -4,7 +4,7 @@ import { useState, useCallback, Suspense, useMemo, useEffect, useRef } from 'rea
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { MapIcon } from '@/shared/ui/icons';
-import { Link, useRouter } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
 import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { SearchModal, type SearchParams } from '@/features/search';
@@ -113,6 +113,8 @@ function SearchPageContent() {
   const t = useTranslations('search');
   const tHome = useTranslations('home');
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  // Mobile view: 'list' or 'map' (read from URL, default: 'list')
+  const mobileView = (searchParams.get('view') as 'list' | 'map') || 'list';
   const [sortOption, setSortOption] = useState<SortOption>('recommended');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -402,6 +404,18 @@ function SearchPageContent() {
     setIsSearchModalOpen(false);
   };
 
+  // Toggle mobile view between list and map
+  const toggleMobileView = useCallback(() => {
+    const newView = mobileView === 'list' ? 'map' : 'list';
+    const params = new URLSearchParams(searchParams.toString());
+    if (newView === 'list') {
+      params.delete('view');
+    } else {
+      params.set('view', newView);
+    }
+    router.push(`/search?${params.toString()}`);
+  }, [mobileView, searchParams, router]);
+
   const totalGuests = guests.adults + guests.children;
 
   const formatDateDisplay = () => {
@@ -531,82 +545,56 @@ function SearchPageContent() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden pb-28">
-        {/* Results Header */}
-        <div className="flex items-center justify-between px-4 py-2.5">
-          {isLoading ? (
-            <div className="h-4 w-28 bg-[hsl(var(--snug-light-gray))] rounded animate-pulse" />
-          ) : (
-            <p className="text-[13px] text-[hsl(var(--snug-gray))]">
-              {t('resultsCount', { count: totalCount, location: searchLocation })}
-            </p>
-          )}
-          <SortDropdown value={sortOption} onChange={setSortOption} />
-        </div>
+      <div className="md:hidden">
+        {mobileView === 'list' ? (
+          <>
+            {/* Results Header */}
+            <div className="flex items-center justify-between px-4 py-2.5">
+              {isLoading ? (
+                <div className="h-4 w-28 bg-[hsl(var(--snug-light-gray))] rounded animate-pulse" />
+              ) : (
+                <p className="text-[13px] text-[hsl(var(--snug-gray))]">
+                  {t('resultsCount', { count: totalCount, location: searchLocation })}
+                </p>
+              )}
+              <SortDropdown value={sortOption} onChange={setSortOption} />
+            </div>
 
-        {/* Room List - Mobile uses larger cards */}
-        <div className="px-4 space-y-6">
-          {isLoading ? (
-            <RoomCardSkeletonList count={4} viewMode="mobile" />
-          ) : rooms.length === 0 ? (
-            <div className="py-12 text-center text-[hsl(var(--snug-gray))]">{t('noResults')}</div>
-          ) : (
-            rooms.map((room, index) => (
-              <RoomCard key={room.id} room={room} viewMode="mobile" index={index} />
-            ))
-          )}
-        </div>
+            {/* Room List - Mobile uses larger cards */}
+            <div className="px-4 space-y-6 pb-28">
+              {isLoading ? (
+                <RoomCardSkeletonList count={4} viewMode="mobile" />
+              ) : rooms.length === 0 ? (
+                <div className="py-12 text-center text-[hsl(var(--snug-gray))]">
+                  {t('noResults')}
+                </div>
+              ) : (
+                rooms.map((room, index) => (
+                  <RoomCard key={room.id} room={room} viewMode="mobile" index={index} />
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          /* Map View - Full screen map */
+          <div className="h-[calc(100vh-120px)]">
+            <SearchMap rooms={rooms} />
+          </div>
+        )}
 
-        {/* View on Map Button - Floating */}
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
-          <Link
-            href={(() => {
-              const params = new URLSearchParams();
-              if (locationValue) params.set('location', locationValue);
-              if (checkIn) params.set('checkIn', checkIn.toISOString().substring(0, 10));
-              if (checkOut) params.set('checkOut', checkOut.toISOString().substring(0, 10));
-              if (totalGuests > 0) {
-                params.set('guests', totalGuests.toString());
-                params.set('adults', guests.adults.toString());
-                params.set('children', guests.children.toString());
-                params.set('infants', guests.infants.toString());
-              }
-              if (roomType !== 'all') params.set('roomType', roomType);
-              if (sortOption !== 'recommended') params.set('sortBy', sortOption);
-              // 필터 상태 전달
-              if (activeFilters) {
-                if (activeFilters.budgetMin > 0)
-                  params.set('minPrice', activeFilters.budgetMin.toString());
-                if (activeFilters.budgetMax < 10000)
-                  params.set('maxPrice', activeFilters.budgetMax.toString());
-                if (activeFilters.roomTypes.length > 0) {
-                  activeFilters.roomTypes.forEach((type) => {
-                    const apiType = roomTypeToAccommodationType[type];
-                    if (apiType) params.append('accommodationType', apiType);
-                  });
-                }
-                if (activeFilters.propertyTypes.length > 0) {
-                  activeFilters.propertyTypes.forEach((type) => {
-                    const apiType = propertyTypeToBuildingType[type];
-                    if (apiType) params.append('buildingType', apiType);
-                  });
-                }
-                if (activeFilters.houseRules.length > 0) {
-                  activeFilters.houseRules.forEach((rule) => {
-                    const apiRule = houseRuleToGenderRule[rule];
-                    if (apiRule) params.append('genderRules', apiRule);
-                  });
-                }
-              }
-              const queryString = params.toString();
-              return `/map${queryString ? `?${queryString}` : ''}`;
-            })()}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--snug-orange))] text-white rounded-full shadow-lg hover:opacity-90 transition-opacity"
-          >
-            <MapIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">{tHome('viewOnMap')}</span>
-          </Link>
-        </div>
+        {/* View Toggle Button - Floating (리스트 뷰에서만 표시) */}
+        {mobileView === 'list' && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
+            <button
+              type="button"
+              onClick={toggleMobileView}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--snug-orange))] text-white rounded-full shadow-lg hover:opacity-90 transition-opacity"
+            >
+              <MapIcon className="w-4 h-4" />
+              <span className="text-sm font-medium">{tHome('viewOnMap')}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Navigation */}

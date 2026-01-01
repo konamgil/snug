@@ -108,7 +108,7 @@ export function Header({
           {/* Center: Placeholder to maintain layout (only when search is shown) */}
           {showSearch && (
             <div className="flex-1 flex justify-center px-8">
-              <div className="relative max-w-[600px] w-full h-[44px]" />
+              <div className="relative max-w-[600px] md:max-w-[560px] w-full h-[44px]" />
             </div>
           )}
 
@@ -121,7 +121,7 @@ export function Header({
 
         {/* Floating Search Bar (only when showSearch is true) */}
         {showSearch && (
-          <div className="hidden md:block fixed left-1/2 -translate-x-1/2 top-[18px] w-full max-w-[600px] z-[100] px-8">
+          <div className="hidden md:block fixed left-1/2 -translate-x-1/2 top-[18px] w-full max-w-[560px] z-[100] px-8">
             <HeaderSearchBar initialValues={searchValues} onSearch={onSearch} />
           </div>
         )}
@@ -132,7 +132,9 @@ export function Header({
   // default variant: Simple header with optional logo
   return (
     <header className={`sticky top-0 z-50 w-full bg-white safe-top ${className ?? ''}`}>
-      <div className={`flex items-center justify-between px-4 md:px-6 ${heightClass ?? 'h-14 md:h-16'}`}>
+      <div
+        className={`flex items-center justify-between px-4 md:px-6 ${heightClass ?? 'h-14 md:h-16'}`}
+      >
         {/* Left Side - Logo */}
         <div className="flex items-center">
           {showLogo && (

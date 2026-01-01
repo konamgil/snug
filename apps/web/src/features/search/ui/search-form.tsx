@@ -216,7 +216,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
   };
 
   return (
-    <div ref={containerRef} className={`relative w-full max-w-[600px] ${className ?? ''}`}>
+    <div ref={containerRef} className={`relative w-full max-w-[560px] ${className ?? ''}`}>
       {/* Unified Container with Orange Border on Focus */}
       <div
         className={`bg-white border-[1.5px] rounded-[20px] w-full transition-all duration-300 ease-out overflow-hidden ${
@@ -228,7 +228,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
         {/* Main Search Form */}
         <div className="p-4">
           {/* Location Input */}
-          <div className="flex items-center gap-2 mb-3 px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] transition-colors">
+          <div className="flex items-center gap-2 mb-3 px-3 py-3 -mx-3 -my-3 rounded-md hover:bg-[hsl(var(--snug-light-gray))] transition-colors cursor-pointer">
             <LocationIcon
               className={`w-3 h-3 flex-shrink-0 transition-colors ${
                 focusState === 'location'
@@ -253,11 +253,11 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               {/* Stay Dates */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 min-w-[70px]">
                 <button
                   type="button"
                   onClick={handleDatesClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
+                  className={`flex-1 flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-3 -mx-3 -my-3 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
                     dateRangeText
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'
@@ -288,7 +288,7 @@ export function SearchForm({ className, onFocusChange, onSearch }: SearchFormPro
                 <button
                   type="button"
                   onClick={handleGuestsClick}
-                  className={`flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-1.5 -mx-3 -my-1.5 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
+                  className={`flex-1 flex items-center gap-1 text-xs tracking-tight transition-colors whitespace-nowrap px-3 py-3 -mx-3 -my-3 rounded-md hover:bg-[hsl(var(--snug-light-gray))] ${
                     guestSummary
                       ? 'text-[hsl(var(--snug-text-primary))]'
                       : 'text-[hsl(var(--snug-placeholder))]'

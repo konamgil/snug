@@ -17,10 +17,8 @@ export {
   getSimilarAccommodations,
 } from './actions';
 
-// React Query Hooks
-export {
-  accommodationKeys,
-  useAccommodationPublic,
-  useSimilarAccommodations,
-  usePublicAccommodations,
-} from './hooks';
+// Query Keys (can be used in both server and client components)
+export { accommodationKeys } from './keys';
+
+// React Query Hooks (client only)
+export { useAccommodationPublic, useSimilarAccommodations, usePublicAccommodations } from './hooks';

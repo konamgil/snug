@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
 import { useCurrencySafe } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
 import { useRouter } from '@/i18n/navigation';
 import { toggleFavorite } from '@/shared/api/favorites';
+import { getAccommodationPublic } from '@/shared/api/accommodation/actions';
+import { accommodationKeys } from '@/shared/api/accommodation/hooks';
 
 export interface Room {
   id: string;
@@ -66,12 +69,22 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   const t = useTranslations('rooms');
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { format } = useCurrencySafe();
   const user = useAuthStore((state) => state.user);
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [_isPending, startTransition] = useTransition();
   const totalImages = room.imageCount || 1;
+
+  // Prefetch room data on hover for faster navigation
+  const handlePrefetch = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: accommodationKeys.detail(room.id),
+      queryFn: () => getAccommodationPublic(room.id),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  }, [queryClient, room.id]);
 
   // Build room detail URL with search params (checkIn, checkOut, guests)
   const buildRoomDetailUrl = () => {
@@ -138,7 +151,12 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   // Mobile View - Full width card with large image
   if (viewMode === 'mobile') {
     return (
-      <Link href={roomDetailUrl} className="group cursor-pointer block">
+      <Link
+        href={roomDetailUrl}
+        onMouseEnter={handlePrefetch}
+        onTouchStart={handlePrefetch}
+        className="group cursor-pointer block active:scale-[0.98] active:opacity-90 transition-transform duration-150"
+      >
         {/* Image Container - Larger aspect ratio for mobile */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
           {/* Image or Placeholder */}
@@ -237,7 +255,12 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   // Grid View
   if (viewMode === 'grid') {
     return (
-      <Link href={roomDetailUrl} className="group cursor-pointer block">
+      <Link
+        href={roomDetailUrl}
+        onMouseEnter={handlePrefetch}
+        onTouchStart={handlePrefetch}
+        className="group cursor-pointer block active:scale-[0.98] active:opacity-90 transition-transform duration-150"
+      >
         {/* Image Container */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
           {/* Image or Placeholder */}
@@ -353,7 +376,9 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   return (
     <Link
       href={roomDetailUrl}
-      className="flex gap-3 py-3 hover:bg-[hsl(var(--snug-light-gray))]/50 transition-colors"
+      onMouseEnter={handlePrefetch}
+      onTouchStart={handlePrefetch}
+      className="flex gap-3 py-3 hover:bg-[hsl(var(--snug-light-gray))]/50 active:scale-[0.99] active:opacity-90 transition-all duration-150"
     >
       {/* Image */}
       <div className="relative w-[120px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden">

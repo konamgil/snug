@@ -252,7 +252,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
           >
             {/* 헤더 인풋 필드 */}
             <div className="p-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 py-2 -my-2">
                 <LocationIcon
                   className={`w-4 h-4 flex-shrink-0 ${
                     expandedSection === 'location'
@@ -386,7 +386,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               <button
                 type="button"
                 onClick={() => setExpandedSection(expandedSection === 'dates' ? 'none' : 'dates')}
-                className="flex items-center gap-2 flex-1"
+                className="flex items-center gap-2 flex-1 py-2 -my-2"
               >
                 <CalendarIcon
                   className={`w-4 h-4 flex-shrink-0 ${
@@ -446,7 +446,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
             <button
               type="button"
               onClick={() => setExpandedSection(expandedSection === 'guests' ? 'none' : 'guests')}
-              className="w-full flex items-center gap-2 p-4"
+              className="w-full flex items-center gap-2 px-4 py-6 -my-2"
             >
               <UserIcon
                 className={`w-4 h-4 flex-shrink-0 ${

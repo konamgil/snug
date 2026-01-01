@@ -7,14 +7,10 @@ import {
   getPublicAccommodations,
 } from './actions';
 import type { AccommodationSearchParams } from '@snug/types';
+import { accommodationKeys } from './keys';
 
-// Query keys for cache management
-export const accommodationKeys = {
-  all: ['accommodation'] as const,
-  list: (params?: AccommodationSearchParams) => [...accommodationKeys.all, 'list', params] as const,
-  detail: (id: string) => [...accommodationKeys.all, 'detail', id] as const,
-  similar: (id: string) => [...accommodationKeys.all, 'similar', id] as const,
-};
+// Re-export keys for convenience
+export { accommodationKeys };
 
 // Hook for fetching public accommodation data with caching
 export function useAccommodationPublic(roomId: string) {

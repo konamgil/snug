@@ -1,5 +1,5 @@
-import { MapPage } from '@/views/map';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <MapPage />;
+  redirect('/search?view=map');
 }

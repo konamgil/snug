@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import type { AccommodationPublic } from '@snug/types';
 import { getAccommodationPublic } from '@/shared/api/accommodation/actions';
+import { accommodationKeys } from '@/shared/api/accommodation/hooks';
 import { RoomDetailPage } from '@/views/room-detail';
 
 type Props = {
@@ -151,12 +153,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RoomDetailRoute({ params }: Props) {
   const { locale, id } = await params;
-  const room = await getAccommodationPublic(id);
+
+  // Create a new QueryClient for server-side prefetching
+  const queryClient = new QueryClient();
+
+  // Prefetch accommodation data - this will be shared with the client
+  await queryClient.prefetchQuery({
+    queryKey: accommodationKeys.detail(id),
+    queryFn: () => getAccommodationPublic(id),
+  });
+
+  // Get the prefetched data for JSON-LD (already cached, no extra API call)
+  const room = queryClient.getQueryData<AccommodationPublic>(accommodationKeys.detail(id));
 
   return (
     <>
       {room && <AccommodationJsonLd room={room} locale={locale} />}
-      <RoomDetailPage />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <RoomDetailPage />
+      </HydrationBoundary>
     </>
   );
 }
