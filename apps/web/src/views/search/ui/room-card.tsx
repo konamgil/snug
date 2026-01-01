@@ -35,7 +35,12 @@ interface RoomCardProps {
   room: Room;
   viewMode?: 'list' | 'grid' | 'mobile';
   onFavoriteToggle?: (id: string) => void;
+  index?: number;
 }
+
+// Blur placeholder for smooth image loading
+const BLUR_DATA_URL =
+  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBEQCEPwC/AB//2Q==';
 
 // First tag - soft background
 const tagFirstColors = {
@@ -53,7 +58,9 @@ const tagSecondColors = {
   green: 'bg-green-400 text-white font-bold',
 };
 
-export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCardProps) {
+export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: RoomCardProps) {
+  // Priority loading for first 2 images (above the fold)
+  const isPriority = index !== undefined && index < 2;
   const locale = useLocale();
   const t = useTranslations('rooms');
   const searchParams = useSearchParams();
@@ -141,6 +148,10 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
+              priority={isPriority}
+              loading={isPriority ? undefined : 'lazy'}
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
@@ -236,6 +247,10 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
               fill
               sizes="(max-width: 1024px) 50vw, 33vw"
               className="object-cover"
+              priority={isPriority}
+              loading={isPriority ? undefined : 'lazy'}
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
@@ -245,11 +260,11 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
 
           {/* Tags - Top Left */}
           <div className="absolute top-2.5 left-2.5 flex gap-1.5">
-            {room.tags.map((tag, index) => (
+            {room.tags.map((tag, tagIndex) => (
               <span
-                key={index}
+                key={tagIndex}
                 className={`px-2.5 py-1 text-[10px] font-semibold rounded-full ${
-                  index === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
+                  tagIndex === 0 ? tagFirstColors[tag.color] : tagSecondColors[tag.color]
                 }`}
               >
                 {tag.label}
@@ -343,7 +358,17 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle }: RoomCard
       <div className="relative w-[120px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden">
         {/* Image or Placeholder */}
         {room.imageUrl && !room.imageUrl.includes('placeholder') ? (
-          <Image src={room.imageUrl} alt={room.title} fill sizes="120px" className="object-cover" />
+          <Image
+            src={room.imageUrl}
+            alt={room.title}
+            fill
+            sizes="120px"
+            className="object-cover"
+            priority={isPriority}
+            loading={isPriority ? undefined : 'lazy'}
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
+          />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--snug-light-gray))] to-[hsl(var(--snug-border))] flex items-center justify-center">
             <ImageIcon className="w-6 h-6 text-[hsl(var(--snug-gray))]/30" />

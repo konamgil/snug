@@ -470,10 +470,14 @@ function SearchPageContent() {
                 // Show selected group rooms
                 rooms
                   .filter((room) => selectedGroupRoomIds.includes(room.id))
-                  .map((room) => <RoomCard key={room.id} room={room} viewMode="list" />)
+                  .map((room, index) => (
+                    <RoomCard key={room.id} room={room} viewMode="list" index={index} />
+                  ))
               ) : (
                 // Show all rooms
-                rooms.map((room) => <RoomCard key={room.id} room={room} viewMode={view} />)
+                rooms.map((room, index) => (
+                  <RoomCard key={room.id} room={room} viewMode={view} index={index} />
+                ))
               )}
             </div>
           </div>
@@ -508,7 +512,9 @@ function SearchPageContent() {
           ) : rooms.length === 0 ? (
             <div className="py-12 text-center text-[hsl(var(--snug-gray))]">{t('noResults')}</div>
           ) : (
-            rooms.map((room) => <RoomCard key={room.id} room={room} viewMode="mobile" />)
+            rooms.map((room, index) => (
+              <RoomCard key={room.id} room={room} viewMode="mobile" index={index} />
+            ))
           )}
         </div>
 
