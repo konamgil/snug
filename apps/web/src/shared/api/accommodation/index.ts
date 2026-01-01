@@ -18,4 +18,9 @@ export {
 } from './actions';
 
 // React Query Hooks
-export { accommodationKeys, useAccommodationPublic, useSimilarAccommodations } from './hooks';
+export {
+  accommodationKeys,
+  useAccommodationPublic,
+  useSimilarAccommodations,
+  usePublicAccommodations,
+} from './hooks';

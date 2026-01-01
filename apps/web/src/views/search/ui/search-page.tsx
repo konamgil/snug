@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useCallback, Suspense, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { MapIcon } from '@/shared/ui/icons';
@@ -17,7 +17,7 @@ import { MobileSearchBar } from './mobile-search-bar';
 import { SortDropdown, type SortOption } from './sort-dropdown';
 import { FilterModal, type FilterState } from './filter-modal';
 import type { RoomTypeOption } from './room-type-dropdown';
-import { getPublicAccommodations } from '@/shared/api/accommodation';
+import { usePublicAccommodations } from '@/shared/api/accommodation';
 import { getAccommodationTypeLabel, getBuildingTypeLabel, useDebouncedValue } from '@/shared/lib';
 import type {
   AccommodationListItem,
@@ -100,6 +100,7 @@ function mapAccommodationToRoom(
     nights,
     tags,
     imageUrl: item.thumbnailUrl || '/images/rooms/placeholder.jpg',
+    imageCount: item.imageCount,
     lat: item.latitude || 37.5665,
     lng: item.longitude || 126.978,
   };
@@ -120,6 +121,11 @@ function SearchPageContent() {
   const [roomType, setRoomType] = useState<RoomTypeOption>('all');
   // Track selected rooms from map marker click (PC only) - now supports groups
   const [selectedGroupRoomIds, setSelectedGroupRoomIds] = useState<string[]>([]);
+
+  // Scroll restoration - refs and storage key
+  const desktopListRef = useRef<HTMLDivElement>(null);
+  const SCROLL_STORAGE_KEY = 'search-scroll-position';
+  const scrollRestoredRef = useRef(false);
 
   const hasActiveFilters =
     activeQuickFilters.length > 0 ||
@@ -162,19 +168,6 @@ function SearchPageContent() {
     return { adults: guestCount, children: 0, infants: 0 };
   });
 
-  // 실제 API 데이터 상태
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 디바운싱된 검색 파라미터 (300ms 지연으로 불필요한 API 호출 방지)
-  const debouncedLocation = useDebouncedValue(locationValue, 300);
-  const debouncedGuests = useDebouncedValue(guests, 300);
-  const debouncedSortOption = useDebouncedValue(sortOption, 300);
-  const debouncedRoomType = useDebouncedValue(roomType, 300);
-  const debouncedActiveFilters = useDebouncedValue(activeFilters, 300);
-  const debouncedQuickFilters = useDebouncedValue(activeQuickFilters, 300);
-
   // 날짜로 숙박일 계산
   const calculateNights = useCallback(() => {
     if (checkIn && checkOut) {
@@ -199,6 +192,14 @@ function SearchPageContent() {
     }
   }, []);
 
+  // 디바운싱된 검색 파라미터 (300ms 지연으로 불필요한 API 호출 방지)
+  const debouncedLocation = useDebouncedValue(locationValue, 300);
+  const debouncedGuests = useDebouncedValue(guests, 300);
+  const debouncedSortOption = useDebouncedValue(sortOption, 300);
+  const debouncedRoomType = useDebouncedValue(roomType, 300);
+  const debouncedActiveFilters = useDebouncedValue(activeFilters, 300);
+  const debouncedQuickFilters = useDebouncedValue(activeQuickFilters, 300);
+
   // Quick filter toggle handler
   const handleQuickFilterToggle = useCallback((filterId: string) => {
     setActiveQuickFilters((prev) =>
@@ -206,91 +207,73 @@ function SearchPageContent() {
     );
   }, []);
 
-  // 숙소 목록 가져오기 (디바운싱된 값 사용)
-  const fetchAccommodations = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const totalGuests = debouncedGuests.adults + debouncedGuests.children;
-      const params: AccommodationSearchParams = {
-        location: debouncedLocation || undefined,
-        guests: totalGuests > 0 ? totalGuests : undefined,
-        sortBy: mapSortOption(debouncedSortOption),
-      };
+  // Build search params for React Query (memoized for cache key stability)
+  const apiSearchParams = useMemo((): AccommodationSearchParams => {
+    const totalGuests = debouncedGuests.adults + debouncedGuests.children;
+    const params: AccommodationSearchParams = {
+      location: debouncedLocation || undefined,
+      guests: totalGuests > 0 ? totalGuests : undefined,
+      sortBy: mapSortOption(debouncedSortOption),
+    };
 
-      // Room Type Dropdown 필터
-      if (debouncedRoomType !== 'all') {
-        const accommodationType = roomTypeOptionToAccommodationType[debouncedRoomType];
-        if (accommodationType) {
-          params.accommodationType = [accommodationType];
-        }
+    // Room Type Dropdown 필터
+    if (debouncedRoomType !== 'all') {
+      const accommodationType = roomTypeOptionToAccommodationType[debouncedRoomType];
+      if (accommodationType) {
+        params.accommodationType = [accommodationType];
       }
-
-      // 필터 적용
-      if (debouncedActiveFilters) {
-        // 숙소 타입 필터 (modal filter) - dropdown과 병합
-        if (debouncedActiveFilters.roomTypes.length > 0) {
-          const modalTypes = debouncedActiveFilters.roomTypes
-            .map((type) => roomTypeToAccommodationType[type])
-            .filter(Boolean) as AccommodationType[];
-          // 기존 dropdown 필터와 병합
-          const existingTypes = params.accommodationType || [];
-          params.accommodationType = [...new Set([...existingTypes, ...modalTypes])];
-        }
-
-        // 건물 타입 필터
-        if (debouncedActiveFilters.propertyTypes.length > 0) {
-          params.buildingType = debouncedActiveFilters.propertyTypes
-            .map((type) => propertyTypeToBuildingType[type])
-            .filter(Boolean) as BuildingType[];
-        }
-
-        // 가격 필터
-        if (debouncedActiveFilters.budgetMin > 0) {
-          params.minPrice = debouncedActiveFilters.budgetMin;
-        }
-        if (debouncedActiveFilters.budgetMax < 10000) {
-          params.maxPrice = debouncedActiveFilters.budgetMax;
-        }
-
-        // 성별/반려동물 규칙 필터
-        if (debouncedActiveFilters.houseRules.length > 0) {
-          params.genderRules = debouncedActiveFilters.houseRules
-            .map((rule) => houseRuleToGenderRule[rule])
-            .filter(Boolean) as GenderRule[];
-        }
-      }
-
-      // Quick filters (FilterBar chips) - merge with activeFilters
-      if (debouncedQuickFilters.length > 0) {
-        const quickFilterRules = debouncedQuickFilters
-          .map((filterId) => quickFilterToHouseRule[filterId])
-          .filter((rule): rule is string => !!rule && rule !== 'parking') // parking은 별도 처리
-          .map((rule) => houseRuleToGenderRule[rule])
-          .filter((genderRule): genderRule is GenderRule => !!genderRule);
-
-        if (quickFilterRules.length > 0) {
-          // Merge with existing genderRules
-          const existingRules = params.genderRules || [];
-          const mergedRules = [...new Set([...existingRules, ...quickFilterRules])];
-          params.genderRules = mergedRules;
-        }
-      }
-
-      const result = await getPublicAccommodations(params);
-      const nights = calculateNights();
-      const mappedRooms = result.data.map((item: AccommodationListItem) =>
-        mapAccommodationToRoom(item, nights, locale),
-      );
-
-      setRooms(mappedRooms);
-      setTotalCount(result.total);
-    } catch (error) {
-      console.error('Failed to fetch accommodations:', error);
-      setRooms([]);
-      setTotalCount(0);
-    } finally {
-      setIsLoading(false);
     }
+
+    // 필터 적용
+    if (debouncedActiveFilters) {
+      // 숙소 타입 필터 (modal filter) - dropdown과 병합
+      if (debouncedActiveFilters.roomTypes.length > 0) {
+        const modalTypes = debouncedActiveFilters.roomTypes
+          .map((type) => roomTypeToAccommodationType[type])
+          .filter(Boolean) as AccommodationType[];
+        const existingTypes = params.accommodationType || [];
+        params.accommodationType = [...new Set([...existingTypes, ...modalTypes])];
+      }
+
+      // 건물 타입 필터
+      if (debouncedActiveFilters.propertyTypes.length > 0) {
+        params.buildingType = debouncedActiveFilters.propertyTypes
+          .map((type) => propertyTypeToBuildingType[type])
+          .filter(Boolean) as BuildingType[];
+      }
+
+      // 가격 필터
+      if (debouncedActiveFilters.budgetMin > 0) {
+        params.minPrice = debouncedActiveFilters.budgetMin;
+      }
+      if (debouncedActiveFilters.budgetMax < 10000) {
+        params.maxPrice = debouncedActiveFilters.budgetMax;
+      }
+
+      // 성별/반려동물 규칙 필터
+      if (debouncedActiveFilters.houseRules.length > 0) {
+        params.genderRules = debouncedActiveFilters.houseRules
+          .map((rule) => houseRuleToGenderRule[rule])
+          .filter(Boolean) as GenderRule[];
+      }
+    }
+
+    // Quick filters (FilterBar chips) - merge with activeFilters
+    if (debouncedQuickFilters.length > 0) {
+      const quickFilterRules = debouncedQuickFilters
+        .map((filterId) => quickFilterToHouseRule[filterId])
+        .filter((rule): rule is string => !!rule && rule !== 'parking')
+        .map((rule) => houseRuleToGenderRule[rule])
+        .filter((genderRule): genderRule is GenderRule => !!genderRule);
+
+      if (quickFilterRules.length > 0) {
+        const existingRules = params.genderRules || [];
+        const mergedRules = [...new Set([...existingRules, ...quickFilterRules])];
+        params.genderRules = mergedRules;
+      }
+    }
+
+    return params;
   }, [
     debouncedLocation,
     debouncedGuests,
@@ -298,15 +281,68 @@ function SearchPageContent() {
     debouncedRoomType,
     debouncedActiveFilters,
     debouncedQuickFilters,
-    calculateNights,
     mapSortOption,
-    locale,
   ]);
 
-  // 초기 로딩 및 검색 조건 변경 시 데이터 fetch
+  // Fetch accommodations with React Query caching
+  const { data: accommodationsData, isLoading } = usePublicAccommodations(apiSearchParams);
+
+  // Map API response to Room[] format
+  const rooms = useMemo((): Room[] => {
+    if (!accommodationsData?.data) return [];
+    const nights = calculateNights();
+    return accommodationsData.data.map((item: AccommodationListItem) =>
+      mapAccommodationToRoom(item, nights, locale),
+    );
+  }, [accommodationsData, calculateNights, locale]);
+
+  const totalCount = accommodationsData?.total ?? 0;
+
+  // Save scroll position before navigating away
   useEffect(() => {
-    fetchAccommodations();
-  }, [fetchAccommodations]);
+    const saveScroll = () => {
+      const desktopScroll = desktopListRef.current?.scrollTop ?? 0;
+      const mobileScroll = window.scrollY;
+      sessionStorage.setItem(
+        SCROLL_STORAGE_KEY,
+        JSON.stringify({ desktop: desktopScroll, mobile: mobileScroll }),
+      );
+    };
+
+    // Save on scroll (debounced via passive listener)
+    const desktopEl = desktopListRef.current;
+    desktopEl?.addEventListener('scroll', saveScroll, { passive: true });
+    window.addEventListener('scroll', saveScroll, { passive: true });
+
+    return () => {
+      desktopEl?.removeEventListener('scroll', saveScroll);
+      window.removeEventListener('scroll', saveScroll);
+    };
+  }, []);
+
+  // Restore scroll position when data loads
+  useEffect(() => {
+    if (isLoading || scrollRestoredRef.current || rooms.length === 0) return;
+
+    const saved = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const { desktop, mobile } = JSON.parse(saved);
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          if (desktopListRef.current && desktop > 0) {
+            desktopListRef.current.scrollTop = desktop;
+          }
+          if (mobile > 0) {
+            window.scrollTo(0, mobile);
+          }
+        });
+      } catch {
+        // Ignore parse errors
+      }
+    }
+    scrollRestoredRef.current = true;
+  }, [isLoading, rooms.length]);
 
   const displayLocation = locationValue || t('anywhere');
   const searchLocation = locationValue
@@ -414,7 +450,10 @@ function SearchPageContent() {
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         {/* Left Side - Room List */}
-        <div className="w-[480px] flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar">
+        <div
+          ref={desktopListRef}
+          className="w-[480px] flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar"
+        >
           <div className="px-4">
             {/* Filter Bar - hide when rooms are selected from map */}
             {selectedGroupRoomIds.length === 0 && (

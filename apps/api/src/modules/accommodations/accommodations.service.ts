@@ -306,6 +306,7 @@ export class AccommodationsService {
       roomCount: acc.roomCount,
       bathroomCount: acc.bathroomCount,
       thumbnailUrl: acc.photos[0]?.url || null,
+      imageCount: acc.photos.length,
     }));
   }
 
@@ -469,6 +470,7 @@ export class AccommodationsService {
       roomCount: acc.roomCount,
       bathroomCount: acc.bathroomCount,
       thumbnailUrl: acc.photos[0]?.url || null,
+      imageCount: acc.photos.length,
     }));
 
     return {

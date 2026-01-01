@@ -26,6 +26,7 @@ export interface Room {
   nights: number;
   tags: { label: string; color: 'orange' | 'purple' | 'blue' | 'green' }[];
   imageUrl: string;
+  imageCount: number;
   isFavorite?: boolean;
   lat: number;
   lng: number;
@@ -70,7 +71,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [_isPending, startTransition] = useTransition();
-  const totalImages = 10; // Mock total images
+  const totalImages = room.imageCount || 1;
 
   // Build room detail URL with search params (checkIn, checkOut, guests)
   const buildRoomDetailUrl = () => {

@@ -96,6 +96,7 @@ function mapAccommodationToRoom(
     nights,
     tags,
     imageUrl: item.thumbnailUrl || '/images/rooms/placeholder.jpg',
+    imageCount: item.imageCount,
     lat: item.latitude || 37.5665,
     lng: item.longitude || 126.978,
   };

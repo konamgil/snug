@@ -1,11 +1,17 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { getAccommodationPublic, getSimilarAccommodations } from './actions';
+import {
+  getAccommodationPublic,
+  getSimilarAccommodations,
+  getPublicAccommodations,
+} from './actions';
+import type { AccommodationSearchParams } from '@snug/types';
 
 // Query keys for cache management
 export const accommodationKeys = {
   all: ['accommodation'] as const,
+  list: (params?: AccommodationSearchParams) => [...accommodationKeys.all, 'list', params] as const,
   detail: (id: string) => [...accommodationKeys.all, 'detail', id] as const,
   similar: (id: string) => [...accommodationKeys.all, 'similar', id] as const,
 };
@@ -29,5 +35,15 @@ export function useSimilarAccommodations(roomId: string, limit = 6) {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     enabled: !!roomId,
+  });
+}
+
+// Hook for fetching public accommodations list with caching (search page)
+export function usePublicAccommodations(params?: AccommodationSearchParams) {
+  return useQuery({
+    queryKey: accommodationKeys.list(params),
+    queryFn: () => getPublicAccommodations(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes - search results stay fresh
+    gcTime: 5 * 60 * 1000, // 5 minutes - cache retention for back navigation
   });
 }

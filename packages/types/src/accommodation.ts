@@ -451,6 +451,7 @@ export interface AccommodationListItem {
 
   // 대표 이미지
   thumbnailUrl: string | null;
+  imageCount: number;
 }
 
 /**
