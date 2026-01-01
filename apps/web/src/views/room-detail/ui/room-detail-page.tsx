@@ -39,10 +39,7 @@ import {
   getAccommodationTypeLabel,
   getBuildingTypeLabel,
 } from '@/shared/lib';
-import {
-  SERVICE_FEE_PERCENT,
-  getLongStayDiscountPercent,
-} from '@/shared/config';
+import { SERVICE_FEE_PERCENT, getLongStayDiscountPercent } from '@/shared/config';
 
 // 숙소 유형별 색상
 const roomTypeColors: Record<RoomTypeVariant, string> = {
@@ -291,16 +288,20 @@ export function RoomDetailPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
+  // Initialize with window width to enable carousel immediately (fixes delayed interactivity)
+  const [containerWidth, setContainerWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 0,
+  );
   const touchStartX = useRef<number>(0);
 
-  // Measure container width for carousel calculations
+  // Update container width on mount and resize
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };
+    // Measure immediately on mount
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
