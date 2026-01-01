@@ -839,3 +839,28 @@ model ExchangeRate {
 
   @@map("exchange_rates")
 }
+
+// ============================================
+// FCM TOKENS (푸시 알림)
+// ============================================
+
+model FcmToken {
+  id          String    @id @default(cuid())
+
+  userId      String
+  token       String    @unique  // FCM 토큰
+
+  // 디바이스 정보
+  deviceType  String?   // web, ios, android
+  userAgent   String?   // 브라우저/앱 정보
+
+  // 상태
+  isActive    Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@map("fcm_tokens")
+}

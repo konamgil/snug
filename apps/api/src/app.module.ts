@@ -8,6 +8,7 @@ import { AccommodationsModule } from './modules/accommodations/accommodations.mo
 import { ExchangeRatesModule } from './modules/exchange-rates/exchange-rates.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { StorageModule } from './modules/storage/storage.module';
     AccommodationsModule,
     ExchangeRatesModule,
     FavoritesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

@@ -42,3 +42,7 @@ export {
   formatPhoneNumber,
   type PhoneVerificationResult,
 } from './phone-auth';
+
+// FCM Hook & Provider
+export { useFCM } from './use-fcm';
+export { FCMProvider, useFCMContext } from './fcm-provider';

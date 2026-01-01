@@ -6,13 +6,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-comp
 
 // Initialize the Firebase app in the service worker
 firebase.initializeApp({
-  apiKey: 'YOUR_API_KEY', // Will be replaced at build time or use env vars
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID',
-  measurementId: 'YOUR_MEASUREMENT_ID',
+  apiKey: 'AIzaSyCmAQpyPMQAcbTCzn1-vVtLlgMTQMvY9fI',
+  authDomain: 'snug-14301.firebaseapp.com',
+  projectId: 'snug-14301',
+  storageBucket: 'snug-14301.firebasestorage.app',
+  messagingSenderId: '945277361652',
+  appId: '1:945277361652:web:ccd6b913932deb0e7deda1',
+  measurementId: 'G-T4PXKW4TTE',
 });
 
 const messaging = firebase.messaging();
