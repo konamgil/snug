@@ -581,7 +581,7 @@ const HostBannerLogo = memo(function HostBannerLogo({ className }: { className?:
         textAnchor="end"
         fill="black"
         stroke="black"
-        strokeWidth="4"
+        strokeWidth="3"
         fontFamily="system-ui, -apple-system, sans-serif"
         fontSize="200"
         fontWeight="900"
@@ -595,7 +595,7 @@ const HostBannerLogo = memo(function HostBannerLogo({ className }: { className?:
         textAnchor="end"
         fill="black"
         stroke="black"
-        strokeWidth="4"
+        strokeWidth="3"
         fontFamily="system-ui, -apple-system, sans-serif"
         fontSize="200"
         fontWeight="900"
@@ -609,7 +609,7 @@ const HostBannerLogo = memo(function HostBannerLogo({ className }: { className?:
         textAnchor="end"
         fill="black"
         stroke="black"
-        strokeWidth="4"
+        strokeWidth="3"
         fontFamily="system-ui, -apple-system, sans-serif"
         fontSize="200"
         fontWeight="900"
@@ -774,7 +774,7 @@ const BannerSlideComponent = memo(function BannerSlideComponent({
 
         {/* Text Content */}
         <div
-          className={`absolute ${isHostBanner ? 'right-3.5 left-[45%] top-[48%]' : 'left-3.5 right-[45%] top-[45%]'} -translate-y-1/2`}
+          className={`absolute ${isHostBanner ? 'right-3.5 left-[45%] top-[50%]' : 'left-3.5 right-[45%] top-[45%]'} -translate-y-1/2`}
         >
           {isHostBanner ? (
             <HostBannerLogo className="w-full h-auto" />
