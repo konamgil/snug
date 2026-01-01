@@ -62,8 +62,11 @@ export function EmailVerificationModal({
   // Send OTP when modal opens
   useEffect(() => {
     if (isOpen && !hasSentInitialOTP) {
-      handleSendOTP();
-      setHasSentInitialOTP(true);
+      const timeoutId = setTimeout(() => {
+        handleSendOTP();
+        setHasSentInitialOTP(true);
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [isOpen, hasSentInitialOTP, handleSendOTP]);
 
@@ -87,10 +90,13 @@ export function EmailVerificationModal({
   // Cleanup on close
   useEffect(() => {
     if (!isOpen) {
-      setOtp(Array(OTP_LENGTH).fill(''));
-      setError('');
-      setIsVerified(false);
-      setHasSentInitialOTP(false);
+      const timeoutId = setTimeout(() => {
+        setOtp(Array(OTP_LENGTH).fill(''));
+        setError('');
+        setIsVerified(false);
+        setHasSentInitialOTP(false);
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [isOpen]);
 
@@ -184,7 +190,8 @@ export function EmailVerificationModal({
   // Auto-verify when all digits are entered
   useEffect(() => {
     if (otp.every((digit) => digit !== '') && !isLoading && !isVerified) {
-      handleVerify();
+      const timeoutId = setTimeout(handleVerify, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [otp, isLoading, isVerified, handleVerify]);
 

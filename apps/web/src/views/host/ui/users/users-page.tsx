@@ -345,7 +345,8 @@ export function UsersPage() {
     setDetailData(null);
   };
 
-  const handleSaveUser = (_data: UserDetailData) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSaveUser = (data: UserDetailData) => {
     // TODO: Implement user save API call
     handleClosePanel();
   };

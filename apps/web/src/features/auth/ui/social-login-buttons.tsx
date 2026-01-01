@@ -118,7 +118,10 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
 
   // Load recent login method from localStorage on mount
   useEffect(() => {
-    setRecentMethod(getRecentLoginMethod());
+    const timeoutId = setTimeout(() => {
+      setRecentMethod(getRecentLoginMethod());
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const handleGoogleLogin = async () => {
@@ -133,12 +136,14 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   };
 
   // TODO: 정식 오픈 시 활성화
-  const _handleAppleLogin = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleAppleLogin = () => {
     // Apple OAuth - 추후 구현
     setError('Apple login is not available yet');
   };
 
-  const _handleKakaoLogin = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleKakaoLogin = async () => {
     setLoadingProvider('kakao');
     setError(null);
     setRecentLoginMethod('kakao');
@@ -149,7 +154,8 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     }
   };
 
-  const _handleFacebookLogin = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleFacebookLogin = async () => {
     setLoadingProvider('facebook');
     setError(null);
     setRecentLoginMethod('facebook');

@@ -81,14 +81,20 @@ export function FCMProvider({ children }: FCMProviderProps) {
   // 토큰이 변경되면 저장
   useEffect(() => {
     if (fcm.token && isAuthenticated) {
-      handleTokenChange(fcm.token);
+      const timeoutId = setTimeout(() => {
+        handleTokenChange(fcm.token);
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [fcm.token, isAuthenticated, handleTokenChange]);
 
   // 로그아웃 시 토큰 상태 리셋
   useEffect(() => {
     if (!isAuthenticated) {
-      setIsTokenSaved(false);
+      const timeoutId = setTimeout(() => {
+        setIsTokenSaved(false);
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [isAuthenticated]);
 

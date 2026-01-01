@@ -70,8 +70,10 @@ export function BookingSidePanel({
   initialCheckIn = null,
   initialCheckOut = null,
   initialGuests = { adults: 1, children: 0, infants: 0 },
-  onBook: _onBook,
-  onChatWithHost: _onChatWithHost,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onBook,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onChatWithHost,
 }: BookingSidePanelProps) {
   const t = useTranslations();
   const { format } = useCurrencySafe();

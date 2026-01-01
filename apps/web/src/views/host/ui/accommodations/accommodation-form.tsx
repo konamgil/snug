@@ -701,7 +701,8 @@ export function AccommodationForm({
                   }`}
                 >
                   {data.accommodationType
-                    ? tAccommodationTypes(data.accommodationType as any)
+                    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      tAccommodationTypes(data.accommodationType as any)
                     : tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -728,6 +729,7 @@ export function AccommodationForm({
                               : 'text-[hsl(var(--snug-text-primary))]'
                           }`}
                         >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {tAccommodationTypes(option as any)}
                         </button>
                       ))}
@@ -754,6 +756,7 @@ export function AccommodationForm({
                   onClick={() => setIsBuildingTypeOpen(!isBuildingTypeOpen)}
                   className="w-full flex items-center justify-between px-4 py-3 border border-[hsl(var(--snug-border))] rounded-lg text-sm text-[hsl(var(--snug-text-primary))]"
                 >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {data.buildingType ? tBuildingTypes(data.buildingType as any) : tCommon('select')}
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -778,6 +781,7 @@ export function AccommodationForm({
                               : 'text-[hsl(var(--snug-text-primary))]'
                           }`}
                         >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {tBuildingTypes(option as any)}
                         </button>
                       ))}
@@ -877,6 +881,7 @@ export function AccommodationForm({
                     )}
                   </div>
                   <span className="text-sm text-[hsl(var(--snug-text-primary))]">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {tWeekdays(day as any)}
                   </span>
                 </label>

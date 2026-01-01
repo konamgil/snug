@@ -101,7 +101,8 @@ const MOCK_MESSAGES: Message[] = [
   },
 ];
 
-export function ChatDetailView({ chatId: _chatId }: ChatDetailViewProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function ChatDetailView({ chatId }: ChatDetailViewProps) {
   const router = useRouter();
   const [message, setMessage] = useState('');
 

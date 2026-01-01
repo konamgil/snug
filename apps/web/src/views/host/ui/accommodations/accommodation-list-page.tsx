@@ -220,7 +220,8 @@ export function AccommodationListPage() {
     router.push(`/host/properties/${id}/edit`);
   };
 
-  const handleManagePricing = (_id: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleManagePricing = (id: string) => {
     // TODO: 가격 관리 페이지 구현 후 라우팅
   };
 

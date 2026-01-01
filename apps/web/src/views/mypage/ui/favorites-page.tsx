@@ -121,8 +121,6 @@ export function FavoritesPage() {
     showFilledHeart: boolean;
     onRemove: (id: string) => void;
   }) => {
-    const [_isHovered, setIsHovered] = useState(false);
-
     const handleHeartClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       onRemove(item.id);
@@ -132,8 +130,6 @@ export function FavoritesPage() {
       <div
         className="cursor-pointer active:scale-[0.99] transition-transform"
         onClick={() => router.push(`/room/${item.id}`)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Container */}
         <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">

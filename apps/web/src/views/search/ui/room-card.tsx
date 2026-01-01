@@ -73,7 +73,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   const user = useAuthStore((state) => state.user);
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [_isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const totalImages = room.imageCount || 1;
 
   // Prefetch room data on hover for faster navigation

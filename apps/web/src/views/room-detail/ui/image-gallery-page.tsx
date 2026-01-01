@@ -83,12 +83,13 @@ export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
   };
 
   // Memoize categories transformation
+  const photos = accommodation?.photos;
   const categories = useMemo(() => {
-    if (!accommodation?.photos || accommodation.photos.length === 0) {
+    if (!photos || photos.length === 0) {
       return [];
     }
-    return photosToCategories(accommodation.photos);
-  }, [accommodation?.photos]);
+    return photosToCategories(photos);
+  }, [photos]);
 
   const currentCategory = categories.find((c) => c.id === selectedCategory) || categories[0];
   const currentImages = currentCategory?.images || [];

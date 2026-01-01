@@ -85,7 +85,8 @@ const MOCK_MESSAGES: Message[] = [
   },
 ];
 
-export function ChatDetail({ chatId: _chatId, onBack }: ChatDetailProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function ChatDetail({ chatId, onBack }: ChatDetailProps) {
   const [message, setMessage] = useState('');
 
   const handleSend = () => {

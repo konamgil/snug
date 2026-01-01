@@ -821,11 +821,11 @@ interface IllustrationSlideComponentProps {
 const IllustrationSlideComponent = memo(function IllustrationSlideComponent({
   image,
   caption,
-  isEasterEggActive: _isEasterEggActive,
+  isEasterEggActive,
 }: IllustrationSlideComponentProps) {
   // TODO: 오픈 후 isEasterEggActive 조건 복원 필요
   // 오픈 전까지는 항상 비디오 표시
-  const showVideo = true; // _isEasterEggActive
+  const showVideo = isEasterEggActive || true;
 
   return (
     <div>

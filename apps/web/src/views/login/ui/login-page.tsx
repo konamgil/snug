@@ -22,16 +22,19 @@ export function LoginPage() {
   useEffect(() => {
     const error = searchParams.get('error');
     if (error) {
-      if (error === 'email_already_registered') {
-        setCallbackError(t('login.emailAlreadyRegistered'));
-      } else if (error === 'auth_callback_error') {
-        setCallbackError(t('login.authError'));
-      }
+      const timeoutId = setTimeout(() => {
+        if (error === 'email_already_registered') {
+          setCallbackError(t('login.emailAlreadyRegistered'));
+        } else if (error === 'auth_callback_error') {
+          setCallbackError(t('login.authError'));
+        }
 
-      // URL에서 에러 파라미터 제거
-      const url = new URL(window.location.href);
-      url.searchParams.delete('error');
-      window.history.replaceState({}, '', url.toString());
+        // URL에서 에러 파라미터 제거
+        const url = new URL(window.location.href);
+        url.searchParams.delete('error');
+        window.history.replaceState({}, '', url.toString());
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [searchParams, t]);
 

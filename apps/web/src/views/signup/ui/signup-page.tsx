@@ -347,7 +347,9 @@ export function SignupPage() {
       !isOtpVerified &&
       currentStep === 'verify'
     ) {
-      handleVerifyOTP();
+      // Defer to avoid synchronous setState in effect
+      const timeoutId = setTimeout(handleVerifyOTP, 0);
+      return () => clearTimeout(timeoutId);
     }
   }, [otp, isLoading, isOtpVerified, currentStep, handleVerifyOTP]);
 
