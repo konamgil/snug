@@ -80,9 +80,10 @@ export function FCMProvider({ children }: FCMProviderProps) {
 
   // 토큰이 변경되면 저장
   useEffect(() => {
-    if (fcm.token && isAuthenticated) {
+    const token = fcm.token;
+    if (token && isAuthenticated) {
       const timeoutId = setTimeout(() => {
-        handleTokenChange(fcm.token);
+        handleTokenChange(token);
       }, 0);
       return () => clearTimeout(timeoutId);
     }
