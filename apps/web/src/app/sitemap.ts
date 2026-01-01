@@ -12,7 +12,7 @@ async function getAccommodations() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
 
-    const res = await fetch(`${apiUrl}/accommodations/public?limit=1000`, {
+    const res = await fetch(`${apiUrl}/accommodations/public?limit=100`, {
       next: { revalidate: 3600 }, // 1시간 캐시
       signal: controller.signal,
     });
