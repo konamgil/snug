@@ -360,7 +360,7 @@ const RoomCard = memo(function RoomCard({
   };
 
   return (
-    <div className="flex-1 cursor-pointer group flex flex-col h-full" onClick={onClick}>
+    <div className="flex-1 min-w-0 cursor-pointer group flex flex-col h-full" onClick={onClick}>
       {/* Image Container */}
       <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[hsl(var(--snug-light-gray))] flex-shrink-0">
         {/* Room Image */}
@@ -568,40 +568,51 @@ const TourSlideComponent = memo(function TourSlideComponent({
 // Host Banner SVG Logo - "Steady Income, Professional Hosting"
 const HostBannerLogo = memo(function HostBannerLogo({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 105" fill="none" className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1500 680"
+      fill="none"
+      className={className}
+    >
       {/* Steady Income, */}
       <text
-        x="250"
-        y="28"
+        x="1500"
+        y="170"
         textAnchor="end"
         fill="black"
+        stroke="black"
+        strokeWidth="4"
         fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="30"
-        fontWeight="800"
+        fontSize="200"
+        fontWeight="900"
       >
         Steady Income,
       </text>
       {/* Professional */}
       <text
-        x="250"
-        y="64"
+        x="1500"
+        y="390"
         textAnchor="end"
         fill="black"
+        stroke="black"
+        strokeWidth="4"
         fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="30"
-        fontWeight="800"
+        fontSize="200"
+        fontWeight="900"
       >
         Professional
       </text>
       {/* Hosting */}
       <text
-        x="250"
-        y="100"
+        x="1500"
+        y="610"
         textAnchor="end"
         fill="black"
+        stroke="black"
+        strokeWidth="4"
         fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="30"
-        fontWeight="800"
+        fontSize="200"
+        fontWeight="900"
       >
         Hosting
       </text>
@@ -754,21 +765,21 @@ const BannerSlideComponent = memo(function BannerSlideComponent({
 
         {/* Badge */}
         <div
-          className={`absolute top-3 ${isHostBanner ? 'right-3.5' : 'left-3.5'} bg-[#ffecda] px-2 py-1 rounded-[10px] flex items-center justify-center`}
+          className={`absolute top-4 ${isHostBanner ? 'right-3.5' : 'left-3.5'} bg-[#ffecda] px-2 py-1 rounded-[10px] flex items-center justify-center`}
         >
-          <span className="text-[9px] font-bold text-[hsl(var(--snug-orange))] tracking-[0.24px] leading-none">
+          <span className="text-[11px] font-bold text-[hsl(var(--snug-orange))] tracking-[0.24px] leading-none">
             {slide.badge}
           </span>
         </div>
 
         {/* Text Content */}
         <div
-          className={`absolute ${isHostBanner ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2`}
+          className={`absolute ${isHostBanner ? 'right-3.5 left-[45%]' : 'left-3.5 right-[45%]'} top-[45%] -translate-y-1/2`}
         >
           {isHostBanner ? (
-            <HostBannerLogo className="w-[240px] md:w-[280px] h-auto" />
+            <HostBannerLogo className="w-full h-auto" />
           ) : (
-            <LiveLikeLocalLogo className="w-[220px] md:w-[260px] h-auto" />
+            <LiveLikeLocalLogo className="w-full h-auto" />
           )}
         </div>
 

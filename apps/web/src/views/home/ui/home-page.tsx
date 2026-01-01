@@ -5,7 +5,6 @@ import { useRouter } from '@/i18n/navigation';
 import { Header } from '@/widgets/header';
 import { HeroBanner } from '@/widgets/hero-banner';
 import { MobileNav } from '@/widgets/mobile-nav';
-import { PromoBanner } from '@/widgets/promo-banner';
 import { SearchForm, SearchModal, SearchTrigger, type SearchParams } from '@/features/search';
 import { SnugLogo, ViewOnMapButton } from '@/shared/ui';
 
@@ -36,7 +35,6 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <PromoBanner />
       <Header />
 
       <main className="flex-1 flex flex-col items-center px-5 md:px-4 pt-[15vh] md:pt-[18vh] pb-28 md:pb-24">
