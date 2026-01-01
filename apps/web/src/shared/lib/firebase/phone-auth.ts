@@ -1,5 +1,5 @@
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
-import { getFirebaseAuth } from './index';
+import { getFirebaseAuth } from './config';
 
 export interface PhoneVerificationResult {
   success: boolean;

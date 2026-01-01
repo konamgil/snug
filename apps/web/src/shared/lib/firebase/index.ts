@@ -1,29 +1,44 @@
-// Firebase - Phone Auth 전용
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { firebaseConfig } from './config';
+// Firebase Core
+export { getFirebaseApp, getFirebaseAuth, firebaseConfig } from './config';
 
-// Initialize Firebase only on client side
-let firebaseApp: FirebaseApp | null = null;
-let firebaseAuth: Auth | null = null;
+// Firebase Analytics (GA4)
+export {
+  getFirebaseAnalytics,
+  logEvent,
+  setAnalyticsUserId,
+  setAnalyticsUserProperties,
+  // Snug-specific events
+  logSearch,
+  logViewItem,
+  logAddToWishlist,
+  logBeginCheckout,
+  logPurchase,
+  logSignUp,
+  logLogin,
+  logShare,
+  logContactHost,
+  logPageView,
+} from './analytics';
 
-export function getFirebaseApp(): FirebaseApp {
-  if (typeof window === 'undefined') {
-    throw new Error('Firebase can only be initialized on the client side');
-  }
+// Firebase Performance
+export { getFirebasePerformance, initPerformance } from './performance';
 
-  if (!firebaseApp) {
-    firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  }
-  return firebaseApp;
-}
+// Firebase Cloud Messaging (FCM)
+export {
+  getFirebaseMessaging,
+  requestNotificationPermission,
+  getFCMToken,
+  onForegroundMessage,
+  handleSnugNotification,
+  type SnugNotification,
+} from './messaging';
 
-export function getFirebaseAuth(): Auth {
-  if (!firebaseAuth) {
-    firebaseAuth = getAuth(getFirebaseApp());
-  }
-  return firebaseAuth;
-}
-
-// Re-export phone auth utilities
-export { sendPhoneVerification, verifyPhoneCode, type PhoneVerificationResult } from './phone-auth';
+// Firebase Auth (Phone Auth)
+export {
+  sendPhoneVerification,
+  verifyPhoneCode,
+  initRecaptcha,
+  resetVerification,
+  formatPhoneNumber,
+  type PhoneVerificationResult,
+} from './phone-auth';
