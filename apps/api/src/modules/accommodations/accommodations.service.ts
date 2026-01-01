@@ -139,6 +139,46 @@ export class AccommodationsService {
   }
 
   /**
+   * 숙소 가격 정보만 조회 (실시간 가격 확인용)
+   * 프론트엔드에서 짧은 캐시 (30초)로 관리하여 가격 정확성 보장
+   */
+  async findPublicPrice(id: string) {
+    const accommodation = await this.prisma.accommodation.findUnique({
+      where: { id, status: 'ACTIVE', isOperating: true },
+      select: {
+        id: true,
+        basePrice: true,
+        includesUtilities: true,
+        weekendPrice: true,
+        weekendDays: true,
+        managementFee: true,
+        cleaningFee: true,
+        extraPersonFee: true,
+        petFee: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!accommodation) {
+      throw new NotFoundException('Accommodation not found or not operating');
+    }
+
+    return {
+      id: accommodation.id,
+      basePrice: accommodation.basePrice,
+      includesUtilities: accommodation.includesUtilities,
+      weekendPrice: accommodation.weekendPrice,
+      weekendDays: accommodation.weekendDays,
+      managementFee: accommodation.managementFee,
+      cleaningFee: accommodation.cleaningFee,
+      extraPersonFee: accommodation.extraPersonFee,
+      petFee: accommodation.petFee,
+      // 마지막 수정 시간 (캐시 무효화 힌트)
+      updatedAt: accommodation.updatedAt,
+    };
+  }
+
+  /**
    * 숙소 공개 정보 조회 (SEO용, 인증 불필요)
    */
   async findPublic(id: string) {

@@ -14,6 +14,7 @@ import type {
   AccommodationSearchParams,
   AccommodationPublicListResponse,
   AccommodationListItem,
+  AccommodationPrice,
 } from '@snug/types';
 
 // ============================================
@@ -79,6 +80,29 @@ export async function getAccommodationPublic(id: string): Promise<AccommodationP
     // NestJS returns { success: true, data: AccommodationPublic }
     const result = await apiClient.get<{ success: boolean; data: AccommodationPublic }>(
       `/accommodations/public/${id}`,
+    );
+    return result.data;
+  } catch (error) {
+    if (error instanceof ApiClientError && error.statusCode === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * 숙소 가격 정보 조회 (실시간 가격 확인용)
+ * 인증 불필요
+ * NOTE: 짧은 캐시 (30초)로 관리하여 가격 정확성 보장
+ *
+ * @param id - 숙소 ID
+ * @returns 가격 정보만 포함된 데이터
+ */
+export async function getAccommodationPrice(id: string): Promise<AccommodationPrice | null> {
+  try {
+    // NestJS returns { success: true, data: AccommodationPrice }
+    const result = await apiClient.get<{ success: boolean; data: AccommodationPrice }>(
+      `/accommodations/public/${id}/price`,
     );
     return result.data;
   } catch (error) {

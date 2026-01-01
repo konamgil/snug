@@ -1,4 +1,5 @@
-import { createNavigation } from 'next-intl/navigation';
-import { routing } from './routing';
+// 커스텀 Link (로딩 오버레이 지원)
+export { Link } from './link';
 
-export const { Link, redirect, usePathname, useRouter, getPathname } = createNavigation(routing);
+// 나머지 navigation 유틸리티
+export { redirect, usePathname, useRouter, getPathname } from './navigation-base';

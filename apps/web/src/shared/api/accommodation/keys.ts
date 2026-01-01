@@ -6,4 +6,5 @@ export const accommodationKeys = {
   list: (params?: AccommodationSearchParams) => [...accommodationKeys.all, 'list', params] as const,
   detail: (id: string) => [...accommodationKeys.all, 'detail', id] as const,
   similar: (id: string) => [...accommodationKeys.all, 'similar', id] as const,
+  price: (id: string) => [...accommodationKeys.all, 'price', id] as const,
 };

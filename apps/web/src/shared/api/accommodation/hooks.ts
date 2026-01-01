@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   getAccommodationPublic,
+  getAccommodationPrice,
   getSimilarAccommodations,
   getPublicAccommodations,
 } from './actions';
@@ -19,6 +20,17 @@ export function useAccommodationPublic(roomId: string) {
     queryFn: () => getAccommodationPublic(roomId),
     staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - cache retention
+    enabled: !!roomId,
+  });
+}
+
+// Hook for fetching accommodation price with short cache (real-time accuracy)
+export function useAccommodationPrice(roomId: string) {
+  return useQuery({
+    queryKey: accommodationKeys.price(roomId),
+    queryFn: () => getAccommodationPrice(roomId),
+    staleTime: 30 * 1000, // 30 seconds - price stays fresh (shorter for accuracy)
+    gcTime: 60 * 1000, // 1 minute - cache retention
     enabled: !!roomId,
   });
 }

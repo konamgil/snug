@@ -464,3 +464,20 @@ export interface AccommodationPublicListResponse {
   limit: number;
   hasNext: boolean;
 }
+
+/**
+ * 숙소 가격 정보 (실시간 조회용)
+ * 짧은 캐시 시간으로 정확한 가격 보장
+ */
+export interface AccommodationPrice {
+  id: string;
+  basePrice: number;
+  includesUtilities: boolean;
+  weekendPrice: number | null;
+  weekendDays: string[];
+  managementFee: number | null;
+  cleaningFee: number | null;
+  extraPersonFee: number | null;
+  petFee: number | null;
+  updatedAt: string; // ISO date string
+}

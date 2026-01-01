@@ -4,6 +4,7 @@ export {
   getAccommodations,
   getAccommodation,
   getAccommodationPublic,
+  getAccommodationPrice,
   getPublicAccommodations,
   createAccommodation,
   updateAccommodation,
@@ -21,4 +22,9 @@ export {
 export { accommodationKeys } from './keys';
 
 // React Query Hooks (client only)
-export { useAccommodationPublic, useSimilarAccommodations, usePublicAccommodations } from './hooks';
+export {
+  useAccommodationPublic,
+  useAccommodationPrice,
+  useSimilarAccommodations,
+  usePublicAccommodations,
+} from './hooks';

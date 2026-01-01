@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { CalendarIcon, UserIcon, ChatIcon, SearchIcon } from '@/shared/ui/icons';
+import { PriceSkeleton } from '@/shared/ui';
 import { DatePicker } from '@/features/search/ui/date-picker';
 import {
   GuestPicker,
@@ -10,10 +11,7 @@ import {
   type GuestCount,
 } from '@/features/search/ui/guest-picker';
 import { useCurrencySafe } from '@/shared/providers';
-import {
-  SERVICE_FEE_PERCENT,
-  getLongStayDiscountPercent,
-} from '@/shared/config';
+import { SERVICE_FEE_PERCENT, getLongStayDiscountPercent } from '@/shared/config';
 
 interface PriceBreakdown {
   pricePerNight: number;
@@ -28,6 +26,7 @@ interface BookingSidePanelProps {
   roomTypeDescription: string;
   roomTypeVariant?: RoomTypeVariant;
   priceBreakdown: PriceBreakdown;
+  isPriceLoading?: boolean;
   initialCheckIn?: Date | null;
   initialCheckOut?: Date | null;
   initialGuests?: GuestCount;
@@ -67,6 +66,7 @@ export function BookingSidePanel({
   roomTypeDescription,
   roomTypeVariant = 'shared-room',
   priceBreakdown,
+  isPriceLoading = false,
   initialCheckIn = null,
   initialCheckOut = null,
   initialGuests = { adults: 1, children: 0, infants: 0 },
@@ -256,81 +256,85 @@ export function BookingSidePanel({
 
       {/* Price Breakdown Card */}
       <div className="border border-[hsl(var(--snug-border))] rounded-[20px] p-5 mb-4">
-        <div className="space-y-3.5">
-          {/* Rent for 1 Night */}
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">
-                {t('roomDetail.booking.rentPerNight')}
-              </p>
-              <p className="text-xs text-[hsl(var(--snug-gray))]">
-                {t('roomDetail.booking.includingMaintenance')}
-              </p>
+        {isPriceLoading ? (
+          <PriceSkeleton variant="card" />
+        ) : (
+          <div className="space-y-3.5">
+            {/* Rent for 1 Night */}
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-[hsl(var(--snug-gray))]">
+                  {t('roomDetail.booking.rentPerNight')}
+                </p>
+                <p className="text-xs text-[hsl(var(--snug-gray))]">
+                  {t('roomDetail.booking.includingMaintenance')}
+                </p>
+              </div>
+              <span className="text-sm font-extrabold text-[hsl(var(--snug-orange))]">
+                {format(priceBreakdown.pricePerNight)}
+              </span>
             </div>
-            <span className="text-sm font-extrabold text-[hsl(var(--snug-orange))]">
-              {format(priceBreakdown.pricePerNight)}
-            </span>
-          </div>
 
-          <div className="h-px bg-[#f0f0f0]" />
+            <div className="h-px bg-[#f0f0f0]" />
 
-          {/* Nights calculation */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {t('roomDetail.booking.nightsCalculation', {
-                nights,
-                price: format(priceBreakdown.pricePerNight),
-              })}
-            </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {format(subtotal)}
-            </span>
-          </div>
-
-          {/* Cleaning fee */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))]">
-              {t('roomDetail.booking.cleaningFee')}
-            </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">
-              {format(priceBreakdown.cleaningFee)}
-            </span>
-          </div>
-
-          {/* Long-stay Discount */}
-          {longStayDiscount > 0 && (
+            {/* Nights calculation */}
             <div className="flex items-center justify-between">
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-                {t('roomDetail.booking.longStayDiscountApplied', {
-                  percent: discountPercent,
+                {t('roomDetail.booking.nightsCalculation', {
+                  nights,
+                  price: format(priceBreakdown.pricePerNight),
                 })}
               </span>
-              <span className="text-xs text-[hsl(var(--snug-orange))]">
-                -{format(longStayDiscount)}
+              <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
+                {format(subtotal)}
               </span>
             </div>
-          )}
 
-          {/* Service fee */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
-              {t('roomDetail.booking.serviceFee', { percent: SERVICE_FEE_PERCENT })}
-            </span>
-            <span className="text-xs text-[hsl(var(--snug-gray))]">{format(serviceFee)}</span>
+            {/* Cleaning fee */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-[hsl(var(--snug-gray))]">
+                {t('roomDetail.booking.cleaningFee')}
+              </span>
+              <span className="text-xs text-[hsl(var(--snug-gray))]">
+                {format(priceBreakdown.cleaningFee)}
+              </span>
+            </div>
+
+            {/* Long-stay Discount */}
+            {longStayDiscount > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
+                  {t('roomDetail.booking.longStayDiscountApplied', {
+                    percent: discountPercent,
+                  })}
+                </span>
+                <span className="text-xs text-[hsl(var(--snug-orange))]">
+                  -{format(longStayDiscount)}
+                </span>
+              </div>
+            )}
+
+            {/* Service fee */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
+                {t('roomDetail.booking.serviceFee', { percent: SERVICE_FEE_PERCENT })}
+              </span>
+              <span className="text-xs text-[hsl(var(--snug-gray))]">{format(serviceFee)}</span>
+            </div>
+
+            <div className="h-px bg-[#f0f0f0]" />
+
+            {/* Total */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
+                {t('roomDetail.booking.total')}
+              </span>
+              <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
+                {format(total)}
+              </span>
+            </div>
           </div>
-
-          <div className="h-px bg-[#f0f0f0]" />
-
-          {/* Total */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
-              {t('roomDetail.booking.total')}
-            </span>
-            <span className="text-sm font-extrabold text-[hsl(var(--snug-text-primary))] tracking-tight">
-              {format(total)}
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Action Buttons - Disabled until official launch */}
         <div className="flex flex-col gap-2 mt-4">

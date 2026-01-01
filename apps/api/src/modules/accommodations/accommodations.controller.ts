@@ -116,6 +116,21 @@ export class AccommodationsController {
   }
 
   /**
+   * 숙소 가격 정보 조회 (실시간 가격 확인용)
+   * 인증 불필요
+   * NOTE: 별도 API로 분리하여 가격 정보만 짧은 캐시로 관리
+   */
+  @Get('public/:id/price')
+  @Public()
+  @ApiOperation({ summary: 'Get accommodation price info (for real-time price check)' })
+  @ApiParam({ name: 'id', description: 'Accommodation ID' })
+  @ApiResponse({ status: 200, description: 'Returns accommodation price info' })
+  @ApiResponse({ status: 404, description: 'Accommodation not found or not active' })
+  async findPublicPrice(@Param('id') id: string) {
+    return this.accommodationsService.findPublicPrice(id);
+  }
+
+  /**
    * 숙소 공개 정보 조회 (SEO용)
    * 인증 불필요
    */

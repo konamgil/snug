@@ -2,13 +2,12 @@
 
 import { useState, useTransition, useCallback } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bath, BedDouble, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
-import { useCurrencySafe } from '@/shared/providers';
+import { useCurrencySafe, useNavigationLoading } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
 import { useRouter } from '@/i18n/navigation';
 import { toggleFavorite } from '@/shared/api/favorites';
@@ -65,12 +64,12 @@ const tagSecondColors = {
 export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: RoomCardProps) {
   // Priority loading for first 2 images (above the fold)
   const isPriority = index !== undefined && index < 2;
-  const locale = useLocale();
   const t = useTranslations('rooms');
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { format } = useCurrencySafe();
+  const { navigateWithLoading } = useNavigationLoading();
   const user = useAuthStore((state) => state.user);
   const [isFavorite, setIsFavorite] = useState(room.isFavorite || false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -87,7 +86,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   }, [queryClient, room.id]);
 
   // Build room detail URL with search params (checkIn, checkOut, guests)
-  const buildRoomDetailUrl = () => {
+  const buildRoomDetailUrl = useCallback(() => {
     const params = new URLSearchParams();
     const checkIn = searchParams.get('checkIn');
     const checkOut = searchParams.get('checkOut');
@@ -104,10 +103,25 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
     if (infants) params.set('infants', infants);
 
     const queryString = params.toString();
-    return `/${locale}/room/${room.id}${queryString ? `?${queryString}` : ''}`;
-  };
+    return `/room/${room.id}${queryString ? `?${queryString}` : ''}`;
+  }, [searchParams, room.id]);
 
-  const roomDetailUrl = buildRoomDetailUrl();
+  // 카드 클릭 시 데이터 로드 후 페이지 이동
+  const handleCardClick = useCallback(() => {
+    const roomDetailUrl = buildRoomDetailUrl();
+
+    navigateWithLoading(
+      async () => {
+        // 데이터가 캐시에 없으면 로드
+        await queryClient.fetchQuery({
+          queryKey: accommodationKeys.detail(room.id),
+          queryFn: () => getAccommodationPublic(room.id),
+          staleTime: 5 * 60 * 1000,
+        });
+      },
+      () => router.push(roomDetailUrl),
+    );
+  }, [buildRoomDetailUrl, navigateWithLoading, queryClient, room.id, router]);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -151,11 +165,14 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   // Mobile View - Full width card with large image
   if (viewMode === 'mobile') {
     return (
-      <Link
-        href={roomDetailUrl}
+      <div
+        onClick={handleCardClick}
         onMouseEnter={handlePrefetch}
         onTouchStart={handlePrefetch}
         className="group cursor-pointer block active:scale-[0.98] active:opacity-90 transition-transform duration-150"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
       >
         {/* Image Container - Larger aspect ratio for mobile */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
@@ -248,18 +265,21 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
             </span>
           </div>
         </div>
-      </Link>
+      </div>
     );
   }
 
   // Grid View
   if (viewMode === 'grid') {
     return (
-      <Link
-        href={roomDetailUrl}
+      <div
+        onClick={handleCardClick}
         onMouseEnter={handlePrefetch}
         onTouchStart={handlePrefetch}
         className="group cursor-pointer block active:scale-[0.98] active:opacity-90 transition-transform duration-150"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
       >
         {/* Image Container */}
         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
@@ -368,17 +388,20 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
             </span>
           </div>
         </div>
-      </Link>
+      </div>
     );
   }
 
   // List View (default)
   return (
-    <Link
-      href={roomDetailUrl}
+    <div
+      onClick={handleCardClick}
       onMouseEnter={handlePrefetch}
       onTouchStart={handlePrefetch}
-      className="flex gap-3 py-3 hover:bg-[hsl(var(--snug-light-gray))]/50 active:scale-[0.99] active:opacity-90 transition-all duration-150"
+      className="flex gap-3 py-3 hover:bg-[hsl(var(--snug-light-gray))]/50 active:scale-[0.99] active:opacity-90 transition-all duration-150 cursor-pointer"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
     >
       {/* Image */}
       <div className="relative w-[120px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden">
@@ -471,6 +494,6 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

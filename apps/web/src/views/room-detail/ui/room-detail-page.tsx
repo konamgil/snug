@@ -31,7 +31,12 @@ import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel, type RoomTypeVariant } from './booking-side-panel';
 import { useCurrencySafe } from '@/shared/providers';
 import { useAuthStore } from '@/shared/stores';
-import { useAccommodationPublic, useSimilarAccommodations } from '@/shared/api/accommodation';
+import {
+  useAccommodationPublic,
+  useAccommodationPrice,
+  useSimilarAccommodations,
+} from '@/shared/api/accommodation';
+import { PriceSkeleton } from '@/shared/ui';
 import { recordView } from '@/shared/api/favorites';
 import {
   getFacilityI18nKey,
@@ -220,6 +225,8 @@ export function RoomDetailPage() {
     isLoading,
     error: accommodationError,
   } = useAccommodationPublic(roomId);
+  // 가격 데이터 별도 조회 (짧은 캐시 - 30초)
+  const { data: priceData, isLoading: isPriceLoading } = useAccommodationPrice(roomId);
   const { data: similarRooms = [] } = useSimilarAccommodations(roomId, 6);
   const error = accommodationError
     ? 'Failed to load accommodation'
@@ -311,9 +318,10 @@ export function RoomDetailPage() {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Calculate derived values from accommodation data
-  const pricePerNight = accommodation?.basePrice ?? roomData.pricePerNight;
-  const cleaningFee = accommodation?.cleaningFee ?? 0;
+  // Calculate derived values from price data (with fallback to accommodation data)
+  // priceData 우선 사용, 없으면 accommodation 데이터, 없으면 mock 데이터
+  const pricePerNight = priceData?.basePrice ?? accommodation?.basePrice ?? roomData.pricePerNight;
+  const cleaningFee = priceData?.cleaningFee ?? accommodation?.cleaningFee ?? 0;
   const nights = calculateNights(checkIn, checkOut) || roomData.nights;
   const subtotal = pricePerNight * nights;
   const serviceFeePercent = SERVICE_FEE_PERCENT;
@@ -1190,6 +1198,7 @@ export function RoomDetailPage() {
                   nights: nights,
                   cleaningFee: cleaningFee,
                 }}
+                isPriceLoading={isPriceLoading}
                 initialCheckIn={checkIn}
                 initialCheckOut={checkOut}
                 initialGuests={guests}
@@ -1215,9 +1224,13 @@ export function RoomDetailPage() {
           <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
             {t('roomDetail.total')}
           </span>
-          <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
-            {format(total)}
-          </span>
+          {isPriceLoading ? (
+            <PriceSkeleton variant="inline" />
+          ) : (
+            <span className="text-base font-bold text-[hsl(var(--snug-text-primary))]">
+              {format(total)}
+            </span>
+          )}
         </div>
         {/* Bottom Row: Actions - Disabled until official launch */}
         <div className="flex flex-col gap-2">
