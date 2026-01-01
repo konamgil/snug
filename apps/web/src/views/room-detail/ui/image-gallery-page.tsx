@@ -184,13 +184,17 @@ export function ImageGalleryPage({ roomId }: ImageGalleryPageProps) {
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
                   className={`flex-shrink-0 flex flex-col items-center gap-2 transition-opacity ${
-                    selectedCategory === category.id ? 'opacity-100' : 'opacity-50 hover:opacity-75'
+                    selectedCategory === category.id ||
+                    (!selectedCategory && category.id === categories[0]?.id)
+                      ? 'opacity-100'
+                      : 'opacity-50 hover:opacity-75'
                   }`}
                 >
                   {/* Thumbnail */}
                   <div
                     className={`relative w-28 h-28 rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedCategory === category.id
+                      selectedCategory === category.id ||
+                      (!selectedCategory && category.id === categories[0]?.id)
                         ? 'border-[hsl(var(--snug-orange))]'
                         : 'border-transparent'
                     }`}
