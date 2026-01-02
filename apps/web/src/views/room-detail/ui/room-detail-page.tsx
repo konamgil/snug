@@ -296,10 +296,14 @@ export function RoomDetailPage() {
 
   const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
+  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
+  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
+
   // Always try to load Google Maps (will show error overlay if no key)
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: googleMapsApiKey,
     id: 'google-map-script',
+    libraries,
   });
 
   // Show map when loaded (even if there's an API key error, Google Maps will show)
