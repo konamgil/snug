@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useState, useRef, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { useCallback, useState, useRef, useMemo, useEffect } from 'react';
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { X, ImageIcon } from 'lucide-react';
@@ -71,29 +71,6 @@ function groupRoomsByLocation(rooms: Room[]): MarkerGroup[] {
     }));
 }
 
-// 그룹 마커 아이콘 생성 (가격 · N more)
-function createGroupMarkerIcon(
-  formattedPrice: string,
-  extraCount: number,
-  isSelected: boolean,
-): string {
-  const bgColor = isSelected ? '%23ff7900' : '%236B7280';
-  const encodedPrice = encodeURIComponent(formattedPrice);
-
-  if (extraCount > 0) {
-    // 그룹 마커: "가격 · N more stays"
-    const width = 170;
-    const height = 36;
-    const extraText = encodeURIComponent(`· ${extraCount} more stays`);
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect x="0" y="0" width="${width}" height="${height}" rx="18" fill="${bgColor}"/><text x="85" y="24" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">${encodedPrice} ${extraText}</text></svg>`;
-    return `data:image/svg+xml,${svg}`;
-  } else {
-    // 단일 마커: 가격만
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="90" height="36"><rect x="0" y="0" width="90" height="36" rx="18" fill="${bgColor}"/><text x="45" y="24" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">${encodedPrice}</text></svg>`;
-    return `data:image/svg+xml,${svg}`;
-  }
-}
-
 // First tag - soft background
 const tagFirstColors = {
   orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
@@ -125,10 +102,20 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
   // 숙소들을 좌표별로 그룹화
   const markerGroups = useMemo(() => groupRoomsByLocation(rooms), [rooms]);
 
+  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
+  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     id: 'google-map-script',
+    libraries,
   });
+
+  // Store markers ref for cleanup
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+
+  // 마커 클릭 직후 카드 클릭 방지용
+  const markerClickedRef = useRef(false);
 
   const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
     mapRef.current = mapInstance;
@@ -141,32 +128,101 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
     onGroupSelect?.([]);
   }, [onRoomSelect, onGroupSelect]);
 
-  // 마커 클릭 직후 카드 클릭 방지용
-  const markerClickedRef = useRef(false);
+  const handleMarkerClick = useCallback(
+    (group: MarkerGroup) => {
+      // 마커 클릭 플래그 설정 (카드 클릭 방지)
+      markerClickedRef.current = true;
+      setTimeout(() => {
+        markerClickedRef.current = false;
+      }, 500);
 
-  const handleMarkerClick = (group: MarkerGroup) => {
-    // 마커 클릭 플래그 설정 (카드 클릭 방지)
-    markerClickedRef.current = true;
-    setTimeout(() => {
-      markerClickedRef.current = false;
-    }, 500);
+      setSelectedGroup(group);
+      setCurrentIndex(0);
 
-    setSelectedGroup(group);
-    setCurrentIndex(0);
+      // PC: 그룹 내 모든 숙소 ID 전달
+      onGroupSelect?.(group.rooms.map((r) => r.id));
+      // 첫 번째 숙소 ID도 전달 (기존 호환성)
+      if (group.rooms[0]) {
+        onRoomSelect?.(group.rooms[0].id);
+      }
 
-    // PC: 그룹 내 모든 숙소 ID 전달
-    onGroupSelect?.(group.rooms.map((r) => r.id));
-    // 첫 번째 숙소 ID도 전달 (기존 호환성)
-    if (group.rooms[0]) {
-      onRoomSelect?.(group.rooms[0].id);
-    }
+      // Pan map to show marker above the bottom card
+      if (mapRef.current) {
+        const offsetLat = group.lat - 0.003;
+        mapRef.current.panTo({ lat: offsetLat, lng: group.lng });
+      }
+    },
+    [onGroupSelect, onRoomSelect],
+  );
 
-    // Pan map to show marker above the bottom card
-    if (mapRef.current) {
-      const offsetLat = group.lat - 0.003;
-      mapRef.current.panTo({ lat: offsetLat, lng: group.lng });
-    }
-  };
+  // Create/update Advanced Markers when map loads or data changes
+  useEffect(() => {
+    if (!mapRef.current || !isLoaded) return;
+
+    // Clean up existing markers
+    markersRef.current.forEach((marker) => {
+      marker.map = null;
+    });
+    markersRef.current = [];
+
+    // Create new markers
+    markerGroups.forEach((group) => {
+      // Create custom marker content
+      const content = document.createElement('div');
+      const formattedPrice = format(group.minPrice, { compact: true });
+      const extraCount = group.rooms.length - 1;
+      const isSelected = selectedGroup?.key === group.key;
+      const bgColor = isSelected ? '#ff7900' : '#6B7280';
+
+      if (extraCount > 0) {
+        content.innerHTML = `
+          <div style="
+            background: ${bgColor};
+            color: white;
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            white-space: nowrap;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          ">${formattedPrice} · ${extraCount} more stays</div>
+        `;
+      } else {
+        content.innerHTML = `
+          <div style="
+            background: ${bgColor};
+            color: white;
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          ">${formattedPrice}</div>
+        `;
+      }
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map: mapRef.current,
+        position: { lat: group.lat, lng: group.lng },
+        content,
+      });
+
+      marker.addListener('click', () => handleMarkerClick(group));
+      markersRef.current.push(marker);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      markersRef.current.forEach((marker) => {
+        marker.map = null;
+      });
+      markersRef.current = [];
+    };
+  }, [isLoaded, markerGroups, selectedGroup?.key, format, handleMarkerClick]);
 
   const handleClose = () => {
     setSelectedGroup(null);
@@ -305,27 +361,14 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
         mapContainerStyle={mapContainerStyle}
         center={initialCenter || defaultCenter}
         zoom={15}
-        options={mapOptions}
+        options={{
+          ...mapOptions,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID',
+        }}
         onLoad={onMapLoad}
         onClick={onMapClick}
-      >
-        {markerGroups.map((group) => (
-          <MarkerF
-            key={group.key}
-            position={{ lat: group.lat, lng: group.lng }}
-            onClick={() => handleMarkerClick(group)}
-            icon={{
-              url: createGroupMarkerIcon(
-                format(group.minPrice, { compact: true }),
-                group.rooms.length - 1,
-                selectedGroup?.key === group.key,
-              ),
-              scaledSize: new google.maps.Size(group.rooms.length > 1 ? 170 : 90, 36),
-              anchor: new google.maps.Point(group.rooms.length > 1 ? 85 : 45, 18),
-            }}
-          />
-        ))}
-      </GoogleMap>
+      />
+      {/* Markers are created programmatically via AdvancedMarkerElement in useEffect */}
 
       {/* Selected Room Cards - Mobile Carousel with peek effect */}
       {selectedGroup && currentRoom && (

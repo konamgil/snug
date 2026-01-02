@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import type { AccommodationListItem } from '@snug/types';
 import {
   HeartIcon,
@@ -99,11 +99,18 @@ export function AccommodationPreviewModal({
   const [similarAccommodations, setSimilarAccommodations] = useState<AccommodationListItem[]>([]);
   const [isSimilarLoading, setIsSimilarLoading] = useState(false);
 
+  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
+  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
+
   // Load Google Maps
   const { isLoaded: isMapLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     id: 'google-map-script',
+    libraries,
   });
+
+  // Store marker ref for cleanup
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   // Geocode address to get coordinates
   useEffect(() => {
@@ -133,6 +140,37 @@ export function AccommodationPreviewModal({
       }
     });
   }, [isOpen, isMapLoaded, data.address, data.latitude, data.longitude]);
+
+  // Create/update Advanced Marker when map center changes
+  useEffect(() => {
+    if (!mapRef.current || !isMapLoaded || !mapCenter) {
+      // Clean up existing marker
+      if (markerRef.current) {
+        markerRef.current.map = null;
+        markerRef.current = null;
+      }
+      return;
+    }
+
+    // Clean up existing marker
+    if (markerRef.current) {
+      markerRef.current.map = null;
+    }
+
+    // Create new marker
+    markerRef.current = new google.maps.marker.AdvancedMarkerElement({
+      map: mapRef.current,
+      position: mapCenter,
+    });
+
+    // Cleanup on unmount
+    return () => {
+      if (markerRef.current) {
+        markerRef.current.map = null;
+        markerRef.current = null;
+      }
+    };
+  }, [isMapLoaded, mapCenter]);
 
   // Fetch similar accommodations when modal opens and ID is available
   useEffect(() => {
@@ -455,11 +493,12 @@ export function AccommodationPreviewModal({
                     mapContainerStyle={mapContainerStyle}
                     center={mapCenter}
                     zoom={16}
-                    options={mapOptions}
+                    options={{
+                      ...mapOptions,
+                      mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID',
+                    }}
                     onLoad={onMapLoad}
-                  >
-                    <MarkerF position={mapCenter} />
-                  </GoogleMap>
+                  />
                 ) : (
                   <div className="w-full h-full bg-[#f4f4f4] flex flex-col items-center justify-center gap-2">
                     <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />
