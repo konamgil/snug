@@ -110,8 +110,8 @@ function FacebookIcon() {
 export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
   const t = useTranslations('auth.login');
   const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle);
-  const _signInWithKakao = useAuthStore((state) => state.signInWithKakao);
-  const _signInWithFacebook = useAuthStore((state) => state.signInWithFacebook);
+  const signInWithKakao = useAuthStore((state) => state.signInWithKakao);
+  const signInWithFacebook = useAuthStore((state) => state.signInWithFacebook);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [recentMethod, setRecentMethod] = useState<LoginMethod | null>(null);
@@ -142,12 +142,11 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     setError('Apple login is not available yet');
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleKakaoLogin = async () => {
     setLoadingProvider('kakao');
     setError(null);
     setRecentLoginMethod('kakao');
-    const { error } = await _signInWithKakao();
+    const { error } = await signInWithKakao();
     if (error) {
       setError(error.message);
       setLoadingProvider(null);
@@ -159,7 +158,7 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
     setLoadingProvider('facebook');
     setError(null);
     setRecentLoginMethod('facebook');
-    const { error } = await _signInWithFacebook();
+    const { error } = await signInWithFacebook();
     if (error) {
       setError(error.message);
       setLoadingProvider(null);
@@ -196,10 +195,13 @@ export function SocialLoginButtons({ onEmailClick }: SocialLoginButtonsProps) {
         disabled={true}
       />
       <SocialButton
-        icon={<KakaoIcon />}
+        icon={
+          loadingProvider === 'kakao' ? <Loader2 className="w-5 h-5 animate-spin" /> : <KakaoIcon />
+        }
         label={t('continueWithKakao')}
-        badge={t('comingSoon')}
-        disabled={true}
+        onClick={handleKakaoLogin}
+        badge={recentMethod === 'kakao' ? 'recent' : undefined}
+        disabled={isLoading}
       />
       <SocialButton
         icon={<FacebookIcon />}
