@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LoadingLogo } from '@/shared/ui';
 
 interface NavigationLoadingContextType {
   isLoading: boolean;
@@ -29,7 +29,6 @@ interface NavigationLoadingProviderProps {
 export function NavigationLoadingProvider({ children }: NavigationLoadingProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
-  const prefersReducedMotion = useReducedMotion();
 
   const startLoading = useCallback(() => {
     setIsLoading(true);
@@ -86,41 +85,8 @@ export function NavigationLoadingProvider({ children }: NavigationLoadingProvide
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-white/60 backdrop-blur-sm"
             aria-busy="true"
-            role="status"
-            aria-label="Loading"
           >
-            {prefersReducedMotion ? (
-              <Image
-                src="/images/logo/favicon.svg"
-                alt=""
-                width={80}
-                height={97}
-                priority
-                aria-hidden="true"
-              />
-            ) : (
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1],
-                  opacity: [0.85, 1, 0.85],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              >
-                <Image
-                  src="/images/logo/favicon.svg"
-                  alt=""
-                  width={80}
-                  height={97}
-                  priority
-                  aria-hidden="true"
-                />
-              </motion.div>
-            )}
-            <span className="sr-only">Loading...</span>
+            <LoadingLogo variant="buildings" size="lg" />
           </motion.div>
         )}
       </AnimatePresence>
