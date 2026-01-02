@@ -132,17 +132,6 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
   // 마커 클릭 직후 카드 클릭 방지용
   const markerClickedRef = useRef(false);
 
-  const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
-    mapRef.current = mapInstance;
-  }, []);
-
-  const onMapClick = useCallback(() => {
-    setSelectedGroup(null);
-    setCurrentIndex(0);
-    onRoomSelect?.(null);
-    onGroupSelect?.([]);
-  }, [onRoomSelect, onGroupSelect]);
-
   // 반응형 padding 계산 (모바일: carousel 고려)
   const getPaddingForView = useCallback((): google.maps.Padding => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -150,6 +139,38 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
       ? { top: 80, right: 20, bottom: 280, left: 20 }
       : { top: 100, right: 20, bottom: 40, left: 20 };
   }, []);
+
+  const onMapLoad = useCallback(
+    (mapInstance: google.maps.Map) => {
+      mapRef.current = mapInstance;
+
+      // 맵 로드 시 즉시 fitBounds 적용 (모바일 뷰 전환 대응)
+      if (markerGroups.length > 0) {
+        const bounds = calculateBounds(markerGroups);
+        if (bounds) {
+          mapInstance.fitBounds(bounds, getPaddingForView());
+
+          // fitBounds 후 zoom 레벨 제한
+          google.maps.event.addListenerOnce(mapInstance, 'bounds_changed', () => {
+            const currentZoom = mapInstance.getZoom() ?? DEFAULT_ZOOM;
+            if (currentZoom > MAX_ZOOM) {
+              mapInstance.setZoom(MAX_ZOOM);
+            } else if (currentZoom < MIN_ZOOM) {
+              mapInstance.setZoom(MIN_ZOOM);
+            }
+          });
+        }
+      }
+    },
+    [markerGroups, getPaddingForView],
+  );
+
+  const onMapClick = useCallback(() => {
+    setSelectedGroup(null);
+    setCurrentIndex(0);
+    onRoomSelect?.(null);
+    onGroupSelect?.([]);
+  }, [onRoomSelect, onGroupSelect]);
 
   // 검색 결과 변경 시 fitBounds로 모든 마커가 보이도록 자동 줌
   useEffect(() => {
