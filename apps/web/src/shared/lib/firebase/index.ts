@@ -20,6 +20,9 @@ export {
   logPageView,
 } from './analytics';
 
+// Analytics Provider
+export { AnalyticsProvider } from './analytics-provider';
+
 // Firebase Performance
 export { getFirebasePerformance, initPerformance } from './performance';
 

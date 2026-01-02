@@ -4,6 +4,7 @@ import type { User } from '@snug/types';
 import { getSupabaseClient } from '@/shared/lib/supabase';
 import { upsertUserFromAuth, getUserBySupabaseId } from '@/shared/api/user';
 import { config } from '@/shared/config';
+import { logLogin, logSignUp } from '@/shared/lib/firebase';
 
 function getAppUrl(): string {
   // Client-side: always use current origin (most reliable)
@@ -126,6 +127,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             // Google: picture, Others: avatar_url
             avatarUrl: metadata?.picture || metadata?.avatar_url,
           });
+          // Track login event
+          const provider = session.user.app_metadata?.provider || 'email';
+          logLogin(provider);
         } catch (dbError) {
           console.error('Failed to upsert user on sign in:', dbError);
         }
@@ -185,6 +189,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
       return { error };
     }
+
+    // Track signup event
+    logSignUp('email');
 
     return { error: null };
   },

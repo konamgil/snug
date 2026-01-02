@@ -1,9 +1,9 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useState, Suspense, type ReactNode } from 'react';
 import { EasterEggProvider } from '@/shared/lib';
-import { FCMProvider } from '@/shared/lib/firebase';
+import { AnalyticsProvider, FCMProvider } from '@/shared/lib/firebase';
 import { AuthProvider, CurrencyProvider, NavigationLoadingProvider } from '@/shared/providers';
 
 interface ProvidersProps {
@@ -26,13 +26,17 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <FCMProvider>
-          <CurrencyProvider>
-            <NavigationLoadingProvider>
-              <EasterEggProvider>{children}</EasterEggProvider>
-            </NavigationLoadingProvider>
-          </CurrencyProvider>
-        </FCMProvider>
+        <Suspense fallback={null}>
+          <AnalyticsProvider>
+            <FCMProvider>
+              <CurrencyProvider>
+                <NavigationLoadingProvider>
+                  <EasterEggProvider>{children}</EasterEggProvider>
+                </NavigationLoadingProvider>
+              </CurrencyProvider>
+            </FCMProvider>
+          </AnalyticsProvider>
+        </Suspense>
       </AuthProvider>
     </QueryClientProvider>
   );

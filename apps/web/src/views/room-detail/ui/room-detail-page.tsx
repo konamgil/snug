@@ -46,6 +46,7 @@ import {
   getBuildingTypeLabel,
 } from '@/shared/lib';
 import { SERVICE_FEE_PERCENT, getLongStayDiscountPercent } from '@/shared/config';
+import { logViewItem } from '@/shared/lib/firebase';
 
 // 숙소 유형별 색상
 const roomTypeColors: Record<RoomTypeVariant, string> = {
@@ -262,6 +263,19 @@ export function RoomDetailPage() {
       recordView(roomId);
     }
   }, [user, roomId, accommodation]);
+
+  // Track view item event for analytics
+  useEffect(() => {
+    if (accommodation) {
+      logViewItem({
+        itemId: roomId,
+        itemName: accommodation.roomName,
+        price: accommodation.pricing?.basePrice || 0,
+        location: accommodation.sigunguEn || accommodation.sidoEn,
+        accommodationType: accommodation.accommodationType,
+      });
+    }
+  }, [roomId, accommodation]);
 
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestPickerRef = useRef<HTMLDivElement>(null);

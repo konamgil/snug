@@ -26,6 +26,7 @@ import type {
   BuildingType,
   GenderRule,
 } from '@snug/types';
+import { logSearch } from '@/shared/lib/firebase';
 
 // UI 필터 값 → API 파라미터 매핑
 const roomTypeToAccommodationType: Record<string, AccommodationType> = {
@@ -288,6 +289,18 @@ function SearchPageContent() {
 
   // Fetch accommodations with React Query caching
   const { data: accommodationsData, isLoading } = usePublicAccommodations(apiSearchParams);
+
+  // Track search events
+  useEffect(() => {
+    if (debouncedLocation || debouncedGuests > 0) {
+      logSearch({
+        location: debouncedLocation || undefined,
+        checkIn: checkIn?.toISOString().split('T')[0],
+        checkOut: checkOut?.toISOString().split('T')[0],
+        guests: debouncedGuests,
+      });
+    }
+  }, [debouncedLocation, debouncedGuests, checkIn, checkOut]);
 
   // Map API response to Room[] format
   const rooms = useMemo((): Room[] => {
