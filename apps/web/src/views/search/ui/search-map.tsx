@@ -71,6 +71,21 @@ function groupRoomsByLocation(rooms: Room[]): MarkerGroup[] {
     }));
 }
 
+// 마커 그룹들의 bounds 계산
+function calculateBounds(markerGroups: MarkerGroup[]): google.maps.LatLngBounds | null {
+  if (markerGroups.length === 0) return null;
+  const bounds = new google.maps.LatLngBounds();
+  markerGroups.forEach((group) => {
+    bounds.extend(new google.maps.LatLng(group.lat, group.lng));
+  });
+  return bounds;
+}
+
+// zoom 제한 상수
+const MAX_ZOOM = 17;
+const MIN_ZOOM = 11;
+const DEFAULT_ZOOM = 15;
+
 // First tag - soft background
 const tagFirstColors = {
   orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
@@ -128,6 +143,38 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
     onGroupSelect?.([]);
   }, [onRoomSelect, onGroupSelect]);
 
+  // 반응형 padding 계산 (모바일: carousel 고려)
+  const getPaddingForView = useCallback((): google.maps.Padding => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    return isMobile
+      ? { top: 80, right: 20, bottom: 280, left: 20 }
+      : { top: 100, right: 20, bottom: 40, left: 20 };
+  }, []);
+
+  // 검색 결과 변경 시 fitBounds로 모든 마커가 보이도록 자동 줌
+  useEffect(() => {
+    if (!mapRef.current || !isLoaded || markerGroups.length === 0) return;
+
+    const bounds = calculateBounds(markerGroups);
+    if (bounds) {
+      mapRef.current.fitBounds(bounds, getPaddingForView());
+
+      // fitBounds 후 zoom 레벨 제한
+      const listener = google.maps.event.addListenerOnce(mapRef.current, 'bounds_changed', () => {
+        const currentZoom = mapRef.current?.getZoom() ?? DEFAULT_ZOOM;
+        if (currentZoom > MAX_ZOOM) {
+          mapRef.current?.setZoom(MAX_ZOOM);
+        } else if (currentZoom < MIN_ZOOM) {
+          mapRef.current?.setZoom(MIN_ZOOM);
+        }
+      });
+
+      return () => {
+        google.maps.event.removeListener(listener);
+      };
+    }
+  }, [markerGroups, isLoaded, getPaddingForView]);
+
   const handleMarkerClick = useCallback(
     (group: MarkerGroup) => {
       // 마커 클릭 플래그 설정 (카드 클릭 방지)
@@ -146,10 +193,18 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
         onRoomSelect?.(group.rooms[0].id);
       }
 
-      // Pan map to show marker above the bottom card
+      // Pan map to show marker above the bottom card + zoom 전환
       if (mapRef.current) {
         const offsetLat = group.lat - 0.003;
         mapRef.current.panTo({ lat: offsetLat, lng: group.lng });
+
+        // 부드러운 zoom 전환 (현재 zoom이 16 미만일 때만)
+        const currentZoom = mapRef.current.getZoom() ?? DEFAULT_ZOOM;
+        if (currentZoom < 16) {
+          setTimeout(() => {
+            mapRef.current?.setZoom(16);
+          }, 300);
+        }
       }
     },
     [onGroupSelect, onRoomSelect],
@@ -360,7 +415,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={initialCenter || defaultCenter}
-        zoom={15}
+        zoom={DEFAULT_ZOOM}
         options={{
           ...mapOptions,
           mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID',
