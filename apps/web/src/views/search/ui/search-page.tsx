@@ -292,12 +292,13 @@ function SearchPageContent() {
 
   // Track search events
   useEffect(() => {
-    if (debouncedLocation || debouncedGuests > 0) {
+    const totalGuests = debouncedGuests.adults + debouncedGuests.children;
+    if (debouncedLocation || totalGuests > 0) {
       logSearch({
         location: debouncedLocation || undefined,
         checkIn: checkIn?.toISOString().split('T')[0],
         checkOut: checkOut?.toISOString().split('T')[0],
-        guests: debouncedGuests,
+        guests: totalGuests,
       });
     }
   }, [debouncedLocation, debouncedGuests, checkIn, checkOut]);

@@ -18,8 +18,8 @@ type SocialProvider = 'google' | 'apple' | 'kakao' | 'facebook';
 // Supabase에서 활성화된 provider 목록 (Supabase Dashboard에서 설정 후 여기에 추가)
 const ENABLED_PROVIDERS: SocialProvider[] = [
   'google', // Google OAuth 활성화됨
+  'kakao', // Kakao OAuth 활성화됨
   // 'apple',   // Apple OAuth 설정 후 주석 해제
-  // 'kakao',   // Kakao OAuth 설정 후 주석 해제
   // 'facebook', // Facebook OAuth 설정 후 주석 해제
 ];
 

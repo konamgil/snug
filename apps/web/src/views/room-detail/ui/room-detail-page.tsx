@@ -270,8 +270,8 @@ export function RoomDetailPage() {
       logViewItem({
         itemId: roomId,
         itemName: accommodation.roomName,
-        price: accommodation.pricing?.basePrice || 0,
-        location: accommodation.sigunguEn || accommodation.sidoEn,
+        price: accommodation.basePrice || 0,
+        location: accommodation.sigunguEn || accommodation.sidoEn || undefined,
         accommodationType: accommodation.accommodationType,
       });
     }
