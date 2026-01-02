@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, Suspense, type ReactNode } from 'react';
-import { EasterEggProvider } from '@/shared/lib';
+import { EasterEggProvider, VersionCheckProvider } from '@/shared/lib';
 import { AnalyticsProvider, FCMProvider } from '@/shared/lib/firebase';
 import { AuthProvider, CurrencyProvider, NavigationLoadingProvider } from '@/shared/providers';
 
@@ -24,20 +24,22 @@ export function Providers({ children }: ProvidersProps) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Suspense fallback={null}>
-          <AnalyticsProvider>
-            <FCMProvider>
-              <CurrencyProvider>
-                <NavigationLoadingProvider>
-                  <EasterEggProvider>{children}</EasterEggProvider>
-                </NavigationLoadingProvider>
-              </CurrencyProvider>
-            </FCMProvider>
-          </AnalyticsProvider>
-        </Suspense>
-      </AuthProvider>
-    </QueryClientProvider>
+    <VersionCheckProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <AnalyticsProvider>
+              <FCMProvider>
+                <CurrencyProvider>
+                  <NavigationLoadingProvider>
+                    <EasterEggProvider>{children}</EasterEggProvider>
+                  </NavigationLoadingProvider>
+                </CurrencyProvider>
+              </FCMProvider>
+            </AnalyticsProvider>
+          </Suspense>
+        </AuthProvider>
+      </QueryClientProvider>
+    </VersionCheckProvider>
   );
 }

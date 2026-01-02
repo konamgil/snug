@@ -47,5 +47,8 @@ export {
 // Server Action utilities
 export { ServerActionError, isVersionMismatchError, safeAction, wrapAction } from './safe-action';
 
+// Version check utilities (global error handler for Server Action mismatch)
+export { useVersionCheck, VersionCheckProvider } from './version-check';
+
 // Debounce utilities
 export { useDebouncedCallback, useDebouncedValue } from './use-debounce';
