@@ -10,7 +10,7 @@ export function CtaSection() {
       <div className="relative max-w-[1312px] mx-auto px-4 md:px-8">
         {/* Content */}
         <motion.div
-          className="flex flex-col items-center text-center mb-4 md:mb-6"
+          className="relative z-10 flex flex-col items-center text-center mb-4 md:mb-6"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
