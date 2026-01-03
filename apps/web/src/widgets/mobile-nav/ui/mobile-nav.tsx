@@ -8,6 +8,7 @@ import { usePathname } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
 import { cn } from '@/shared/lib';
 import { useAuthStore } from '@/shared/stores';
+import { useNavigationLoading } from '@/shared/providers';
 import { useState, useTransition } from 'react';
 
 type NavItemKey = 'search' | 'map' | 'messages' | 'profile';
@@ -53,6 +54,7 @@ export function MobileNav() {
   const locale = useLocale();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const { startLoading } = useNavigationLoading();
   const [isPending, startTransition] = useTransition();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 
@@ -114,8 +116,16 @@ export function MobileNav() {
     return getLocalizedHref(item.href);
   };
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = (item: NavItem, href: string) => {
     setPendingHref(href);
+
+    // 검색 ↔ 지도 전환은 같은 페이지라 로딩 오버레이 불필요
+    const isViewToggle = isOnSearch && (item.labelKey === 'search' || item.labelKey === 'map');
+
+    if (!isViewToggle) {
+      startLoading(); // 로딩 오버레이 즉시 표시
+    }
+
     startTransition(() => {
       router.push(href);
     });
@@ -133,7 +143,7 @@ export function MobileNav() {
             <button
               key={item.href}
               type="button"
-              onClick={() => handleNavClick(href)}
+              onClick={() => handleNavClick(item, href)}
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full relative',
                 'transition-colors duration-100 active:scale-95 rounded-lg mx-1',
