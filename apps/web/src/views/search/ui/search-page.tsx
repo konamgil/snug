@@ -674,7 +674,7 @@ function SearchPageContent() {
 
         {/* View Toggle Button - Floating (리스트 뷰에서만 표시) */}
         {mobileView === 'list' && (
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
+          <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40">
             <button
               type="button"
               onClick={toggleMobileView}
