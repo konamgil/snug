@@ -68,12 +68,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           // DB에 유저가 없으면 upsert
           if (!dbUser) {
             const metadata = session.user.user_metadata;
+            // Kakao: name (full name) or nickname, Google: given_name/family_name
+            const fullName = metadata?.name || metadata?.nickname || '';
+            const firstName =
+              metadata?.given_name || metadata?.first_name || fullName.split(' ')[0] || null;
+            const lastName =
+              metadata?.family_name ||
+              metadata?.last_name ||
+              fullName.split(' ').slice(1).join(' ') ||
+              null;
+
             dbUser = await upsertUserFromAuth({
               email: session.user.email!,
               supabaseId: session.user.id,
-              // Google: given_name/family_name, Others: first_name/last_name
-              firstName: metadata?.given_name || metadata?.first_name,
-              lastName: metadata?.family_name || metadata?.last_name,
+              firstName,
+              lastName,
               // Google: picture, Others: avatar_url
               avatarUrl: metadata?.picture || metadata?.avatar_url,
             });
@@ -118,12 +127,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         let dbUser: User | null = null;
         try {
           const metadata = session.user.user_metadata;
+          // Kakao: name (full name) or nickname, Google: given_name/family_name
+          const fullName = metadata?.name || metadata?.nickname || '';
+          const firstName =
+            metadata?.given_name || metadata?.first_name || fullName.split(' ')[0] || null;
+          const lastName =
+            metadata?.family_name ||
+            metadata?.last_name ||
+            fullName.split(' ').slice(1).join(' ') ||
+            null;
+
           dbUser = await upsertUserFromAuth({
             email: session.user.email!,
             supabaseId: session.user.id,
-            // Google: given_name/family_name, Others: first_name/last_name
-            firstName: metadata?.given_name || metadata?.first_name,
-            lastName: metadata?.family_name || metadata?.last_name,
+            firstName,
+            lastName,
             // Google: picture, Others: avatar_url
             avatarUrl: metadata?.picture || metadata?.avatar_url,
           });

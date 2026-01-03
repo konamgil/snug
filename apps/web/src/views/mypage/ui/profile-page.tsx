@@ -212,12 +212,14 @@ export function ProfilePage() {
         setProfile(formData);
         setEditedProfile(formData);
         await refreshUser();
+        setIsEditing(false);
+        setShowCountryDropdown(false);
+      } else {
+        alert('프로필 저장에 실패했습니다. 다시 시도해주세요.');
       }
-
-      setIsEditing(false);
-      setShowCountryDropdown(false);
     } catch (error) {
       console.error('Failed to save profile:', error);
+      alert('프로필 저장 중 오류가 발생했습니다.');
     } finally {
       setIsSaving(false);
     }
