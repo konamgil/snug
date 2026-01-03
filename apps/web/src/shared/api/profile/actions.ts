@@ -38,12 +38,19 @@ export interface ProfileData {
   nationality: string | null;
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
 /**
  * 현재 인증된 사용자 프로필 조회
  */
 export async function getProfile(_userId: string): Promise<ProfileData | null> {
   try {
-    return await apiClient.get<ProfileData>('/users/me');
+    const response = await apiClient.get<ApiResponse<ProfileData>>('/users/me');
+    return response.data;
   } catch {
     return null;
   }
@@ -55,7 +62,8 @@ export async function getProfile(_userId: string): Promise<ProfileData | null> {
  */
 export async function getProfileBySupabaseId(_supabaseId: string): Promise<ProfileData | null> {
   try {
-    return await apiClient.get<ProfileData>('/users/me');
+    const response = await apiClient.get<ApiResponse<ProfileData>>('/users/me');
+    return response.data;
   } catch {
     return null;
   }
@@ -86,7 +94,8 @@ export async function updateProfile(
   data: UpdateProfileInput,
 ): Promise<ProfileData | null> {
   try {
-    return await apiClient.patch<ProfileData>('/users/me', data);
+    const response = await apiClient.patch<ApiResponse<ProfileData>>('/users/me', data);
+    return response.data;
   } catch {
     return null;
   }

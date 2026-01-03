@@ -138,13 +138,17 @@ export function ProfilePage() {
 
       try {
         const data = await getProfile(user.id);
+        console.log('[ProfilePage] getProfile result:', data);
         if (data) {
           const formData = apiToFormData(data);
+          console.log('[ProfilePage] formData:', formData);
           setProfile(formData);
           setEditedProfile(formData);
+        } else {
+          console.error('[ProfilePage] getProfile returned null - API may have failed');
         }
       } catch (error) {
-        console.error('Failed to load profile:', error);
+        console.error('[ProfilePage] Failed to load profile:', error);
       } finally {
         setIsLoading(false);
       }
@@ -462,8 +466,8 @@ export function ProfilePage() {
                   </>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className={readOnlyFieldClass}>{profile.firstName}</div>
-                    <div className={readOnlyFieldClass}>{profile.lastName}</div>
+                    <div className={readOnlyFieldClass}>{profile.firstName || '-'}</div>
+                    <div className={readOnlyFieldClass}>{profile.lastName || '-'}</div>
                   </div>
                 )}
               </div>
