@@ -96,14 +96,14 @@ export function LiveReadySection() {
               alt="Building illustration 1"
               width={264}
               height={544}
-              className="w-[180px] md:w-[264px] h-auto flex-shrink-0"
+              className="w-[140px] md:w-[264px] h-auto flex-shrink-0"
             />
             <Image
               src="/images/about/building_2_.svg"
               alt="Building illustration 2"
               width={264}
               height={680}
-              className="w-[180px] md:w-[264px] h-auto flex-shrink-0"
+              className="w-[140px] md:w-[264px] h-auto flex-shrink-0"
             />
           </motion.div>
         </div>
