@@ -1,14 +1,14 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 // TODO: 오픈 후 MessageCircle 복원 필요
 import { Search, Map, /* MessageCircle, */ User } from 'lucide-react';
 import { usePathname } from '@/i18n/navigation';
-import { Link } from 'next-view-transitions';
 import { useLocale } from 'next-intl';
 import { cn } from '@/shared/lib';
 import { useAuthStore } from '@/shared/stores';
+import { useState, useTransition } from 'react';
 
 type NavItemKey = 'search' | 'map' | 'messages' | 'profile';
 
@@ -51,7 +51,10 @@ export function MobileNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const [isPending, startTransition] = useTransition();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   // 현재 검색 페이지인지 확인
   const isOnSearch = pathname === '/search';
@@ -111,21 +114,32 @@ export function MobileNav() {
     return getLocalizedHref(item.href);
   };
 
+  const handleNavClick = (href: string) => {
+    setPendingHref(href);
+    startTransition(() => {
+      router.push(href);
+    });
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[hsl(var(--snug-border))] md:hidden safe-bottom">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
+          const href = getNavHref(item);
           const isActive = isItemActive(item);
+          const isNavigating = isPending && pendingHref === href;
+
           return (
-            <Link
+            <button
               key={item.href}
-              href={getNavHref(item)}
+              type="button"
+              onClick={() => handleNavClick(href)}
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full relative',
-                'transition-all duration-150 active:scale-95 active:bg-gray-100 rounded-lg mx-1',
-                isActive
-                  ? 'text-[hsl(var(--snug-orange))] hover:text-[hsl(var(--snug-orange))]'
-                  : 'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))]',
+                'transition-colors duration-100 active:scale-95 rounded-lg mx-1',
+                isActive || isNavigating
+                  ? 'text-[hsl(var(--snug-orange))]'
+                  : 'text-[hsl(var(--snug-gray))] active:text-[hsl(var(--snug-orange))]',
               )}
             >
               <div className="relative">
@@ -137,7 +151,7 @@ export function MobileNav() {
                 )}
               </div>
               <span className="text-[10px] mt-1 font-medium">{getNavLabel(item)}</span>
-            </Link>
+            </button>
           );
         })}
       </div>
