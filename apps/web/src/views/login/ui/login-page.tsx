@@ -42,7 +42,7 @@ export function LoginPage() {
     if (view === 'email') {
       setView('social');
     } else {
-      router.push('/');
+      router.back();
     }
   };
 

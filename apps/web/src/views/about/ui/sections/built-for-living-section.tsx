@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const painPoints = [
   'High security deposits',
@@ -10,80 +11,84 @@ const painPoints = [
 
 export function BuiltForLivingSection() {
   return (
-    <section className="py-16 md:py-24">
-      <div className="max-w-[1312px] mx-auto px-4 md:px-8 lg:px-16">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+    <section className="py-12 md:py-20">
+      <div className="max-w-[1312px] mx-auto px-4 md:px-8 lg:px-[117px]">
+        <div className="flex flex-col-reverse lg:flex-row items-center gap-8 lg:gap-12">
           {/* Left: Illustration */}
-          <div className="relative w-full max-w-[540px] aspect-square lg:flex-shrink-0">
+          <motion.div
+            className="relative w-full max-w-[539px] aspect-[539/651] lg:flex-shrink-0 rounded-[20px] overflow-hidden"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             <Image
-              src="/images/about/built-for-living-illustration.png"
-              alt="Built for living illustration"
+              src="/images/about/built-for-living-illustration.jpg"
+              alt="Person looking for housing in Korea"
               fill
-              className="object-contain"
+              className="object-cover scale-x-[-1]"
             />
-            {/* Overlay play button */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[100px] h-[100px] bg-white/80 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-white transition-colors">
-                <svg
-                  className="w-10 h-10 text-[#763225] ml-1"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          </motion.div>
 
           {/* Right: Content */}
-          <div className="flex-1 text-center lg:text-left">
-            {/* Symbol */}
-            <div className="flex justify-center lg:justify-start mb-4">
+          <motion.div
+            className="flex-1 flex flex-col items-center lg:-mt-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            {/* Symbol + Title */}
+            <div className="flex flex-col items-center mb-3">
               <Image
                 src="/images/about/symbol-brown.svg"
                 alt=""
                 width={75}
                 height={55}
-                className="w-[60px] md:w-[75px] h-auto"
+                className="w-[60px] md:w-[75px] h-auto mb-8"
               />
+              <h2 className="text-4xl md:text-[56px] font-black text-[#763225] tracking-[-2.8px]">
+                Built for Living
+              </h2>
             </div>
 
-            {/* Title */}
-            <h2 className="text-4xl md:text-5xl font-black text-[#763225] mb-6">
-              Built for Living
-            </h2>
-
             {/* Description */}
-            <p className="text-base md:text-lg text-black leading-relaxed mb-8 max-w-[411px] mx-auto lg:mx-0">
-              SNUG helps foreigners find homes for living, not just staying. From short stays to
-              flexible rentals, we make it easier to find a place that fits your life in Korea.
+            <p className="text-sm md:text-2xl font-extrabold text-black leading-[1.35] mb-8 max-w-[300px] md:max-w-[411px] text-center">
+              <span className="md:hidden">
+                SNUG helps foreigners find homes
+                <br />
+                for living, not just staying.
+                <br />
+                From short stays to flexible
+                <br />
+                rentals, we make it easier to find a
+                <br />
+                place that fits your life in Korea.
+              </span>
+              <span className="hidden md:inline">
+                SNUG helps foreigners find homes for living, not just staying.
+                <br />
+                From short stays to flexible rentals, we make it easier to find a place that fits
+                your life in Korea.
+              </span>
             </p>
 
             {/* Pain Points */}
-            <div className="space-y-3">
-              {painPoints.map((point) => (
-                <div
+            <div className="flex flex-col gap-3 items-center lg:items-start">
+              {painPoints.map((point, index) => (
+                <motion.div
                   key={point}
-                  className="inline-flex items-center gap-3 px-6 py-2.5 bg-[#F5F5F5] rounded-full"
+                  className="inline-flex items-center justify-center px-6 py-2 bg-[#763225] rounded-full w-full max-w-[390px]"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
                 >
-                  <svg
-                    className="w-5 h-5 text-[#763225]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  <span className="text-sm md:text-base font-medium text-black">{point}</span>
-                </div>
+                  <span className="text-lg md:text-xl font-extrabold text-white">{point}</span>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

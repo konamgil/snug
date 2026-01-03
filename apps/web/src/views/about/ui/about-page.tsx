@@ -1,38 +1,29 @@
 'use client';
 
-import Image from 'next/image';
 import { Header } from '@/widgets/header';
-import { Link } from '@/i18n/navigation';
+import { HeroSection } from './sections/hero-section';
+import { KeywordsSection } from './sections/keywords-section';
+import { BuiltForLivingSection } from './sections/built-for-living-section';
+import { BarrierFreeSection } from './sections/barrier-free-section';
+import { LiveReadySection } from './sections/live-ready-section';
+import { GlobalSupportSection } from './sections/global-support-section';
+import { CtaSection } from './sections/cta-section';
+import { IntroFooter } from '@/views/host/ui/intro/components/intro-footer';
 
 export function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header showLogo />
       <main>
-        {/* Mobile Image */}
-        <Link href="/login" className="block md:hidden">
-          <Image
-            src="/images/about/about-page-mobile.png"
-            alt="Snug About Page"
-            width={390}
-            height={5765}
-            className="w-full h-auto cursor-pointer"
-            priority
-          />
-        </Link>
-
-        {/* Desktop Image */}
-        <Link href="/login" className="hidden md:block max-w-[1312px] mx-auto">
-          <Image
-            src="/images/about/about-page-desktop.png"
-            alt="Snug About Page"
-            width={1312}
-            height={5892}
-            className="w-full h-auto cursor-pointer"
-            priority
-          />
-        </Link>
+        <HeroSection />
+        <KeywordsSection />
+        <BuiltForLivingSection />
+        <BarrierFreeSection />
+        <LiveReadySection />
+        <GlobalSupportSection />
+        <CtaSection />
       </main>
+      <IntroFooter />
     </div>
   );
 }
