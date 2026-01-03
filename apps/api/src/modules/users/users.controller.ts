@@ -45,9 +45,9 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  getProfile(@Request() req: { user: { userId: string } }) {
-    // userId is the Supabase ID from JWT
-    return this.usersService.getProfileBySupabaseId(req.user.userId);
+  getProfile(@Request() req: { user: { id: string } }) {
+    // req.user is the full User object from SupabaseJwtStrategy
+    return this.usersService.getProfile(req.user.id);
   }
 
   @Get(':id')
@@ -71,13 +71,9 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async updateProfile(
-    @Request() req: { user: { userId: string } },
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    // userId is the Supabase ID from JWT, need to get DB user first
-    const profile = await this.usersService.getProfileBySupabaseId(req.user.userId);
-    return this.usersService.updateProfile(profile.id, updateUserDto);
+  updateProfile(@Request() req: { user: { id: string } }, @Body() updateUserDto: UpdateUserDto) {
+    // req.user is the full User object from SupabaseJwtStrategy
+    return this.usersService.updateProfile(req.user.id, updateUserDto);
   }
 
   @Post('upsert-from-auth')
