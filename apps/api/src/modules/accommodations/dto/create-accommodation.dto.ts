@@ -261,4 +261,24 @@ export class CreateAccommodationDto {
   @ValidateNested({ each: true })
   @Type(() => AddPhotoDto)
   photos?: AddPhotoDto[];
+
+  @ApiPropertyOptional({
+    description: '시설 코드 목록 (예: free_parking_on_premises, air_conditioning)',
+    example: ['free_parking_on_premises', 'air_conditioning', 'wifi'],
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  facilities?: string[];
+
+  @ApiPropertyOptional({
+    description: '편의시설 코드 목록 (예: shampoo, hair_dryer)',
+    example: ['shampoo', 'hair_dryer', 'towels'],
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  amenities?: string[];
 }

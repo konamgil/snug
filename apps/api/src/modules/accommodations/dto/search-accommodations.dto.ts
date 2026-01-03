@@ -129,6 +129,35 @@ export class SearchAccommodationsDto {
   @IsEnum(['MALE_ONLY', 'FEMALE_ONLY', 'PET_ALLOWED'], { each: true })
   genderRules?: ('MALE_ONLY' | 'FEMALE_ONLY' | 'PET_ALLOWED')[];
 
+  @ApiPropertyOptional({ description: '최소 면적 (㎡)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  minArea?: number;
+
+  @ApiPropertyOptional({
+    description: '시설 코드 목록',
+    isArray: true,
+    example: ['parkingLot', 'lift', 'wifi'],
+  })
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true })
+  facilities?: string[];
+
+  @ApiPropertyOptional({
+    description: '편의시설 코드 목록',
+    isArray: true,
+    example: ['queenBed', 'airConditioning', 'dryer'],
+  })
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true })
+  amenities?: string[];
+
   // ============================================
   // 정렬
   // ============================================

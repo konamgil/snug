@@ -55,6 +55,7 @@
     "guest": "Guest",
     "guests": "Guests",
     "guestCount": "{count} {count, plural, one {Guest} other {Guests}}",
+    "infantCount": "{count} {count, plural, one {Infant} other {Infants}}",
     "filters": {
       "filters": "Filters",
       "roomType": "Room Type",

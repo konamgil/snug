@@ -55,6 +55,7 @@
     "guest": "게스트",
     "guests": "게스트",
     "guestCount": "게스트 {count}명",
+    "infantCount": "영아 {count}명",
     "filters": {
       "filters": "필터",
       "roomType": "방 유형",

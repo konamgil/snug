@@ -106,7 +106,12 @@ interface DraftRecoveryBannerProps {
   onDiscard: () => void;
 }
 
-function DraftRecoveryBanner({ timestamp, locale, onRestore, onDiscard }: DraftRecoveryBannerProps) {
+function DraftRecoveryBanner({
+  timestamp,
+  locale,
+  onRestore,
+  onDiscard,
+}: DraftRecoveryBannerProps) {
   const t = useTranslations('host.accommodation.page');
   const timeStr = formatDraftTime(timestamp, locale);
 
@@ -219,6 +224,13 @@ function toApiPhotos(
   }
 
   return apiPhotos;
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
 }
 
 // ============================================
@@ -639,6 +651,8 @@ export function AccommodationNewPage() {
         status: 'ACTIVE',
         isOperating: formData.isOperating,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+        facilities: formData.facilities.length > 0 ? formData.facilities : undefined,
+        amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
       });
 
       // If role was upgraded (GUEST → HOST), refresh user state
@@ -653,7 +667,7 @@ export function AccommodationNewPage() {
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save accommodation:', error);
-      showToastMessage('숙소 저장에 실패했습니다.', 'error');
+      showToastMessage(getErrorMessage(error, '숙소 저장에 실패했습니다.'), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -721,6 +735,8 @@ export function AccommodationNewPage() {
         status: 'DRAFT',
         isOperating: false,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+        facilities: formData.facilities.length > 0 ? formData.facilities : undefined,
+        amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
       });
 
       // Clear draft on successful save
@@ -729,7 +745,7 @@ export function AccommodationNewPage() {
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save draft:', error);
-      showToastMessage('임시 저장에 실패했습니다.', 'error');
+      showToastMessage(getErrorMessage(error, '임시 저장에 실패했습니다.'), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -1110,6 +1126,8 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         status: 'ACTIVE',
         isOperating: formData.isOperating,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+        facilities: formData.facilities.length > 0 ? formData.facilities : undefined,
+        amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
       });
 
       // Clear draft on successful save
@@ -1118,7 +1136,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save accommodation:', error);
-      showToastMessage('숙소 저장에 실패했습니다.', 'error');
+      showToastMessage(getErrorMessage(error, '숙소 저장에 실패했습니다.'), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -1186,6 +1204,8 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
         status: 'DRAFT',
         isOperating: false,
         photos: apiPhotos.length > 0 ? apiPhotos : undefined,
+        facilities: formData.facilities.length > 0 ? formData.facilities : undefined,
+        amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
       });
 
       // Clear draft on successful save
@@ -1194,7 +1214,7 @@ export function AccommodationEditPage({ accommodationId }: AccommodationEditPage
       router.push('/host/properties');
     } catch (error) {
       console.error('Failed to save draft:', error);
-      showToastMessage('임시 저장에 실패했습니다.', 'error');
+      showToastMessage(getErrorMessage(error, '임시 저장에 실패했습니다.'), 'error');
     } finally {
       setIsSaving(false);
     }

@@ -14,7 +14,9 @@ import { useCurrencySafe } from '@/shared/providers';
 import { SERVICE_FEE_PERCENT, getLongStayDiscountPercent } from '@/shared/config';
 
 interface PriceBreakdown {
-  pricePerNight: number;
+  basePrice: number;
+  weekendPrice?: number | null;
+  weekendDays?: string[];
   nights: number;
   cleaningFee: number;
 }
@@ -61,6 +63,36 @@ const roomTypeColors: Record<RoomTypeVariant, string> = {
   house: 'text-[#78350F]',
 };
 
+const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+
+function calculateNightlySubtotal(
+  checkIn: Date | null,
+  nights: number,
+  basePrice: number,
+  weekendPrice?: number | null,
+  weekendDays?: string[],
+): number {
+  if (!checkIn || nights <= 0) return basePrice * Math.max(nights, 0);
+  if (weekendPrice === null || weekendPrice === undefined) {
+    return basePrice * Math.max(nights, 0);
+  }
+  if (!weekendDays || weekendDays.length === 0) {
+    return basePrice * Math.max(nights, 0);
+  }
+
+  const weekendSet = new Set(weekendDays.map((day) => day.toLowerCase()));
+  let total = 0;
+
+  for (let i = 0; i < nights; i += 1) {
+    const date = new Date(checkIn);
+    date.setDate(checkIn.getDate() + i);
+    const dayKey = WEEKDAY_KEYS[date.getDay()]!;
+    total += weekendSet.has(dayKey) ? weekendPrice : basePrice;
+  }
+
+  return total;
+}
+
 export function BookingSidePanel({
   roomType,
   roomTypeDescription,
@@ -93,8 +125,17 @@ export function BookingSidePanel({
       ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
       : priceBreakdown.nights;
 
+  const nightlySubtotal = calculateNightlySubtotal(
+    checkIn,
+    nights,
+    priceBreakdown.basePrice,
+    priceBreakdown.weekendPrice,
+    priceBreakdown.weekendDays,
+  );
+  const pricePerNight = nights > 0 ? nightlySubtotal / nights : priceBreakdown.basePrice;
+
   // Price calculations
-  const subtotal = priceBreakdown.pricePerNight * nights;
+  const subtotal = nightlySubtotal;
 
   // Long-term stay discount calculation using config
   const discountPercent = getLongStayDiscountPercent(nights);
@@ -273,7 +314,7 @@ export function BookingSidePanel({
                 </p>
               </div>
               <span className="text-sm font-extrabold text-[hsl(var(--snug-orange))]">
-                {format(priceBreakdown.pricePerNight)}
+                {format(pricePerNight)}
               </span>
             </div>
 
@@ -284,7 +325,7 @@ export function BookingSidePanel({
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">
                 {t('roomDetail.booking.nightsCalculation', {
                   nights,
-                  price: format(priceBreakdown.pricePerNight),
+                  price: format(pricePerNight),
                 })}
               </span>
               <span className="text-xs text-[hsl(var(--snug-gray))] tracking-tight">

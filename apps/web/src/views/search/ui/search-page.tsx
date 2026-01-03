@@ -28,30 +28,30 @@ import type {
 } from '@snug/types';
 import { logSearch } from '@/shared/lib/firebase';
 
-// UI 필터 값 → API 파라미터 매핑
+// UI 필터 값 → API 파라미터 매핑 (FilterModal의 key 값 사용)
 const roomTypeToAccommodationType: Record<string, AccommodationType> = {
-  House: 'HOUSE',
-  'Shared House': 'SHARE_HOUSE',
-  'Shared Room': 'SHARE_ROOM',
+  house: 'HOUSE',
+  sharedHouse: 'SHARE_HOUSE',
+  sharedRoom: 'SHARE_ROOM',
 };
 
 const propertyTypeToBuildingType: Record<string, BuildingType> = {
-  Apartment: 'APARTMENT',
-  Villa: 'VILLA',
-  House: 'HOUSE',
-  Officetel: 'OFFICETEL',
+  apartment: 'APARTMENT',
+  villa: 'VILLA',
+  house: 'HOUSE',
+  officetel: 'OFFICETEL',
 };
 
 const houseRuleToGenderRule: Record<string, GenderRule> = {
-  'Women Only': 'FEMALE_ONLY',
-  'Men Only': 'MALE_ONLY',
-  'Pets allowed': 'PET_ALLOWED',
+  womenOnly: 'FEMALE_ONLY',
+  menOnly: 'MALE_ONLY',
+  petsAllowed: 'PET_ALLOWED',
 };
 
-// Quick filter ID → houseRules value mapping
+// Quick filter ID → houseRules key mapping (FilterModal의 key 값과 동일)
 const quickFilterToHouseRule: Record<string, string> = {
-  womenOnly: 'Women Only',
-  menOnly: 'Men Only',
+  womenOnly: 'womenOnly',
+  menOnly: 'menOnly',
   parking: 'parking', // parking은 별도 필터로 처리 필요
 };
 
@@ -259,6 +259,27 @@ function SearchPageContent() {
           .map((rule) => houseRuleToGenderRule[rule])
           .filter(Boolean) as GenderRule[];
       }
+
+      // 최소 면적 필터 (apartmentSize는 "≥58㎡" 형태의 문자열)
+      if (debouncedActiveFilters.apartmentSize !== null) {
+        // "≥58㎡" 에서 숫자만 추출
+        const areaMatch = debouncedActiveFilters.apartmentSize.match(/(\d+)/);
+        if (areaMatch && areaMatch[1]) {
+          params.minArea = parseInt(areaMatch[1], 10);
+        }
+      }
+
+      // 시설 필터 ('all' 옵션 제외)
+      const filteredFacilities = debouncedActiveFilters.facilities.filter((f) => f !== 'all');
+      if (filteredFacilities.length > 0) {
+        params.facilities = filteredFacilities;
+      }
+
+      // 편의시설 필터 ('all' 옵션 제외)
+      const filteredAmenities = debouncedActiveFilters.amenities.filter((a) => a !== 'all');
+      if (filteredAmenities.length > 0) {
+        params.amenities = filteredAmenities;
+      }
     }
 
     // Quick filters (FilterBar chips) - merge with activeFilters
@@ -314,25 +335,59 @@ function SearchPageContent() {
 
   const totalCount = accommodationsData?.total ?? 0;
 
-  // Save scroll position before navigating away
+  // Track current scroll position in ref (to avoid state updates on every scroll)
+  const scrollPositionRef = useRef({ desktop: 0, mobile: 0 });
+
+  // Update scroll position ref on scroll
   useEffect(() => {
-    const saveScroll = () => {
-      const desktopScroll = desktopListRef.current?.scrollTop ?? 0;
-      const mobileScroll = window.scrollY;
-      sessionStorage.setItem(
-        SCROLL_STORAGE_KEY,
-        JSON.stringify({ desktop: desktopScroll, mobile: mobileScroll }),
-      );
+    const updateScrollRef = () => {
+      scrollPositionRef.current = {
+        desktop: desktopListRef.current?.scrollTop ?? 0,
+        mobile: window.scrollY,
+      };
     };
 
-    // Save on scroll (debounced via passive listener)
     const desktopEl = desktopListRef.current;
-    desktopEl?.addEventListener('scroll', saveScroll, { passive: true });
-    window.addEventListener('scroll', saveScroll, { passive: true });
+    desktopEl?.addEventListener('scroll', updateScrollRef, { passive: true });
+    window.addEventListener('scroll', updateScrollRef, { passive: true });
 
     return () => {
-      desktopEl?.removeEventListener('scroll', saveScroll);
-      window.removeEventListener('scroll', saveScroll);
+      desktopEl?.removeEventListener('scroll', updateScrollRef);
+      window.removeEventListener('scroll', updateScrollRef);
+    };
+  }, []);
+
+  // Save scroll position only when page is being hidden (navigation away)
+  useEffect(() => {
+    const saveScroll = () => {
+      // Only save if we have meaningful scroll position
+      if (scrollPositionRef.current.desktop > 0 || scrollPositionRef.current.mobile > 0) {
+        sessionStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollPositionRef.current));
+      }
+    };
+
+    // Save on visibility change (when navigating away)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        saveScroll();
+      } else if (document.visibilityState === 'visible') {
+        // Reset scroll restored flag when page becomes visible again
+        // This allows scroll to be restored on back navigation
+        scrollRestoredRef.current = false;
+      }
+    };
+
+    // Save before unload (for hard navigations)
+    const handleBeforeUnload = () => {
+      saveScroll();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
 
@@ -430,7 +485,7 @@ function SearchPageContent() {
     router.push(`/search?${params.toString()}`);
   }, [mobileView, searchParams, router]);
 
-  const totalGuests = guests.adults + guests.children;
+  const _totalGuests = guests.adults + guests.children;
 
   const formatDateDisplay = () => {
     if (!checkIn && !checkOut) return null;
@@ -468,7 +523,7 @@ function SearchPageContent() {
         <MobileSearchBar
           location={displayLocation}
           dateRange={formatDateDisplay() || ''}
-          guests={totalGuests}
+          guests={guests}
           hasActiveFilters={hasActiveFilters}
           onSearchClick={() => setIsSearchModalOpen(true)}
           onFilterClick={() => setIsFilterModalOpen(true)}
@@ -479,6 +534,7 @@ function SearchPageContent() {
       <div className="hidden md:flex">
         {/* Left Side - Room List */}
         <div
+          id="search-desktop-list"
           ref={desktopListRef}
           className="w-[480px] flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar"
         >
@@ -618,14 +674,15 @@ function SearchPageContent() {
       <FilterModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
+        initialFilters={activeFilters || undefined}
         onApply={(filters) => {
           setActiveFilters(filters);
-          // Sync quick filters with modal's houseRules
+          // Sync quick filters with modal's houseRules (key 값 사용)
           const newQuickFilters: string[] = [];
-          if (filters.houseRules.includes('Women Only')) {
+          if (filters.houseRules.includes('womenOnly')) {
             newQuickFilters.push('womenOnly');
           }
-          if (filters.houseRules.includes('Men Only')) {
+          if (filters.houseRules.includes('menOnly')) {
             newQuickFilters.push('menOnly');
           }
           setActiveQuickFilters(newQuickFilters);

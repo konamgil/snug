@@ -110,6 +110,16 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
   const handleCardClick = useCallback(() => {
     const roomDetailUrl = buildRoomDetailUrl();
 
+    // Save scroll position before navigation (for back navigation restoration)
+    const desktopList = document.getElementById('search-desktop-list');
+    sessionStorage.setItem(
+      'search-scroll-position',
+      JSON.stringify({
+        desktop: desktopList?.scrollTop ?? 0,
+        mobile: window.scrollY,
+      }),
+    );
+
     navigateWithLoading(
       async () => {
         // 데이터가 캐시에 없으면 로드
@@ -119,7 +129,7 @@ export function RoomCard({ room, viewMode = 'list', onFavoriteToggle, index }: R
           staleTime: 5 * 60 * 1000,
         });
       },
-      () => router.push(roomDetailUrl),
+      () => router.push(roomDetailUrl, { scroll: true }),
     );
   }, [buildRoomDetailUrl, navigateWithLoading, queryClient, room.id, router]);
 

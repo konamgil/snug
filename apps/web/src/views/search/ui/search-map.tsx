@@ -111,6 +111,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const cardContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -143,6 +144,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
   const onMapLoad = useCallback(
     (mapInstance: google.maps.Map) => {
       mapRef.current = mapInstance;
+      setMapReady(true);
 
       // 맵 로드 시 즉시 fitBounds 적용 (모바일 뷰 전환 대응)
       if (markerGroups.length > 0) {
@@ -174,7 +176,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
 
   // 검색 결과 변경 시 fitBounds로 모든 마커가 보이도록 자동 줌
   useEffect(() => {
-    if (!mapRef.current || !isLoaded || markerGroups.length === 0) return;
+    if (!mapRef.current || !isLoaded || !mapReady || markerGroups.length === 0) return;
 
     const bounds = calculateBounds(markerGroups);
     if (bounds) {
@@ -194,7 +196,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
         google.maps.event.removeListener(listener);
       };
     }
-  }, [markerGroups, isLoaded, getPaddingForView]);
+  }, [markerGroups, isLoaded, mapReady, getPaddingForView]);
 
   const handleMarkerClick = useCallback(
     (group: MarkerGroup) => {
@@ -233,7 +235,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
 
   // Create/update Advanced Markers when map loads or data changes
   useEffect(() => {
-    if (!mapRef.current || !isLoaded) return;
+    if (!mapRef.current || !isLoaded || !mapReady) return;
 
     // Clean up existing markers
     markersRef.current.forEach((marker) => {
@@ -298,7 +300,7 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
       });
       markersRef.current = [];
     };
-  }, [isLoaded, markerGroups, selectedGroup?.key, format, handleMarkerClick]);
+  }, [isLoaded, mapReady, markerGroups, selectedGroup?.key, format, handleMarkerClick]);
 
   const handleClose = () => {
     setSelectedGroup(null);
@@ -407,7 +409,16 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
         e.stopPropagation();
         return;
       }
-      router.push(`/room/${roomId}`);
+      // Save scroll position before navigation (for back navigation restoration)
+      const desktopList = document.getElementById('search-desktop-list');
+      sessionStorage.setItem(
+        'search-scroll-position',
+        JSON.stringify({
+          desktop: desktopList?.scrollTop ?? 0,
+          mobile: window.scrollY,
+        }),
+      );
+      router.push(`/room/${roomId}`, { scroll: true });
     },
     [isSwiping, router],
   );

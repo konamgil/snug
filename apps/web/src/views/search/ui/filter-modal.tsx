@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import {
+  getFilterFacilityOptions,
+  getFilterAmenityOptions,
+} from '@/shared/constants/facility-amenity-options';
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -39,7 +43,16 @@ const DEFAULT_FILTERS: FilterState = {
 
 export function FilterModal({ isOpen, onClose, onApply, initialFilters }: FilterModalProps) {
   const t = useTranslations('search.filters');
+  const tFacilities = useTranslations('host.facilities');
+  const tAmenities = useTranslations('host.amenities');
   const [filters, setFilters] = useState<FilterState>(initialFilters || DEFAULT_FILTERS);
+
+  // 모달이 열릴 때 initialFilters로 동기화
+  useEffect(() => {
+    if (isOpen) {
+      setFilters(initialFilters || DEFAULT_FILTERS);
+    }
+  }, [isOpen, initialFilters]);
 
   // Translated filter options
   const ROOM_TYPES = [
@@ -58,23 +71,10 @@ export function FilterModal({ isOpen, onClose, onApply, initialFilters }: Filter
     { key: 'menOnly', label: t('menOnly') },
     { key: 'petsAllowed', label: t('petsAllowed') },
   ];
-  const FACILITIES = [
-    { key: 'all', label: t('facilitiesOptions.all') },
-    { key: 'parkingLot', label: t('facilitiesOptions.parkingLot') },
-    { key: 'lift', label: t('facilitiesOptions.lift') },
-    { key: 'wifi', label: t('facilitiesOptions.wifi') },
-    { key: 'publicGate', label: t('facilitiesOptions.publicGate') },
-    { key: 'fullyFurnished', label: t('facilitiesOptions.fullyFurnished') },
-    { key: 'privateBathroom', label: t('facilitiesOptions.privateBathroom') },
-    { key: 'washingMachine', label: t('facilitiesOptions.washingMachine') },
-    { key: 'balcony', label: t('facilitiesOptions.balcony') },
-  ];
-  const AMENITIES = [
-    { key: 'all', label: t('amenitiesOptions.all') },
-    { key: 'queenBed', label: t('amenitiesOptions.queenBed') },
-    { key: 'airConditioning', label: t('amenitiesOptions.airConditioning') },
-    { key: 'dryer', label: t('amenitiesOptions.dryer') },
-  ];
+
+  // 공유 상수에서 시설/편의시설 옵션 가져오기
+  const FACILITIES = getFilterFacilityOptions(tFacilities, t('facilitiesOptions.all'));
+  const AMENITIES = getFilterAmenityOptions(tAmenities, t('amenitiesOptions.all'));
 
   const toggleArrayItem = (array: string[], item: string): string[] => {
     return array.includes(item) ? array.filter((i) => i !== item) : [...array, item];

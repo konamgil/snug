@@ -50,6 +50,7 @@
     "guest": "Khách",
     "guests": "Khách",
     "guestCount": "{count} khách",
+    "infantCount": "{count} trẻ sơ sinh",
     "filters": {
       "filters": "Bộ lọc",
       "roomType": "Loại phòng",

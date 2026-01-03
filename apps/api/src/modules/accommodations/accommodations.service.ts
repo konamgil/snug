@@ -71,6 +71,32 @@ function getSearchVariants(term: string): string[] {
 }
 
 /**
+ * SQL Injection 방지: 검색 토큰 sanitization
+ * 허용: 한글, 영문, 숫자, 하이픈
+ * 제거: SQL 특수문자 (따옴표, 백슬래시, 세미콜론, 주석 등)
+ */
+function sanitizeSearchToken(token: string): string {
+  // 허용된 문자만 남기기: 한글, 영문, 숫자, 하이픈
+  return token.replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ-]/g, '');
+}
+
+/**
+ * SQL LIKE 패턴용 escape
+ * %, _, \ 문자를 escape 처리
+ */
+function escapeSqlLikePattern(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
+/**
+ * 검색 토큰을 안전하게 처리 (sanitize + escape)
+ */
+function prepareSearchToken(token: string): string {
+  const sanitized = sanitizeSearchToken(token);
+  return escapeSqlLikePattern(sanitized);
+}
+
+/**
  * Accommodations Service
  *
  * 숙소 관련 비즈니스 로직을 담당합니다.
@@ -357,152 +383,127 @@ export class AccommodationsService {
   }
 
   /**
-   * 공개 숙소 목록 조회 (검색/필터/페이지네이션)
-   * 인증 불필요 - 검색 페이지용
+   * 검색 필터 조건을 Prisma WHERE 객체로 변환
    */
-  async findPublicList(dto: SearchAccommodationsDto) {
+  private buildSearchWhereConditions(dto: SearchAccommodationsDto): Prisma.AccommodationWhereInput {
     const {
-      page = 1,
-      limit = 20,
-      location,
-      // TODO: 위도/경도 기반 검색은 추후 구현
-      // latitude,
-      // longitude,
-      // radius,
       guests,
       accommodationType,
       buildingType,
       minPrice,
       maxPrice,
       genderRules,
-      sortBy = 'recommended',
+      minArea,
+      facilities,
+      amenities,
+      location,
     } = dto;
 
-    // WHERE 조건 구성
     const where: Prisma.AccommodationWhereInput = {
-      status: 'ACTIVE', // ACTIVE 상태만
-      isOperating: true, // 운영중인 숙소만
+      status: 'ACTIVE',
+      isOperating: true,
     };
 
-    // 인원 필터
-    if (guests) {
-      where.capacity = { gte: guests };
-    }
-
-    // 숙소 유형 필터
-    if (accommodationType && accommodationType.length > 0) {
-      where.accommodationType = { in: accommodationType };
-    }
-
-    // 건물 유형 필터
-    if (buildingType && buildingType.length > 0) {
-      where.buildingType = { in: buildingType };
-    }
+    // 기본 필터들
+    if (guests) where.capacity = { gte: guests };
+    if (accommodationType?.length) where.accommodationType = { in: accommodationType };
+    if (buildingType?.length) where.buildingType = { in: buildingType };
+    if (genderRules?.length) where.genderRules = { hasSome: genderRules };
+    if (minArea && minArea > 0) where.sizeM2 = { gte: minArea };
 
     // 가격 필터
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.basePrice = {};
-      if (minPrice !== undefined) {
-        where.basePrice.gte = minPrice;
-      }
-      if (maxPrice !== undefined) {
-        where.basePrice.lte = maxPrice;
-      }
+      if (minPrice !== undefined) where.basePrice.gte = minPrice;
+      if (maxPrice !== undefined) where.basePrice.lte = maxPrice;
     }
 
-    // 성별/반려동물 규칙 필터
-    if (genderRules && genderRules.length > 0) {
-      where.genderRules = { hasSome: genderRules };
+    // AND 조건들 수집
+    const andConditions: Prisma.AccommodationWhereInput[] = [];
+
+    // 시설 필터 (모든 시설 필수)
+    if (facilities?.length) {
+      andConditions.push(
+        ...facilities.map((code) => ({ facilities: { some: { facilityCode: code } } })),
+      );
     }
 
-    // 위치 기반 검색 (지역명 - 한글/영문 모두 지원)
-    // 다중 토큰 지원: "강남구, 서울특별시" → ["강남구", "서울특별시"]
+    // 편의시설 필터 (모든 편의시설 필수)
+    if (amenities?.length) {
+      andConditions.push(
+        ...amenities.map((code) => ({ amenities: { some: { amenityCode: code } } })),
+      );
+    }
+
+    // 위치 필터
     if (location) {
-      // 쉼표와 공백으로 토큰 분리, 짧은 토큰(1자) 제외
-      const tokens = location.split(/[,\s]+/).filter((token) => token.trim().length >= 2);
-
-      if (tokens.length > 0) {
-        // 각 토큰에 대해 조건 생성 (AND 로직)
-        const tokenConditions = tokens.map((token) => {
-          const trimmedToken = token.trim();
-          const isTokenEnglish = /[a-zA-Z]/.test(trimmedToken);
-
-          if (isTokenEnglish) {
-            // 영문 토큰: 영문 주소 필드들에서 검색
-            return {
-              OR: [
-                { sidoEn: { contains: trimmedToken, mode: 'insensitive' as const } },
-                { sigunguEn: { contains: trimmedToken, mode: 'insensitive' as const } },
-                { bnameEn: { contains: trimmedToken, mode: 'insensitive' as const } },
-                { nearestStation: { contains: trimmedToken, mode: 'insensitive' as const } },
-              ],
-            };
-          } else {
-            // 한글 토큰: 한글 주소 필드들에서 검색
-            // 전체 시/도명인 경우 짧은 형태도 함께 검색 (예: "서울특별시" → "서울" 도 검색)
-            const variants = getSearchVariants(trimmedToken);
-
-            // 각 변형에 대해 OR 조건 생성
-            const variantConditions = variants.flatMap((variant) => [
-              { address: { contains: variant } },
-              { sido: { contains: variant } },
-              { sigungu: { contains: variant } },
-              { bname: { contains: variant } },
-              { nearestStation: { contains: variant } },
-            ]);
-
-            return {
-              OR: variantConditions,
-            };
-          }
-        });
-
-        // 모든 토큰이 매칭되어야 함 (AND)
-        const existingAnd = where.AND ? (Array.isArray(where.AND) ? where.AND : [where.AND]) : [];
-        where.AND = [...existingAnd, ...tokenConditions];
-      }
+      const locationConditions = this.buildLocationConditions(location);
+      if (locationConditions.length) andConditions.push(...locationConditions);
     }
 
-    // 정렬 조건
-    let orderBy: Prisma.AccommodationOrderByWithRelationInput;
+    if (andConditions.length) where.AND = andConditions;
+
+    return where;
+  }
+
+  /**
+   * 위치 검색어를 Prisma 조건으로 변환
+   */
+  private buildLocationConditions(location: string): Prisma.AccommodationWhereInput[] {
+    const tokens = location.split(/[,\s]+/).filter((token) => token.trim().length >= 2);
+    if (!tokens.length) return [];
+
+    return tokens.map((token) => {
+      const trimmedToken = token.trim();
+      const isEnglish = /[a-zA-Z]/.test(trimmedToken);
+
+      if (isEnglish) {
+        return {
+          OR: [
+            { sidoEn: { contains: trimmedToken, mode: 'insensitive' as const } },
+            { sigunguEn: { contains: trimmedToken, mode: 'insensitive' as const } },
+            { bnameEn: { contains: trimmedToken, mode: 'insensitive' as const } },
+            { nearestStation: { contains: trimmedToken, mode: 'insensitive' as const } },
+          ],
+        };
+      }
+
+      const variants = getSearchVariants(trimmedToken);
+      return {
+        OR: variants.flatMap((variant) => [
+          { address: { contains: variant } },
+          { sido: { contains: variant } },
+          { sigungu: { contains: variant } },
+          { bname: { contains: variant } },
+          { nearestStation: { contains: variant } },
+        ]),
+      };
+    });
+  }
+
+  /**
+   * 정렬 조건 변환
+   */
+  private getSortOrder(sortBy?: string): Prisma.AccommodationOrderByWithRelationInput {
     switch (sortBy) {
       case 'price_asc':
-        orderBy = { basePrice: 'asc' };
-        break;
+        return { basePrice: 'asc' };
       case 'price_desc':
-        orderBy = { basePrice: 'desc' };
-        break;
+        return { basePrice: 'desc' };
       case 'newest':
-        orderBy = { createdAt: 'desc' };
-        break;
-      case 'recommended':
+        return { createdAt: 'desc' };
       default:
-        orderBy = { createdAt: 'desc' }; // TODO: 추후 추천 알고리즘 적용
-        break;
+        return { createdAt: 'desc' }; // recommended
     }
+  }
 
-    // 총 개수 조회
-    const total = await this.prisma.accommodation.count({ where });
-
-    // 숙소 목록 조회
-    const accommodations = await this.prisma.accommodation.findMany({
-      where,
-      include: {
-        photos: {
-          orderBy: { order: 'asc' },
-          take: 1, // 대표 이미지만
-        },
-        _count: {
-          select: { photos: true },
-        },
-      },
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    // 응답 데이터 변환
-    const data = accommodations.map((acc) => ({
+  /**
+   * 숙소 데이터를 목록 아이템으로 변환
+   */
+  private mapToListItem(
+    acc: Accommodation & { photos: { url: string }[]; _count: { photos: number } },
+  ) {
+    return {
       id: acc.id,
       roomName: acc.roomName,
       accommodationType: acc.accommodationType,
@@ -511,7 +512,6 @@ export class AccommodationsService {
       longitude: acc.longitude,
       nearestStation: acc.nearestStation,
       walkingMinutes: acc.walkingMinutes,
-      // 영문 주소 (검색 결과 표시용)
       sidoEn: acc.sidoEn,
       sigunguEn: acc.sigunguEn,
       basePrice: acc.basePrice,
@@ -520,10 +520,35 @@ export class AccommodationsService {
       bathroomCount: acc.bathroomCount,
       thumbnailUrl: acc.photos[0]?.url || null,
       imageCount: acc._count.photos,
-    }));
+    };
+  }
+
+  /**
+   * 공개 숙소 목록 조회 (검색/필터/페이지네이션)
+   * 인증 불필요 - 검색 페이지용
+   */
+  async findPublicList(dto: SearchAccommodationsDto) {
+    const { page = 1, limit = 20, sortBy = 'recommended' } = dto;
+
+    const where = this.buildSearchWhereConditions(dto);
+    const orderBy = this.getSortOrder(sortBy);
+
+    const [total, accommodations] = await Promise.all([
+      this.prisma.accommodation.count({ where }),
+      this.prisma.accommodation.findMany({
+        where,
+        include: {
+          photos: { orderBy: { order: 'asc' }, take: 1 },
+          _count: { select: { photos: true } },
+        },
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
     return {
-      data,
+      data: accommodations.map((acc) => this.mapToListItem(acc)),
       total,
       page,
       limit,
@@ -580,11 +605,21 @@ export class AccommodationsService {
       return { data: [], isSuggested: false };
     }
 
-    // 쿼리를 토큰으로 분리 (공백 기준)
-    const tokens = query
+    // limit 검증 (1-100 범위로 제한)
+    const validatedLimit = Math.min(Math.max(Math.floor(limit) || 10, 1), 100);
+
+    // 쿼리를 토큰으로 분리 (공백 기준) 후 sanitize
+    const rawTokens = query
       .trim()
       .split(/\s+/)
       .filter((token) => token.length >= 2);
+
+    if (rawTokens.length === 0) {
+      return { data: [], isSuggested: false };
+    }
+
+    // SQL Injection 방지: 토큰 sanitize + escape
+    const tokens = rawTokens.map((token) => prepareSearchToken(token)).filter((t) => t.length >= 2);
 
     if (tokens.length === 0) {
       return { data: [], isSuggested: false };
@@ -594,6 +629,7 @@ export class AccommodationsService {
     const isEnglish = /[a-zA-Z]/.test(query);
 
     // 토큰 정규화: 하이픈과 공백 제거 (gangnamgu, gangnam-gu, gangnam gu 모두 매칭되도록)
+    // 이미 sanitize된 토큰 사용
     const normalizedTokens = tokens.map((token) => token.replace(/[-\s]/g, '').toLowerCase());
 
     // SQL에서 컬럼 정규화 함수 (하이픈, 공백 제거 후 소문자)
@@ -806,7 +842,7 @@ export class AccommodationsService {
       // 점수순 정렬 후 limit 적용
       const sortedResults = exactMatches
         .sort((a, b) => Number(b.score) - Number(a.score))
-        .slice(0, limit)
+        .slice(0, validatedLimit)
         .map(({ score: _score, match_count: _match_count, ...rest }) => rest);
 
       return { data: sortedResults, isSuggested: false };
@@ -815,7 +851,7 @@ export class AccommodationsService {
     // OR 매칭 결과 (일부 토큰만 매칭 - 추천 지역)
     const sortedResults = results
       .sort((a, b) => Number(b.score) - Number(a.score))
-      .slice(0, limit)
+      .slice(0, validatedLimit)
       .map(({ score: _score, match_count: _match_count, ...rest }) => rest);
 
     return {
@@ -958,11 +994,29 @@ export class AccommodationsService {
                 })),
               }
             : undefined,
+          // 시설이 있으면 함께 생성
+          facilities: dto.facilities?.length
+            ? {
+                create: dto.facilities.map((code) => ({
+                  facilityCode: code,
+                })),
+              }
+            : undefined,
+          // 편의시설이 있으면 함께 생성
+          amenities: dto.amenities?.length
+            ? {
+                create: dto.amenities.map((code) => ({
+                  amenityCode: code,
+                })),
+              }
+            : undefined,
         },
         include: {
           photos: {
             orderBy: { order: 'asc' },
           },
+          facilities: true,
+          amenities: true,
         },
       });
 
@@ -1222,6 +1276,46 @@ export class AccommodationsService {
       });
     }
 
+    // facilities 처리: 기존 시설 삭제 후 새 시설 생성 (replace-all 전략)
+    if (dto.facilities !== undefined) {
+      await this.prisma.$transaction(async (tx) => {
+        // 기존 시설 삭제
+        await tx.accommodationFacility.deleteMany({
+          where: { accommodationId: id },
+        });
+
+        // 새 시설 생성
+        if (dto.facilities && dto.facilities.length > 0) {
+          await tx.accommodationFacility.createMany({
+            data: dto.facilities.map((code) => ({
+              accommodationId: id,
+              facilityCode: code,
+            })),
+          });
+        }
+      });
+    }
+
+    // amenities 처리: 기존 편의시설 삭제 후 새 편의시설 생성 (replace-all 전략)
+    if (dto.amenities !== undefined) {
+      await this.prisma.$transaction(async (tx) => {
+        // 기존 편의시설 삭제
+        await tx.accommodationAmenity.deleteMany({
+          where: { accommodationId: id },
+        });
+
+        // 새 편의시설 생성
+        if (dto.amenities && dto.amenities.length > 0) {
+          await tx.accommodationAmenity.createMany({
+            data: dto.amenities.map((code) => ({
+              accommodationId: id,
+              amenityCode: code,
+            })),
+          });
+        }
+      });
+    }
+
     return this.prisma.accommodation.update({
       where: { id },
       data: updateData,
@@ -1229,6 +1323,8 @@ export class AccommodationsService {
         photos: {
           orderBy: { order: 'asc' },
         },
+        facilities: true,
+        amenities: true,
       },
     });
   }

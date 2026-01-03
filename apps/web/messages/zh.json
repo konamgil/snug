@@ -50,6 +50,7 @@
     "guest": "客人",
     "guests": "客人",
     "guestCount": "{count}位客人",
+    "infantCount": "{count}位婴儿",
     "filters": {
       "filters": "筛选",
       "roomType": "房间类型",

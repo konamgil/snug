@@ -237,6 +237,8 @@ export interface CreateAccommodationInput {
   status?: AccommodationStatus;
   isOperating?: boolean;
   photos?: AddAccommodationPhotoInput[];
+  facilities?: string[];
+  amenities?: string[];
 }
 
 /**
@@ -286,6 +288,8 @@ export interface UpdateAccommodationInput {
   status?: AccommodationStatus;
   isOperating?: boolean;
   photos?: AddAccommodationPhotoInput[];
+  facilities?: string[];
+  amenities?: string[];
 }
 
 /**
@@ -417,6 +421,13 @@ export interface AccommodationSearchParams {
   minPrice?: number;
   maxPrice?: number;
   genderRules?: GenderRule[];
+
+  // 평수 필터 (㎡ 기준)
+  minArea?: number;
+
+  // 시설/편의시설 필터 (코드 배열)
+  facilities?: string[];
+  amenities?: string[];
 
   // 정렬
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'recommended';

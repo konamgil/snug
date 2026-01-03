@@ -122,7 +122,8 @@ export function MobileNav() {
               href={getNavHref(item)}
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full relative',
-                'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))] transition-colors',
+                'text-[hsl(var(--snug-gray))] hover:text-[hsl(var(--snug-brown))]',
+                'transition-all duration-150 active:scale-95 active:bg-gray-100 rounded-lg mx-1',
                 isActive && 'text-[hsl(var(--snug-orange))]',
               )}
             >

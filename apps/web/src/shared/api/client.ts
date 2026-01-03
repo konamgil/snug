@@ -28,16 +28,18 @@ interface ApiClientOptions {
 }
 
 interface ApiError {
-  message: string;
-  statusCode: number;
-  error?: string;
+  message?: string | string[];
+  statusCode?: number;
+  error?: string | { code?: string; message?: string | string[]; details?: unknown };
+  details?: unknown;
 }
 
 class ApiClientError extends Error {
   constructor(
     public statusCode: number,
     message: string,
-    public error?: string
+    public error?: string,
+    public details?: unknown,
   ) {
     super(message);
     this.name = 'ApiClientError';
@@ -51,7 +53,9 @@ class ApiClientError extends Error {
 async function getAuthToken(): Promise<string | undefined> {
   try {
     const supabase = await createServerSupabaseClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     return session?.access_token;
   } catch {
     return undefined;
@@ -63,7 +67,7 @@ async function getAuthToken(): Promise<string | undefined> {
  */
 async function handleResponse<T>(response: Response, url: string): Promise<T> {
   if (!response.ok) {
-    let errorData: ApiError & { message: string | string[] };
+    let errorData: ApiError;
     try {
       errorData = await response.json();
     } catch {
@@ -76,15 +80,18 @@ async function handleResponse<T>(response: Response, url: string): Promise<T> {
     // 디버깅용 로그 - 전체 에러 객체 출력
     console.error(`[API Error] ${response.status} ${url}:`, JSON.stringify(errorData, null, 2));
 
-    // NestJS validation error: message가 배열일 수 있음
-    const errorMessage = Array.isArray(errorData.message)
-      ? errorData.message.join(', ')
-      : errorData.message;
+    const nestedError =
+      typeof errorData.error === 'object' && errorData.error ? errorData.error : undefined;
+    const rawMessage = errorData.message ?? nestedError?.message;
+    const errorMessage = Array.isArray(rawMessage) ? rawMessage.join(', ') : rawMessage;
+    const errorCode = typeof errorData.error === 'string' ? errorData.error : nestedError?.code;
+    const errorDetails = nestedError?.details ?? errorData.details;
 
     throw new ApiClientError(
       response.status,
       errorMessage || `API Error: ${response.status}`,
-      errorData.error
+      errorCode,
+      errorDetails,
     );
   }
 
@@ -141,11 +148,7 @@ export const apiClient = {
    *   address: '서울시 강남구...',
    * });
    */
-  post: async <T>(
-    url: string,
-    data: unknown,
-    options?: ApiClientOptions
-  ): Promise<T> => {
+  post: async <T>(url: string, data: unknown, options?: ApiClientOptions): Promise<T> => {
     const headers = await createHeaders();
 
     const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -166,11 +169,7 @@ export const apiClient = {
    *   roomName: '102호',
    * });
    */
-  patch: async <T>(
-    url: string,
-    data: unknown,
-    options?: ApiClientOptions
-  ): Promise<T> => {
+  patch: async <T>(url: string, data: unknown, options?: ApiClientOptions): Promise<T> => {
     const headers = await createHeaders();
 
     const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -186,11 +185,7 @@ export const apiClient = {
   /**
    * PUT 요청
    */
-  put: async <T>(
-    url: string,
-    data: unknown,
-    options?: ApiClientOptions
-  ): Promise<T> => {
+  put: async <T>(url: string, data: unknown, options?: ApiClientOptions): Promise<T> => {
     const headers = await createHeaders();
 
     const response = await fetch(`${API_BASE_URL}${url}`, {

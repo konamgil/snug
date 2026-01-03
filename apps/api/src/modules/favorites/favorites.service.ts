@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import type { Accommodation, AccommodationPhoto } from '@snug/database';
 import { FavoritesRepository } from './favorites.repository';
 
 @Injectable()
@@ -112,7 +113,10 @@ export class FavoritesService {
   /**
    * 숙소 응답 형식 매핑
    */
-  private mapAccommodationToResponse(accommodation: any, timestamp: Date) {
+  private mapAccommodationToResponse(
+    accommodation: Accommodation & { photos?: AccommodationPhoto[] },
+    timestamp: Date,
+  ) {
     return {
       id: accommodation.id,
       roomName: accommodation.roomName,

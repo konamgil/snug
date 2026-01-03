@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -45,6 +45,11 @@ import {
   getAccommodationTypeLabel,
   getBuildingTypeLabel,
 } from '@/shared/lib';
+import {
+  KITCHEN_AMENITIES,
+  LAUNDRY_AMENITIES,
+  PARKING_FACILITIES,
+} from '@/shared/constants/facility-amenity-options';
 import { SERVICE_FEE_PERCENT, getLongStayDiscountPercent } from '@/shared/config';
 import { logViewItem } from '@/shared/lib/firebase';
 
@@ -159,6 +164,18 @@ const detailIcons: Record<string, React.ComponentType<{ className?: string }>> =
   balcony: BalconyIcon,
 };
 
+type DetailItem = {
+  icon: string;
+  labelKey: string;
+  value?: string;
+  valueKey?: string;
+};
+
+type GuidelineItem = {
+  labelKey: string;
+  valueKey: string;
+};
+
 // Badge styles matching room-card.tsx
 const tagFirstColors = {
   orange: 'bg-[#FFF5E6] text-[hsl(var(--snug-orange))] font-bold',
@@ -179,6 +196,36 @@ function calculateNights(checkIn: Date | null, checkOut: Date | null): number {
   if (!checkIn || !checkOut) return 0;
   const diffTime = checkOut.getTime() - checkIn.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+
+function calculateNightlySubtotal(
+  checkIn: Date | null,
+  nights: number,
+  basePrice: number,
+  weekendPrice?: number | null,
+  weekendDays?: string[],
+): number {
+  if (!checkIn || nights <= 0) return basePrice * Math.max(nights, 0);
+  if (weekendPrice === null || weekendPrice === undefined) {
+    return basePrice * Math.max(nights, 0);
+  }
+  if (!weekendDays || weekendDays.length === 0) {
+    return basePrice * Math.max(nights, 0);
+  }
+
+  const weekendSet = new Set(weekendDays.map((day) => day.toLowerCase()));
+  let total = 0;
+
+  for (let i = 0; i < nights; i += 1) {
+    const date = new Date(checkIn);
+    date.setDate(checkIn.getDate() + i);
+    const dayKey = WEEKDAY_KEYS[date.getDay()]!;
+    total += weekendSet.has(dayKey) ? weekendPrice : basePrice;
+  }
+
+  return total;
 }
 
 export function RoomDetailPage() {
@@ -256,6 +303,26 @@ export function RoomDetailPage() {
     refundPolicy: false,
     longTermDiscount: false,
   });
+
+  // Scroll to top on initial mount only (useLayoutEffect runs before paint)
+  const initialMountRef = useRef(true);
+  useLayoutEffect(() => {
+    if (initialMountRef.current) {
+      window.scrollTo(0, 0);
+      initialMountRef.current = false;
+    }
+  }, [roomId]);
+
+  // Disable browser scroll restoration on this page to prevent visible scroll on back navigation
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      const original = history.scrollRestoration;
+      history.scrollRestoration = 'manual';
+      return () => {
+        history.scrollRestoration = original;
+      };
+    }
+  }, []);
 
   // Record recently viewed (only for logged-in users)
   useEffect(() => {
@@ -337,12 +404,20 @@ export function RoomDetailPage() {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Calculate derived values from price data (with fallback to accommodation data)
-  // priceData 우선 사용, 없으면 accommodation 데이터, 없으면 mock 데이터
-  const pricePerNight = priceData?.basePrice ?? accommodation?.basePrice ?? roomData.pricePerNight;
+  // Calculate derived values from price data (priceData 우선 사용, 없으면 accommodation 데이터)
+  const basePrice = priceData?.basePrice ?? accommodation?.basePrice ?? 0;
+  const weekendPrice = priceData?.weekendPrice ?? accommodation?.weekendPrice ?? null;
+  const weekendDays = priceData?.weekendDays ?? accommodation?.weekendDays ?? [];
   const cleaningFee = priceData?.cleaningFee ?? accommodation?.cleaningFee ?? 0;
-  const nights = calculateNights(checkIn, checkOut) || roomData.nights;
-  const subtotal = pricePerNight * nights;
+  const nights = calculateNights(checkIn, checkOut) || 1;
+  const nightlySubtotal = calculateNightlySubtotal(
+    checkIn,
+    nights,
+    basePrice,
+    weekendPrice,
+    weekendDays,
+  );
+  const subtotal = nightlySubtotal;
   const serviceFeePercent = SERVICE_FEE_PERCENT;
   const serviceFee = Math.round(subtotal * (serviceFeePercent / 100));
   // Long-term stay discount from config
@@ -350,29 +425,115 @@ export function RoomDetailPage() {
   const discount = Math.round(subtotal * (discountPercent / 100));
   const total = subtotal + cleaningFee + serviceFee - discount;
 
-  // Get display values from accommodation or fallback to mock
-  const displayLocation = accommodation?.sigunguEn ?? roomData.location;
-  const displayDistrict = accommodation?.sidoEn ?? roomData.district;
+  // Get display values from accommodation
+  const displayLocation =
+    locale === 'ko'
+      ? (accommodation?.sigungu ?? accommodation?.bname ?? accommodation?.sido ?? '')
+      : (accommodation?.sigunguEn ?? accommodation?.bnameEn ?? accommodation?.sidoEn ?? '');
+  const displayDistrict =
+    locale === 'ko' ? (accommodation?.sido ?? '') : (accommodation?.sidoEn ?? '');
+  const headerLocation = [displayLocation, displayDistrict].filter(Boolean).join(', ');
   const displayRoomType = accommodation
     ? getAccommodationTypeLabel(accommodation.accommodationType, locale)
-    : roomData.roomType;
+    : '';
   const displayRoomTypeDescription = accommodation
     ? t(
         `host.accommodation.accommodationTypeDescriptions.${accommodation.accommodationType.toLowerCase()}`,
       )
-    : roomData.roomTypeDescription;
+    : '';
   const displayBuildingType = accommodation?.buildingType
     ? getBuildingTypeLabel(accommodation.buildingType, locale)
-    : roomData.buildingType;
-  const displayRoomCount = accommodation?.roomCount ?? roomData.rooms;
-  const displayBathroomCount = accommodation?.bathroomCount ?? roomData.bathrooms;
-  const displayCapacity = accommodation?.capacity ?? roomData.guests;
+    : '';
+  const displayRoomCount = accommodation?.roomCount ?? 0;
+  const displayBathroomCount = accommodation?.bathroomCount ?? 0;
+  const displayCapacity = accommodation?.capacity ?? 0;
   const displayIntroduction = accommodation?.introduction ?? '';
   const displayHouseRules = accommodation?.houseRules ?? null;
-  const displayLat = accommodation?.latitude ?? roomData.lat;
-  const displayLng = accommodation?.longitude ?? roomData.lng;
+  const displayLat = accommodation?.latitude ?? null;
+  const displayLng = accommodation?.longitude ?? null;
   const photos = accommodation?.photos ?? [];
   const totalImages = photos.length;
+
+  const detailItems = useMemo<DetailItem[]>(() => {
+    if (!accommodation) {
+      return roomData.details;
+    }
+
+    const items: DetailItem[] = [];
+    const addCount = (count: number | null | undefined, icon: string, labelKey: string) => {
+      if (typeof count === 'number' && count > 0) {
+        items.push({ icon, labelKey, value: count.toString() });
+      }
+    };
+
+    const hasSizeM2 = typeof accommodation.sizeM2 === 'number';
+    const hasSizePyeong = typeof accommodation.sizePyeong === 'number';
+    const areaValue = hasSizeM2
+      ? hasSizePyeong
+        ? `${accommodation.sizeM2}㎡ (${accommodation.sizePyeong}평)`
+        : `${accommodation.sizeM2}㎡`
+      : hasSizePyeong
+        ? `${accommodation.sizePyeong}평`
+        : null;
+
+    if (areaValue) {
+      items.push({ icon: 'area', labelKey: 'area', value: areaValue });
+    }
+
+    addCount(accommodation.roomCount, 'room', 'room');
+    addCount(accommodation.livingRoomCount, 'living', 'livingRoom');
+    addCount(accommodation.kitchenCount, 'kitchen', 'kitchen');
+    addCount(accommodation.bathroomCount, 'bathroom', 'bathroom');
+    addCount(accommodation.terraceCount, 'balcony', 'balcony');
+
+    const facilities = accommodation.facilities ?? [];
+    if (facilities.length > 0) {
+      items.push({
+        icon: 'elevator',
+        labelKey: 'elevator',
+        valueKey: facilities.includes('elevator') ? 'available' : 'notAvailable',
+      });
+
+      const hasParking = facilities.some((code) =>
+        PARKING_FACILITIES.includes(code as (typeof PARKING_FACILITIES)[number]),
+      );
+
+      items.push({
+        icon: 'parking',
+        labelKey: 'parking',
+        valueKey: hasParking ? 'available' : 'notAvailable',
+      });
+    }
+
+    return items;
+  }, [accommodation]);
+
+  const guidelineItems = useMemo<GuidelineItem[]>(() => {
+    if (!accommodation) {
+      return roomData.guidelines;
+    }
+
+    const items: GuidelineItem[] = [];
+    const amenities = accommodation.amenities ?? [];
+    const hasCooking =
+      (accommodation.kitchenCount ?? 0) > 0 ||
+      amenities.some((code) =>
+        KITCHEN_AMENITIES.includes(code as (typeof KITCHEN_AMENITIES)[number]),
+      );
+    const hasLaundry = amenities.some((code) =>
+      LAUNDRY_AMENITIES.includes(code as (typeof LAUNDRY_AMENITIES)[number]),
+    );
+
+    if (hasCooking) {
+      items.push({ labelKey: 'cooking', valueKey: 'cookingAllowed' });
+    }
+
+    if (hasLaundry) {
+      items.push({ labelKey: 'laundry', valueKey: 'laundryAllowed' });
+    }
+
+    return items;
+  }, [accommodation]);
 
   // Image load handler
   const handleImageLoad = useCallback(
@@ -735,12 +896,12 @@ export function RoomDetailPage() {
             {/* Title & Location */}
             {/* Mobile: Location as title */}
             <h1 className="lg:hidden text-lg font-bold text-[hsl(var(--snug-text-primary))] mb-2">
-              {displayLocation}, {displayDistrict}
+              {headerLocation || accommodation.roomName}
             </h1>
             {/* Desktop: Title with heart icon */}
             <div className="hidden lg:flex items-center justify-between mb-2">
               <h1 className="text-xl font-bold text-[hsl(var(--snug-text-primary))]">
-                {displayLocation}, {displayDistrict}
+                {headerLocation || accommodation.roomName}
               </h1>
               <button
                 type="button"
@@ -812,50 +973,54 @@ export function RoomDetailPage() {
             </Section>
 
             {/* Guidelines */}
-            <Section
-              title={t('roomDetail.guidelines')}
-              expanded={expandedSections.guidelines ?? false}
-              onToggle={() => toggleSection('guidelines')}
-            >
-              <div className="space-y-2">
-                {roomData.guidelines.map((guideline) => (
-                  <div key={guideline.labelKey} className="text-sm">
-                    <span className="text-[hsl(var(--snug-text-primary))]">
-                      {t(`roomDetail.guidelinesItems.${guideline.labelKey}`)}:{' '}
-                    </span>
-                    <span className="text-[hsl(var(--snug-gray))]">
-                      {t(`roomDetail.guidelinesItems.${guideline.valueKey}`)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Section>
+            {guidelineItems.length > 0 && (
+              <Section
+                title={t('roomDetail.guidelines')}
+                expanded={expandedSections.guidelines ?? false}
+                onToggle={() => toggleSection('guidelines')}
+              >
+                <div className="space-y-2">
+                  {guidelineItems.map((guideline) => (
+                    <div key={guideline.labelKey} className="text-sm">
+                      <span className="text-[hsl(var(--snug-text-primary))]">
+                        {t(`roomDetail.guidelinesItems.${guideline.labelKey}`)}:{' '}
+                      </span>
+                      <span className="text-[hsl(var(--snug-gray))]">
+                        {t(`roomDetail.guidelinesItems.${guideline.valueKey}`)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
 
             {/* Details */}
-            <Section
-              title={t('roomDetail.details')}
-              expanded={expandedSections.details ?? false}
-              onToggle={() => toggleSection('details')}
-            >
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {roomData.details.map((detail) => {
-                  const Icon = detailIcons[detail.icon] || RoomIcon;
-                  const displayValue = detail.valueKey
-                    ? t(`roomDetail.detailItems.${detail.valueKey}`)
-                    : detail.value;
-                  return (
-                    <div
-                      key={detail.labelKey}
-                      className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
-                    >
-                      <Icon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
-                      <span>{t(`roomDetail.detailItems.${detail.labelKey}`)}</span>
-                      <span className="text-[hsl(var(--snug-gray))]">· {displayValue}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </Section>
+            {detailItems.length > 0 && (
+              <Section
+                title={t('roomDetail.details')}
+                expanded={expandedSections.details ?? false}
+                onToggle={() => toggleSection('details')}
+              >
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {detailItems.map((detail) => {
+                    const Icon = detailIcons[detail.icon] || RoomIcon;
+                    const displayValue = detail.valueKey
+                      ? t(`roomDetail.detailItems.${detail.valueKey}`)
+                      : detail.value;
+                    return (
+                      <div
+                        key={`${detail.labelKey}-${detail.icon}`}
+                        className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
+                      >
+                        <Icon className="w-4 h-4 text-[hsl(var(--snug-gray))]" />
+                        <span>{t(`roomDetail.detailItems.${detail.labelKey}`)}</span>
+                        <span className="text-[hsl(var(--snug-gray))]">· {displayValue}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Section>
+            )}
 
             {/* Facilities */}
             {(accommodation.facilities?.length ?? 0) > 0 && (
@@ -871,7 +1036,7 @@ export function RoomDetailPage() {
                       className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
                     >
                       <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                      <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                      <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
                     </div>
                   ))}
                 </div>
@@ -901,7 +1066,7 @@ export function RoomDetailPage() {
                       className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
                     >
                       <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                      <span>{t(`amenities.${getAmenityI18nKey(amenityCode)}`)}</span>
+                      <span>{t(`host.amenities.${getAmenityI18nKey(amenityCode)}`)}</span>
                     </div>
                   ))}
                 </div>
@@ -926,26 +1091,28 @@ export function RoomDetailPage() {
             </Section>
 
             {/* Information */}
-            <Section
-              title={t('roomDetail.information')}
-              expanded={true}
-              onToggle={() => {}}
-              showToggle={false}
-            >
-              <div className="space-y-2">
-                <div className="flex items-center gap-1">
-                  <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
-                    {t(`roomDetail.informationSection.${roomData.information.titleKey}`)}
-                  </h4>
-                  <span className="text-sm text-[hsl(var(--snug-gray))]">
-                    {t(`roomDetail.informationSection.${roomData.information.subtitleKey}`)}
-                  </span>
+            {accommodation.includesUtilities && (
+              <Section
+                title={t('roomDetail.information')}
+                expanded={true}
+                onToggle={() => {}}
+                showToggle={false}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <h4 className="text-sm font-semibold text-[hsl(var(--snug-text-primary))]">
+                      {t(`roomDetail.informationSection.${roomData.information.titleKey}`)}
+                    </h4>
+                    <span className="text-sm text-[hsl(var(--snug-gray))]">
+                      {t(`roomDetail.informationSection.${roomData.information.subtitleKey}`)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
+                    {t(`roomDetail.informationSection.${roomData.information.contentKey}`)}
+                  </p>
                 </div>
-                <p className="text-sm text-[hsl(var(--snug-gray))] leading-relaxed">
-                  {t(`roomDetail.informationSection.${roomData.information.contentKey}`)}
-                </p>
-              </div>
-            </Section>
+              </Section>
+            )}
 
             {/* Location */}
             <Section
@@ -955,7 +1122,7 @@ export function RoomDetailPage() {
               showToggle={false}
             >
               <p className="text-xs text-[hsl(var(--snug-text-primary))] mb-3">
-                {displayLocation}, {displayDistrict}
+                {headerLocation || accommodation.roomName}
                 {accommodation.nearestStation && ` · ${accommodation.nearestStation}`}
                 {accommodation.walkingMinutes && ` (${accommodation.walkingMinutes}min walk)`}
               </p>
@@ -1206,7 +1373,9 @@ export function RoomDetailPage() {
                 roomTypeDescription={displayRoomTypeDescription}
                 roomTypeVariant={getRoomTypeVariant(accommodation.accommodationType)}
                 priceBreakdown={{
-                  pricePerNight: pricePerNight,
+                  basePrice: basePrice,
+                  weekendPrice: weekendPrice,
+                  weekendDays: weekendDays,
                   nights: nights,
                   cleaningFee: cleaningFee,
                 }}
@@ -1373,7 +1542,7 @@ function FacilitiesModal({ isOpen, onClose, facilities, t }: FacilitiesModalProp
                 className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
               >
                 <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
               </li>
             ))}
           </ul>
@@ -1410,7 +1579,7 @@ function FacilitiesModal({ isOpen, onClose, facilities, t }: FacilitiesModalProp
                   className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
                 >
                   <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                  <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                  <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
                 </li>
               ))}
             </ul>

@@ -1,4 +1,4 @@
-export { cn } from './utils';
+export { cn } from '@snug/ui';
 export { EasterEggProvider, useEasterEgg } from './easter-egg-context';
 
 // Currency utilities

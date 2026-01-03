@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { FilterIcon } from '@/shared/ui/icons';
+import type { GuestCount } from '@/features/search/ui/guest-picker';
 
 interface MobileSearchBarProps {
   location: string;
   dateRange: string;
-  guests: number;
+  guests: GuestCount;
   hasActiveFilters?: boolean;
   onSearchClick: () => void;
   onFilterClick: () => void;
@@ -21,7 +22,24 @@ export function MobileSearchBar({
   onFilterClick,
 }: MobileSearchBarProps) {
   const t = useTranslations('search');
-  const guestText = guests > 0 ? t('guestCount', { count: guests }) : '';
+
+  // 게스트 요약 텍스트 생성 (번역 지원)
+  const getGuestSummary = (): string => {
+    const { adults, children, infants } = guests;
+    if (adults === 0 && children === 0 && infants === 0) return '';
+
+    const parts: string[] = [];
+    const guestCount = adults + children;
+    if (guestCount > 0) {
+      parts.push(t('guestCount', { count: guestCount }));
+    }
+    if (infants > 0) {
+      parts.push(t('infantCount', { count: infants }));
+    }
+    return parts.join(', ');
+  };
+
+  const guestText = getGuestSummary();
   const summaryParts = [dateRange, guestText].filter(Boolean).join(' · ');
 
   return (

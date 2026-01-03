@@ -9,6 +9,7 @@ import { MobileSearchBar } from '@/views/search/ui/mobile-search-bar';
 import { SearchMap } from '@/views/search/ui/search-map';
 import { SearchModal, type SearchParams } from '@/features/search';
 import { FilterModal, type FilterState } from '@/views/search/ui/filter-modal';
+import type { GuestCount } from '@/features/search/ui/guest-picker';
 import type { Room } from '@/views/search/ui/room-card';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
 import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
@@ -20,45 +21,45 @@ import type {
   GenderRule,
 } from '@snug/types';
 
-// API 타입 → UI 필터 역매핑
+// API 타입 → UI 필터 역매핑 (FilterModal의 key 값으로 변환)
 const accommodationTypeToRoomType: Record<AccommodationType, string> = {
-  HOUSE: 'House',
-  SHARE_HOUSE: 'Shared House',
-  SHARE_ROOM: 'Shared Room',
-  APARTMENT: 'House', // fallback
+  HOUSE: 'house',
+  SHARE_HOUSE: 'sharedHouse',
+  SHARE_ROOM: 'sharedRoom',
+  APARTMENT: 'house', // fallback
 };
 
 const buildingTypeToPropertyType: Record<BuildingType, string> = {
-  APARTMENT: 'Apartment',
-  VILLA: 'Villa',
-  HOUSE: 'House',
-  OFFICETEL: 'Officetel',
+  APARTMENT: 'apartment',
+  VILLA: 'villa',
+  HOUSE: 'house',
+  OFFICETEL: 'officetel',
 };
 
 const genderRuleToHouseRule: Record<GenderRule, string> = {
-  FEMALE_ONLY: 'Women Only',
-  MALE_ONLY: 'Men Only',
-  PET_ALLOWED: 'Pets allowed',
+  FEMALE_ONLY: 'womenOnly',
+  MALE_ONLY: 'menOnly',
+  PET_ALLOWED: 'petsAllowed',
 };
 
-// UI 필터 → API 타입 매핑
+// UI 필터 → API 타입 매핑 (FilterModal의 key 값 사용)
 const roomTypeToAccommodationType: Record<string, AccommodationType> = {
-  House: 'HOUSE',
-  'Shared House': 'SHARE_HOUSE',
-  'Shared Room': 'SHARE_ROOM',
+  house: 'HOUSE',
+  sharedHouse: 'SHARE_HOUSE',
+  sharedRoom: 'SHARE_ROOM',
 };
 
 const propertyTypeToBuildingType: Record<string, BuildingType> = {
-  Apartment: 'APARTMENT',
-  Villa: 'VILLA',
-  House: 'HOUSE',
-  Officetel: 'OFFICETEL',
+  apartment: 'APARTMENT',
+  villa: 'VILLA',
+  house: 'HOUSE',
+  officetel: 'OFFICETEL',
 };
 
 const houseRuleToGenderRule: Record<string, GenderRule> = {
-  'Women Only': 'FEMALE_ONLY',
-  'Men Only': 'MALE_ONLY',
-  'Pets allowed': 'PET_ALLOWED',
+  womenOnly: 'FEMALE_ONLY',
+  menOnly: 'MALE_ONLY',
+  petsAllowed: 'PET_ALLOWED',
 };
 
 // API 응답 → Room 타입 변환
@@ -114,8 +115,26 @@ function MapPageContent() {
 
   // URL에서 검색 파라미터 읽기
   const locationValue = searchParams.get('location') || '';
+  const adultsParam = searchParams.get('adults');
+  const childrenParam = searchParams.get('children');
+  const infantsParam = searchParams.get('infants');
   const guestsParam = searchParams.get('guests');
-  const totalGuests = guestsParam ? parseInt(guestsParam, 10) : 0;
+
+  // 개별 파라미터가 있으면 사용, 없으면 기존 guests 파라미터로 fallback
+  const guests: GuestCount = useMemo(() => {
+    if (adultsParam !== null || childrenParam !== null || infantsParam !== null) {
+      return {
+        adults: adultsParam ? parseInt(adultsParam, 10) : 0,
+        children: childrenParam ? parseInt(childrenParam, 10) : 0,
+        infants: infantsParam ? parseInt(infantsParam, 10) : 0,
+      };
+    }
+    // 하위 호환성: 기존 guests 파라미터만 있는 경우
+    const guestCount = guestsParam ? parseInt(guestsParam, 10) : 0;
+    return { adults: guestCount, children: 0, infants: 0 };
+  }, [adultsParam, childrenParam, infantsParam, guestsParam]);
+
+  const totalGuests = guests.adults + guests.children;
   const checkInParam = searchParams.get('checkIn');
   const checkOutParam = searchParams.get('checkOut');
   const checkIn = checkInParam ? new Date(checkInParam) : null;
@@ -130,6 +149,9 @@ function MapPageContent() {
   const accommodationTypesStr = searchParams.getAll('accommodationType').join(',');
   const buildingTypesStr = searchParams.getAll('buildingType').join(',');
   const genderRulesStr = searchParams.getAll('genderRules').join(',');
+  const facilitiesStr = searchParams.getAll('facilities').join(',');
+  const amenitiesStr = searchParams.getAll('amenities').join(',');
+  const minAreaParam = searchParams.get('minArea');
 
   const accommodationTypes = useMemo(
     () => (accommodationTypesStr ? accommodationTypesStr.split(',') : []) as AccommodationType[],
@@ -143,6 +165,15 @@ function MapPageContent() {
     () => (genderRulesStr ? genderRulesStr.split(',') : []) as GenderRule[],
     [genderRulesStr],
   );
+  const facilities = useMemo(
+    () => (facilitiesStr ? facilitiesStr.split(',') : []),
+    [facilitiesStr],
+  );
+  const amenities = useMemo(() => (amenitiesStr ? amenitiesStr.split(',') : []), [amenitiesStr]);
+  const minArea = useMemo(
+    () => (minAreaParam ? parseInt(minAreaParam, 10) : undefined),
+    [minAreaParam],
+  );
 
   // URL 파라미터에서 FilterState 복원
   const activeFilters = useMemo((): FilterState | null => {
@@ -151,7 +182,10 @@ function MapPageContent() {
       maxPriceParam ||
       accommodationTypes.length > 0 ||
       buildingTypes.length > 0 ||
-      genderRules.length > 0;
+      genderRules.length > 0 ||
+      facilities.length > 0 ||
+      amenities.length > 0 ||
+      minArea !== undefined;
 
     if (!hasFilters) return null;
 
@@ -162,12 +196,22 @@ function MapPageContent() {
         .map((type) => accommodationTypeToRoomType[type])
         .filter(Boolean),
       propertyTypes: buildingTypes.map((type) => buildingTypeToPropertyType[type]).filter(Boolean),
-      apartmentSize: null,
+      // minArea에서 "≥{n}㎡" 형태의 문자열로 변환
+      apartmentSize: minArea !== undefined ? `≥${minArea}㎡` : null,
       houseRules: genderRules.map((rule) => genderRuleToHouseRule[rule]).filter(Boolean),
-      facilities: [],
-      amenities: [],
+      facilities,
+      amenities,
     };
-  }, [minPriceParam, maxPriceParam, accommodationTypes, buildingTypes, genderRules]);
+  }, [
+    minPriceParam,
+    maxPriceParam,
+    accommodationTypes,
+    buildingTypes,
+    genderRules,
+    facilities,
+    amenities,
+    minArea,
+  ]);
 
   // 초기 지도 중심점 계산
   const latParam = searchParams.get('lat');
@@ -211,6 +255,18 @@ function MapPageContent() {
       if (maxPriceParam) {
         params.maxPrice = parseInt(maxPriceParam, 10);
       }
+      if (minArea !== undefined) {
+        params.minArea = minArea;
+      }
+      // 'all' 옵션 제외
+      const filteredFacilities = facilities.filter((f) => f !== 'all');
+      if (filteredFacilities.length > 0) {
+        params.facilities = filteredFacilities;
+      }
+      const filteredAmenities = amenities.filter((a) => a !== 'all');
+      if (filteredAmenities.length > 0) {
+        params.amenities = filteredAmenities;
+      }
 
       const result = await getPublicAccommodations(params);
       const mappedRooms = result.data.map((item: AccommodationListItem) =>
@@ -232,6 +288,9 @@ function MapPageContent() {
     genderRules,
     minPriceParam,
     maxPriceParam,
+    minArea,
+    facilities,
+    amenities,
     sortByParam,
   ]);
 
@@ -290,6 +349,13 @@ function MapPageContent() {
     genderRules.forEach((rule) => newSearchParams.append('genderRules', rule));
     if (minPriceParam) newSearchParams.set('minPrice', minPriceParam);
     if (maxPriceParam) newSearchParams.set('maxPrice', maxPriceParam);
+    if (minArea !== undefined) newSearchParams.set('minArea', minArea.toString());
+    facilities
+      .filter((c) => c !== 'all')
+      .forEach((code) => newSearchParams.append('facilities', code));
+    amenities
+      .filter((c) => c !== 'all')
+      .forEach((code) => newSearchParams.append('amenities', code));
     if (sortByParam) newSearchParams.set('sortBy', sortByParam);
 
     router.push(`/map?${newSearchParams.toString()}`);
@@ -340,6 +406,27 @@ function MapPageContent() {
         if (apiRule) newSearchParams.append('genderRules', apiRule);
       });
     }
+    // 최소 면적 필터 (apartmentSize는 "≥58㎡" 형태의 문자열)
+    if (filters.apartmentSize !== null) {
+      const areaMatch = filters.apartmentSize.match(/(\d+)/);
+      if (areaMatch && areaMatch[1]) {
+        newSearchParams.set('minArea', areaMatch[1]);
+      }
+    }
+    // 시설 필터 ('all' 옵션 제외)
+    const filteredFacilities = filters.facilities.filter((c) => c !== 'all');
+    if (filteredFacilities.length > 0) {
+      filteredFacilities.forEach((code) => {
+        newSearchParams.append('facilities', code);
+      });
+    }
+    // 편의시설 필터 ('all' 옵션 제외)
+    const filteredAmenities = filters.amenities.filter((c) => c !== 'all');
+    if (filteredAmenities.length > 0) {
+      filteredAmenities.forEach((code) => {
+        newSearchParams.append('amenities', code);
+      });
+    }
 
     router.push(`/map?${newSearchParams.toString()}`);
     setIsFilterModalOpen(false);
@@ -352,7 +439,7 @@ function MapPageContent() {
         <MobileSearchBar
           location={displayLocation}
           dateRange={formatDateDisplay()}
-          guests={totalGuests}
+          guests={guests}
           hasActiveFilters={hasActiveFilters}
           onSearchClick={() => setIsSearchModalOpen(true)}
           onFilterClick={() => setIsFilterModalOpen(true)}

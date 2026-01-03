@@ -50,6 +50,7 @@
     "guest": "ゲスト",
     "guests": "ゲスト",
     "guestCount": "ゲスト {count}名",
+    "infantCount": "幼児 {count}名",
     "filters": {
       "filters": "フィルター",
       "roomType": "部屋タイプ",
