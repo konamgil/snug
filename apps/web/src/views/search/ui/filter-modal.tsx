@@ -43,8 +43,8 @@ const DEFAULT_FILTERS: FilterState = {
 
 export function FilterModal({ isOpen, onClose, onApply, initialFilters }: FilterModalProps) {
   const t = useTranslations('search.filters');
-  const tFacilities = useTranslations('host.facilities');
-  const tAmenities = useTranslations('host.amenities');
+  const tFacilities = useTranslations('facilities');
+  const tAmenities = useTranslations('amenities');
   const [filters, setFilters] = useState<FilterState>(initialFilters || DEFAULT_FILTERS);
 
   // 모달이 열릴 때 initialFilters로 동기화

@@ -183,7 +183,7 @@ function snakeToCamel(str: string): string {
 /**
  * 시설 코드를 i18n 키로 변환
  * DB의 snake_case 코드를 i18n의 camelCase 키로 변환
- * 사용: t(`host.facilities.${getFacilityI18nKey(code)}`)
+ * 사용: t(`facilities.${getFacilityI18nKey(code)}`)
  * 예: digital_lock → digitalLock, WIFI → wifi
  */
 export function getFacilityI18nKey(code: string): string {
@@ -193,7 +193,7 @@ export function getFacilityI18nKey(code: string): string {
 /**
  * 편의시설 코드를 i18n 키로 변환
  * DB의 snake_case 코드를 i18n의 camelCase 키로 변환
- * 사용: t(`host.amenities.${getAmenityI18nKey(code)}`)
+ * 사용: t(`amenities.${getAmenityI18nKey(code)}`)
  * 예: hair_dryer → hairDryer, SHAMPOO → shampoo
  */
 export function getAmenityI18nKey(code: string): string {

@@ -1526,7 +1526,11 @@
     "dryer": "건조기",
     "iron": "다리미",
     "desk": "책상",
-    "chair": "의자"
+    "chair": "의자",
+    "hotTub": "온수 욕조/자쿠지",
+    "permitParking": "주차 허가증 필요",
+    "sauna": "사우나",
+    "sharedPool": "공용 수영장"
   },
   "amenities": {
     "bedding": "침구류",
@@ -1545,7 +1549,9 @@
     "toiletPaper": "화장지",
     "firstAidKit": "구급함",
     "fireExtinguisher": "소화기",
-    "hotWater": "온수"
+    "hotWater": "온수",
+    "bidet": "비데",
+    "bodySoap": "바디 비누"
   },
   "legal": {
     "terms": {

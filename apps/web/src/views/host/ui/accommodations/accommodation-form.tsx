@@ -45,8 +45,8 @@ export function AccommodationForm({
   const tCommon = useTranslations('common');
   const tSpaceTypes = useTranslations('host.accommodation.spaceTypes');
   const tBedTypes = useTranslations('host.accommodation.bedTypes');
-  const tFacilities = useTranslations('host.facilities');
-  const tAmenities = useTranslations('host.amenities');
+  const tFacilities = useTranslations('facilities');
+  const tAmenities = useTranslations('amenities');
   const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
   const tBuildingTypes = useTranslations('host.accommodation.buildingTypes');
   const tWeekdays = useTranslations('host.accommodation.weekdays');

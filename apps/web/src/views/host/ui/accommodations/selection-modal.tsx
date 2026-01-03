@@ -148,7 +148,7 @@ interface FacilityModalProps {
 
 export function FacilityModal({ isOpen, onClose, onConfirm, initialSelected }: FacilityModalProps) {
   const t = useTranslations('host.accommodation.modal');
-  const tFacilities = useTranslations('host.facilities');
+  const tFacilities = useTranslations('facilities');
 
   // 공유 상수에서 시설 옵션 가져오기
   const FACILITY_OPTIONS = getFacilityOptions(tFacilities);
@@ -177,7 +177,7 @@ interface AmenityModalProps {
 
 export function AmenityModal({ isOpen, onClose, onConfirm, initialSelected }: AmenityModalProps) {
   const t = useTranslations('host.accommodation.modal');
-  const tAmenities = useTranslations('host.amenities');
+  const tAmenities = useTranslations('amenities');
 
   // 공유 상수에서 편의시설 옵션 가져오기
   const AMENITY_OPTIONS = getAmenityOptions(tAmenities);

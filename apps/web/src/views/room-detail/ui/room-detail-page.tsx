@@ -1036,7 +1036,7 @@ export function RoomDetailPage() {
                       className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
                     >
                       <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                      <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                      <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
                     </div>
                   ))}
                 </div>
@@ -1066,7 +1066,7 @@ export function RoomDetailPage() {
                       className="flex items-center gap-2 text-sm text-[hsl(var(--snug-text-primary))]"
                     >
                       <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full" />
-                      <span>{t(`host.amenities.${getAmenityI18nKey(amenityCode)}`)}</span>
+                      <span>{t(`amenities.${getAmenityI18nKey(amenityCode)}`)}</span>
                     </div>
                   ))}
                 </div>
@@ -1542,7 +1542,7 @@ function FacilitiesModal({ isOpen, onClose, facilities, t }: FacilitiesModalProp
                 className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
               >
                 <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
               </li>
             ))}
           </ul>
@@ -1579,7 +1579,7 @@ function FacilitiesModal({ isOpen, onClose, facilities, t }: FacilitiesModalProp
                   className="flex items-center gap-3 text-sm text-[hsl(var(--snug-text-primary))]"
                 >
                   <span className="w-1.5 h-1.5 bg-[hsl(var(--snug-text-primary))] rounded-full flex-shrink-0" />
-                  <span>{t(`host.facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
+                  <span>{t(`facilities.${getFacilityI18nKey(facilityCode)}`)}</span>
                 </li>
               ))}
             </ul>

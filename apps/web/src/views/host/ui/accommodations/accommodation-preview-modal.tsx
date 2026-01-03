@@ -75,8 +75,8 @@ export function AccommodationPreviewModal({
   const tDetails = useTranslations('host.accommodation.details');
   const tUsageTypes = useTranslations('host.accommodation.usageTypes');
   const tAccommodationTypes = useTranslations('host.accommodation.accommodationTypes');
-  const tFacilities = useTranslations('host.facilities');
-  const tAmenities = useTranslations('host.amenities');
+  const tFacilities = useTranslations('facilities');
+  const tAmenities = useTranslations('amenities');
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,

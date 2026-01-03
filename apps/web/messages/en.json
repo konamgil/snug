@@ -1526,7 +1526,11 @@
     "dryer": "Dryer",
     "iron": "Iron",
     "desk": "Desk",
-    "chair": "Chair"
+    "chair": "Chair",
+    "hotTub": "Hot Tub",
+    "permitParking": "Permit Parking Required",
+    "sauna": "Sauna",
+    "sharedPool": "Shared Pool"
   },
   "amenities": {
     "bedding": "Bedding",
@@ -1545,7 +1549,9 @@
     "toiletPaper": "Toilet Paper",
     "firstAidKit": "First Aid Kit",
     "fireExtinguisher": "Fire Extinguisher",
-    "hotWater": "Hot Water"
+    "hotWater": "Hot Water",
+    "bidet": "Bidet",
+    "bodySoap": "Body Soap"
   },
   "legal": {
     "terms": {
