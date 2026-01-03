@@ -12,7 +12,7 @@ import { IntroFooter } from '@/views/host/ui/intro/components/intro-footer';
 
 export function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       <Header showLogo />
       <main>
         <HeroSection />
