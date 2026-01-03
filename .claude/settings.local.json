@@ -86,7 +86,10 @@
       "Bash(pnpm tsc:*)",
       "Bash(pnpm prisma migrate:*)",
       "Bash(pnpm update:*)",
-      "Bash(curl -s https://findsnug.com/robots.txt)"
+      "Bash(curl -s https://findsnug.com/robots.txt)",
+      "Bash(tree:*)",
+      "Bash(findstr:*)",
+      "Bash(pnpm lint-staged:*)"
     ]
   }
 }

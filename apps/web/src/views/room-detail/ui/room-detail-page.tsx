@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -22,11 +23,16 @@ import {
   BalconyIcon,
   PlusIcon,
   MinusIcon,
-  SnugMarkerIcon,
 } from '@/shared/ui/icons';
 import { useRouter as useI18nRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
-import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
+import { RoomDetailMapSkeleton } from './room-detail-map';
+
+// Lazy load Google Maps component (~200KB)
+const RoomDetailMap = dynamic(() => import('./room-detail-map').then((mod) => mod.RoomDetailMap), {
+  ssr: false,
+  loading: () => <RoomDetailMapSkeleton />,
+});
 import { type GuestCount } from '@/features/search/ui/guest-picker';
 import { BookingSidePanel, type RoomTypeVariant } from './booking-side-panel';
 import { RoomDetailSkeleton } from './room-detail-skeleton';
@@ -361,21 +367,6 @@ export function RoomDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-
-  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
-  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
-
-  // Always try to load Google Maps (will show error overlay if no key)
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: googleMapsApiKey,
-    id: 'google-map-script',
-    libraries,
-  });
-
-  // Show map when loaded (even if there's an API key error, Google Maps will show)
-  const shouldShowMap = isLoaded;
-
   // Mobile carousel state
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -451,6 +442,8 @@ export function RoomDetailPage() {
   const displayHouseRules = accommodation?.houseRules ?? null;
   const displayLat = accommodation?.latitude ?? null;
   const displayLng = accommodation?.longitude ?? null;
+  // Map coordinates - if valid, show the lazy-loaded map component
+  const hasMapCoordinates = !!(displayLat && displayLng);
   const photos = accommodation?.photos ?? [];
   const totalImages = photos.length;
 
@@ -1126,27 +1119,10 @@ export function RoomDetailPage() {
                 {accommodation.nearestStation && ` · ${accommodation.nearestStation}`}
                 {accommodation.walkingMinutes && ` (${accommodation.walkingMinutes}min walk)`}
               </p>
-              {/* Map Container */}
+              {/* Map Container - Lazy loaded to reduce initial bundle */}
               <div className="relative h-[250px] lg:h-[350px] rounded-[20px] overflow-hidden bg-[hsl(var(--snug-light-gray))] border border-[hsl(var(--snug-border))]">
-                {shouldShowMap && displayLat && displayLng ? (
-                  <GoogleMap
-                    mapContainerStyle={{ width: '100%', height: '100%' }}
-                    center={{ lat: displayLat, lng: displayLng }}
-                    zoom={15}
-                    options={{
-                      disableDefaultUI: true,
-                      zoomControl: false,
-                    }}
-                  >
-                    <OverlayView
-                      position={{ lat: displayLat, lng: displayLng }}
-                      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                    >
-                      <div className="relative" style={{ transform: 'translate(-50%, -100%)' }}>
-                        <SnugMarkerIcon className="w-[62px] h-[50px]" />
-                      </div>
-                    </OverlayView>
-                  </GoogleMap>
+                {hasMapCoordinates ? (
+                  <RoomDetailMap lat={displayLat!} lng={displayLng!} />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-[#f5f5f5]">
                     <LocationIcon className="w-8 h-8 text-[hsl(var(--snug-gray))]/30" />

@@ -5,12 +5,16 @@ import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { MobileNav } from '@/widgets/mobile-nav';
-import { MobileSearchBar } from '@/views/search/ui/mobile-search-bar';
-import { SearchMap } from '@/views/search/ui/search-map';
-import { SearchModal, type SearchParams } from '@/features/search';
-import { FilterModal, type FilterState } from '@/views/search/ui/filter-modal';
-import type { GuestCount } from '@/features/search/ui/guest-picker';
-import type { Room } from '@/views/search/ui/room-card';
+import {
+  MobileSearchBar,
+  SearchMap,
+  SearchModal,
+  FilterModal,
+  type SearchParams,
+  type FilterState,
+  type GuestCount,
+  type Room,
+} from '@/features/search';
 import { getPublicAccommodations } from '@/shared/api/accommodation';
 import { getAccommodationTypeLabel, getBuildingTypeLabel } from '@/shared/lib';
 import type {

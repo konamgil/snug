@@ -1,6 +1,22 @@
 'use server';
 
-import { prisma, type PurposeOfStay } from '@snug/database';
+import { apiClient } from '../client';
+
+/**
+ * 프로필 API Server Actions
+ *
+ * 모든 비즈니스 로직과 데이터 접근은 NestJS API를 통해 처리됩니다.
+ * Server Actions는 API 프록시 역할만 수행합니다.
+ */
+
+export type PurposeOfStay =
+  | 'WORK'
+  | 'STUDY'
+  | 'BUSINESS'
+  | 'FAMILY'
+  | 'TOURISM'
+  | 'MEDICAL'
+  | 'OTHER';
 
 export interface ProfileData {
   // User 테이블
@@ -22,60 +38,27 @@ export interface ProfileData {
   nationality: string | null;
 }
 
-export async function getProfile(userId: string): Promise<ProfileData | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      guestProfile: true,
-    },
-  });
-
-  if (!user) return null;
-
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    countryCode: user.countryCode,
-    emailVerified: user.emailVerified,
-    avatarUrl: user.avatarUrl,
-    preferredCurrency: user.preferredCurrency,
-    preferredLanguage: user.preferredLanguage,
-    aboutMe: user.guestProfile?.aboutMe ?? null,
-    purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
-    passportNumber: user.guestProfile?.passportNumber ?? null,
-    nationality: user.guestProfile?.nationality ?? null,
-  };
+/**
+ * 현재 인증된 사용자 프로필 조회
+ */
+export async function getProfile(_userId: string): Promise<ProfileData | null> {
+  try {
+    return await apiClient.get<ProfileData>('/users/me');
+  } catch {
+    return null;
+  }
 }
 
-export async function getProfileBySupabaseId(supabaseId: string): Promise<ProfileData | null> {
-  const user = await prisma.user.findUnique({
-    where: { supabaseId },
-    include: {
-      guestProfile: true,
-    },
-  });
-
-  if (!user) return null;
-
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    countryCode: user.countryCode,
-    emailVerified: user.emailVerified,
-    avatarUrl: user.avatarUrl,
-    preferredCurrency: user.preferredCurrency,
-    preferredLanguage: user.preferredLanguage,
-    aboutMe: user.guestProfile?.aboutMe ?? null,
-    purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
-    passportNumber: user.guestProfile?.passportNumber ?? null,
-    nationality: user.guestProfile?.nationality ?? null,
-  };
+/**
+ * Supabase ID로 프로필 조회
+ * @deprecated Use getProfile instead - JWT로 현재 사용자 조회
+ */
+export async function getProfileBySupabaseId(_supabaseId: string): Promise<ProfileData | null> {
+  try {
+    return await apiClient.get<ProfileData>('/users/me');
+  } catch {
+    return null;
+  }
 }
 
 export interface UpdateProfileInput {
@@ -95,64 +78,16 @@ export interface UpdateProfileInput {
   nationality?: string;
 }
 
+/**
+ * 프로필 업데이트
+ */
 export async function updateProfile(
   userId: string,
   data: UpdateProfileInput,
 ): Promise<ProfileData | null> {
-  // User 테이블 업데이트
-  const userUpdateData: Record<string, unknown> = {};
-  if (data.firstName !== undefined) userUpdateData.firstName = data.firstName;
-  if (data.lastName !== undefined) userUpdateData.lastName = data.lastName;
-  if (data.phone !== undefined) userUpdateData.phone = data.phone;
-  if (data.countryCode !== undefined) userUpdateData.countryCode = data.countryCode;
-  if (data.emailVerified !== undefined) userUpdateData.emailVerified = data.emailVerified;
-  if (data.avatarUrl !== undefined) userUpdateData.avatarUrl = data.avatarUrl;
-  if (data.preferredCurrency !== undefined)
-    userUpdateData.preferredCurrency = data.preferredCurrency;
-  if (data.preferredLanguage !== undefined)
-    userUpdateData.preferredLanguage = data.preferredLanguage;
-
-  // GuestProfile 테이블 업데이트
-  const guestProfileData: Record<string, unknown> = {};
-  if (data.aboutMe !== undefined) guestProfileData.aboutMe = data.aboutMe;
-  if (data.purposeOfStay !== undefined) guestProfileData.purposeOfStay = data.purposeOfStay;
-  if (data.passportNumber !== undefined) guestProfileData.passportNumber = data.passportNumber;
-  if (data.nationality !== undefined) guestProfileData.nationality = data.nationality;
-
-  // 트랜잭션으로 업데이트
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      ...userUpdateData,
-      guestProfile:
-        Object.keys(guestProfileData).length > 0
-          ? {
-              upsert: {
-                create: guestProfileData,
-                update: guestProfileData,
-              },
-            }
-          : undefined,
-    },
-    include: {
-      guestProfile: true,
-    },
-  });
-
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    countryCode: user.countryCode,
-    emailVerified: user.emailVerified,
-    avatarUrl: user.avatarUrl,
-    preferredCurrency: user.preferredCurrency,
-    preferredLanguage: user.preferredLanguage,
-    aboutMe: user.guestProfile?.aboutMe ?? null,
-    purposeOfStay: user.guestProfile?.purposeOfStay ?? null,
-    passportNumber: user.guestProfile?.passportNumber ?? null,
-    nationality: user.guestProfile?.nationality ?? null,
-  };
+  try {
+    return await apiClient.patch<ProfileData>('/users/me', data);
+  } catch {
+    return null;
+  }
 }

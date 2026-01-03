@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap } from '@react-google-maps/api';
 import type { AccommodationListItem } from '@snug/types';
+import { useGoogleMaps } from '@/shared/providers';
 import {
   HeartIcon,
   HotelIcon,
@@ -99,15 +100,8 @@ export function AccommodationPreviewModal({
   const [similarAccommodations, setSimilarAccommodations] = useState<AccommodationListItem[]>([]);
   const [isSimilarLoading, setIsSimilarLoading] = useState(false);
 
-  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
-  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
-
-  // Load Google Maps
-  const { isLoaded: isMapLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    id: 'google-map-script',
-    libraries,
-  });
+  // Use shared Google Maps loader
+  const { isLoaded: isMapLoaded } = useGoogleMaps();
 
   // Store marker ref for cleanup
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);

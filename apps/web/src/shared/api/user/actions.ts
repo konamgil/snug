@@ -1,36 +1,44 @@
 'use server';
 
-import { prisma, type User } from '@snug/database';
+import { apiClient } from '../client';
+import type { User } from '@snug/types';
 
-export async function getUserBySupabaseId(supabaseId: string): Promise<User | null> {
-  return prisma.user.findUnique({
-    where: { supabaseId },
-  });
+/**
+ * 사용자 API Server Actions
+ *
+ * 모든 비즈니스 로직과 데이터 접근은 NestJS API를 통해 처리됩니다.
+ * Server Actions는 API 프록시 역할만 수행합니다.
+ */
+
+export type { User } from '@snug/types';
+
+/**
+ * Supabase ID로 사용자 조회
+ * Note: 이 함수는 인증된 사용자만 호출 가능 (JWT 필요)
+ */
+export async function getUserBySupabaseId(_supabaseId: string): Promise<User | null> {
+  try {
+    // 현재 인증된 사용자 프로필 조회 (GET /users/me)
+    return await apiClient.get<User>('/users/me');
+  } catch {
+    return null;
+  }
 }
 
+/**
+ * 이메일로 사용자 조회
+ */
 export async function getUserByEmail(email: string): Promise<User | null> {
-  return prisma.user.findUnique({
-    where: { email },
-  });
+  try {
+    return await apiClient.get<User>(`/users/by-email/${encodeURIComponent(email)}`);
+  } catch {
+    return null;
+  }
 }
 
-export async function createUser(data: {
-  email: string;
-  supabaseId: string;
-  firstName?: string;
-  lastName?: string;
-}): Promise<User> {
-  return prisma.user.create({
-    data: {
-      email: data.email,
-      supabaseId: data.supabaseId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      role: 'GUEST',
-    },
-  });
-}
-
+/**
+ * OAuth 인증 후 사용자 Upsert
+ */
 export async function upsertUserFromAuth(data: {
   email: string;
   supabaseId: string;
@@ -38,25 +46,12 @@ export async function upsertUserFromAuth(data: {
   lastName?: string;
   avatarUrl?: string;
 }): Promise<User> {
-  return prisma.user.upsert({
-    where: { supabaseId: data.supabaseId },
-    update: {
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      avatarUrl: data.avatarUrl,
-    },
-    create: {
-      email: data.email,
-      supabaseId: data.supabaseId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      avatarUrl: data.avatarUrl,
-      role: 'GUEST',
-    },
-  });
+  return apiClient.post<User>('/users/upsert-from-auth', data);
 }
 
+/**
+ * 사용자 정보 업데이트
+ */
 export async function updateUser(
   id: string,
   data: {
@@ -69,8 +64,5 @@ export async function updateUser(
     preferredLanguage?: string;
   },
 ): Promise<User> {
-  return prisma.user.update({
-    where: { id },
-    data,
-  });
+  return apiClient.patch<User>('/users/me', data);
 }

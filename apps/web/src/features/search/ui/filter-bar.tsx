@@ -49,10 +49,7 @@ export function FilterBar({
       </button>
 
       {/* Room Type Dropdown */}
-      <RoomTypeDropdown
-        value={roomType}
-        onChange={(value) => onRoomTypeChange?.(value)}
-      />
+      <RoomTypeDropdown value={roomType} onChange={(value) => onRoomTypeChange?.(value)} />
 
       {/* Filter Pills */}
       {filters.map((filter) => (

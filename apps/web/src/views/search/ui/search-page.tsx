@@ -1,22 +1,42 @@
 'use client';
 
 import { useState, useCallback, Suspense, useMemo, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { MapIcon } from '@/shared/ui/icons';
 import { useRouter } from '@/i18n/navigation';
 import { Header, type SearchBarValues } from '@/widgets/header';
-import { type GuestCount } from '@/features/search/ui/guest-picker';
-import { SearchModal, type SearchParams } from '@/features/search';
 import { MobileNav } from '@/widgets/mobile-nav';
-import { FilterBar } from './filter-bar';
-import { RoomCard, type Room } from './room-card';
-import { RoomCardSkeletonList } from './room-card-skeleton';
-import { SearchMap } from './search-map';
-import { MobileSearchBar } from './mobile-search-bar';
-import { SortDropdown, type SortOption } from './sort-dropdown';
-import { FilterModal, type FilterState } from './filter-modal';
-import type { RoomTypeOption } from './room-type-dropdown';
+import {
+  SearchModal,
+  FilterBar,
+  RoomCard,
+  RoomCardSkeletonList,
+  SearchMapSkeleton,
+  MobileSearchBar,
+  SortDropdown,
+  type SearchParams,
+  type GuestCount,
+  type Room,
+  type FilterState,
+  type SortOption,
+  type RoomTypeOption,
+} from '@/features/search';
+
+// Lazy load heavy components (Google Maps ~200KB, Filter Modal ~50KB)
+const SearchMap = dynamic(
+  () => import('@/features/search/ui/search-map').then((mod) => mod.SearchMap),
+  {
+    ssr: false,
+    loading: () => <SearchMapSkeleton />,
+  },
+);
+
+const FilterModal = dynamic(
+  () => import('@/features/search/ui/filter-modal').then((mod) => mod.FilterModal),
+  { ssr: false },
+);
 import { usePublicAccommodations } from '@/shared/api/accommodation';
 import { getAccommodationTypeLabel, getBuildingTypeLabel, useDebouncedValue } from '@/shared/lib';
 import type {

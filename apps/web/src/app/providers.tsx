@@ -4,7 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, Suspense, type ReactNode } from 'react';
 import { EasterEggProvider, VersionCheckProvider } from '@/shared/lib';
 import { AnalyticsProvider, FCMProvider } from '@/shared/lib/firebase';
-import { AuthProvider, CurrencyProvider, NavigationLoadingProvider } from '@/shared/providers';
+import {
+  AuthProvider,
+  CurrencyProvider,
+  GoogleMapsProvider,
+  NavigationLoadingProvider,
+} from '@/shared/providers';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -31,9 +36,11 @@ export function Providers({ children }: ProvidersProps) {
             <AnalyticsProvider>
               <FCMProvider>
                 <CurrencyProvider>
-                  <NavigationLoadingProvider>
-                    <EasterEggProvider>{children}</EasterEggProvider>
-                  </NavigationLoadingProvider>
+                  <GoogleMapsProvider>
+                    <NavigationLoadingProvider>
+                      <EasterEggProvider>{children}</EasterEggProvider>
+                    </NavigationLoadingProvider>
+                  </GoogleMapsProvider>
                 </CurrencyProvider>
               </FCMProvider>
             </AnalyticsProvider>

@@ -1,12 +1,12 @@
 'use client';
 
 import { useCallback, useState, useRef, useMemo, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap } from '@react-google-maps/api';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { X, ImageIcon } from 'lucide-react';
 import { HeartIcon, HotelIcon, UserIcon } from '@/shared/ui/icons';
-import { useCurrencySafe } from '@/shared/providers';
+import { useCurrencySafe, useGoogleMaps } from '@/shared/providers';
 import type { Room } from './room-card';
 
 interface SearchMapProps {
@@ -17,7 +17,7 @@ interface SearchMapProps {
 }
 
 // 좌표 기반 그룹화된 마커
-interface MarkerGroup {
+export interface MarkerGroup {
   key: string;
   lat: number;
   lng: number;
@@ -118,14 +118,8 @@ export function SearchMap({ rooms, initialCenter, onRoomSelect, onGroupSelect }:
   // 숙소들을 좌표별로 그룹화
   const markerGroups = useMemo(() => groupRoomsByLocation(rooms), [rooms]);
 
-  // Libraries for Google Maps API (marker library for AdvancedMarkerElement)
-  const libraries = useMemo<'marker'[]>(() => ['marker'], []);
-
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    id: 'google-map-script',
-    libraries,
-  });
+  // Use shared Google Maps loader
+  const { isLoaded, loadError } = useGoogleMaps();
 
   // Store markers ref for cleanup
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);

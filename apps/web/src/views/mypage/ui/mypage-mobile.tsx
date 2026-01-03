@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { MobileNav } from '@/widgets/mobile-nav';
 import { useAuthStore } from '@/shared/stores';
-import { LoginPage } from '@/views/login';
 
 interface NavItem {
   label: string;
@@ -150,11 +149,12 @@ export function MypageMobile() {
     );
   }
 
-  // Unauthenticated state - show login page
+  // Unauthenticated state - redirect to login
   if (!session) {
+    router.push('/login');
     return (
-      <div className="pb-20">
-        <LoginPage />
+      <div className="min-h-screen bg-white pb-20 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--snug-orange))]" />
         <MobileNav />
       </div>
     );
